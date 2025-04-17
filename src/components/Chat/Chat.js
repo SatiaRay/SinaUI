@@ -447,6 +447,138 @@ const Chat = () => {
                             
                             if (data.status === 'success') {
                               const container = document.createElement('div');
+                              const submitButton = document.createElement('button');
+                              submitButton.innerHTML = 'ذخیره در پایگاه دانش';
+                              submitButton.className = 'mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2';
+
+                              const textarea = document.createElement('textarea');
+                              textarea.value = data.text;
+                              textarea.className = 'w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white mt-4';
+                              textarea.style.minHeight = '200px';
+                              textarea.style.overflow = 'hidden';
+                              
+                              // Set initial height
+                              requestAnimationFrame(() => {
+                                textarea.style.height = textarea.scrollHeight + 'px';
+                              });
+                              
+                              // Auto-resize textarea as content changes
+                              textarea.addEventListener('input', function() {
+                                this.style.height = 'auto';
+                                this.style.height = this.scrollHeight + 'px';
+                              });
+
+                              container.appendChild(textarea);
+                              container.appendChild(submitButton);
+
+                              submitButton.onclick = async () => {
+                                submitButton.disabled = true;
+                                submitButton.innerHTML = 'در حال ذخیره...';
+
+                                try {
+                                  const response = await fetch('http://127.0.0.1:8000/store_knowledge', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                      source_url: url,
+                                      text: textarea.value
+                                    })
+                                  });
+
+                                  if (response.ok) {
+                                    alert('اطلاعات با موفقیت ذخیره شد');
+                                    setActiveTab('data-sources');
+                                  } else {
+                                    throw new Error('خطا در ذخیره اطلاعات');
+                                  }
+                                } catch (error) {
+                                  alert('خطا در ارسال درخواست: ' + error.message);
+                                } finally {
+                                  submitButton.innerHTML = 'ذخیره در پایگاه دانش';
+                                  submitButton.disabled = false;
+                                }
+                              };
+
+                              // Clear any existing content and append new elements
+                              const resultsContainer = document.querySelector('#results-container');
+                              if (resultsContainer) {
+                                resultsContainer.innerHTML = '';
+                                resultsContainer.appendChild(container);
+                              } else {
+                                const newResultsContainer = document.createElement('div');
+                                newResultsContainer.id = 'results-container';
+                                newResultsContainer.appendChild(container);
+                                urlInput.parentElement.parentElement.appendChild(newResultsContainer);
+                              }
+
+                            } else {
+                              throw new Error('خطا در دریافت اطلاعات');
+                            }
+
+                          } catch (error) {
+                            alert('خطا در ارسال درخواست: ' + error.message);
+                          }
+                        }}
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+                      >
+                        شروع خزش
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+              return (
+                <div className="max-w-2xl mx-auto p-4">
+                  <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">افزودن منبع داده جدید</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        آدرس وب‌سایت
+                      </label>
+                      <input
+                        type="url"
+                        id="url"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                    <div>
+                      <button
+                        onClick={async () => {
+                          const urlInput = document.getElementById('url');
+                          const url = urlInput.value;
+
+                          if (!url) {
+                            alert('لطفا آدرس وب‌سایت را وارد کنید');
+                            return;
+                          }
+
+                          try {
+                            new URL(url); // URL validation
+                          } catch (e) {
+                            alert('لطفا یک آدرس معتبر وارد کنید');
+                            return;
+                          }
+
+                          try {
+                            const response = await fetch('http://127.0.0.1:8000/crawl_url', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({ url }),
+                            });
+
+                            if (!response.ok) {
+                              throw new Error('خطا در ارسال درخواست');
+                            }
+
+                            const data = await response.json();
+                            
+                            if (data.status === 'success') {
+                              const container = document.createElement('div');
                               container.className = 'mt-4 space-y-4';
                               
                               data.chunks.forEach((chunk, index) => {
