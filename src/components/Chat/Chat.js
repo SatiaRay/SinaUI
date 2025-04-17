@@ -141,244 +141,275 @@ const Chat = () => {
         >
           منابع داده
         </button>
+        <button
+          onClick={() => setActiveTab('add-data')}
+          className={`px-4 py-2 text-sm font-medium ${
+            activeTab === 'add-data'
+              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+          }`}
+        >
+          داده جدید
+        </button>
       </div>
 
       <div className="flex-1 overflow-auto p-4">
-        {activeTab === 'chat' ? (
-          <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-              {chatHistory.length === 0 ? (
-                <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-                  سوال خود را بپرسید تا گفتگو شروع شود
-                </div>
-              ) : (
-                chatHistory.map((item, index) => (
-                  <div key={index} className="mb-4">
-                    {item.type === 'question' ? (
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {formatTimestamp(item.timestamp)}
-                          </span>
-                          <span className="text-xs font-medium text-blue-600 dark:text-blue-400">شما</span>
-                        </div>
-                        <p className="text-gray-800 dark:text-gray-200">{item.text}</p>
+        {(() => {
+          switch (activeTab) {
+            case 'chat':
+              return (
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                    {chatHistory.length === 0 ? (
+                      <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+                        سوال خود را بپرسید تا گفتگو شروع شود
                       </div>
                     ) : (
-                      <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {formatTimestamp(item.timestamp)}
-                          </span>
-                          <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
-                        </div>
-                        <div className="mb-4">
-                          <p className="text-gray-700 dark:text-gray-300">{item.answer}</p>
-                        </div>
-
-                        {item.sources && item.sources.length > 0 && (
-                          <div>
-                            <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">منابع:</h3>
-                            <ul className="list-disc pl-4">
-                              {item.sources.map((source, sourceIndex) => (
-                                <li key={sourceIndex} className="mb-2">
-                                  <p className="text-sm text-gray-700 dark:text-gray-300">{source.text}</p>
-                                  <a
-                                    href={source.metadata.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-blue-500 hover:text-blue-600"
-                                  >
-                                    منبع: {source.metadata.source}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-              
-              {chatLoading && (
-                <div className="flex items-center justify-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg mb-4 animate-pulse">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
-                  <p className="text-gray-600 dark:text-gray-300">در حال دریافت پاسخ...</p>
-                </div>
-              )}
-              
-              {/* Invisible element to scroll to */}
-              <div ref={chatEndRef} />
-            </div>
-            
-            <form onSubmit={handleSubmit} className="flex gap-2">
-              <input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="سوال خود را بپرسید..."
-                className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                disabled={chatLoading}
-              />
-              <button
-                type="submit"
-                disabled={chatLoading || !question.trim()}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center"
-              >
-                {chatLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    <span>در حال ارسال...</span>
-                  </>
-                ) : (
-                  'ارسال'
-                )}
-              </button>
-            </form>
-            {error && <div className="text-red-500 mt-2">{error}</div>}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {loading ? (
-              <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div>
-            ) : error ? (
-              <div className="text-center p-4">
-                <div className="text-red-500 mb-2">{error}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  لطفاً موارد زیر را بررسی کنید:
-                  <ul className="list-disc list-inside mt-2 text-right">
-                    <li>اتصال به اینترنت</li>
-                    <li>وضعیت سرور</li>
-                    <li>آدرس API در فایل .env</li>
-                  </ul>
-                </div>
-                <button
-                  onClick={fetchDataSources}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                >
-                  تلاش مجدد
-                </button>
-              </div>
-            ) : sources && Array.isArray(sources) && sources.length > 0 ? (
-              <div className="grid gap-4">
-                {sources.map((source, index) => (
-                  <div
-                    key={source.id || index}
-                    className="p-4 border rounded-lg dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
-                    onClick={() => toggleChunks(source.id || index)}
-                  >
-                    <div className="flex flex-col">
-                      <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white">
-                          {source.url}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          وارد شده توسط: {source.imported_by || 'نامشخص'}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          تاریخ وارد کردن: {source.import_date ? new Date(source.import_date).toLocaleString('fa-IR') : 'نامشخص'}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          دوره بروزرسانی: {translateRefreshStatus(source.refresh_status)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        تعداد قطعات متن: {source.chunks ? source.chunks.length : 0}
-                      </p>
-                      <span className="text-xs text-blue-500">
-                        {expandedSourceId === (source.id || index) ? 'بستن' : 'مشاهده جزئیات'}
-                      </span>
-                    </div>
-                    {expandedSourceId === (source.id || index) && source.chunks && source.chunks.length > 0 && (
-                      <div className="mt-4 border-t pt-3 dark:border-gray-700">
-                        <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">قطعات متن:</h4>
-                        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 max-h-60 overflow-y-auto">
-                          {source.chunks.map((chunk, chunkIndex) => {
-                            const chunkKey = chunk.id || `chunk-${source.id || index}-${chunkIndex}`;
-                            const isTextExpanded = expandedTexts[chunkKey];
-                            
-                            return (
-                              <div 
-                                key={chunkKey} 
-                                className="p-3 mb-3 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800"
-                              >
-                                <div className="flex justify-between mb-2 border-b pb-2 dark:border-gray-700">
-                                  <p className="font-medium text-gray-700 dark:text-gray-300">شناسه: {chunk.id || `بخش ${chunkIndex + 1}`}</p>
-                                  <p className="text-gray-500 dark:text-gray-400 text-xs">صفحه: {chunk.metadata?.page || 'نامشخص'}</p>
-                                </div>
-                                
-                                {chunk.title && (
-                                  <div className="mb-2">
-                                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">عنوان:</p>
-                                    <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">{chunk.title}</p>
-                                  </div>
-                                )}
-                                
-                                {chunk.text && (
-                                  <div className="mb-2">
-                                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">متن:</p>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                      {chunk.text.length > 200 && !isTextExpanded
-                                        ? `${chunk.text.substring(0, 200)}...` 
-                                        : chunk.text}
-                                    </p>
-                                    {chunk.text.length > 200 && (
-                                      <button 
-                                        onClick={(e) => {
-                                          e.stopPropagation(); // Prevent event bubbling to parent
-                                          toggleTextExpansion(chunkKey);
-                                        }}
-                                        className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
-                                      >
-                                        {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                                
-                                {chunk.content && !chunk.text && (
-                                  <div className="mb-2">
-                                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">محتوا:</p>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                      {chunk.content.length > 200 && !isTextExpanded
-                                        ? `${chunk.content.substring(0, 200)}...` 
-                                        : chunk.content}
-                                    </p>
-                                    {chunk.content.length > 200 && (
-                                      <button 
-                                        onClick={(e) => {
-                                          e.stopPropagation(); // Prevent event bubbling to parent
-                                          toggleTextExpansion(chunkKey);
-                                        }}
-                                        className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
-                                      >
-                                        {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
+                      chatHistory.map((item, index) => (
+                        <div key={index} className="mb-4">
+                          {item.type === 'question' ? (
+                            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {formatTimestamp(item.timestamp)}
+                                </span>
+                                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">شما</span>
                               </div>
-                            );
-                          })}
+                              <p className="text-gray-800 dark:text-gray-200">{item.text}</p>
+                            </div>
+                          ) : (
+                            <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {formatTimestamp(item.timestamp)}
+                                </span>
+                                <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
+                              </div>
+                              <div className="mb-4">
+                                <p className="text-gray-700 dark:text-gray-300">{item.answer}</p>
+                              </div>
+
+                              {item.sources && item.sources.length > 0 && (
+                                <div>
+                                  <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">منابع:</h3>
+                                  <ul className="list-disc pl-4">
+                                    {item.sources.map((source, sourceIndex) => (
+                                      <li key={sourceIndex} className="mb-2">
+                                        <p className="text-sm text-gray-700 dark:text-gray-300">{source.text}</p>
+                                        <a
+                                          href={source.metadata.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-xs text-blue-500 hover:text-blue-600"
+                                        >
+                                          منبع: {source.metadata.source}
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
+                      ))
+                    )}
+                    
+                    {chatLoading && (
+                      <div className="flex items-center justify-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg mb-4 animate-pulse">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
+                        <p className="text-gray-600 dark:text-gray-300">در حال دریافت پاسخ...</p>
                       </div>
                     )}
+                    
+                    {/* Invisible element to scroll to */}
+                    <div ref={chatEndRef} />
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-gray-500 dark:text-gray-400">
-                هیچ منبع داده‌ای یافت نشد
-              </div>
-            )}
-          </div>
-        )}
+                  
+                  <form onSubmit={handleSubmit} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={question}
+                      onChange={(e) => setQuestion(e.target.value)}
+                      placeholder="سوال خود را بپرسید..."
+                      className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                      disabled={chatLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={chatLoading || !question.trim()}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center"
+                    >
+                      {chatLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          <span>در حال ارسال...</span>
+                        </>
+                      ) : (
+                        'ارسال'
+                      )}
+                    </button>
+                  </form>
+                  {error && <div className="text-red-500 mt-2">{error}</div>}
+                </div>
+              );
+
+            case 'data-sources':
+              return (
+                <div className="space-y-4">
+                  {loading ? (
+                    <div className="flex justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : error ? (
+                    <div className="text-center p-4">
+                      <div className="text-red-500 mb-2">{error}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        لطفاً موارد زیر را بررسی کنید:
+                        <ul className="list-disc list-inside mt-2 text-right">
+                          <li>اتصال به اینترنت</li>
+                          <li>وضعیت سرور</li>
+                          <li>آدرس API در فایل .env</li>
+                        </ul>
+                      </div>
+                      <button
+                        onClick={fetchDataSources}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                      >
+                        تلاش مجدد
+                      </button>
+                    </div>
+                  ) : sources && Array.isArray(sources) && sources.length > 0 ? (
+                    <div className="grid gap-4">
+                      {sources.map((source, index) => (
+                        <div
+                          key={source.id || index}
+                          className="p-4 border rounded-lg dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
+                          onClick={() => toggleChunks(source.id || index)}
+                        >
+                          <div className="flex flex-col">
+                            <div>
+                              <h3 className="font-medium text-gray-900 dark:text-white">
+                                {source.url}
+                              </h3>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                وارد شده توسط: {source.imported_by || 'نامشخص'}
+                              </p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                تاریخ وارد کردن: {source.import_date ? new Date(source.import_date).toLocaleString('fa-IR') : 'نامشخص'}
+                              </p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                دوره بروزرسانی: {translateRefreshStatus(source.refresh_status)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-2 flex items-center justify-between">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                              تعداد قطعات متن: {source.chunks ? source.chunks.length : 0}
+                            </p>
+                            <span className="text-xs text-blue-500">
+                              {expandedSourceId === (source.id || index) ? 'بستن' : 'مشاهده جزئیات'}
+                            </span>
+                          </div>
+                          {expandedSourceId === (source.id || index) && source.chunks && source.chunks.length > 0 && (
+                            <div className="mt-4 border-t pt-3 dark:border-gray-700">
+                              <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">قطعات متن:</h4>
+                              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 max-h-60 overflow-y-auto">
+                                {source.chunks.map((chunk, chunkIndex) => {
+                                  const chunkKey = chunk.id || `chunk-${source.id || index}-${chunkIndex}`;
+                                  const isTextExpanded = expandedTexts[chunkKey];
+                                  
+                                  return (
+                                    <div 
+                                      key={chunkKey} 
+                                      className="p-3 mb-3 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800"
+                                    >
+                                      <div className="flex justify-between mb-2 border-b pb-2 dark:border-gray-700">
+                                        <p className="font-medium text-gray-700 dark:text-gray-300">شناسه: {chunk.id || `بخش ${chunkIndex + 1}`}</p>
+                                        <p className="text-gray-500 dark:text-gray-400 text-xs">صفحه: {chunk.metadata?.page || 'نامشخص'}</p>
+                                      </div>
+                                      
+                                      {chunk.title && (
+                                        <div className="mb-2">
+                                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">عنوان:</p>
+                                          <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">{chunk.title}</p>
+                                        </div>
+                                      )}
+                                      
+                                      {chunk.text && (
+                                        <div className="mb-2">
+                                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">متن:</p>
+                                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                            {chunk.text.length > 200 && !isTextExpanded
+                                              ? `${chunk.text.substring(0, 200)}...` 
+                                              : chunk.text}
+                                          </p>
+                                          {chunk.text.length > 200 && (
+                                            <button 
+                                              onClick={(e) => {
+                                                e.stopPropagation(); // Prevent event bubbling to parent
+                                                toggleTextExpansion(chunkKey);
+                                              }}
+                                              className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
+                                            >
+                                              {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
+                                      
+                                      {chunk.content && !chunk.text && (
+                                        <div className="mb-2">
+                                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">محتوا:</p>
+                                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                            {chunk.content.length > 200 && !isTextExpanded
+                                              ? `${chunk.content.substring(0, 200)}...` 
+                                              : chunk.content}
+                                          </p>
+                                          {chunk.content.length > 200 && (
+                                            <button 
+                                              onClick={(e) => {
+                                                e.stopPropagation(); // Prevent event bubbling to parent
+                                                toggleTextExpansion(chunkKey);
+                                              }}
+                                              className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
+                                            >
+                                              {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500 dark:text-gray-400">
+                      هیچ منبع داده‌ای یافت نشد
+                    </div>
+                  )}
+                </div>
+              );
+
+            case 'add-data':
+              return (
+                <div>
+                  {/* Add data content here */}
+                  <div className="text-center text-gray-500 dark:text-gray-400">
+                    بخش افزودن داده جدید
+                  </div>
+                </div>
+              );
+
+            default:
+              return null;
+          }
+        })()}
       </div>
     </div>
   );
