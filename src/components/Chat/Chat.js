@@ -398,10 +398,156 @@ const Chat = () => {
 
             case 'add-data':
               return (
-                <div>
-                  {/* Add data content here */}
-                  <div className="text-center text-gray-500 dark:text-gray-400">
-                    بخش افزودن داده جدید
+                <div className="max-w-2xl mx-auto p-4">
+                  <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">افزودن منبع داده جدید</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        آدرس وب‌سایت
+                      </label>
+                      <input
+                        type="url"
+                        id="url"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                    <div>
+                      <button
+                        onClick={async () => {
+                          const urlInput = document.getElementById('url');
+                          const url = urlInput.value;
+
+                          if (!url) {
+                            alert('لطفا آدرس وب‌سایت را وارد کنید');
+                            return;
+                          }
+
+                          try {
+                            new URL(url); // URL validation
+                          } catch (e) {
+                            alert('لطفا یک آدرس معتبر وارد کنید');
+                            return;
+                          }
+
+                          try {
+                            const response = await fetch('http://127.0.0.1:8000/crawl_url', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({ url }),
+                            });
+
+                            if (!response.ok) {
+                              throw new Error('خطا در ارسال درخواست');
+                            }
+
+                            const data = await response.json();
+                            
+                            if (data.status === 'success') {
+                              const container = document.createElement('div');
+                              container.className = 'mt-4 space-y-4';
+                              
+                              data.chunks.forEach((chunk, index) => {
+                                const chunkDiv = document.createElement('div');
+                                chunkDiv.className = 'space-y-2 p-4 border border-gray-200 rounded-lg relative';
+                                chunkDiv.id = `chunk-${index}`;
+                                
+                                const titleInput = document.createElement('input');
+                                titleInput.type = 'text';
+                                titleInput.value = chunk.title;
+                                titleInput.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white';
+                                
+                                const textArea = document.createElement('textarea');
+                                textArea.value = chunk.text;
+                                textArea.rows = 4;
+                                textArea.className = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white';
+                                
+                                const removeButton = document.createElement('button');
+                                removeButton.innerHTML = '×';
+                                removeButton.className = 'absolute top-2 right-2 text-red-500 hover:text-red-700 text-xl font-bold';
+                                removeButton.onclick = () => {
+                                  if (window.confirm('آیا از حذف این قطعه متن مطمئن هستید ؟')) {
+                                    chunkDiv.remove();
+                                  }
+                                };
+                                
+                                chunkDiv.appendChild(removeButton);
+                                chunkDiv.appendChild(titleInput);
+                                chunkDiv.appendChild(textArea);
+                                container.appendChild(chunkDiv);
+                              });
+
+                              // Clear previous results if any
+                              const existingContainer = document.querySelector('.chunks-container');
+                              if (existingContainer) {
+                                existingContainer.remove();
+                              }
+
+                              // Add submit button
+                              const submitButton = document.createElement('button');
+                              submitButton.innerHTML = 'ذخیره در پایگاه دانش';
+                              submitButton.className = 'w-full mt-4 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2';
+                              
+                              let isLoading = false;
+                              submitButton.onclick = async () => {
+                                if (isLoading) return;
+                                
+                                isLoading = true;
+                                submitButton.innerHTML = 'در حال ذخیره سازی...';
+                                submitButton.disabled = true;
+
+                                const chunks = Array.from(document.querySelectorAll('.chunks-container > div')).map(div => ({
+                                  title: div.querySelector('input').value,
+                                  text: div.querySelector('textarea').value,
+                                  section: ""
+                                }));
+
+                                try {
+                                  const response = await fetch('http://127.0.0.1:8000/store_knowledge', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                      source_url: url,
+                                      chunks: chunks
+                                    })
+                                  });
+
+                                  if (response.ok) {
+                                    alert('اطلاعات با موفقیت ذخیره شد');
+                                    setActiveTab('data-sources');
+                                  } else {
+                                    throw new Error('خطا در ذخیره اطلاعات');
+                                  }
+                                } catch (error) {
+                                  alert('خطا در ارسال درخواست: ' + error.message);
+                                } finally {
+                                  isLoading = false;
+                                  submitButton.innerHTML = 'ذخیره در پایگاه دانش';
+                                  submitButton.disabled = false;
+                                }
+                              };
+
+                              container.appendChild(submitButton);
+                              container.classList.add('chunks-container');
+                              urlInput.parentElement.parentElement.appendChild(container);
+
+                            } else {
+                              throw new Error('خطا در دریافت اطلاعات');
+                            }
+
+                          } catch (error) {
+                            alert('خطا در ارسال درخواست: ' + error.message);
+                          }
+                        }}
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+                      >
+                        شروع خزش
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
