@@ -1,5 +1,8 @@
 // تنظیمات API منابع داده
-const DATA_SOURCES_API_URL = 'http://localhost:8001/data_sources';
+const PYTHON_CHAT_DATA_SOURCE = process.env.REACT_APP_PYTHON_CHAT_DATA_SOURCE || 'http://localhost:8001';
+const DATA_SOURCES_API_URL = `${PYTHON_CHAT_DATA_SOURCE}/data_sources`;
+
+alert(DATA_SOURCES_API_URL);
 
 // تابع دریافت لیست منابع داده
 export const getDataSources = async () => {

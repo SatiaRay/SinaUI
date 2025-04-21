@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-const PYTHON_CHAT_DATA_SOURCE = process.env.REACT_APP_PYTHON_CHAT_DATA_SOURCE || 'http://localhost:8001';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8001';
+const PYTHON_CHAT_DATA_SOURCE = process.env.REACT_APP_PYTHON_APP_API_URL || 'http://localhost:8000';
 
 // دریافت لیست منابع داده
 export const getDataSources = async () => {
@@ -51,7 +51,7 @@ export const getDataSources = async () => {
 // ارسال سوال به چت‌بات
 export const askQuestion = async (question) => {
   try {
-    const CHAT_API_URL = process.env.REACT_APP_CHAT_API_URL || `${PYTHON_CHAT_DATA_SOURCE}/ask`;
+    const CHAT_API_URL = process.env.PYTHON_APP_API_URL || `${PYTHON_CHAT_DATA_SOURCE}/ask`;
     console.log('Sending question to:', CHAT_API_URL);
     const response = await axios.post(CHAT_API_URL, { question });
     console.log('Chat response:', response.data);

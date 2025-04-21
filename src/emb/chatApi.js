@@ -1,5 +1,5 @@
 // تنظیمات API چت
-const CHAT_API_URL = process.env.REACT_APP_CHAT_API_URL || 'http://localhost:8001/ask';
+const CHAT_API_URL = process.env.PYTHON_APP_API_URL || 'http://localhost:8001/ask';
 
 // تابع ارسال سوال به سرور چت
 export const askQuestion = async (question) => {
