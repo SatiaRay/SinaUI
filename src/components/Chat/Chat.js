@@ -11,6 +11,7 @@ const globalStyles = `
   
   .chat-message table th {
     background-color: white;
+    color: black;
     padding: 0.5rem;
     border: 1px solid #e5e7eb;
     text-align: right;
@@ -24,6 +25,7 @@ const globalStyles = `
   
   .dark .chat-message table th {
     background-color: white;
+    color: black;
     border-color: #374151;
   }
   
