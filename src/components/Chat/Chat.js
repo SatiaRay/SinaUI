@@ -255,7 +255,7 @@ const Chat = () => {
     setDomainsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8000/domains');
+      const response = await fetch('http://192.168.168.55:8000/domains');
       if (!response.ok) {
         throw new Error('خطا در دریافت لیست دامنه‌ها');
       }
@@ -273,7 +273,7 @@ const Chat = () => {
     setFilesLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8000/documents/?domain_id=${domain.id}`);
+      const response = await fetch(`http://192.168.168.55:8000/documents/?domain_id=${domain.id}`);
       if (!response.ok) {
         throw new Error('خطا در دریافت فایل‌های دامنه');
       }
@@ -292,7 +292,7 @@ const Chat = () => {
     setFileContentLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8000/documents/${file.id}`);
+      const response = await fetch(`http://192.168.168.55:8000/documents/${file.id}`);
       if (!response.ok) {
         throw new Error('خطا در دریافت محتوای فایل');
       }
@@ -397,18 +397,18 @@ const Chat = () => {
     setStoringVector(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8000/store_vector', {
+      const response = await fetch('http://192.168.168.55:8000/store_vector', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          text: fileContent.html,
+          text: fileContent.markdown,
           metadata: {
-            source: fileContent.metadata.source,
-            title: fileContent.metadata.title,
+            source: `https://${selectedDomain.domain}${fileContent.uri}`,
+            title: fileContent.title,
             author: "خزش شده",
-            date: fileContent.metadata.date_added.split('T')[0] // Get only the date part
+            date: new Date(fileContent.created_at).toISOString().split('T')[0] // Get only the date part
           }
         })
       });
@@ -463,7 +463,7 @@ const Chat = () => {
     
     setSaving(true);
     try {
-      const response = await fetch(`http://localhost:8000/documents/${selectedFile.id}`, {
+      const response = await fetch(`http://192.168.168.55:8000/documents/${selectedFile.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
