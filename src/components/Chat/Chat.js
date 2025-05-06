@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDataSources, askQuestion } from '../../services/api.js';
+import CreateWizard from './CreateWizard';
+import WizardIndex from './WizardIndex';
+import WizardButtons from './WizardButtons';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 // Global styles for chat messages
 const globalStyles = `
@@ -33,6 +38,119 @@ const globalStyles = `
     color: white;
     border-color: #374151;
   }
+
+  /* Quill Editor RTL Styles */
+  .ql-editor {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  .ql-toolbar {
+    direction: rtl !important;
+  }
+
+  .ql-toolbar .ql-formats {
+    margin-left: 15px !important;
+    margin-right: 0 !important;
+  }
+
+  .ql-toolbar .ql-picker {
+    margin-left: 15px !important;
+    margin-right: 0 !important;
+  }
+
+  /* Quill Editor Dark Mode Styles */
+  .dark .ql-toolbar {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .dark .ql-toolbar button {
+    color: #ffffff !important;
+  }
+
+  .dark .ql-toolbar button:hover {
+    color: #3b82f6 !important;
+  }
+
+  .dark .ql-toolbar button.ql-active {
+    color: #3b82f6 !important;
+  }
+
+  .dark .ql-toolbar .ql-picker {
+    color: #ffffff !important;
+  }
+
+  .dark .ql-toolbar .ql-picker-options {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .dark .ql-toolbar .ql-picker-item {
+    color: #ffffff !important;
+  }
+
+  .dark .ql-toolbar .ql-picker-item:hover {
+    color: #3b82f6 !important;
+  }
+
+  .dark .ql-container {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .dark .ql-editor {
+    color: #ffffff !important;
+  }
+
+  .dark .ql-editor.ql-blank::before {
+    color: #9ca3af !important;
+  }
+
+  /* SVG Icon Styles for Dark Mode */
+  .dark .ql-toolbar .ql-stroke {
+    stroke: #ffffff !important;
+  }
+
+  .dark .ql-toolbar .ql-fill {
+    fill: #ffffff !important;
+  }
+
+  .dark .ql-toolbar .ql-even {
+    fill: #ffffff !important;
+  }
+
+  .dark .ql-toolbar .ql-thin {
+    stroke: #ffffff !important;
+  }
+
+  .dark .ql-toolbar button:hover .ql-stroke,
+  .dark .ql-toolbar button:hover .ql-fill,
+  .dark .ql-toolbar button:hover .ql-even,
+  .dark .ql-toolbar button:hover .ql-thin {
+    stroke: #3b82f6 !important;
+    fill: #3b82f6 !important;
+  }
+
+  .dark .ql-toolbar button.ql-active .ql-stroke,
+  .dark .ql-toolbar button.ql-active .ql-fill,
+  .dark .ql-toolbar button.ql-active .ql-even,
+  .dark .ql-toolbar button.ql-active .ql-thin {
+    stroke: #3b82f6 !important;
+    fill: #3b82f6 !important;
+  }
+
+  .dark .ql-toolbar .ql-picker-label {
+    color: #ffffff !important;
+  }
+
+  .dark .ql-toolbar .ql-picker-label:hover {
+    color: #3b82f6 !important;
+  }
+
+  .dark .ql-toolbar .ql-picker-label.ql-active {
+    color: #3b82f6 !important;
+  }
 `;
 
 // کامپوننت چت
@@ -46,23 +164,47 @@ const Chat = () => {
   const [chatLoading, setChatLoading] = useState(false);
   const [expandedSourceId, setExpandedSourceId] = useState(null);
   const [expandedTexts, setExpandedTexts] = useState({});
-  const [directories, setDirectories] = useState([]);
-  const [directoriesLoading, setDirectoriesLoading] = useState(false);
-  const [directoriesCount, setDirectoriesCount] = useState(0);
-  const [selectedDirectory, setSelectedDirectory] = useState(null);
-  const [directoryFiles, setDirectoryFiles] = useState([]);
+  const [domains, setDomains] = useState([]);
+  const [domainsLoading, setDomainsLoading] = useState(false);
+  const [selectedDomain, setSelectedDomain] = useState(null);
+  const [domainFiles, setDomainFiles] = useState([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileContent, setFileContent] = useState(null);
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [storingVector, setStoringVector] = useState(false);
   const chatEndRef = useRef(null);
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
+  const [selectedWebsiteData, setSelectedWebsiteData] = useState(null);
+  const [wizardMessage, setWizardMessage] = useState(null);
+  const [quillEditor, setQuillEditor] = useState(null);
+  const [editorContent, setEditorContent] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['link', 'image'],
+      ['clean']
+    ],
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'align',
+    'link', 'image'
+  ];
 
   useEffect(() => {
     if (activeTab === 'data-sources') {
       fetchDataSources();
     } else if (activeTab === 'crawled-websites') {
-      fetchDirectories();
+      fetchDomains();
     }
   }, [activeTab]);
 
@@ -70,6 +212,12 @@ const Chat = () => {
     // Scroll to bottom when chat history changes
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
+
+  useEffect(() => {
+    if (fileContent?.html) {
+      setEditorContent(fileContent.html);
+    }
+  }, [fileContent]);
 
   const fetchDataSources = async () => {
     setLoading(true);
@@ -103,67 +251,59 @@ const Chat = () => {
     }
   };
 
-  const fetchDirectories = async () => {
-    setDirectoriesLoading(true);
+  const fetchDomains = async () => {
+    setDomainsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8000/crawl-directories');
+      const response = await fetch('http://192.168.168.55:8000/domains');
       if (!response.ok) {
-        throw new Error('خطا در دریافت لیست وب‌سایت‌ها');
+        throw new Error('خطا در دریافت لیست دامنه‌ها');
       }
       const data = await response.json();
-      if (data.status === 'success') {
-        setDirectories(data.directories);
-        setDirectoriesCount(data.count);
-      } else {
-        throw new Error('خطا در دریافت لیست وب‌سایت‌ها');
-      }
+      setDomains(data);
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching directories:', err);
+      console.error('Error fetching domains:', err);
     } finally {
-      setDirectoriesLoading(false);
+      setDomainsLoading(false);
     }
   };
 
-  const fetchDirectoryFiles = async (directory) => {
+  const fetchDomainFiles = async (domain) => {
     setFilesLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8000/crawl-directory-files/${directory}`);
+      const response = await fetch(`http://192.168.168.55:8000/documents/?domain_id=${domain.id}`);
       if (!response.ok) {
-        throw new Error('خطا در دریافت فایل‌های وب‌سایت');
+        throw new Error('خطا در دریافت فایل‌های دامنه');
       }
       const data = await response.json();
-      if (data.status === 'success') {
-        setDirectoryFiles(data.files);
-        setSelectedDirectory(directory);
-      } else {
-        throw new Error('خطا در دریافت فایل‌های وب‌سایت');
-      }
+      setDomainFiles(data);
+      setSelectedDomain(domain);
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching directory files:', err);
+      console.error('Error fetching domain files:', err);
     } finally {
       setFilesLoading(false);
     }
   };
 
-  const fetchFileContent = async (filename) => {
+  const fetchFileContent = async (file) => {
     setFileContentLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8000/get_file_content/${selectedDirectory}/${filename}`);
+      const response = await fetch(`http://192.168.168.55:8000/documents/${file.id}`);
       if (!response.ok) {
         throw new Error('خطا در دریافت محتوای فایل');
       }
       const data = await response.json();
-      if (data.status === 'success') {
-        setFileContent(data.content);
-        setSelectedFile(filename);
-      } else {
-        throw new Error('خطا در دریافت محتوای فایل');
-      }
+      
+      // Log the content for debugging
+      console.log('HTML length:', data.html?.length);
+      console.log('Markdown length:', data.markdown?.length);
+      
+      setFileContent(data);
+      setSelectedFile(file);
     } catch (err) {
       setError(err.message);
       console.error('Error fetching file content:', err);
@@ -172,29 +312,22 @@ const Chat = () => {
     }
   };
 
-  const handleDirectoryClick = (directory) => {
-    fetchDirectoryFiles(directory);
+  const handleDomainClick = (domain) => {
+    fetchDomainFiles(domain);
   };
 
   const handleBackClick = () => {
-    setSelectedDirectory(null);
-    setDirectoryFiles([]);
+    setSelectedDomain(null);
+    setDomainFiles([]);
   };
 
   const handleFileClick = (file) => {
-    console.log('File clicked:', file); // Debug log
-    if (file && file.filename) {
-      setSelectedFile(file.filename);
-      fetchFileContent(file.filename);
-    } else {
-      setError('خطا در انتخاب فایل');
-    }
+    fetchFileContent(file);
   };
 
   const handleBackToFiles = () => {
     setSelectedFile(null);
     setFileContent(null);
-    setSelectedDirectory(selectedDirectory); // Keep the directory selected
   };
 
   const handleSubmit = async (e) => {
@@ -264,18 +397,18 @@ const Chat = () => {
     setStoringVector(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8000/store_vector', {
+      const response = await fetch('http://192.168.168.55:8000/store_vector', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          text: fileContent.html,
+          text: fileContent.markdown,
           metadata: {
-            source: fileContent.metadata.source,
-            title: fileContent.metadata.title,
+            source: `https://${selectedDomain.domain}${fileContent.uri}`,
+            title: fileContent.title,
             author: "خزش شده",
-            date: fileContent.metadata.date_added.split('T')[0] // Get only the date part
+            date: new Date(fileContent.created_at).toISOString().split('T')[0] // Get only the date part
           }
         })
       });
@@ -296,6 +429,67 @@ const Chat = () => {
       console.error('Error storing vector:', err);
     } finally {
       setStoringVector(false);
+    }
+  };
+
+  const handleCreateWizardFromWebsite = async (file) => {
+    try {
+      setSelectedWebsiteData({
+        title: file.title,
+        text: file.html
+      });
+      setActiveTab('wizard');
+      setShowCreateWizard(true);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleWizardSelect = (wizardData) => {
+    setWizardMessage({
+      type: 'wizard',
+      title: wizardData.title,
+      content: wizardData.context,
+      timestamp: new Date()
+    });
+  };
+
+  const handleEditorChange = (content) => {
+    setEditorContent(content);
+  };
+
+  const handleSaveContent = async () => {
+    if (!selectedFile || !editorContent) return;
+    
+    setSaving(true);
+    try {
+      const response = await fetch(`http://192.168.168.55:8000/documents/${selectedFile.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          html: editorContent
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('خطا در ذخیره محتوا');
+      }
+
+      // Update local state with new content
+      setFileContent(prev => ({
+        ...prev,
+        html: editorContent
+      }));
+
+      // Show success message or handle as needed
+      alert('محتوا با موفقیت ذخیره شد');
+    } catch (err) {
+      setError(err.message);
+      console.error('Error saving content:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -354,6 +548,16 @@ const Chat = () => {
           >
             وب‌سایت‌های خزش شده
           </button>
+          <button
+            onClick={() => setActiveTab('wizard')}
+            className={`px-4 py-2 text-sm font-medium ${
+              activeTab === 'wizard'
+                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+          >
+            پاسخ‌های ویزارد
+          </button>
         </div>
 
         <div className="flex-1 overflow-auto p-4">
@@ -362,7 +566,26 @@ const Chat = () => {
               case 'simple-chat':
                 return (
                   <div className="flex flex-col h-full">
+                    <WizardButtons onWizardSelect={handleWizardSelect} />
                     <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                      {wizardMessage && (
+                        <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {formatTimestamp(wizardMessage.timestamp)}
+                            </span>
+                            <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                              {wizardMessage.title}
+                            </span>
+                          </div>
+                          <div className="mb-4">
+                            <div 
+                              className="text-gray-700 dark:text-white chat-message"
+                              dangerouslySetInnerHTML={{ __html: wizardMessage.content }}
+                            />
+                          </div>
+                        </div>
+                      )}
                       {chatHistory.length === 0 ? (
                         <div className="text-center text-gray-500 dark:text-gray-400 p-4">
                           سوال خود را بپرسید تا گفتگو شروع شود
@@ -410,7 +633,6 @@ const Chat = () => {
                         </div>
                       )}
                       
-                      {/* Invisible element to scroll to */}
                       <div ref={chatEndRef} />
                     </div>
                     
@@ -517,7 +739,6 @@ const Chat = () => {
                         </div>
                       )}
                       
-                      {/* Invisible element to scroll to */}
                       <div ref={chatEndRef} />
                     </div>
                     
@@ -830,10 +1051,10 @@ const Chat = () => {
                   <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                        {selectedDirectory ? 'فایل‌های وب‌سایت' : 'وب‌سایت‌های خزش شده'}
+                        {selectedDomain ? 'فایل‌های دامنه' : 'دامنه‌های خزش شده'}
                       </h2>
                       <div className="flex items-center gap-4">
-                        {selectedDirectory && (
+                        {selectedDomain && (
                           <button
                             onClick={handleBackClick}
                             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
@@ -842,11 +1063,11 @@ const Chat = () => {
                           </button>
                         )}
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          تعداد: {selectedDirectory ? directoryFiles.length : directoriesCount}
+                          تعداد: {selectedDomain ? domainFiles.length : domains.length}
                         </span>
                       </div>
                     </div>
-                    {filesLoading || directoriesLoading ? (
+                    {filesLoading || domainsLoading ? (
                       <div className="flex justify-center items-center p-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                       </div>
@@ -854,38 +1075,11 @@ const Chat = () => {
                       <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
                         <p className="text-red-500 dark:text-red-400">{error}</p>
                         <button
-                          onClick={selectedDirectory ? () => fetchDirectoryFiles(selectedDirectory) : fetchDirectories}
+                          onClick={selectedDomain ? () => fetchDomainFiles(selectedDomain) : fetchDomains}
                           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                         >
                           تلاش مجدد
                         </button>
-                      </div>
-                    ) : selectedDirectory && !selectedFile ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {directoryFiles.map((file, index) => (
-                          <div
-                            key={index}
-                            onClick={() => handleFileClick(file)}
-                            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
-                          >
-                            <div className="space-y-2">
-                              <h3 className="text-lg font-medium text-gray-900 dark:text-white line-clamp-2">
-                                {file.title}
-                              </h3>
-                              <div className="relative group">
-                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate" title={file.source}>
-                                  منبع: {file.source}
-                                </p>
-                                <div className="absolute invisible group-hover:visible bg-gray-100 dark:bg-gray-700 p-2 rounded-lg shadow-lg max-w-md z-10">
-                                  <p className="text-xs text-gray-600 dark:text-gray-300 break-all">{file.source}</p>
-                                </div>
-                              </div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                تاریخ افزودن: {new Date(file.date_added).toLocaleString('fa-IR')}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
                       </div>
                     ) : selectedFile ? (
                       <div className="flex flex-col h-full">
@@ -940,57 +1134,114 @@ const Chat = () => {
                               </div>
                               <div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
-                                <p className="text-gray-700 dark:text-gray-300">{fileContent.metadata.title}</p>
+                                <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
                               </div>
                               <div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
                                 <a 
-                                  href={fileContent.url} 
+                                  href={`https://${selectedDomain.domain}${fileContent.uri}`}
                                   target="_blank" 
                                   rel="noopener noreferrer"
                                   className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
                                 >
-                                  {fileContent.url}
+                                  {`https://${selectedDomain.domain}${fileContent.uri}`}
                                 </a>
                               </div>
                               <div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">دامنه:</h3>
-                                <p className="text-gray-700 dark:text-gray-300">{fileContent.domain}</p>
-                              </div>
-                              <div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">متن:</h3>
-                                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                                  <div 
-                                    className="text-gray-700 dark:text-white chat-message"
-                                    dangerouslySetInnerHTML={{ __html: fileContent.text }}
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">HTML:</h3>
+                                <div className="flex justify-between items-center mb-2">
+                                  <button
+                                    onClick={handleSaveContent}
+                                    disabled={saving}
+                                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+                                  >
+                                    {saving ? (
+                                      <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                        در حال ذخیره...
+                                      </>
+                                    ) : (
+                                      'ذخیره تغییرات'
+                                    )}
+                                  </button>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
+                                  <ReactQuill
+                                    theme="snow"
+                                    value={editorContent}
+                                    modules={modules}
+                                    formats={formats}
+                                    style={{ height: '400px', direction: 'rtl', textAlign: 'right' }}
+                                    onChange={handleEditorChange}
                                   />
                                 </div>
                               </div>
                               <div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">HTML:</h3>
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Markdown:</h3>
+                                <div className="flex justify-between items-center mb-2">
+                                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    تعداد کاراکترها: {fileContent.markdown?.length || 0}
+                                  </span>
+                                </div>
                                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                                  <div 
-                                    className="text-gray-700 dark:text-white chat-message"
-                                    dangerouslySetInnerHTML={{ __html: fileContent.html }}
-                                  />
+                                  <pre className="text-gray-700 dark:text-white whitespace-pre-wrap">
+                                    {fileContent.markdown || ''}
+                                  </pre>
                                 </div>
                               </div>
                             </div>
                           </div>
                         ) : null}
                       </div>
-                    ) : directories.length > 0 ? (
+                    ) : selectedDomain && !selectedFile ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {directories.map((directory, index) => (
+                        {domainFiles.map((file) => (
                           <div
-                            key={index}
-                            onClick={() => handleDirectoryClick(directory)}
+                            key={file.id}
+                            onClick={() => handleFileClick(file)}
+                            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
+                          >
+                            <div className="space-y-4">
+                              <div className="flex justify-between items-start">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                                  {file.title}
+                                </h3>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCreateWizardFromWebsite(file);
+                                  }}
+                                  className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+                                >
+                                  ایجاد ویزارد
+                                </button>
+                              </div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                <p>آدرس: <a href={`https://${selectedDomain.domain}${file.uri}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300">{`https://${selectedDomain.domain}${file.uri}`}</a></p>
+                                <p>تاریخ ایجاد: {new Date(file.created_at).toLocaleString('fa-IR')}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : domains.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {domains.map((domain) => (
+                          <div
+                            key={domain.id}
+                            onClick={() => handleDomainClick(domain)}
                             className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
                           >
                             <div className="flex items-center justify-between">
                               <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                {directory}
+                                {domain.domain}
                               </h3>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                {domain.document_count} فایل
+                              </span>
+                            </div>
+                            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                              <p>تاریخ ایجاد: {new Date(domain.created_at).toLocaleString('fa-IR')}</p>
                             </div>
                           </div>
                         ))}
@@ -998,13 +1249,41 @@ const Chat = () => {
                     ) : (
                       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                         <p className="text-gray-500 dark:text-gray-400 text-center">
-                          هیچ وب‌سایت خزش شده‌ای یافت نشد
+                          هیچ دامنه خزش شده‌ای یافت نشد
                         </p>
                       </div>
                     )}
                   </div>
                 );
                 
+              case 'wizard':
+                return (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">پاسخ‌های ویزارد</h2>
+                      <button
+                        onClick={() => {
+                          setSelectedWebsiteData(null);
+                          setShowCreateWizard(true);
+                        }}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      >
+                        ایجاد ویزارد جدید
+                      </button>
+                    </div>
+                    <WizardIndex />
+                    {showCreateWizard && (
+                      <CreateWizard 
+                        onClose={() => {
+                          setShowCreateWizard(false);
+                          setSelectedWebsiteData(null);
+                        }}
+                        websiteData={selectedWebsiteData}
+                      />
+                    )}
+                  </div>
+                );
+
               default:
                 return null;
             }
