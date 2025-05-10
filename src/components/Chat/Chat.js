@@ -180,6 +180,10 @@ const Chat = () => {
   const [quillEditor, setQuillEditor] = useState(null);
   const [editorContent, setEditorContent] = useState('');
   const [saving, setSaving] = useState(false);
+  // Add new state for manual knowledge entry
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualText, setManualText] = useState('');
+  const [manualSubmitting, setManualSubmitting] = useState(false);
 
   const modules = {
     toolbar: [
@@ -493,6 +497,52 @@ const Chat = () => {
     }
   };
 
+  // Add new handler for manual knowledge submission
+  const handleManualSubmit = async (e) => {
+    e.preventDefault();
+    if (!manualTitle.trim() || !manualText.trim()) {
+      setError('لطفا عنوان و متن را وارد کنید');
+      return;
+    }
+
+    setManualSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch('http://localhost:8000/store_vector', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: manualText,
+          metadata: {
+            source: 'manual',
+            title: manualTitle
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('خطا در ذخیره اطلاعات');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert('اطلاعات با موفقیت ذخیره شد');
+        setManualTitle('');
+        setManualText('');
+      } else {
+        throw new Error('خطا در ذخیره اطلاعات');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error storing manual knowledge:', err);
+    } finally {
+      setManualSubmitting(false);
+    }
+  };
+
   return (
     <>
       <style>{globalStyles}</style>
@@ -537,6 +587,16 @@ const Chat = () => {
             }`}
           >
             داده جدید
+          </button>
+          <button
+            onClick={() => setActiveTab('manual-knowledge')}
+            className={`px-4 py-2 text-sm font-medium ${
+              activeTab === 'manual-knowledge'
+                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+          >
+            افزودن دانش دستی
           </button>
           <button
             onClick={() => setActiveTab('crawled-websites')}
@@ -1281,6 +1341,60 @@ const Chat = () => {
                         websiteData={selectedWebsiteData}
                       />
                     )}
+                  </div>
+                );
+
+              case 'manual-knowledge':
+                return (
+                  <div className="max-w-2xl mx-auto p-4">
+                    <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">افزودن دانش دستی</h2>
+                    <form onSubmit={handleManualSubmit} className="space-y-4">
+                      <div>
+                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          عنوان
+                        </label>
+                        <input
+                          type="text"
+                          id="title"
+                          value={manualTitle}
+                          onChange={(e) => setManualTitle(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="عنوان دانش را وارد کنید"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          متن
+                        </label>
+                        <textarea
+                          id="text"
+                          value={manualText}
+                          onChange={(e) => setManualText(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="متن دانش را وارد کنید"
+                          rows="6"
+                          required
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={manualSubmitting}
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center"
+                      >
+                        {manualSubmitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            در حال ذخیره...
+                          </>
+                        ) : (
+                          'ذخیره دانش'
+                        )}
+                      </button>
+                      {error && (
+                        <div className="text-red-500 text-sm text-center">{error}</div>
+                      )}
+                    </form>
                   </div>
                 );
 
