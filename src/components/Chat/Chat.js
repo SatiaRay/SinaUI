@@ -259,7 +259,7 @@ const Chat = () => {
     setDomainsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://192.168.168.55:8000/domains');
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/domains`);
       if (!response.ok) {
         throw new Error('خطا در دریافت لیست دامنه‌ها');
       }
@@ -277,7 +277,7 @@ const Chat = () => {
     setFilesLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://192.168.168.55:8000/documents/?domain_id=${domain.id}`);
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/?domain_id=${domain.id}`);
       if (!response.ok) {
         throw new Error('خطا در دریافت فایل‌های دامنه');
       }
@@ -296,7 +296,7 @@ const Chat = () => {
     setFileContentLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://192.168.168.55:8000/documents/${file.id}`);
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${file.id}`);
       if (!response.ok) {
         throw new Error('خطا در دریافت محتوای فایل');
       }
@@ -467,7 +467,7 @@ const Chat = () => {
     
     setSaving(true);
     try {
-      const response = await fetch(`http://192.168.168.55:8000/documents/${selectedFile.id}`, {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -509,7 +509,7 @@ const Chat = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/store_vector', {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/store_vector`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
