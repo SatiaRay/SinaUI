@@ -401,7 +401,7 @@ const Chat = () => {
     setStoringVector(true);
     setError(null);
     try {
-      const response = await fetch('http://192.168.168.55:8000/store_vector', {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/store_vector`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
