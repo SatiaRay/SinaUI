@@ -185,6 +185,9 @@ const Chat = () => {
   const [manualText, setManualText] = useState('');
   const [manualSubmitting, setManualSubmitting] = useState(false);
 
+  // Socket 
+  const socketRef = useRef(null);
+
   const modules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -362,6 +365,76 @@ const Chat = () => {
       setChatLoading(false);
     }
   };
+
+
+  /* Receives the response in socket connection */
+  const realtimeHandleSubmit = async (e) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+    
+    const currentQuestion = question;
+    setQuestion('');
+    setError(null);
+    
+    // Add the user question to chat history immediately
+    setChatHistory(prev => [...prev, { type: 'question', text: currentQuestion, timestamp: new Date() }]);
+
+    if (socketRef.current) {
+      socketRef.current.close();
+    }
+
+    let newMessageAppended = false;
+
+     // Add empty bot response message
+     const botMessage = {
+      type: 'answer',
+      answer: '',
+      sources: [],
+      timestamp: new Date()
+    };
+
+    socketRef.current = new WebSocket('ws://localhost:8000/ws/ask');
+
+    socketRef.current.onopen = () => {
+      console.log('WebSocket connection established');
+      // Send a question as JSON
+      socketRef.current.send(JSON.stringify({ question: currentQuestion }));
+
+      setChatLoading(true);
+    };
+
+    socketRef.current.onmessage = (event) => {
+      if(!newMessageAppended){
+        setChatHistory(prev => [...prev, botMessage]);
+
+        setChatLoading(false);
+
+        newMessageAppended = true;
+      }
+
+      const delta = event.data;
+    
+      setChatHistory(prev => {
+        const updated = [...prev];
+        const lastIndex = updated.map(m => m.type).lastIndexOf('answer');
+        if (lastIndex !== -1) {
+          updated[lastIndex] = {
+            ...updated[lastIndex],
+            answer: updated[lastIndex].answer + delta
+          };
+        }
+        return updated;
+      });
+    };
+
+    socketRef.current.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    socketRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+  }
 
   const toggleChunks = (sourceId) => {
     if (expandedSourceId === sourceId) {
@@ -696,7 +769,7 @@ const Chat = () => {
                       <div ref={chatEndRef} />
                     </div>
                     
-                    <form onSubmit={handleSubmit} className="flex gap-2">
+                    <form onSubmit={realtimeHandleSubmit} className="flex gap-2">
                       <input
                         type="text"
                         value={question}
