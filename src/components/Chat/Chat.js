@@ -5,6 +5,8 @@ import WizardIndex from './WizardIndex';
 import WizardButtons from './WizardButtons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { flushSync } from 'react-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 // Global styles for chat messages
 const globalStyles = `
@@ -184,6 +186,8 @@ const Chat = () => {
   const [manualTitle, setManualTitle] = useState('');
   const [manualText, setManualText] = useState('');
   const [manualSubmitting, setManualSubmitting] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [deletingSource, setDeletingSource] = useState(null);
 
   // Socket 
   const socketRef = useRef(null);
@@ -225,6 +229,20 @@ const Chat = () => {
       setEditorContent(fileContent.html);
     }
   }, [fileContent]);
+
+  useEffect(() => {
+    // Try to get existing session ID from localStorage
+    const storedSessionId = localStorage.getItem('chat_session_id');
+    
+    if (storedSessionId) {
+      setSessionId(parseInt(storedSessionId));
+    } else {
+      // Generate new integer session ID if none exists
+      const newSessionId = Math.floor(Math.random() * 1000000); // Generate a random 6-digit number
+      localStorage.setItem('chat_session_id', newSessionId.toString());
+      setSessionId(newSessionId);
+    }
+  }, []);
 
   const fetchDataSources = async () => {
     setLoading(true);
@@ -385,46 +403,64 @@ const Chat = () => {
 
     let newMessageAppended = false;
 
-     // Add empty bot response message
-     const botMessage = {
+    // Add empty bot response message
+    const botMessage = {
       type: 'answer',
       answer: '',
       sources: [],
       timestamp: new Date()
     };
 
-    socketRef.current = new WebSocket('ws://localhost:8000/ws/ask');
+    const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL)
+    const hostPort = `${url.hostname}:${url.port}`;
+
+    // Get session ID from localStorage
+    const storedSessionId = localStorage.getItem('chat_session_id');
+    if (!storedSessionId) {
+      setError('خطا در شناسایی نشست');
+      return;
+    }
+
+    // Use stored sessionId in WebSocket connection
+    socketRef.current = new WebSocket(`ws://${hostPort}/ws/ask?session_id=${storedSessionId}`);
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connection established');
       // Send a question as JSON
-      socketRef.current.send(JSON.stringify({ question: currentQuestion }));
+      socketRef.current.send(JSON.stringify({ 
+        question: currentQuestion,
+        session_id: storedSessionId 
+      }));
 
       setChatLoading(true);
     };
 
     socketRef.current.onmessage = (event) => {
-      if(!newMessageAppended){
-        setChatHistory(prev => [...prev, botMessage]);
-
-        setChatLoading(false);
-
-        newMessageAppended = true;
-      }
-
-      const delta = event.data;
-    
-      setChatHistory(prev => {
-        const updated = [...prev];
-        const lastIndex = updated.map(m => m.type).lastIndexOf('answer');
-        if (lastIndex !== -1) {
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            answer: updated[lastIndex].answer + delta
-          };
+      flushSync(() => {
+        if(!newMessageAppended){
+          setChatHistory(prev => [...prev, botMessage]);
+  
+          setChatLoading(false);
+  
+          newMessageAppended = true;
         }
-        return updated;
-      });
+  
+        const delta = event.data;
+  
+        console.log(delta);
+      
+        setChatHistory(prev => {
+          const updated = [...prev];
+          const lastIndex = updated.map(m => m.type).lastIndexOf('answer');
+          if (lastIndex !== -1) {
+            updated[lastIndex] = {
+              ...updated[lastIndex],
+              answer: updated[lastIndex].answer + delta
+            };
+          }
+          return updated;
+        });
+      })
     };
 
     socketRef.current.onclose = () => {
@@ -613,6 +649,32 @@ const Chat = () => {
       console.error('Error storing manual knowledge:', err);
     } finally {
       setManualSubmitting(false);
+    }
+  };
+
+  const handleDeleteSource = async (sourceId) => {
+    if (!window.confirm('آیا از حذف این منبع داده اطمینان دارید؟')) {
+      return;
+    }
+
+    setDeletingSource(sourceId);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/data_sources/${sourceId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('خطا در حذف منبع داده');
+      }
+
+      // Remove the deleted source from the state
+      setSources(prev => prev.filter(source => source.source_id !== sourceId));
+      alert('منبع داده با موفقیت حذف شد');
+    } catch (err) {
+      setError(err.message);
+      console.error('Error deleting source:', err);
+    } finally {
+      setDeletingSource(null);
     }
   };
 
@@ -932,24 +994,42 @@ const Chat = () => {
                       <div className="grid gap-4">
                         {sources.map((source, index) => (
                           <div
-                            key={source.id || index}
+                            key={source.source_id || index}
                             className="p-4 border rounded-lg dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
-                            onClick={() => toggleChunks(source.id || index)}
                           >
                             <div className="flex flex-col">
-                              <div>
-                                <h3 className="font-medium text-gray-900 dark:text-white">
-                                  {source.url}
-                                </h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  وارد شده توسط: {source.imported_by || 'نامشخص'}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  تاریخ وارد کردن: {source.import_date ? new Date(source.import_date).toLocaleString('fa-IR') : 'نامشخص'}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  دوره بروزرسانی: {translateRefreshStatus(source.refresh_status)}
-                                </p>
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-medium text-gray-900 dark:text-white">
+                                    {source.url}
+                                  </h3>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    وارد شده توسط: {source.imported_by || 'نامشخص'}
+                                  </p>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    تاریخ وارد کردن: {source.import_date ? new Date(source.import_date).toLocaleString('fa-IR') : 'نامشخص'}
+                                  </p>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    دوره بروزرسانی: {translateRefreshStatus(source.refresh_status)}
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteSource(source.source_id);
+                                  }}
+                                  disabled={deletingSource === source.source_id}
+                                  className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 focus:outline-none"
+                                >
+                                  {deletingSource === source.source_id ? (
+                                    <div className="flex items-center">
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500 mr-2"></div>
+                                      در حال حذف...
+                                    </div>
+                                  ) : (
+                                    'حذف'
+                                  )}
+                                </button>
                               </div>
                             </div>
                             <div className="mt-2 flex items-center justify-between">
@@ -957,15 +1037,15 @@ const Chat = () => {
                                 تعداد قطعات متن: {source.chunks ? source.chunks.length : 0}
                               </p>
                               <span className="text-xs text-blue-500">
-                                {expandedSourceId === (source.id || index) ? 'بستن' : 'مشاهده جزئیات'}
+                                {expandedSourceId === (source.source_id || index) ? 'بستن' : 'مشاهده جزئیات'}
                               </span>
                             </div>
-                            {expandedSourceId === (source.id || index) && source.chunks && source.chunks.length > 0 && (
+                            {expandedSourceId === (source.source_id || index) && source.chunks && source.chunks.length > 0 && (
                               <div className="mt-4 border-t pt-3 dark:border-gray-700">
                                 <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">قطعات متن:</h4>
                                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 max-h-60 overflow-y-auto">
                                   {source.chunks.map((chunk, chunkIndex) => {
-                                    const chunkKey = chunk.id || `chunk-${source.id || index}-${chunkIndex}`;
+                                    const chunkKey = chunk.id || `chunk-${source.source_id || index}-${chunkIndex}`;
                                     const isTextExpanded = expandedTexts[chunkKey];
                                     
                                     return (
@@ -996,7 +1076,7 @@ const Chat = () => {
                                             {chunk.text.length > 200 && (
                                               <button 
                                                 onClick={(e) => {
-                                                  e.stopPropagation(); // Prevent event bubbling to parent
+                                                  e.stopPropagation();
                                                   toggleTextExpansion(chunkKey);
                                                 }}
                                                 className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
@@ -1018,7 +1098,7 @@ const Chat = () => {
                                             {chunk.content.length > 200 && (
                                               <button 
                                                 onClick={(e) => {
-                                                  e.stopPropagation(); // Prevent event bubbling to parent
+                                                  e.stopPropagation();
                                                   toggleTextExpansion(chunkKey);
                                                 }}
                                                 className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
