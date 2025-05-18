@@ -7,6 +7,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { flushSync } from 'react-dom';
 import { v4 as uuidv4 } from 'uuid';
+import UpdateDataSource from './UpdateDataSource';
 
 // Global styles for chat messages
 const globalStyles = `
@@ -188,6 +189,7 @@ const Chat = () => {
   const [manualSubmitting, setManualSubmitting] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const [deletingSource, setDeletingSource] = useState(null);
+  const [editingSource, setEditingSource] = useState(null);
 
   // Socket 
   const socketRef = useRef(null);
@@ -992,130 +994,156 @@ const Chat = () => {
                       </div>
                     ) : sources && Array.isArray(sources) && sources.length > 0 ? (
                       <div className="grid gap-4">
-                        {sources.map((source, index) => (
-                          <div
-                            key={source.source_id || index}
-                            className="p-4 border rounded-lg dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
-                          >
-                            <div className="flex flex-col">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-medium text-gray-900 dark:text-white">
-                                    {source.url}
-                                  </h3>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    وارد شده توسط: {source.imported_by || 'نامشخص'}
-                                  </p>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    تاریخ وارد کردن: {source.import_date ? new Date(source.import_date).toLocaleString('fa-IR') : 'نامشخص'}
-                                  </p>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    دوره بروزرسانی: {translateRefreshStatus(source.refresh_status)}
-                                  </p>
-                                </div>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteSource(source.source_id);
-                                  }}
-                                  disabled={deletingSource === source.source_id}
-                                  className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 focus:outline-none"
-                                >
-                                  {deletingSource === source.source_id ? (
-                                    <div className="flex items-center">
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500 mr-2"></div>
-                                      در حال حذف...
-                                    </div>
-                                  ) : (
-                                    'حذف'
-                                  )}
-                                </button>
-                              </div>
+                        {editingSource ? (
+                          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                            <div className="flex justify-between items-center mb-4">
+                              <h3 className="text-lg font-medium text-gray-900 dark:text-white">ویرایش سند</h3>
+                              <button
+                                onClick={() => setEditingSource(null)}
+                                className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                              >
+                                بازگشت
+                              </button>
                             </div>
-                            <div className="mt-2 flex items-center justify-between">
-                              <p className="text-sm text-gray-600 dark:text-gray-300">
-                                تعداد قطعات متن: {source.chunks ? source.chunks.length : 0}
-                              </p>
-                              <span className="text-xs text-blue-500">
-                                {expandedSourceId === (source.source_id || index) ? 'بستن' : 'مشاهده جزئیات'}
-                              </span>
-                            </div>
-                            {expandedSourceId === (source.source_id || index) && source.chunks && source.chunks.length > 0 && (
-                              <div className="mt-4 border-t pt-3 dark:border-gray-700">
-                                <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">قطعات متن:</h4>
-                                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 max-h-60 overflow-y-auto">
-                                  {source.chunks.map((chunk, chunkIndex) => {
-                                    const chunkKey = chunk.id || `chunk-${source.source_id || index}-${chunkIndex}`;
-                                    const isTextExpanded = expandedTexts[chunkKey];
-                                    
-                                    return (
-                                      <div 
-                                        key={chunkKey} 
-                                        className="p-3 mb-3 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800"
-                                      >
-                                        <div className="flex justify-between mb-2 border-b pb-2 dark:border-gray-700">
-                                          <p className="font-medium text-gray-700 dark:text-gray-300">شناسه: {chunk.id || `بخش ${chunkIndex + 1}`}</p>
-                                          <p className="text-gray-500 dark:text-gray-400 text-xs">صفحه: {chunk.metadata?.page || 'نامشخص'}</p>
-                                        </div>
-                                        
-                                        {chunk.title && (
-                                          <div className="mb-2">
-                                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">عنوان:</p>
-                                            <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">{chunk.title}</p>
-                                          </div>
-                                        )}
-                                        
-                                        {chunk.text && (
-                                          <div className="mb-2">
-                                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">متن:</p>
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                              {chunk.text.length > 200 && !isTextExpanded
-                                                ? `${chunk.text.substring(0, 200)}...` 
-                                                : chunk.text}
-                                            </p>
-                                            {chunk.text.length > 200 && (
-                                              <button 
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  toggleTextExpansion(chunkKey);
-                                                }}
-                                                className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
-                                              >
-                                                {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
-                                        
-                                        {chunk.content && !chunk.text && (
-                                          <div className="mb-2">
-                                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">محتوا:</p>
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                              {chunk.content.length > 200 && !isTextExpanded
-                                                ? `${chunk.content.substring(0, 200)}...` 
-                                                : chunk.content}
-                                            </p>
-                                            {chunk.content.length > 200 && (
-                                              <button 
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  toggleTextExpansion(chunkKey);
-                                                }}
-                                                className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
-                                              >
-                                                {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
-                                              </button>
-                                            )}
-                                          </div>
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            )}
+                            <UpdateDataSource document_id={editingSource} />
                           </div>
-                        ))}
+                        ) : (
+                          sources.map((source, index) => (
+                            <div
+                              key={source.source_id || index}
+                              className="p-4 border rounded-lg dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
+                            >
+                              <div className="flex flex-col">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <h3 className="font-medium text-gray-900 dark:text-white">
+                                      {source.url}
+                                    </h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                      وارد شده توسط: {source.imported_by || 'نامشخص'}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                      تاریخ وارد کردن: {source.import_date ? new Date(source.import_date).toLocaleString('fa-IR') : 'نامشخص'}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                      دوره بروزرسانی: {translateRefreshStatus(source.refresh_status)}
+                                    </p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingSource(source.source_id);
+                                      }}
+                                      className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
+                                    >
+                                      ویرایش
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteSource(source.source_id);
+                                      }}
+                                      disabled={deletingSource === source.source_id}
+                                      className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 focus:outline-none"
+                                    >
+                                      {deletingSource === source.source_id ? (
+                                        <div className="flex items-center">
+                                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500 mr-2"></div>
+                                          در حال حذف...
+                                        </div>
+                                      ) : (
+                                        'حذف'
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="mt-2 flex items-center justify-between">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
+                                  تعداد قطعات متن: {source.chunks ? source.chunks.length : 0}
+                                </p>
+                                <span className="text-xs text-blue-500">
+                                  {expandedSourceId === (source.source_id || index) ? 'بستن' : 'مشاهده جزئیات'}
+                                </span>
+                              </div>
+                              {expandedSourceId === (source.source_id || index) && source.chunks && source.chunks.length > 0 && (
+                                <div className="mt-4 border-t pt-3 dark:border-gray-700">
+                                  <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">قطعات متن:</h4>
+                                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 max-h-60 overflow-y-auto">
+                                    {source.chunks.map((chunk, chunkIndex) => {
+                                      const chunkKey = chunk.id || `chunk-${source.source_id || index}-${chunkIndex}`;
+                                      const isTextExpanded = expandedTexts[chunkKey];
+                                      
+                                      return (
+                                        <div 
+                                          key={chunkKey} 
+                                          className="p-3 mb-3 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800"
+                                        >
+                                          <div className="flex justify-between mb-2 border-b pb-2 dark:border-gray-700">
+                                            <p className="font-medium text-gray-700 dark:text-gray-300">شناسه: {chunk.id || `بخش ${chunkIndex + 1}`}</p>
+                                            <p className="text-gray-500 dark:text-gray-400 text-xs">صفحه: {chunk.metadata?.page || 'نامشخص'}</p>
+                                          </div>
+                                          
+                                          {chunk.title && (
+                                            <div className="mb-2">
+                                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">عنوان:</p>
+                                              <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">{chunk.title}</p>
+                                            </div>
+                                          )}
+                                          
+                                          {chunk.text && (
+                                            <div className="mb-2">
+                                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">متن:</p>
+                                              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                                {chunk.text.length > 200 && !isTextExpanded
+                                                  ? `${chunk.text.substring(0, 200)}...` 
+                                                  : chunk.text}
+                                              </p>
+                                              {chunk.text.length > 200 && (
+                                                <button 
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleTextExpansion(chunkKey);
+                                                  }}
+                                                  className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
+                                                >
+                                                  {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
+                                          
+                                          {chunk.content && !chunk.text && (
+                                            <div className="mb-2">
+                                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">محتوا:</p>
+                                              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                                {chunk.content.length > 200 && !isTextExpanded
+                                                  ? `${chunk.content.substring(0, 200)}...` 
+                                                  : chunk.content}
+                                              </p>
+                                              {chunk.content.length > 200 && (
+                                                <button 
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleTextExpansion(chunkKey);
+                                                  }}
+                                                  className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
+                                                >
+                                                  {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        )}
                       </div>
                     ) : (
                       <div className="text-center text-gray-500 dark:text-gray-400">
