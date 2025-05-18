@@ -87,8 +87,8 @@ const UpdateDataSource = (props) => {
     }
 
     return (
-        <div className="p-4 space-y-4">
-            <div>
+        <div className="flex flex-col h-[calc(100vh-12rem)]">
+            <div className="flex-1 min-h-0">
                 <label htmlFor="document-text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     متن سند
                 </label>
@@ -96,12 +96,11 @@ const UpdateDataSource = (props) => {
                     id="document-text"
                     value={editedText}
                     onChange={(e) => setEditedText(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    rows="10"
+                    className="w-full h-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-none"
                     placeholder="متن سند را وارد کنید"
                 />
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end mt-4">
                 <button
                     onClick={handleUpdate}
                     disabled={updating}
