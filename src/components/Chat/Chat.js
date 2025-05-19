@@ -190,6 +190,11 @@ const Chat = () => {
   const [sessionId, setSessionId] = useState(null);
   const [deletingSource, setDeletingSource] = useState(null);
   const [editingSource, setEditingSource] = useState(null);
+  const [crawlUrl, setCrawlUrl] = useState('');
+  const [crawling, setCrawling] = useState(false);
+  const [crawledDocs, setCrawledDocs] = useState([]);
+  const [previousTab, setPreviousTab] = useState(null);
+  const [crawlRecursive, setCrawlRecursive] = useState(false);
 
   // Socket 
   const socketRef = useRef(null);
@@ -355,6 +360,12 @@ const Chat = () => {
   const handleBackToFiles = () => {
     setSelectedFile(null);
     setFileContent(null);
+    if (previousTab) {
+      setActiveTab(previousTab);
+      setPreviousTab(null);
+    } else {
+      setActiveTab('crawled-websites');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -680,6 +691,66 @@ const Chat = () => {
     }
   };
 
+  const handleCrawl = async () => {
+    if (!crawlUrl) {
+      setError('لطفا آدرس وب‌سایت را وارد کنید');
+      return;
+    }
+
+    try {
+      new URL(crawlUrl); // Validate URL
+    } catch (e) {
+      setError('لطفا یک آدرس معتبر وارد کنید');
+      return;
+    }
+
+    setCrawling(true);
+    setError(null);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/crawl`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: crawlUrl,
+          recursive: crawlRecursive
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('خطا در خزش وب‌سایت');
+      }
+
+      const data = await response.json();
+      setCrawledDocs(data.docs);
+      setCrawlUrl(''); // Clear the input after successful crawl
+    } catch (err) {
+      setError(err.message);
+      console.error('Error crawling website:', err);
+    } finally {
+      setCrawling(false);
+    }
+  };
+
+  const handleCrawledDocClick = (doc) => {
+    setPreviousTab('add-knowledge');
+    setSelectedFile({
+      id: doc.id,
+      title: doc.title,
+      uri: doc.url
+    });
+    // Extract domain from doc.url (e.g., 'satia.co/')
+    const domain = doc.url.split('/')[0];
+    setSelectedDomain({ domain });
+    setActiveTab('crawled-websites');
+    fetchFileContent({
+      id: doc.id,
+      title: doc.title,
+      uri: doc.url
+    });
+  };
+
   return (
     <>
       <style>{globalStyles}</style>
@@ -716,24 +787,14 @@ const Chat = () => {
             منابع داده
           </button>
           <button
-            onClick={() => setActiveTab('add-data')}
+            onClick={() => setActiveTab('add-knowledge')}
             className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'add-data'
+              activeTab === 'add-knowledge'
                 ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
           >
-            خزش
-          </button>
-          <button
-            onClick={() => setActiveTab('manual-knowledge')}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'manual-knowledge'
-                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-          >
-            افزودن دانش دستی
+            افزودن دانش
           </button>
           <button
             onClick={() => setActiveTab('crawled-websites')}
@@ -1153,7 +1214,6 @@ const Chat = () => {
                   </div>
                 );
 
-              case 'add-data':
                 return (
                   <div className="max-w-2xl mx-auto p-4">
                     <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">خزش آدرس سایت</h2>
@@ -1379,14 +1439,18 @@ const Chat = () => {
                               </div>
                               <div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
-                                <a 
-                                  href={`https://${selectedDomain.domain}${fileContent.uri}`}
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
-                                >
-                                  {`https://${selectedDomain.domain}${fileContent.uri}`}
-                                </a>
+                                {selectedDomain ? (
+                                  <a 
+                                    href={`https://${selectedDomain.domain}${fileContent.uri}`}
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
+                                  >
+                                    {`https://${selectedDomain.domain}${fileContent.uri}`}
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-400">بدون آدرس دامنه</span>
+                                )}
                               </div>
                               <div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">HTML:</h3>
@@ -1425,7 +1489,7 @@ const Chat = () => {
                                   </span>
                                 </div>
                                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                                  <pre className="text-gray-700 dark:text-white whitespace-pre-wrap">
+                                  <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                                     {fileContent.markdown || ''}
                                   </pre>
                                 </div>
@@ -1525,57 +1589,129 @@ const Chat = () => {
                   </div>
                 );
 
-              case 'manual-knowledge':
+              case 'add-knowledge':
                 return (
-                  <div className="max-w-2xl mx-auto p-4">
-                    <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">افزودن دانش دستی</h2>
-                    <form onSubmit={handleManualSubmit} className="space-y-4">
-                      <div>
-                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          عنوان
-                        </label>
-                        <input
-                          type="text"
-                          id="title"
-                          value={manualTitle}
-                          onChange={(e) => setManualTitle(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                          placeholder="عنوان دانش را وارد کنید"
-                          required
-                        />
+                  <div className="max-w-4xl mx-auto p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Manual Knowledge Entry Section */}
+                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">افزودن دانش دستی</h2>
+                        <form onSubmit={handleManualSubmit} className="space-y-4">
+                          <div>
+                            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              عنوان
+                            </label>
+                            <input
+                              type="text"
+                              id="title"
+                              value={manualTitle}
+                              onChange={(e) => setManualTitle(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              placeholder="عنوان دانش را وارد کنید"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              متن
+                            </label>
+                            <textarea
+                              id="text"
+                              value={manualText}
+                              onChange={(e) => setManualText(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              placeholder="متن دانش را وارد کنید"
+                              rows="6"
+                              required
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            disabled={manualSubmitting}
+                            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center"
+                          >
+                            {manualSubmitting ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                در حال ذخیره...
+                              </>
+                            ) : (
+                              'ذخیره دانش'
+                            )}
+                          </button>
+                          {error && (
+                            <div className="text-red-500 text-sm text-center">{error}</div>
+                          )}
+                        </form>
                       </div>
-                      <div>
-                        <label htmlFor="text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          متن
-                        </label>
-                        <textarea
-                          id="text"
-                          value={manualText}
-                          onChange={(e) => setManualText(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                          placeholder="متن دانش را وارد کنید"
-                          rows="6"
-                          required
-                        />
+
+                      {/* URL Crawling Section */}
+                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">خزش وب‌سایت</h2>
+                        <div className="space-y-4">
+                          <div>
+                            <label htmlFor="crawl-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              آدرس وب‌سایت
+                            </label>
+                            <div className="flex gap-2">
+                              <input
+                                type="url"
+                                id="crawl-url"
+                                value={crawlUrl}
+                                onChange={(e) => setCrawlUrl(e.target.value)}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                placeholder="https://example.com"
+                              />
+                              <button
+                                onClick={handleCrawl}
+                                disabled={crawling}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center"
+                              >
+                                {crawling ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    در حال خزش...
+                                  </>
+                                ) : (
+                                  'شروع خزش'
+                                )}
+                              </button>
+                            </div>
+                            <div className="mt-2 flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                id="crawl-recursive"
+                                checked={crawlRecursive}
+                                onChange={e => setCrawlRecursive(e.target.checked)}
+                                className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                              />
+                              <label htmlFor="crawl-recursive" className="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
+                                خزش تو در تو (Recursive)
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Crawled Documents List */}
+                          {crawledDocs.length > 0 && (
+                            <div className="mt-6">
+                              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">صفحات خزش شده</h3>
+                              <div className="space-y-4">
+                                {crawledDocs.map((doc) => (
+                                  <div
+                                    key={doc.id}
+                                    onClick={() => handleCrawledDocClick(doc)}
+                                    className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-colors"
+                                  >
+                                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">{doc.title}</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">{doc.url}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <button
-                        type="submit"
-                        disabled={manualSubmitting}
-                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center"
-                      >
-                        {manualSubmitting ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            در حال ذخیره...
-                          </>
-                        ) : (
-                          'ذخیره دانش'
-                        )}
-                      </button>
-                      {error && (
-                        <div className="text-red-500 text-sm text-center">{error}</div>
-                      )}
-                    </form>
+                    </div>
                   </div>
                 );
 
