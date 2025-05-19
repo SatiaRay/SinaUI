@@ -154,6 +154,22 @@ const globalStyles = `
   .dark .ql-toolbar .ql-picker-label.ql-active {
     color: #3b82f6 !important;
   }
+
+  /* Chat message links styling */
+  .chat-message a {
+    color: #2563eb !important; /* Tailwind blue-600 */
+    text-decoration: underline;
+    word-break: break-all;
+  }
+  .chat-message a:hover {
+    color: #1d4ed8 !important; /* Tailwind blue-700 */
+  }
+  .dark .chat-message a {
+    color: #60a5fa !important; /* Tailwind blue-400 */
+  }
+  .dark .chat-message a:hover {
+    color: #3b82f6 !important; /* Tailwind blue-500 */
+  }
 `;
 
 // کامپوننت چت
@@ -632,7 +648,7 @@ const Chat = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/store_vector`, {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/add_manually_knowledge`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
