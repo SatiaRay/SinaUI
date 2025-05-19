@@ -1485,9 +1485,30 @@ const Chat = () => {
                     </div>
                     {/* Tab Content */}
                     {addKnowledgeTab === 'manual' && (
-                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">افزودن دانش دستی</h2>
-                        <form onSubmit={handleManualSubmit} className="space-y-4">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 pb-12">
+                        <div className='flex row justify-between mb-3'>
+                          <div className='col-3'>
+                            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white mb-0">افزودن دانش دستی</h2>
+                          </div>
+                          <div className='flex justify-end'>
+                            <button
+                                  type="button"
+                                  onClick={handleManualSubmit}
+                                  disabled={manualSubmitting}
+                                  className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center"
+                                >
+                                  {manualSubmitting ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                      در حال ذخیره...
+                                    </>
+                                  ) : (
+                                    'ذخیره دانش'
+                                  )}
+                            </button>
+                          </div>
+                        </div>
+                        <form className="space-y-4">
                           <div>
                             <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               عنوان
@@ -1506,30 +1527,18 @@ const Chat = () => {
                             <label htmlFor="text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               متن
                             </label>
-                            <textarea
-                              id="text"
-                              value={manualText}
-                              onChange={(e) => setManualText(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                              placeholder="متن دانش را وارد کنید"
-                              rows="6"
-                              required
-                            />
+                            <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
+                              <ReactQuill
+                                theme="snow"
+                                value={manualText}
+                                modules={modules}
+                                formats={formats}
+                                style={{ height: '200px', direction: 'rtl', textAlign: 'right' }}
+                                onChange={setManualText}
+                              />
+                            </div>
                           </div>
-                          <button
-                            type="submit"
-                            disabled={manualSubmitting}
-                            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center"
-                          >
-                            {manualSubmitting ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                در حال ذخیره...
-                              </>
-                            ) : (
-                              'ذخیره دانش'
-                            )}
-                          </button>
+        
                           {error && (
                             <div className="text-red-500 text-sm text-center">{error}</div>
                           )}
