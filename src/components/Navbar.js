@@ -62,8 +62,16 @@ const Navbar = () => {
             </div>
 
             {/* Sidebar - Desktop */}
-            <div className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg z-10 transition-all duration-300 ease-in-out ${desktopSidebarVisible ? 'w-64' : 'w-0'}`}>
-                <div className={`flex flex-col h-full w-64 transition-all duration-300 ${desktopSidebarVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <div 
+                className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg z-10 transition-all duration-300 ease-in-out ${
+                    desktopSidebarVisible ? 'w-64' : 'w-0'
+                }`}
+                style={{
+                    visibility: desktopSidebarVisible ? 'visible' : 'hidden',
+                    display: desktopSidebarVisible ? 'block' : 'none'
+                }}
+            >
+                <div className="flex flex-col h-full w-64">
                     <div className="p-4 border-b border-gray-700">
                         <h1 className="text-white text-lg font-bold">مدیریت موتوری</h1>
                     </div>

@@ -259,11 +259,24 @@ const Chat = () => {
     const storedSessionId = localStorage.getItem('chat_session_id');
     
     if (storedSessionId) {
-      setSessionId(parseInt(storedSessionId));
+      setSessionId(storedSessionId);
     } else {
-      // Generate new integer session ID if none exists
-      const newSessionId = Math.floor(Math.random() * 1000000); // Generate a random 6-digit number
-      localStorage.setItem('chat_session_id', newSessionId.toString());
+      // Generate new session ID if none exists
+      const generateToken = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const prefix = 'chat_';
+        const remainingLength = 255 - prefix.length;
+        let token = prefix;
+        
+        for (let i = 0; i < remainingLength; i++) {
+          token += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        
+        return token;
+      };
+
+      const newSessionId = generateToken();
+      localStorage.setItem('chat_session_id', newSessionId);
       setSessionId(newSessionId);
     }
   }, []);
@@ -784,16 +797,6 @@ const Chat = () => {
             چت ساده
           </button>
           <button
-            onClick={() => setActiveTab('chat')}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'chat'
-                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-          >
-            چت با منابع
-          </button>
-          <button
             onClick={() => setActiveTab('data-sources')}
             className={`px-4 py-2 text-sm font-medium ${
               activeTab === 'data-sources'
@@ -938,8 +941,6 @@ const Chat = () => {
                     {error && <div className="text-red-500 mt-2">{error}</div>}
                   </div>
                 );
-
-              case 'chat':
                 return (
                   <div className="flex flex-col h-full">
                     <div className="flex-1 overflow-y-auto mb-4 space-y-4">
@@ -1090,12 +1091,16 @@ const Chat = () => {
                             <div
                               key={source.source_id || index}
                               className="p-4 border rounded-lg dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingSource(source.source_id);
+                              }}
                             >
                               <div className="flex flex-col">
                                 <div className="flex justify-between items-start">
                                   <div>
                                     <h3 className="font-medium text-gray-900 dark:text-white">
-                                      {source.url}
+                                      {source.chunks[0].metadata.title}
                                     </h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
                                       وارد شده توسط: {source.imported_by || 'نامشخص'}
@@ -1141,9 +1146,9 @@ const Chat = () => {
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
                                   تعداد قطعات متن: {source.chunks ? source.chunks.length : 0}
                                 </p>
-                                <span className="text-xs text-blue-500">
+                                {/* <span className="text-xs text-blue-500">
                                   {expandedSourceId === (source.source_id || index) ? 'بستن' : 'مشاهده جزئیات'}
-                                </span>
+                                </span> */}
                               </div>
                               {expandedSourceId === (source.source_id || index) && source.chunks && source.chunks.length > 0 && (
                                 <div className="mt-4 border-t pt-3 dark:border-gray-700">
