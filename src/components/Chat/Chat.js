@@ -454,6 +454,9 @@ const Chat = () => {
     }
 
     let newMessageAppended = false;
+    let tableBuffer = '';
+    let isInTable = false;
+    let isInRow = false;
 
     // Add empty bot response message
     const botMessage = {
@@ -497,18 +500,81 @@ const Chat = () => {
   
         const delta = event.data;
         console.log('Received delta:', delta);
-      
-        setChatHistory(prev => {
-          const updated = [...prev];
-          const lastIndex = updated.length - 1;
-          if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-              answer: (updated[lastIndex].answer || '') + delta
-            };
+
+        // Check for table tags
+        if (delta.includes('<table')) {
+          isInTable = true;
+        }
+        if (delta.includes('</table>')) {
+          isInTable = false;
+          // Flush any remaining buffer
+          if (tableBuffer) {
+            setChatHistory(prev => {
+              const updated = [...prev];
+              const lastIndex = updated.length - 1;
+              if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
+                updated[lastIndex] = {
+                  ...updated[lastIndex],
+                  answer: (updated[lastIndex].answer || '') + tableBuffer
+                };
+              }
+              return updated;
+            });
+            tableBuffer = '';
           }
-          return updated;
-        });
+        }
+
+        // Handle table row buffering
+        if (isInTable) {
+          if (delta.includes('<tr')) {
+            isInRow = true;
+          }
+          if (delta.includes('</tr>')) {
+            isInRow = false;
+            // Row is complete, append it to the chat
+            setChatHistory(prev => {
+              const updated = [...prev];
+              const lastIndex = updated.length - 1;
+              if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
+                updated[lastIndex] = {
+                  ...updated[lastIndex],
+                  answer: (updated[lastIndex].answer || '') + tableBuffer + delta
+                };
+              }
+              return updated;
+            });
+            tableBuffer = '';
+          } else if (isInRow) {
+            // Buffer the content while in a row
+            tableBuffer += delta;
+          } else {
+            // Not in a row, append directly
+            setChatHistory(prev => {
+              const updated = [...prev];
+              const lastIndex = updated.length - 1;
+              if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
+                updated[lastIndex] = {
+                  ...updated[lastIndex],
+                  answer: (updated[lastIndex].answer || '') + delta
+                };
+              }
+              return updated;
+            });
+          }
+        } else {
+          // Not in a table, append directly
+          setChatHistory(prev => {
+            const updated = [...prev];
+            const lastIndex = updated.length - 1;
+            if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
+              updated[lastIndex] = {
+                ...updated[lastIndex],
+                answer: (updated[lastIndex].answer || '') + delta
+              };
+            }
+            return updated;
+          });
+        }
       });
     };
 
