@@ -707,12 +707,11 @@ const Chat = () => {
   };
 
   const handleWizardSelect = (wizardData) => {
-    setWizardMessage({
-      type: 'wizard',
-      title: wizardData.title,
-      content: wizardData.context,
+    setChatHistory(prev => [...prev, {
+      type: 'answer',
+      answer: wizardData.context,
       timestamp: new Date()
-    });
+    }]);
   };
 
   const handleEditorChange = (content) => {
@@ -1043,7 +1042,6 @@ const Chat = () => {
               case 'simple-chat':
                 return (
                   <div className="flex flex-col h-full">
-                    <WizardButtons onWizardSelect={handleWizardSelect} />
                     <div 
                       ref={chatContainerRef}
                       className="flex-1 overflow-y-auto mb-4 space-y-4"
@@ -1154,6 +1152,7 @@ const Chat = () => {
                       <div ref={chatEndRef} />
                     </div>
                     
+                    <WizardButtons onWizardSelect={handleWizardSelect} />
                     <form onSubmit={realtimeHandleSubmit} className="flex gap-2">
                       <input
                         type="text"
@@ -1572,18 +1571,7 @@ const Chat = () => {
               case 'wizard':
                 return (
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">پاسخ‌های ویزارد</h2>
-                      <button
-                        onClick={() => {
-                          setSelectedWebsiteData(null);
-                          setShowCreateWizard(true);
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                      >
-                        ایجاد ویزارد جدید
-                      </button>
-                    </div>
+                    
                     <WizardIndex />
                     {showCreateWizard && (
                       <CreateWizard 

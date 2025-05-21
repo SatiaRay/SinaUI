@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import CreateWizard from './CreateWizard';
 
 const WizardIndex = () => {
   const [wizards, setWizards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState({});
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
 
   useEffect(() => {
     fetchWizards();
@@ -23,6 +25,10 @@ const WizardIndex = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleWizardCreated = (newWizard) => {
+    setWizards(prevWizards => [newWizard, ...prevWizards]);
   };
 
   const toggleWizardStatus = async (wizardId, currentStatus) => {
@@ -76,6 +82,23 @@ const WizardIndex = () => {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">پاسخ‌های ویزارد</h2>
+        <button
+          onClick={() => setShowCreateWizard(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          ایجاد ویزارد جدید
+        </button>
+      </div>
+
+      {showCreateWizard && (
+        <CreateWizard 
+          onClose={() => setShowCreateWizard(false)}
+          onWizardCreated={handleWizardCreated}
+        />
+      )}
+
       {wizards.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <p className="text-gray-500 dark:text-gray-400 text-center">

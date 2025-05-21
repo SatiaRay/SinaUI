@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const CreateWizard = ({ onClose, websiteData }) => {
+const CreateWizard = ({ onClose, websiteData, onWizardCreated }) => {
   const [title, setTitle] = useState('');
   const [context, setContext] = useState('');
   const [enabled, setEnabled] = useState(true);
@@ -34,6 +34,13 @@ const CreateWizard = ({ onClose, websiteData }) => {
 
       if (!response.ok) {
         throw new Error('خطا در ایجاد ویزارد');
+      }
+
+      const newWizard = await response.json();
+      
+      // Call the callback with the new wizard
+      if (onWizardCreated) {
+        onWizardCreated(newWizard);
       }
 
       onClose();
