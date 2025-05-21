@@ -181,6 +181,11 @@ const Chat = () => {
   const [question, setQuestion] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [chatLoading, setChatLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [hasMoreHistory, setHasMoreHistory] = useState(true);
+  const [historyOffset, setHistoryOffset] = useState(0);
+  const chatContainerRef = useRef(null);
+  const chatEndRef = useRef(null);
   const [expandedSourceId, setExpandedSourceId] = useState(null);
   const [expandedTexts, setExpandedTexts] = useState({});
   const [domains, setDomains] = useState([]);
@@ -192,7 +197,6 @@ const Chat = () => {
   const [fileContent, setFileContent] = useState(null);
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [storingVector, setStoringVector] = useState(false);
-  const chatEndRef = useRef(null);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [selectedWebsiteData, setSelectedWebsiteData] = useState(null);
   const [wizardMessage, setWizardMessage] = useState(null);
@@ -438,7 +442,12 @@ const Chat = () => {
     setError(null);
     
     // Add the user question to chat history immediately
-    setChatHistory(prev => [...prev, { type: 'question', text: currentQuestion, timestamp: new Date() }]);
+    const userMessage = {
+      type: 'question',
+      text: currentQuestion,
+      timestamp: new Date()
+    };
+    setChatHistory(prev => [...prev, userMessage]);
 
     if (socketRef.current) {
       socketRef.current.close();
@@ -482,38 +491,38 @@ const Chat = () => {
       flushSync(() => {
         if(!newMessageAppended){
           setChatHistory(prev => [...prev, botMessage]);
-  
           setChatLoading(false);
-  
           newMessageAppended = true;
         }
   
         const delta = event.data;
-  
-        console.log(delta);
+        console.log('Received delta:', delta);
       
         setChatHistory(prev => {
           const updated = [...prev];
-          const lastIndex = updated.map(m => m.type).lastIndexOf('answer');
-          if (lastIndex !== -1) {
+          const lastIndex = updated.length - 1;
+          if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
             updated[lastIndex] = {
               ...updated[lastIndex],
-              answer: updated[lastIndex].answer + delta
+              answer: (updated[lastIndex].answer || '') + delta
             };
           }
           return updated;
         });
-      })
+      });
     };
 
     socketRef.current.onclose = () => {
       console.log('WebSocket connection closed');
+      setChatLoading(false);
     };
 
     socketRef.current.onerror = (error) => {
       console.error('WebSocket error:', error);
+      setError('خطا در ارتباط با سرور');
+      setChatLoading(false);
     };
-  }
+  };
 
   const toggleChunks = (sourceId) => {
     if (expandedSourceId === sourceId) {
@@ -548,18 +557,19 @@ const Chat = () => {
   };
 
   const handleStoreVector = async () => {
-    if (!fileContent) return;
+    if (!fileContent || !selectedFile) return;
     
     setStoringVector(true);
     setError(null);
     try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/store_vector`, {
+      // First, vectorize the document
+      const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}/vectorize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          text: fileContent.markdown,
+          html: editorContent,
           metadata: {
             source: `https://${selectedDomain.domain}${fileContent.uri}`,
             title: fileContent.title,
@@ -569,20 +579,49 @@ const Chat = () => {
         })
       });
 
-      if (!response.ok) {
+      if (!vectorizeResponse.ok) {
         throw new Error('خطا در ذخیره در پایگاه داده برداری');
       }
 
-      const data = await response.json();
-      if (data.status === 'success') {
-        // Show success message or handle as needed
-        alert('فایل با موفقیت در پایگاه داده برداری ذخیره شد');
-      } else {
+      const vectorizeData = await vectorizeResponse.json();
+      if (!vectorizeData.message) {
         throw new Error('خطا در ذخیره در پایگاه داده برداری');
       }
+
+      // Then, update the document with the new data
+      const updateResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: fileContent.title,
+          html: editorContent,
+          markdown: vectorizeData.markdown,
+          uri: fileContent.uri,
+          domain_id: selectedDomain.id,
+        })
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('خطا در بروزرسانی سند');
+      }
+
+      const updateData = await updateResponse.json();
+      
+      // Show success message
+      alert(vectorizeData.message);
+      
+      // Update local state with the new content
+      setFileContent(prev => ({
+        ...prev,
+        html: editorContent,
+        markdown: vectorizeData.markdown
+      }));
+
     } catch (err) {
       setError(err.message);
-      console.error('Error storing vector:', err);
+      console.error('Error in vectorization process:', err);
     } finally {
       setStoringVector(false);
     }
@@ -781,6 +820,100 @@ const Chat = () => {
     });
   };
 
+  // Add scroll handler
+  const handleScroll = () => {
+    if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
+
+    const { scrollTop } = chatContainerRef.current;
+    if (scrollTop === 0) {
+      const newOffset = historyOffset + 20;
+      setHistoryOffset(newOffset);
+      fetchChatHistory(newOffset);
+    }
+  };
+
+  const fetchChatHistory = async (offset = 0, limit = 20) => {
+    if (!sessionId) return;
+    
+    setHistoryLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_PYTHON_APP_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('خطا در دریافت تاریخچه چت');
+      }
+      
+      const messages = await response.json();
+      
+      if (Array.isArray(messages)) {
+        // Transform the API response format to match our chat history format
+        const transformedMessages = messages.map(msg => ({
+          type: msg.role === 'user' ? 'question' : 'answer',
+          text: msg.role === 'user' ? msg.body : undefined,
+          answer: msg.role === 'assistant' ? msg.body : undefined,
+          timestamp: new Date(msg.created_at)
+        }));
+
+        // Reverse the array to show older messages at the top
+        const reversedMessages = [...transformedMessages].reverse();
+
+        if (offset === 0) {
+          setChatHistory(reversedMessages);
+        } else {
+          setChatHistory(prev => [...reversedMessages, ...prev]);
+        }
+        setHasMoreHistory(messages.length === limit);
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching chat history:', err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  // Add useEffect to fetch history when component mounts
+  useEffect(() => {
+    if (sessionId) {
+      fetchChatHistory(0);
+    }
+  }, [sessionId]);
+
+  // Add scroll event listener
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [historyLoading, hasMoreHistory, historyOffset]);
+
+  // Add useEffect to scroll to bottom when new messages are added
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatHistory]);
+
+  // Add useEffect to scroll to bottom after initial load
+  useEffect(() => {
+    if (!historyLoading && chatHistory.length > 0) {
+      const scrollToBottom = () => {
+        if (chatEndRef.current) {
+          chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+      
+      // Try immediate scroll
+      scrollToBottom();
+      
+      // Also try after a small delay to ensure DOM is updated
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [historyLoading, chatHistory.length]);
+
   return (
     <>
       <style>{globalStyles}</style>
@@ -845,64 +978,105 @@ const Chat = () => {
                 return (
                   <div className="flex flex-col h-full">
                     <WizardButtons onWizardSelect={handleWizardSelect} />
-                    <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-                      {wizardMessage && (
-                        <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {formatTimestamp(wizardMessage.timestamp)}
-                            </span>
-                            <span className="text-xs font-medium text-green-600 dark:text-green-400">
-                              {wizardMessage.title}
-                            </span>
-                          </div>
-                          <div className="mb-4">
-                            <div 
-                              className="text-gray-700 dark:text-white chat-message"
-                              dangerouslySetInnerHTML={{ __html: wizardMessage.content }}
-                            />
-                          </div>
+                    <div 
+                      ref={chatContainerRef}
+                      className="flex-1 overflow-y-auto mb-4 space-y-4"
+                      style={{ 
+                        height: 'calc(100vh - 200px)',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                    >
+                      {historyLoading && (
+                        <div className="flex items-center justify-center p-4">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
+                          <p className="text-gray-600 dark:text-gray-300">در حال بارگذاری تاریخچه...</p>
                         </div>
                       )}
-                      {chatHistory.length === 0 ? (
-                        <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-                          سوال خود را بپرسید تا گفتگو شروع شود
-                        </div>
-                      ) : (
-                        chatHistory.map((item, index) => (
-                          <div key={index} className="mb-4">
-                            {item.type === 'question' ? (
-                              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
-                                <div className="flex justify-between items-center mb-1">
-                                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    {formatTimestamp(item.timestamp)}
-                                  </span>
-                                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400">شما</span>
-                                </div>
-                                <div 
-                                  className="text-gray-800 dark:text-white chat-message"
-                                  dangerouslySetInnerHTML={{ __html: item.text }}
-                                />
-                              </div>
-                            ) : (
-                              <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
-                                <div className="flex justify-between items-center mb-2">
-                                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    {formatTimestamp(item.timestamp)}
-                                  </span>
-                                  <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
-                                </div>
-                                <div className="mb-4">
+                      
+                      <div className="flex-1">
+                        {wizardMessage && (
+                          <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {formatTimestamp(wizardMessage.timestamp)}
+                              </span>
+                              <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                                {wizardMessage.title}
+                              </span>
+                            </div>
+                            <div className="mb-4">
+                              <div 
+                                className="text-gray-700 dark:text-white chat-message"
+                                dangerouslySetInnerHTML={{ __html: wizardMessage.content }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
+                        {chatHistory.length === 0 && !historyLoading ? (
+                          <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+                            سوال خود را بپرسید تا گفتگو شروع شود
+                          </div>
+                        ) : (
+                          chatHistory.map((item, index) => (
+                            <div key={index} className="mb-4">
+                              {item.type === 'question' ? (
+                                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                      {formatTimestamp(item.timestamp)}
+                                    </span>
+                                    <span className="text-xs font-medium text-blue-600 dark:text-blue-400">شما</span>
+                                  </div>
                                   <div 
-                                    className="text-gray-700 dark:text-white chat-message"
-                                    dangerouslySetInnerHTML={{ __html: item.answer }}
+                                    className="text-gray-800 dark:text-white chat-message"
+                                    dangerouslySetInnerHTML={{ __html: item.text }}
                                   />
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        ))
-                      )}
+                              ) : (
+                                <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                      {formatTimestamp(item.timestamp)}
+                                    </span>
+                                    <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
+                                  </div>
+                                  <div className="mb-4">
+                                    <div 
+                                      className="text-gray-700 dark:text-white chat-message"
+                                      dangerouslySetInnerHTML={{ __html: item.answer }}
+                                    />
+                                  </div>
+                                  {item.sources && item.sources.length > 0 && (
+                                    <div>
+                                      <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">منابع:</h3>
+                                      <ul className="list-disc pl-4">
+                                        {item.sources.map((source, sourceIndex) => (
+                                          <li key={sourceIndex} className="mb-2">
+                                            <div 
+                                              className="text-sm text-gray-700 dark:text-white"
+                                              dangerouslySetInnerHTML={{ __html: source.text }}
+                                            />
+                                            <a
+                                              href={source.metadata.url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+                                            >
+                                              منبع: {source.metadata.source}
+                                            </a>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
                       
                       {chatLoading && (
                         <div className="flex items-center justify-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg mb-4 animate-pulse">
@@ -915,110 +1089,6 @@ const Chat = () => {
                     </div>
                     
                     <form onSubmit={realtimeHandleSubmit} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        placeholder="سوال خود را بپرسید..."
-                        className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                        disabled={chatLoading}
-                      />
-                      <button
-                        type="submit"
-                        disabled={chatLoading || !question.trim()}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center"
-                      >
-                        {chatLoading ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            <span>در حال ارسال...</span>
-                          </>
-                        ) : (
-                          'ارسال'
-                        )}
-                      </button>
-                    </form>
-                    {error && <div className="text-red-500 mt-2">{error}</div>}
-                  </div>
-                );
-                return (
-                  <div className="flex flex-col h-full">
-                    <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-                      {chatHistory.length === 0 ? (
-                        <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-                          سوال خود را بپرسید تا گفتگو شروع شود
-                        </div>
-                      ) : (
-                        chatHistory.map((item, index) => (
-                          <div key={index} className="mb-4">
-                            {item.type === 'question' ? (
-                              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
-                                <div className="flex justify-between items-center mb-1">
-                                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    {formatTimestamp(item.timestamp)}
-                                  </span>
-                                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400">شما</span>
-                                </div>
-                                <div 
-                                  className="text-gray-800 dark:text-white chat-message"
-                                  dangerouslySetInnerHTML={{ __html: item.text }}
-                                />
-                              </div>
-                            ) : (
-                              <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
-                                <div className="flex justify-between items-center mb-2">
-                                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                                    {formatTimestamp(item.timestamp)}
-                                  </span>
-                                  <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
-                                </div>
-                                <div className="mb-4">
-                                  <div 
-                                    className="text-gray-700 dark:text-white chat-message"
-                                    dangerouslySetInnerHTML={{ __html: item.answer }}
-                                  />
-                                </div>
-
-                                {item.sources && item.sources.length > 0 && (
-                                  <div>
-                                    <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">منابع:</h3>
-                                    <ul className="list-disc pl-4">
-                                      {item.sources.map((source, sourceIndex) => (
-                                        <li key={sourceIndex} className="mb-2">
-                                          <div 
-                                            className="text-sm text-gray-700 dark:text-white"
-                                            dangerouslySetInnerHTML={{ __html: source.text }}
-                                          />
-                                          <a
-                                            href={source.metadata.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                                          >
-                                            منبع: {source.metadata.source}
-                                          </a>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ))
-                      )}
-                      
-                      {chatLoading && (
-                        <div className="flex items-center justify-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg mb-4 animate-pulse">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
-                          <p className="text-gray-600 dark:text-gray-300">در حال دریافت پاسخ...</p>
-                        </div>
-                      )}
-                      
-                      <div ref={chatEndRef} />
-                    </div>
-                    
-                    <form onSubmit={handleSubmit} className="flex gap-2">
                       <input
                         type="text"
                         value={question}
@@ -1342,23 +1412,6 @@ const Chat = () => {
                                 )}
                               </div>
                               <div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">HTML:</h3>
-                                <div className="flex justify-between items-center mb-2">
-                                  <button
-                                    onClick={handleSaveContent}
-                                    disabled={saving}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
-                                  >
-                                    {saving ? (
-                                      <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                        در حال ذخیره...
-                                      </>
-                                    ) : (
-                                      'ذخیره تغییرات'
-                                    )}
-                                  </button>
-                                </div>
                                 <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
                                   <ReactQuill
                                     theme="snow"
