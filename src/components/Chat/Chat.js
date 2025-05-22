@@ -8,7 +8,7 @@ import 'react-quill/dist/quill.snow.css';
 import { flushSync } from 'react-dom';
 import { v4 as uuidv4 } from 'uuid';
 import UpdateDataSource from './UpdateDataSource';
-
+import CreateDocument from './CreateDocument';
 // Global styles for chat messages
 const globalStyles = `
   .chat-message table {
@@ -23,6 +23,10 @@ const globalStyles = `
     padding: 0.5rem;
     border: 1px solid #e5e7eb;
     text-align: right;
+  }
+
+  .msg{
+    transition: height 0.3s ease-in-out;
   }
   
   .chat-message table td {
@@ -204,9 +208,7 @@ const Chat = () => {
   const [editorContent, setEditorContent] = useState('');
   const [saving, setSaving] = useState(false);
   // Add new state for manual knowledge entry
-  const [manualTitle, setManualTitle] = useState('');
   const [manualText, setManualText] = useState('');
-  const [manualSubmitting, setManualSubmitting] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const [deletingSource, setDeletingSource] = useState(null);
   const [editingSource, setEditingSource] = useState(null);
@@ -216,7 +218,8 @@ const Chat = () => {
   const [previousTab, setPreviousTab] = useState(null);
   const [crawlRecursive, setCrawlRecursive] = useState(false);
   const [addKnowledgeTab, setAddKnowledgeTab] = useState('manual');
-
+  const [documentsTab, setDocumentsTab] = useState('crawled');
+  const [showAddKnowledge, setShowAddKnowledge] = useState(false);
   // Socket 
   const socketRef = useRef(null);
 
@@ -242,7 +245,7 @@ const Chat = () => {
   useEffect(() => {
     if (activeTab === 'data-sources') {
       fetchDataSources();
-    } else if (activeTab === 'crawled-websites') {
+    } else if (activeTab === 'documents') {
       fetchDomains();
     }
   }, [activeTab]);
@@ -398,7 +401,7 @@ const Chat = () => {
       setActiveTab(previousTab);
       setPreviousTab(null);
     } else {
-      setActiveTab('crawled-websites');
+      setActiveTab('documents');
     }
   };
 
@@ -499,82 +502,9 @@ const Chat = () => {
         }
   
         const delta = event.data;
-        console.log('Received delta:', delta);
 
-        // Check for table tags
-        if (delta.includes('<table')) {
-          isInTable = true;
-        }
-        if (delta.includes('</table>')) {
-          isInTable = false;
-          // Flush any remaining buffer
-          if (tableBuffer) {
-            setChatHistory(prev => {
-              const updated = [...prev];
-              const lastIndex = updated.length - 1;
-              if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
-                updated[lastIndex] = {
-                  ...updated[lastIndex],
-                  answer: (updated[lastIndex].answer || '') + tableBuffer
-                };
-              }
-              return updated;
-            });
-            tableBuffer = '';
-          }
-        }
-
-        // Handle table row buffering
-        if (isInTable) {
-          if (delta.includes('<tr')) {
-            isInRow = true;
-          }
-          if (delta.includes('</tr>')) {
-            isInRow = false;
-            // Row is complete, append it to the chat
-            setChatHistory(prev => {
-              const updated = [...prev];
-              const lastIndex = updated.length - 1;
-              if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
-                updated[lastIndex] = {
-                  ...updated[lastIndex],
-                  answer: (updated[lastIndex].answer || '') + tableBuffer + delta
-                };
-              }
-              return updated;
-            });
-            tableBuffer = '';
-          } else if (isInRow) {
-            // Buffer the content while in a row
-            tableBuffer += delta;
-          } else {
-            // Not in a row, append directly
-            setChatHistory(prev => {
-              const updated = [...prev];
-              const lastIndex = updated.length - 1;
-              if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
-                updated[lastIndex] = {
-                  ...updated[lastIndex],
-                  answer: (updated[lastIndex].answer || '') + delta
-                };
-              }
-              return updated;
-            });
-          }
-        } else {
-          // Not in a table, append directly
-          setChatHistory(prev => {
-            const updated = [...prev];
-            const lastIndex = updated.length - 1;
-            if (lastIndex >= 0 && updated[lastIndex].type === 'answer') {
-              updated[lastIndex] = {
-                ...updated[lastIndex],
-                answer: (updated[lastIndex].answer || '') + delta
-              };
-            }
-            return updated;
-          });
-        }
+          handleDeltaResponse(delta)
+        
       });
     };
 
@@ -589,6 +519,51 @@ const Chat = () => {
       setChatLoading(false);
     };
   };
+
+  const handleDeltaResponse = (delta) => {
+
+    console.log(delta);
+    
+
+    setChatHistory(prev => {
+
+      const updated = [...prev];
+      const lastIndex = updated.length - 1;
+
+      // Find <table> tags that are not closed with </table> in the current answer
+      let msg = (updated[lastIndex].answer || '') + delta;
+
+      const openTableTags = (msg.match(/<table>/g) || []).length;
+      const closeTableTags = (msg.match(/<\/table>/g) || []).length;
+
+      // There is an open table
+      if(openTableTags > closeTableTags){
+
+        const openTrCount = (msg.match(/<tr>/g) || []).length;
+        const closeTrCount = (msg.match(/<\/tr>/g) || []).length;
+
+        if (openTrCount > closeTrCount) {    
+
+          // Find the last <tr> that doesn't have a corresponding </tr>
+          const lastOpenTrIndex = msg.lastIndexOf('<tr>');
+          if (lastOpenTrIndex !== -1) {
+            // Keep everything before that <tr>
+            msg = msg.substring(0, lastOpenTrIndex);
+
+            console.log('here row inserted');
+          }
+
+        };
+      }
+
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          answer: msg
+      }
+
+      return updated;
+    });
+  }
 
   const toggleChunks = (sourceId) => {
     if (expandedSourceId === sourceId) {
@@ -753,51 +728,6 @@ const Chat = () => {
     }
   };
 
-  // Add new handler for manual knowledge submission
-  const handleManualSubmit = async (e) => {
-    e.preventDefault();
-    if (!manualTitle.trim() || !manualText.trim()) {
-      setError('لطفا عنوان و متن را وارد کنید');
-      return;
-    }
-
-    setManualSubmitting(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/add_manually_knowledge`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: manualText,
-          metadata: {
-            source: 'manual',
-            title: manualTitle
-          }
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('خطا در ذخیره اطلاعات');
-      }
-
-      const data = await response.json();
-      if (data.status === 'success') {
-        alert('اطلاعات با موفقیت ذخیره شد');
-        setManualTitle('');
-        setManualText('');
-      } else {
-        throw new Error('خطا در ذخیره اطلاعات');
-      }
-    } catch (err) {
-      setError(err.message);
-      console.error('Error storing manual knowledge:', err);
-    } finally {
-      setManualSubmitting(false);
-    }
-  };
 
   const handleDeleteSource = async (sourceId) => {
     if (!window.confirm('آیا از حذف این منبع داده اطمینان دارید؟')) {
@@ -877,7 +807,7 @@ const Chat = () => {
     // Extract domain from doc.url (e.g., 'satia.co/')
     const domain = doc.url.split('/')[0];
     setSelectedDomain({ domain });
-    setActiveTab('crawled-websites');
+    setActiveTab('documents');
     fetchFileContent({
       id: doc.id,
       title: doc.title,
@@ -1015,14 +945,14 @@ const Chat = () => {
             افزودن دانش
           </button>
           <button
-            onClick={() => setActiveTab('crawled-websites')}
+            onClick={() => setActiveTab('documents')}
             className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'crawled-websites'
+              activeTab === 'documents'
                 ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
           >
-            وب‌سایت‌های خزش شده
+            اسناد
           </button>
           <button
             onClick={() => setActiveTab('wizard')}
@@ -1084,7 +1014,7 @@ const Chat = () => {
                           </div>
                         ) : (
                           chatHistory.map((item, index) => (
-                            <div key={index} className="mb-4">
+                            <div key={index} className="mb-4 msg">
                               {item.type === 'question' ? (
                                 <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
                                   <div className="flex justify-between items-center mb-1">
@@ -1371,12 +1301,12 @@ const Chat = () => {
                   </div>
                 );
 
-              case 'crawled-websites':
+              case 'documents':
                 return (
                   <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                        {selectedDomain ? 'فایل‌های دامنه' : 'دامنه‌های خزش شده'}
+                        {selectedDomain ? 'فایل‌های دامنه' : 'مستندات'}
                       </h2>
                       <div className="flex items-center gap-4">
                         {selectedDomain && (
@@ -1392,6 +1322,34 @@ const Chat = () => {
                         </span>
                       </div>
                     </div>
+
+                    {!selectedDomain && (
+                      <div className="border-b border-gray-200 dark:border-gray-700 mb-4">
+                        <nav className="-mb-px flex space-x-8 space-x-reverse" aria-label="Tabs">
+                          <button
+                            onClick={() => setDocumentsTab('crawled')}
+                            className={`${
+                              documentsTab === 'crawled'
+                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                          >
+                            دامنه‌های خزش شده
+                          </button>
+                          <button
+                            onClick={() => setDocumentsTab('manual')}
+                            className={`${
+                              documentsTab === 'manual'
+                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                          >
+                            مستندات دستی
+                          </button>
+                        </nav>
+                      </div>
+                    )}
+
                     {filesLoading || domainsLoading ? (
                       <div className="flex justify-center items-center p-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -1536,7 +1494,7 @@ const Chat = () => {
                           </div>
                         ))}
                       </div>
-                    ) : domains.length > 0 ? (
+                    ) : documentsTab === 'crawled' ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {domains.map((domain) => (
                           <div
@@ -1558,13 +1516,36 @@ const Chat = () => {
                           </div>
                         ))}
                       </div>
-                    ) : (
-                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                        <p className="text-gray-500 dark:text-gray-400 text-center">
-                          هیچ دامنه خزش شده‌ای یافت نشد
-                        </p>
+                    ) : documentsTab === 'manual' ? (
+                      <div className="space-y-6">
+                        {showAddKnowledge ? (
+                          <CreateDocument onClose={() => setShowAddKnowledge(false)} />
+                        ) : (
+                          <>
+                            <div className="flex justify-end">
+                              <button
+                                onClick={() => setShowAddKnowledge(true)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                                </svg>
+                                ایجاد سند جدید
+                              </button>
+                            </div>
+                            <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">هیچ سندی وجود ندارد</h3>
+                              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                برای ایجاد سند جدید، روی دکمه "ایجاد سند جدید" کلیک کنید
+                              </p>
+                            </div>
+                          </>
+                        )}
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 );
                 
@@ -1612,67 +1593,6 @@ const Chat = () => {
                       </button>
                     </div>
                     {/* Tab Content */}
-                    {addKnowledgeTab === 'manual' && (
-                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 pb-12">
-                        <div className='flex row justify-between mb-3'>
-                          <div className='col-3'>
-                            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white mb-0">افزودن دانش دستی</h2>
-                          </div>
-                          <div className='flex justify-end'>
-                            <button
-                                  type="button"
-                                  onClick={handleManualSubmit}
-                                  disabled={manualSubmitting}
-                                  className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center"
-                                >
-                                  {manualSubmitting ? (
-                                    <>
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                      در حال ذخیره...
-                                    </>
-                                  ) : (
-                                    'ذخیره دانش'
-                                  )}
-                            </button>
-                          </div>
-                        </div>
-                        <form className="space-y-4">
-                          <div>
-                            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              عنوان
-                            </label>
-                            <input
-                              type="text"
-                              id="title"
-                              value={manualTitle}
-                              onChange={(e) => setManualTitle(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                              placeholder="عنوان دانش را وارد کنید"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label htmlFor="text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              متن
-                            </label>
-                            <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
-                              <ReactQuill
-                                theme="snow"
-                                value={manualText}
-                                modules={modules}
-                                formats={formats}
-                                style={{ height: '200px', direction: 'rtl', textAlign: 'right' }}
-                                onChange={setManualText}
-                              />
-                            </div>
-                          </div>
-        
-                          {error && (
-                            <div className="text-red-500 text-sm text-center">{error}</div>
-                          )}
-                        </form>
-                      </div>
-                    )}
                     {addKnowledgeTab === 'crawl' && (
                       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">خزش وب‌سایت</h2>
