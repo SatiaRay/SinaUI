@@ -11,7 +11,7 @@ const WizardButtons = ({ onWizardSelect }) => {
 
   const fetchEnabledWizards = async () => {
     try {
-      const response = await fetch('http://localhost:8000/wizards?enabled=true');
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards?enabled=true`);
       if (!response.ok) {
         throw new Error('خطا در دریافت ویزاردها');
       }
@@ -26,7 +26,7 @@ const WizardButtons = ({ onWizardSelect }) => {
 
   const handleWizardClick = async (wizardId) => {
     try {
-      const response = await fetch(`http://localhost:8000/wizards/${wizardId}`);
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizardId}`);
       if (!response.ok) {
         throw new Error('خطا در دریافت محتوای ویزارد');
       }

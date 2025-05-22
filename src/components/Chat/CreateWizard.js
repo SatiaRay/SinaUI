@@ -20,7 +20,7 @@ const CreateWizard = ({ onClose, websiteData, onWizardCreated }) => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/wizards', {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

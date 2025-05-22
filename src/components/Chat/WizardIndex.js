@@ -14,7 +14,7 @@ const WizardIndex = () => {
 
   const fetchWizards = async () => {
     try {
-      const response = await fetch('http://localhost:8000/wizards');
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards`);
       if (!response.ok) {
         throw new Error('خطا در دریافت لیست ویزاردها');
       }
@@ -35,7 +35,7 @@ const WizardIndex = () => {
     setUpdatingStatus(prev => ({ ...prev, [wizardId]: true }));
     try {
       const endpoint = currentStatus ? 'disable' : 'enable';
-      const response = await fetch(`http://localhost:8000/${wizardId}/${endpoint}`, {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/${wizardId}/${endpoint}`, {
         method: 'POST',
       });
 
