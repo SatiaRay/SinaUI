@@ -9,6 +9,8 @@ import { flushSync } from 'react-dom';
 import { v4 as uuidv4 } from 'uuid';
 import UpdateDataSource from './UpdateDataSource';
 import CreateDocument from './CreateDocument';
+import CrawlUrl from './CrawlUrl';
+import ModifyDocument from './ModifyDocument';
 // Global styles for chat messages
 const globalStyles = `
   .chat-message table {
@@ -204,9 +206,7 @@ const Chat = () => {
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [selectedWebsiteData, setSelectedWebsiteData] = useState(null);
   const [wizardMessage, setWizardMessage] = useState(null);
-  const [quillEditor, setQuillEditor] = useState(null);
-  const [editorContent, setEditorContent] = useState('');
-  const [saving, setSaving] = useState(false);
+  
   // Add new state for manual knowledge entry
   const [manualText, setManualText] = useState('');
   const [sessionId, setSessionId] = useState(null);
@@ -220,6 +220,7 @@ const Chat = () => {
   const [addKnowledgeTab, setAddKnowledgeTab] = useState('manual');
   const [documentsTab, setDocumentsTab] = useState('crawled');
   const [showAddKnowledge, setShowAddKnowledge] = useState(false);
+  const [showCrawlUrl, setShowCrawlUrl] = useState(false);
   // Socket 
   const socketRef = useRef(null);
 
@@ -255,11 +256,7 @@ const Chat = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
 
-  useEffect(() => {
-    if (fileContent?.html) {
-      setEditorContent(fileContent.html);
-    }
-  }, [fileContent]);
+  
 
   useEffect(() => {
     // Try to get existing session ID from localStorage
@@ -357,29 +354,7 @@ const Chat = () => {
     }
   };
 
-  const fetchFileContent = async (file) => {
-    setFileContentLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${file.id}`);
-      if (!response.ok) {
-        throw new Error('خطا در دریافت محتوای فایل');
-      }
-      const data = await response.json();
-      
-      // Log the content for debugging
-      console.log('HTML length:', data.html?.length);
-      console.log('Markdown length:', data.markdown?.length);
-      
-      setFileContent(data);
-      setSelectedFile(file);
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching file content:', err);
-    } finally {
-      setFileContentLoading(false);
-    }
-  };
+  
 
   const handleDomainClick = (domain) => {
     fetchDomainFiles(domain);
@@ -597,77 +572,6 @@ const Chat = () => {
     return new Date(timestamp).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
   };
 
-  const handleStoreVector = async () => {
-    if (!fileContent || !selectedFile) return;
-    
-    setStoringVector(true);
-    setError(null);
-    try {
-      // First, vectorize the document
-      const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}/vectorize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          html: editorContent,
-          metadata: {
-            source: `https://${selectedDomain.domain}${fileContent.uri}`,
-            title: fileContent.title,
-            author: "خزش شده",
-            date: new Date(fileContent.created_at).toISOString().split('T')[0] // Get only the date part
-          }
-        })
-      });
-
-      if (!vectorizeResponse.ok) {
-        throw new Error('خطا در ذخیره در پایگاه داده برداری');
-      }
-
-      const vectorizeData = await vectorizeResponse.json();
-      if (!vectorizeData.message) {
-        throw new Error('خطا در ذخیره در پایگاه داده برداری');
-      }
-
-      // Then, update the document with the new data
-      const updateResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: fileContent.title,
-          html: editorContent,
-          markdown: vectorizeData.markdown,
-          uri: fileContent.uri,
-          domain_id: selectedDomain.id,
-        })
-      });
-
-      if (!updateResponse.ok) {
-        throw new Error('خطا در بروزرسانی سند');
-      }
-
-      const updateData = await updateResponse.json();
-      
-      // Show success message
-      alert(vectorizeData.message);
-      
-      // Update local state with the new content
-      setFileContent(prev => ({
-        ...prev,
-        html: editorContent,
-        markdown: vectorizeData.markdown
-      }));
-
-    } catch (err) {
-      setError(err.message);
-      console.error('Error in vectorization process:', err);
-    } finally {
-      setStoringVector(false);
-    }
-  };
-
   const handleCreateWizardFromWebsite = async (file) => {
     try {
       setSelectedWebsiteData({
@@ -689,44 +593,7 @@ const Chat = () => {
     }]);
   };
 
-  const handleEditorChange = (content) => {
-    setEditorContent(content);
-  };
-
-  const handleSaveContent = async () => {
-    if (!selectedFile || !editorContent) return;
-    
-    setSaving(true);
-    try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          html: editorContent
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('خطا در ذخیره محتوا');
-      }
-
-      // Update local state with new content
-      setFileContent(prev => ({
-        ...prev,
-        html: editorContent
-      }));
-
-      // Show success message or handle as needed
-      alert('محتوا با موفقیت ذخیره شد');
-    } catch (err) {
-      setError(err.message);
-      console.error('Error saving content:', err);
-    } finally {
-      setSaving(false);
-    }
-  };
+  
 
 
   const handleDeleteSource = async (sourceId) => {
@@ -869,6 +736,30 @@ const Chat = () => {
     }
   };
 
+  const fetchFileContent = async (file) => {
+    setFileContentLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${file.id}`);
+      if (!response.ok) {
+        throw new Error('خطا در دریافت محتوای فایل');
+      }
+      const data = await response.json();
+      
+      // Log the content for debugging
+      console.log('HTML length:', data.html?.length);
+      console.log('Markdown length:', data.markdown?.length);
+      
+      setFileContent(data);
+      setSelectedFile(file);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching file content:', err);
+    } finally {
+      setFileContentLoading(false);
+    }
+  };
+
   // Add useEffect to fetch history when component mounts
   useEffect(() => {
     if (sessionId) {
@@ -933,16 +824,6 @@ const Chat = () => {
             }`}
           >
             منابع داده
-          </button>
-          <button
-            onClick={() => setActiveTab('add-knowledge')}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'add-knowledge'
-                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-          >
-            افزودن دانش
           </button>
           <button
             onClick={() => setActiveTab('documents')}
@@ -1370,14 +1251,6 @@ const Chat = () => {
                           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
                             محتوای فایل
                           </h2>
-                          <div className="flex items-center gap-4">
-                            <button
-                              onClick={handleBackToFiles}
-                              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
-                            >
-                              بازگشت
-                            </button>
-                          </div>
                         </div>
                         {fileContentLoading ? (
                           <div className="flex justify-center items-center p-8">
@@ -1394,127 +1267,129 @@ const Chat = () => {
                             </button>
                           </div>
                         ) : fileContent ? (
-                          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                            <div className="space-y-4">
-                              <div className="flex justify-between items-center">
-                                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                                  محتوای فایل
-                                </h2>
-                                <button
-                                  onClick={handleStoreVector}
-                                  disabled={storingVector}
-                                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
-                                >
-                                  {storingVector ? (
-                                    <>
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                      در حال ذخیره...
-                                    </>
-                                  ) : (
-                                    'ذخیره در پایگاه داده برداری'
-                                  )}
-                                </button>
-                              </div>
-                              <div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
-                                <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
-                              </div>
-                              <div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
-                                {selectedDomain ? (
-                                  <a 
-                                    href={`https://${selectedDomain.domain}${fileContent.uri}`}
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
-                                  >
-                                    {`https://${selectedDomain.domain}${fileContent.uri}`}
-                                  </a>
-                                ) : (
-                                  <span className="text-gray-400">بدون آدرس دامنه</span>
-                                )}
-                              </div>
-                              <div>
-                                <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
-                                  <ReactQuill
-                                    theme="snow"
-                                    value={editorContent}
-                                    modules={modules}
-                                    formats={formats}
-                                    style={{ height: '400px', direction: 'rtl', textAlign: 'right' }}
-                                    onChange={handleEditorChange}
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Markdown:</h3>
-                                <div className="flex justify-between items-center mb-2">
-                                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                                    تعداد کاراکترها: {fileContent.markdown?.length || 0}
-                                  </span>
-                                </div>
-                                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                                  <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                    {fileContent.markdown || ''}
-                                  </pre>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <ModifyDocument 
+                            fileContent={fileContent}
+                            selectedFile={selectedFile}
+                            selectedDomain={selectedDomain}
+                            onBack={handleBackToFiles}
+                          />
                         ) : null}
                       </div>
                     ) : selectedDomain && !selectedFile ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {domainFiles.map((file) => (
-                          <div
-                            key={file.id}
-                            onClick={() => handleFileClick(file)}
-                            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
+                      <div className="space-y-6">
+                        <div className="flex justify-end">
+                          <button
+                            onClick={() => setShowCrawlUrl(true)}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
                           >
-                            <div className="space-y-4">
-                              <div className="flex justify-between items-start">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                  {file.title}
-                                </h3>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleCreateWizardFromWebsite(file);
-                                  }}
-                                  className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
-                                >
-                                  ایجاد ویزارد
-                                </button>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                            </svg>
+                            خزش لینک جدید
+                          </button>
+                        </div>
+                        {domainFiles.length > 0 ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {domainFiles.map((file) => (
+                              <div
+                                key={file.id}
+                                onClick={() => handleFileClick(file)}
+                                className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                                    {file.title}
+                                  </h3>
+                                </div>
+                                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                  <p>آدرس: {file.uri}</p>
+                                </div>
                               </div>
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
-                                <p>آدرس: <a href={`https://${selectedDomain.domain}${file.uri}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300">{`https://${selectedDomain.domain}${file.uri}`}</a></p>
-                                <p>تاریخ ایجاد: {new Date(file.created_at).toLocaleString('fa-IR')}</p>
-                              </div>
-                            </div>
+                            ))}
                           </div>
-                        ))}
+                        ) : (
+                          <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">هیچ فایلی در این دامنه وجود ندارد</h3>
+                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                              برای خزش لینک جدید، روی دکمه "خزش لینک جدید" کلیک کنید
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ) : documentsTab === 'crawled' ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {domains.map((domain) => (
-                          <div
-                            key={domain.id}
-                            onClick={() => handleDomainClick(domain)}
-                            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
-                          >
-                            <div className="flex items-center justify-between">
-                              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                {domain.domain}
-                              </h3>
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
-                                {domain.document_count} فایل
-                              </span>
+                      <div className="space-y-6">
+                        {showCrawlUrl ? (
+                          <CrawlUrl 
+                            onClose={() => setShowCrawlUrl(false)} 
+                            onCrawledDocClick={(doc) => {
+                              setPreviousTab('add-knowledge');
+                              setSelectedFile({
+                                id: doc.id,
+                                title: doc.title,
+                                uri: doc.url
+                              });
+                              // Extract domain from doc.url (e.g., 'satia.co/')
+                              const domain = doc.url.split('/')[0];
+                              setSelectedDomain({ domain });
+                              setActiveTab('documents');
+                              fetchFileContent({
+                                id: doc.id,
+                                title: doc.title,
+                                uri: doc.url
+                              });
+                            }}
+                          />
+                        ) : (
+                          <>
+                            <div className="flex justify-end">
+                              <button
+                                onClick={() => setShowCrawlUrl(true)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                                </svg>
+                                خزش لینک جدید
+                              </button>
                             </div>
-                            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                              <p>تاریخ ایجاد: {new Date(domain.created_at).toLocaleString('fa-IR')}</p>
-                            </div>
-                          </div>
-                        ))}
+                            {domains.length > 0 ? (
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {domains.map((domain) => (
+                                  <div
+                                    key={domain.id}
+                                    onClick={() => handleDomainClick(domain)}
+                                    className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                                        {domain.domain}
+                                      </h3>
+                                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                                        {domain.document_count} فایل
+                                      </span>
+                                    </div>
+                                    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                      <p>تاریخ ایجاد: {new Date(domain.created_at).toLocaleString('fa-IR')}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                </svg>
+                                <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">هیچ دامنه‌ای خزش نشده است</h3>
+                                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                  برای خزش دامنه جدید، روی دکمه "خزش لینک جدید" کلیک کنید
+                                </p>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     ) : documentsTab === 'manual' ? (
                       <div className="space-y-6">
@@ -1566,103 +1441,7 @@ const Chat = () => {
                   </div>
                 );
 
-              case 'add-knowledge':
-                return (
-                  <div className="max-w-4xl mx-auto p-4">
-                    {/* Nested Tabs */}
-                    <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
-                      <button
-                        onClick={() => setAddKnowledgeTab('manual')}
-                        className={`px-4 py-2 text-sm font-medium focus:outline-none ${
-                          addKnowledgeTab === 'manual'
-                            ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                        }`}
-                      >
-                        افزودن دانش دستی
-                      </button>
-                      <button
-                        onClick={() => setAddKnowledgeTab('crawl')}
-                        className={`px-4 py-2 text-sm font-medium focus:outline-none ${
-                          addKnowledgeTab === 'crawl'
-                            ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                        }`}
-                      >
-                        خزش وب‌سایت
-                      </button>
-                    </div>
-                    {/* Tab Content */}
-                    {addKnowledgeTab === 'crawl' && (
-                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">خزش وب‌سایت</h2>
-                        <div className="space-y-4">
-                          <div>
-                            <label htmlFor="crawl-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              آدرس وب‌سایت
-                            </label>
-                            <div className="flex gap-2">
-                              <input
-                                type="url"
-                                id="crawl-url"
-                                value={crawlUrl}
-                                onChange={(e) => setCrawlUrl(e.target.value)}
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                placeholder="https://example.com"
-                              />
-                              <button
-                                onClick={handleCrawl}
-                                disabled={crawling}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center"
-                              >
-                                {crawling ? (
-                                  <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    در حال خزش...
-                                  </>
-                                ) : (
-                                  'شروع خزش'
-                                )}
-                              </button>
-                            </div>
-                            <div className="mt-2 flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                id="crawl-recursive"
-                                checked={crawlRecursive}
-                                onChange={e => setCrawlRecursive(e.target.checked)}
-                                className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                              />
-                              <label htmlFor="crawl-recursive" className="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
-                                خزش تو در تو (Recursive)
-                              </label>
-                            </div>
-                          </div>
-
-                          {/* Crawled Documents List */}
-                          {crawledDocs.length > 0 && (
-                            <div className="mt-6">
-                              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">صفحات خزش شده</h3>
-                              <div className="space-y-4">
-                                {crawledDocs.map((doc) => (
-                                  <div
-                                    key={doc.id}
-                                    onClick={() => handleCrawledDocClick(doc)}
-                                    className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-colors"
-                                  >
-                                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">{doc.title}</h4>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">{doc.url}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-
+              
               default:
                 return null;
             }

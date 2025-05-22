@@ -1,12 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const UpdateDataSource = (props) => {
     const { document_id } = props;
     const [documentData, setDocumentData] = useState(null);
-    const [editedText, setEditedText] = useState('');
+    const [editedContent, setEditedContent] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [updating, setUpdating] = useState(false);
+
+    const modules = {
+        toolbar: [
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['link', 'image'],
+            ['clean']
+        ],
+    };
+
+    const formats = [
+        'header',
+        'bold', 'italic', 'underline', 'strike',
+        'list', 'bullet',
+        'align',
+        'link', 'image'
+    ];
 
     useEffect(() => {
         fetchDocument();
@@ -16,13 +37,13 @@ const UpdateDataSource = (props) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/data_sources/${document_id}`);
+            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/vector/${document_id}`);
             if (!response.ok) {
                 throw new Error('خطا در دریافت اطلاعات سند');
             }
             const data = await response.json();
             setDocumentData(data);
-            setEditedText(data.text || '');
+            setEditedContent(data.html || '');
         } catch (err) {
             setError(err.message);
             console.error('Error fetching document:', err);
@@ -32,22 +53,25 @@ const UpdateDataSource = (props) => {
     };
 
     const handleUpdate = async () => {
-        if (!editedText.trim()) {
-            setError('لطفا متن سند را وارد کنید');
+        if (!editedContent.trim()) {
+            setError('لطفا محتوای سند را وارد کنید');
             return;
         }
 
         setUpdating(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/data_sources/${document_id}`, {
+            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${documentData.id}?update_vector=true`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    document_id: document_id,
-                    text: editedText
+                    title: documentData.title,
+                    html: editedContent,
+                    markdown: documentData.markdown,
+                    uri: documentData.uri,
+                    domain_id: documentData.domain_id
                 })
             });
 
@@ -89,16 +113,31 @@ const UpdateDataSource = (props) => {
     return (
         <div className="flex flex-col h-[calc(100vh-12rem)]">
             <div className="flex-1 min-h-0">
-                <label htmlFor="document-text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    متن سند
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        عنوان سند
+                    </label>
+                    <input
+                        type="text"
+                        value={documentData?.title || ''}
+                        onChange={(e) => setDocumentData({ ...documentData, title: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                </div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    محتوای سند
                 </label>
-                <textarea
-                    id="document-text"
-                    value={editedText}
-                    onChange={(e) => setEditedText(e.target.value)}
-                    className="w-full h-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-none"
-                    placeholder="متن سند را وارد کنید"
-                />
+                <div className="h-[calc(100%-8rem)]">
+                    <ReactQuill
+                        theme="snow"
+                        value={editedContent}
+                        onChange={setEditedContent}
+                        modules={modules}
+                        formats={formats}
+                        className="h-full"
+                        style={{ height: 'calc(100% - 42px)' }}
+                    />
+                </div>
             </div>
             <div className="flex justify-end mt-4">
                 <button

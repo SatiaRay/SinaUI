@@ -1,0 +1,229 @@
+import React, { useState, useEffect } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
+const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initialSelectedFile, selectedDomain: initialSelectedDomain, onBack }) => {
+    const [fileContent, setFileContent] = useState(initialFileContent);
+    const [selectedFile, setSelectedFile] = useState(initialSelectedFile);
+    const [selectedDomain, setSelectedDomain] = useState(initialSelectedDomain);
+    const [storingVector, setStoringVector] = useState(false);
+    const [error, setError] = useState(null);
+    const [editorContent, setEditorContent] = useState('');
+    const [quillEditor, setQuillEditor] = useState(null);
+    const [saving, setSaving] = useState(false);
+
+    const modules = {
+        toolbar: [
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['link', 'image'],
+            ['clean']
+        ],
+    };
+    
+    const formats = [
+        'header',
+        'bold', 'italic', 'underline', 'strike',
+        'list', 'bullet',
+        'align',
+        'link', 'image'
+    ];
+
+    useEffect(() => {
+        if (fileContent?.html) {
+          setEditorContent(fileContent.html);
+        }
+      }, [fileContent]);
+
+    const handleStoreVector = async () => {
+        if (!fileContent || !selectedFile) return;
+        
+        setStoringVector(true);
+        setError(null);
+        try {
+          // First, vectorize the document
+          const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}/vectorize`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              html: editorContent,
+              metadata: {
+                source: `https://${selectedDomain.domain}${fileContent.uri}`,
+                title: fileContent.title,
+                author: "خزش شده",
+                date: new Date(fileContent.created_at).toISOString().split('T')[0] // Get only the date part
+              }
+            })
+          });
+    
+          if (!vectorizeResponse.ok) {
+            throw new Error('خطا در ذخیره در پایگاه داده برداری');
+          }
+    
+          const vectorizeData = await vectorizeResponse.json();
+          if (!vectorizeData.message) {
+            throw new Error('خطا در ذخیره در پایگاه داده برداری');
+          }
+    
+          // Then, update the document with the new data
+          const updateResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: fileContent.title,
+              html: editorContent,
+              markdown: vectorizeData.markdown,
+              uri: fileContent.uri,
+              domain_id: selectedDomain.id,
+            })
+          });
+    
+          if (!updateResponse.ok) {
+            throw new Error('خطا در بروزرسانی سند');
+          }
+    
+          const updateData = await updateResponse.json();
+          
+          // Show success message
+          alert(vectorizeData.message);
+          
+          // Update local state with the new content
+          setFileContent(prev => ({
+            ...prev,
+            html: editorContent,
+            markdown: vectorizeData.markdown
+          }));
+    
+        } catch (err) {
+          setError(err.message);
+          console.error('Error in vectorization process:', err);
+        } finally {
+          setStoringVector(false);
+        }
+      };
+
+      const handleEditorChange = (content) => {
+        setEditorContent(content);
+      };
+    
+      const handleSaveContent = async () => {
+        if (!selectedFile || !editorContent) return;
+        
+        setSaving(true);
+        try {
+          const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              html: editorContent
+            })
+          });
+    
+          if (!response.ok) {
+            throw new Error('خطا در ذخیره محتوا');
+          }
+    
+          // Update local state with new content
+          setFileContent(prev => ({
+            ...prev,
+            html: editorContent
+          }));
+    
+          // Show success message or handle as needed
+          alert('محتوا با موفقیت ذخیره شد');
+        } catch (err) {
+          setError(err.message);
+          console.error('Error saving content:', err);
+        } finally {
+          setSaving(false);
+        }
+      };
+
+    return (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                        محتوای فایل
+                    </h2>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={onBack}
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                        >
+                            بازگشت
+                        </button>
+                        <button
+                            onClick={handleStoreVector}
+                            disabled={storingVector}
+                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
+                        >
+                            {storingVector ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    در حال ذخیره...
+                                </>
+                            ) : (
+                                'ذخیره در پایگاه داده برداری'
+                            )}
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
+                    <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
+                </div>
+                <div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
+                    {selectedDomain ? (
+                        <a
+                            href={`https://${selectedDomain.domain}${fileContent.uri}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
+                        >
+                            {`https://${selectedDomain.domain}${fileContent.uri}`}
+                        </a>
+                    ) : (
+                        <span className="text-gray-400">بدون آدرس دامنه</span>
+                    )}
+                </div>
+                <div>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
+                        <ReactQuill
+                            theme="snow"
+                            value={editorContent}
+                            modules={modules}
+                            formats={formats}
+                            style={{ height: '400px', direction: 'rtl', textAlign: 'right' }}
+                            onChange={handleEditorChange}
+                        />
+                    </div>
+                </div>
+                <div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Markdown:</h3>
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                            تعداد کاراکترها: {fileContent.markdown?.length || 0}
+                        </span>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
+                        <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                            {fileContent.markdown || ''}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default ModifyDocument;
