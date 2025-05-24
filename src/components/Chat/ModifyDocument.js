@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -11,6 +11,8 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     const [editorContent, setEditorContent] = useState('');
     const [quillEditor, setQuillEditor] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [vectorizationStatus, setVectorizationStatus] = useState(null);
+    const socketRef = useRef(null);
 
     const modules = {
         toolbar: [
@@ -33,9 +35,67 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
     useEffect(() => {
         if (fileContent?.html) {
-          setEditorContent(fileContent.html);
+            setEditorContent(fileContent.html);
         }
-      }, [fileContent]);
+    }, [fileContent]);
+
+    const connectToVectorizationSocket = (jobId) => {
+        const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL);
+        const wsUrl = `ws://${url.hostname}:${url.port}/ws/documents/vectorize/${jobId}`;
+        
+        const socket = new WebSocket(wsUrl);
+        
+        socket.onopen = () => {
+            console.log(`Connected to vectorization socket: ${jobId}`);
+        };
+
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                
+                switch (data.event) {
+                    case 'change_progress':
+                        handleProgressChange(data);
+                        break;
+                    case 'finished':
+                        handleVectorizationFinished(data);
+                        break;
+                    default:
+                        console.log('Unknown event:', data);
+                }
+            } catch (err) {
+                console.error('Error parsing socket message:', err);
+            }
+        };
+
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            setError('خطا در ارتباط با سرور');
+        };
+
+        socket.onclose = () => {
+            console.log(`Vectorization socket closed: ${jobId}`);
+        };
+
+        socketRef.current = socket;
+    };
+
+    const handleProgressChange = (data) => {
+        const progressMsg = data.progress?.msg || '';
+        setVectorizationStatus({
+            status: data.status,
+            message: progressMsg
+        });
+    };
+
+    const handleVectorizationFinished = (data) => {
+        setVectorizationStatus({
+            status: 'finished',
+            message: 'تکمیل شده'
+        });
+        setStoringVector(false);
+        alert('سند با موفقیت در پایگاه دانش هوش مصنوعی ذخیره شد');
+    };
 
     const handleStoreVector = async () => {
         if (!fileContent || !selectedFile) return;
@@ -43,109 +103,110 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         setStoringVector(true);
         setError(null);
         try {
-          // First, vectorize the document
-          const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}/vectorize`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              html: editorContent,
-              metadata: {
-                source: `https://${selectedDomain.domain}${fileContent.uri}`,
-                title: fileContent.title,
-                author: "خزش شده",
-                date: new Date(fileContent.created_at).toISOString().split('T')[0] // Get only the date part
-              }
-            })
-          });
+            // First, vectorize the document
+            const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}/vectorize`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    html: editorContent,
+                    metadata: {
+                        source: `https://${selectedDomain.domain}${fileContent.uri}`,
+                        title: fileContent.title,
+                        author: "خزش شده",
+                        date: new Date(fileContent.created_at).toISOString().split('T')[0]
+                    }
+                })
+            });
     
-          if (!vectorizeResponse.ok) {
-            throw new Error('خطا در ذخیره در پایگاه داده برداری');
-          }
+            if (!vectorizeResponse.ok) {
+                throw new Error('خطا در ذخیره در پایگاه داده برداری');
+            }
     
-          const vectorizeData = await vectorizeResponse.json();
-          if (!vectorizeData.message) {
-            throw new Error('خطا در ذخیره در پایگاه داده برداری');
-          }
-    
-          // Then, update the document with the new data
-          const updateResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              title: fileContent.title,
-              html: editorContent,
-              markdown: vectorizeData.markdown,
-              uri: fileContent.uri,
-              domain_id: selectedDomain.id,
-            })
-          });
-    
-          if (!updateResponse.ok) {
-            throw new Error('خطا در بروزرسانی سند');
-          }
-    
-          const updateData = await updateResponse.json();
-          
-          // Show success message
-          alert(vectorizeData.message);
-          
-          // Update local state with the new content
-          setFileContent(prev => ({
-            ...prev,
-            html: editorContent,
-            markdown: vectorizeData.markdown
-          }));
+            const vectorizeData = await vectorizeResponse.json();
+            if (!vectorizeData.job_id) {
+                throw new Error('خطا در ذخیره در پایگاه داده برداری');
+            }
+
+            // Connect to vectorization WebSocket
+            connectToVectorizationSocket(vectorizeData.job_id);
     
         } catch (err) {
-          setError(err.message);
-          console.error('Error in vectorization process:', err);
-        } finally {
-          setStoringVector(false);
+            setError(err.message);
+            console.error('Error in vectorization process:', err);
+            setStoringVector(false);
         }
-      };
+    };
 
-      const handleEditorChange = (content) => {
+    const getButtonText = () => {
+        if (!storingVector) return 'ذخیره در پایگاه داده برداری';
+        
+        if (!vectorizationStatus) return 'در حال ارسال...';
+        
+        switch (vectorizationStatus.status) {
+            case 'started':
+                if (vectorizationStatus.message.includes('Queued')) {
+                    return 'در صف پردازش';
+                } else if (vectorizationStatus.message.includes('html to markdown')) {
+                    return 'در حال تبدیل به مارک‌داون';
+                } else if (vectorizationStatus.message.includes('Storing data')) {
+                    return 'در حال ذخیره در پایگاه داده';
+                }
+                return 'در حال پردازش';
+            case 'finished':
+                return 'تکمیل شده';
+            default:
+                return 'در حال پردازش';
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.close();
+            }
+        };
+    }, []);
+
+    const handleEditorChange = (content) => {
         setEditorContent(content);
-      };
+    };
     
-      const handleSaveContent = async () => {
+    const handleSaveContent = async () => {
         if (!selectedFile || !editorContent) return;
         
         setSaving(true);
         try {
-          const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              html: editorContent
-            })
-          });
+            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    html: editorContent
+                })
+            });
     
-          if (!response.ok) {
-            throw new Error('خطا در ذخیره محتوا');
-          }
+            if (!response.ok) {
+                throw new Error('خطا در ذخیره محتوا');
+            }
     
-          // Update local state with new content
-          setFileContent(prev => ({
-            ...prev,
-            html: editorContent
-          }));
+            // Update local state with new content
+            setFileContent(prev => ({
+                ...prev,
+                html: editorContent
+            }));
     
-          // Show success message or handle as needed
-          alert('محتوا با موفقیت ذخیره شد');
+            // Show success message or handle as needed
+            alert('محتوا با موفقیت ذخیره شد');
         } catch (err) {
-          setError(err.message);
-          console.error('Error saving content:', err);
+            setError(err.message);
+            console.error('Error saving content:', err);
         } finally {
-          setSaving(false);
+            setSaving(false);
         }
-      };
+    };
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -169,7 +230,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                             {storingVector ? (
                                 <>
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    در حال ذخیره...
+                                    {getButtonText()}
                                 </>
                             ) : (
                                 'ذخیره در پایگاه داده برداری'

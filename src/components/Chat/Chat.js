@@ -223,6 +223,12 @@ const Chat = () => {
   const [showCrawlUrl, setShowCrawlUrl] = useState(false);
   // Socket 
   const socketRef = useRef(null);
+  const [manualDocuments, setManualDocuments] = useState([]);
+  const [pagination, setPagination] = useState({
+    limit: 20,
+    offset: 0,
+    total: 0
+  });
 
   const modules = {
     toolbar: [
@@ -800,6 +806,57 @@ const Chat = () => {
     }
   }, [historyLoading, chatHistory.length]);
 
+  const fetchManualDocuments = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/manual?limit=${pagination.limit}&offset=${pagination.offset}`
+      );
+      if (!response.ok) {
+        throw new Error('خطا در دریافت لیست اسناد');
+      }
+      const data = await response.json();
+      setManualDocuments(data);
+      // Assuming the API returns total count in headers
+      const total = response.headers.get('X-Total-Count');
+      if (total) {
+        setPagination(prev => ({ ...prev, total: parseInt(total) }));
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching manual documents:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (documentsTab === 'manual') {
+      fetchManualDocuments();
+    }
+  }, [documentsTab, pagination.offset]);
+
+  const handlePageChange = (newOffset) => {
+    setPagination(prev => ({ ...prev, offset: newOffset }));
+  };
+
+  const handleManualDocClick = (doc) => {
+    setPreviousTab('documents');
+    setSelectedFile({
+      id: doc.id,
+      title: doc.title,
+      uri: doc.uri
+    });
+    setSelectedDomain({ domain: doc.domain });
+    setActiveTab('documents');
+    fetchFileContent({
+      id: doc.id,
+      title: doc.title,
+      uri: doc.uri
+    });
+  };
+
   return (
     <>
       <style>{globalStyles}</style>
@@ -1030,7 +1087,11 @@ const Chat = () => {
                                 بازگشت
                               </button>
                             </div>
-                            <UpdateDataSource document_id={editingSource} />
+                            <UpdateDataSource 
+                              document_id={editingSource} 
+                              previousTab={activeTab}
+                              onBack={() => setEditingSource(null)}
+                            />
                           </div>
                         ) : (
                           sources.map((source, index) => (
@@ -1247,11 +1308,6 @@ const Chat = () => {
                       </div>
                     ) : selectedFile ? (
                       <div className="flex flex-col h-full">
-                        <div className="flex items-center justify-between mb-4">
-                          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                            محتوای فایل
-                          </h2>
-                        </div>
                         {fileContentLoading ? (
                           <div className="flex justify-center items-center p-8">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -1392,31 +1448,87 @@ const Chat = () => {
                         )}
                       </div>
                     ) : documentsTab === 'manual' ? (
-                      <div className="space-y-6">
-                        {showAddKnowledge ? (
-                          <CreateDocument onClose={() => setShowAddKnowledge(false)} />
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">اسناد دستی</h2>
+                          <button
+                            onClick={() => setShowAddKnowledge(true)}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          >
+                            ایجاد سند جدید
+                          </button>
+                        </div>
+
+                        {loading ? (
+                          <div className="flex justify-center items-center p-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                          </div>
+                        ) : error ? (
+                          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
+                            <p className="text-red-500 dark:text-red-400">{error}</p>
+                            <button
+                              onClick={fetchManualDocuments}
+                              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                            >
+                              تلاش مجدد
+                            </button>
+                          </div>
+                        ) : manualDocuments.length === 0 ? (
+                          <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">هیچ سندی وجود ندارد</h3>
+                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                              برای ایجاد سند جدید، روی دکمه "ایجاد سند جدید" کلیک کنید
+                            </p>
+                          </div>
                         ) : (
                           <>
-                            <div className="flex justify-end">
-                              <button
-                                onClick={() => setShowAddKnowledge(true)}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                                </svg>
-                                ایجاد سند جدید
-                              </button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {manualDocuments.map((doc) => (
+                                <div
+                                  key={doc.id}
+                                  onClick={() => handleManualDocClick(doc)}
+                                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
+                                >
+                                  <div className="space-y-4">
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                                      {doc.title}
+                                    </h3>
+                                    <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                                      <span>شناسه: {doc.id}</span>
+                                      <span>
+                                        {new Date(doc.created_at).toLocaleString('fa-IR')}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                            <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">هیچ سندی وجود ندارد</h3>
-                              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                برای ایجاد سند جدید، روی دکمه "ایجاد سند جدید" کلیک کنید
-                              </p>
-                            </div>
+
+                            {/* Pagination */}
+                            {pagination.total > pagination.limit && (
+                              <div className="flex justify-center items-center space-x-2 space-x-reverse mt-4">
+                                <button
+                                  onClick={() => handlePageChange(Math.max(0, pagination.offset - pagination.limit))}
+                                  disabled={pagination.offset === 0}
+                                  className="px-3 py-1 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  قبلی
+                                </button>
+                                <span className="text-gray-700 dark:text-gray-300">
+                                  صفحه {Math.floor(pagination.offset / pagination.limit) + 1} از {Math.ceil(pagination.total / pagination.limit)}
+                                </span>
+                                <button
+                                  onClick={() => handlePageChange(pagination.offset + pagination.limit)}
+                                  disabled={pagination.offset + pagination.limit >= pagination.total}
+                                  className="px-3 py-1 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  بعدی
+                                </button>
+                              </div>
+                            )}
                           </>
                         )}
                       </div>

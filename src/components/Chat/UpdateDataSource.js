@@ -3,7 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 const UpdateDataSource = (props) => {
-    const { document_id } = props;
+    const { document_id, previousTab, onBack } = props;
     const [documentData, setDocumentData] = useState(null);
     const [editedContent, setEditedContent] = useState('');
     const [loading, setLoading] = useState(false);
@@ -113,6 +113,15 @@ const UpdateDataSource = (props) => {
     return (
         <div className="flex flex-col h-[calc(100vh-12rem)]">
             <div className="flex-1 min-h-0">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">ویرایش سند</h3>
+                    <button
+                        onClick={onBack}
+                        className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    >
+                        بازگشت
+                    </button>
+                </div>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         عنوان سند
