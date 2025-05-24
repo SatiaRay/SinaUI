@@ -488,7 +488,7 @@ const Chat = () => {
 
   const handleDeltaResponse = (event) => {
 
-    
+
 
     if (!initialMessageAddedRef.current) {
       // Add empty bot response message
@@ -1440,7 +1440,7 @@ const Chat = () => {
                         )}
                       </div>
                     ) : documentsTab === 'manual' ? (
-                      <div className="space-y-4">
+                      (showAddKnowledge ? <CreateDocument onClose={() => {setShowAddKnowledge(false); fetchManualDocuments()}}/> : <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">اسناد دستی</h2>
                           <button
@@ -1523,7 +1523,7 @@ const Chat = () => {
                             )}
                           </>
                         )}
-                      </div>
+                      </div>)
                     ) : null}
                   </div>
                 );
