@@ -186,6 +186,7 @@ const Chat = () => {
   const [error, setError] = useState(null);
   const [question, setQuestion] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
+  const initialMessageAddedRef = useRef(false)
   const [chatLoading, setChatLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
@@ -206,7 +207,7 @@ const Chat = () => {
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [selectedWebsiteData, setSelectedWebsiteData] = useState(null);
   const [wizardMessage, setWizardMessage] = useState(null);
-  
+
   // Add new state for manual knowledge entry
   const [manualText, setManualText] = useState('');
   const [sessionId, setSessionId] = useState(null);
@@ -230,11 +231,14 @@ const Chat = () => {
     total: 0
   });
 
+  // stores deltas for table buffering
+  let inCompatibleMessage = ''
+
   const modules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       [{ 'align': [] }],
       ['link', 'image'],
       ['clean']
@@ -262,12 +266,12 @@ const Chat = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
 
-  
+
 
   useEffect(() => {
     // Try to get existing session ID from localStorage
     const storedSessionId = localStorage.getItem('chat_session_id');
-    
+
     if (storedSessionId) {
       setSessionId(storedSessionId);
     } else {
@@ -277,11 +281,11 @@ const Chat = () => {
         const prefix = 'chat_';
         const remainingLength = 255 - prefix.length;
         let token = prefix;
-        
+
         for (let i = 0; i < remainingLength; i++) {
           token += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        
+
         return token;
       };
 
@@ -360,7 +364,7 @@ const Chat = () => {
     }
   };
 
-  
+
 
   const handleDomainClick = (domain) => {
     fetchDomainFiles(domain);
@@ -389,15 +393,15 @@ const Chat = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!question.trim()) return;
-    
+
     const currentQuestion = question;
     setQuestion('');
     setChatLoading(true);
     setError(null);
-    
+
     // Add the user question to chat history immediately
     setChatHistory(prev => [...prev, { type: 'question', text: currentQuestion, timestamp: new Date() }]);
-    
+
     try {
       const response = await askQuestion(currentQuestion);
       // Add the answer to chat history
@@ -420,11 +424,11 @@ const Chat = () => {
   const realtimeHandleSubmit = async (e) => {
     e.preventDefault();
     if (!question.trim()) return;
-    
+
     const currentQuestion = question;
     setQuestion('');
     setError(null);
-    
+
     // Add the user question to chat history immediately
     const userMessage = {
       type: 'question',
@@ -437,18 +441,7 @@ const Chat = () => {
       socketRef.current.close();
     }
 
-    let newMessageAppended = false;
-    let tableBuffer = '';
-    let isInTable = false;
-    let isInRow = false;
-
-    // Add empty bot response message
-    const botMessage = {
-      type: 'answer',
-      answer: '',
-      sources: [],
-      timestamp: new Date()
-    };
+    initialMessageAddedRef.current = false
 
     const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL)
     const hostPort = `${url.hostname}:${url.port}`;
@@ -465,29 +458,21 @@ const Chat = () => {
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connection established');
+
+      inCompatibleMessage = ""
+
       // Send a question as JSON
-      socketRef.current.send(JSON.stringify({ 
+      socketRef.current.send(JSON.stringify({
         question: currentQuestion,
-        session_id: storedSessionId 
+        session_id: storedSessionId
       }));
 
       setChatLoading(true);
+
+
     };
 
-    socketRef.current.onmessage = (event) => {
-      flushSync(() => {
-        if(!newMessageAppended){
-          setChatHistory(prev => [...prev, botMessage]);
-          setChatLoading(false);
-          newMessageAppended = true;
-        }
-  
-        const delta = event.data;
-
-          handleDeltaResponse(delta)
-        
-      });
-    };
+    socketRef.current.onmessage = handleDeltaResponse
 
     socketRef.current.onclose = () => {
       console.log('WebSocket connection closed');
@@ -501,49 +486,62 @@ const Chat = () => {
     };
   };
 
-  const handleDeltaResponse = (delta) => {
+  const handleDeltaResponse = (event) => {
 
-    console.log(delta);
     
 
-    setChatHistory(prev => {
+    if (!initialMessageAddedRef.current) {
+      // Add empty bot response message
+      const botMessage = {
+        type: 'answer',
+        answer: '',
+        sources: [],
+        timestamp: new Date()
+      };
+      setChatHistory(prev => [...prev, botMessage]);
+      setChatLoading(false);
+      initialMessageAddedRef.current = true
+    }
 
+    let delta = event.data
+
+    inCompatibleMessage += delta
+
+    let msg = inCompatibleMessage
+
+    const openTableTags = (msg.match(/<table>/g) || []).length;
+    const closeTableTags = (msg.match(/<\/table>/g) || []).length;
+
+    let openTableExists = openTableTags > closeTableTags;
+
+    if (openTableExists) {
+      const openTrCount = (msg.match(/<tr>/g) || []).length;
+      const closeTrCount = (msg.match(/<\/tr>/g) || []).length;
+
+      let openTrExists = openTrCount > closeTrCount;
+
+      if (openTrExists) {
+        // Find the last <tr> that doesn't have a corresponding </tr>
+        const lastOpenTrIndex = msg.lastIndexOf('<tr>');
+        if (lastOpenTrIndex !== -1) {
+          // Keep everything before that <tr>
+          msg = msg.substring(0, lastOpenTrIndex);
+        }
+      }
+    }
+
+    setChatHistory(prev => {
       const updated = [...prev];
       const lastIndex = updated.length - 1;
 
-      // Find <table> tags that are not closed with </table> in the current answer
-      let msg = (updated[lastIndex].answer || '') + delta;
-
-      const openTableTags = (msg.match(/<table>/g) || []).length;
-      const closeTableTags = (msg.match(/<\/table>/g) || []).length;
-
-      // There is an open table
-      if(openTableTags > closeTableTags){
-
-        const openTrCount = (msg.match(/<tr>/g) || []).length;
-        const closeTrCount = (msg.match(/<\/tr>/g) || []).length;
-
-        if (openTrCount > closeTrCount) {    
-
-          // Find the last <tr> that doesn't have a corresponding </tr>
-          const lastOpenTrIndex = msg.lastIndexOf('<tr>');
-          if (lastOpenTrIndex !== -1) {
-            // Keep everything before that <tr>
-            msg = msg.substring(0, lastOpenTrIndex);
-
-            console.log('here row inserted');
-          }
-
-        };
-      }
-
-        updated[lastIndex] = {
-          ...updated[lastIndex],
-          answer: msg
+      updated[lastIndex] = {
+        ...updated[lastIndex],
+        answer: msg
       }
 
       return updated;
     });
+
   }
 
   const toggleChunks = (sourceId) => {
@@ -569,7 +567,7 @@ const Chat = () => {
       'Weekly': 'هفتگی',
       'Monthly': 'ماهانه'
     };
-    
+
     return translations[status] || status || 'هرگز';
   };
 
@@ -599,7 +597,7 @@ const Chat = () => {
     }]);
   };
 
-  
+
 
 
   const handleDeleteSource = async (sourceId) => {
@@ -702,19 +700,19 @@ const Chat = () => {
 
   const fetchChatHistory = async (offset = 0, limit = 20) => {
     if (!sessionId) return;
-    
+
     setHistoryLoading(true);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_PYTHON_APP_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`
       );
-      
+
       if (!response.ok) {
         throw new Error('خطا در دریافت تاریخچه چت');
       }
-      
+
       const messages = await response.json();
-      
+
       if (Array.isArray(messages)) {
         // Transform the API response format to match our chat history format
         const transformedMessages = messages.map(msg => ({
@@ -751,11 +749,11 @@ const Chat = () => {
         throw new Error('خطا در دریافت محتوای فایل');
       }
       const data = await response.json();
-      
+
       // Log the content for debugging
       console.log('HTML length:', data.html?.length);
       console.log('Markdown length:', data.markdown?.length);
-      
+
       setFileContent(data);
       setSelectedFile(file);
     } catch (err) {
@@ -797,10 +795,10 @@ const Chat = () => {
           chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
       };
-      
+
       // Try immediate scroll
       scrollToBottom();
-      
+
       // Also try after a small delay to ensure DOM is updated
       setTimeout(scrollToBottom, 100);
     }
@@ -864,41 +862,37 @@ const Chat = () => {
         <div className="flex border-b border-gray-200 dark:border-gray-700">
           <button
             onClick={() => setActiveTab('simple-chat')}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'simple-chat'
-                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
+            className={`px-4 py-2 text-sm font-medium ${activeTab === 'simple-chat'
+              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
           >
             چت ساده
           </button>
           <button
             onClick={() => setActiveTab('data-sources')}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'data-sources'
-                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
+            className={`px-4 py-2 text-sm font-medium ${activeTab === 'data-sources'
+              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
           >
             منابع داده
           </button>
           <button
             onClick={() => setActiveTab('documents')}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'documents'
-                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
+            className={`px-4 py-2 text-sm font-medium ${activeTab === 'documents'
+              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
           >
             اسناد
           </button>
           <button
             onClick={() => setActiveTab('wizard')}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === 'wizard'
-                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
+            className={`px-4 py-2 text-sm font-medium ${activeTab === 'wizard'
+              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
           >
             پاسخ‌های ویزارد
           </button>
@@ -910,10 +904,10 @@ const Chat = () => {
               case 'simple-chat':
                 return (
                   <div className="flex flex-col h-full">
-                    <div 
+                    <div
                       ref={chatContainerRef}
                       className="flex-1 overflow-y-auto mb-4 space-y-4"
-                      style={{ 
+                      style={{
                         height: 'calc(100vh - 200px)',
                         display: 'flex',
                         flexDirection: 'column'
@@ -925,7 +919,7 @@ const Chat = () => {
                           <p className="text-gray-600 dark:text-gray-300">در حال بارگذاری تاریخچه...</p>
                         </div>
                       )}
-                      
+
                       <div className="flex-1">
                         {wizardMessage && (
                           <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
@@ -938,14 +932,14 @@ const Chat = () => {
                               </span>
                             </div>
                             <div className="mb-4">
-                              <div 
+                              <div
                                 className="text-gray-700 dark:text-white chat-message"
                                 dangerouslySetInnerHTML={{ __html: wizardMessage.content }}
                               />
                             </div>
                           </div>
                         )}
-                        
+
                         {chatHistory.length === 0 && !historyLoading ? (
                           <div className="text-center text-gray-500 dark:text-gray-400 p-4">
                             سوال خود را بپرسید تا گفتگو شروع شود
@@ -961,7 +955,7 @@ const Chat = () => {
                                     </span>
                                     <span className="text-xs font-medium text-blue-600 dark:text-blue-400">شما</span>
                                   </div>
-                                  <div 
+                                  <div
                                     className="text-gray-800 dark:text-white chat-message"
                                     dangerouslySetInnerHTML={{ __html: item.text }}
                                   />
@@ -975,7 +969,7 @@ const Chat = () => {
                                     <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
                                   </div>
                                   <div className="mb-4">
-                                    <div 
+                                    <div
                                       className="text-gray-700 dark:text-white chat-message"
                                       dangerouslySetInnerHTML={{ __html: item.answer }}
                                     />
@@ -986,7 +980,7 @@ const Chat = () => {
                                       <ul className="list-disc pl-4">
                                         {item.sources.map((source, sourceIndex) => (
                                           <li key={sourceIndex} className="mb-2">
-                                            <div 
+                                            <div
                                               className="text-sm text-gray-700 dark:text-white"
                                               dangerouslySetInnerHTML={{ __html: source.text }}
                                             />
@@ -1009,17 +1003,17 @@ const Chat = () => {
                           ))
                         )}
                       </div>
-                      
+
                       {chatLoading && (
                         <div className="flex items-center justify-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg mb-4 animate-pulse">
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
                           <p className="text-gray-600 dark:text-gray-300">در حال دریافت پاسخ...</p>
                         </div>
                       )}
-                      
+
                       <div ref={chatEndRef} />
                     </div>
-                    
+
                     <WizardButtons onWizardSelect={handleWizardSelect} />
                     <form onSubmit={realtimeHandleSubmit} className="flex gap-2">
                       <input
@@ -1087,8 +1081,8 @@ const Chat = () => {
                                 بازگشت
                               </button>
                             </div>
-                            <UpdateDataSource 
-                              document_id={editingSource} 
+                            <UpdateDataSource
+                              document_id={editingSource}
                               previousTab={activeTab}
                               onBack={() => setEditingSource(null)}
                             />
@@ -1164,34 +1158,34 @@ const Chat = () => {
                                     {source.chunks.map((chunk, chunkIndex) => {
                                       const chunkKey = chunk.id || `chunk-${source.source_id || index}-${chunkIndex}`;
                                       const isTextExpanded = expandedTexts[chunkKey];
-                                      
+
                                       return (
-                                        <div 
-                                          key={chunkKey} 
+                                        <div
+                                          key={chunkKey}
                                           className="p-3 mb-3 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800"
                                         >
                                           <div className="flex justify-between mb-2 border-b pb-2 dark:border-gray-700">
                                             <p className="font-medium text-gray-700 dark:text-gray-300">شناسه: {chunk.id || `بخش ${chunkIndex + 1}`}</p>
                                             <p className="text-gray-500 dark:text-gray-400 text-xs">صفحه: {chunk.metadata?.page || 'نامشخص'}</p>
                                           </div>
-                                          
+
                                           {chunk.title && (
                                             <div className="mb-2">
                                               <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">عنوان:</p>
                                               <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">{chunk.title}</p>
                                             </div>
                                           )}
-                                          
+
                                           {chunk.text && (
                                             <div className="mb-2">
                                               <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">متن:</p>
                                               <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                                                 {chunk.text.length > 200 && !isTextExpanded
-                                                  ? `${chunk.text.substring(0, 200)}...` 
+                                                  ? `${chunk.text.substring(0, 200)}...`
                                                   : chunk.text}
                                               </p>
                                               {chunk.text.length > 200 && (
-                                                <button 
+                                                <button
                                                   onClick={(e) => {
                                                     e.stopPropagation();
                                                     toggleTextExpansion(chunkKey);
@@ -1203,17 +1197,17 @@ const Chat = () => {
                                               )}
                                             </div>
                                           )}
-                                          
+
                                           {chunk.content && !chunk.text && (
                                             <div className="mb-2">
                                               <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">محتوا:</p>
                                               <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                                                 {chunk.content.length > 200 && !isTextExpanded
-                                                  ? `${chunk.content.substring(0, 200)}...` 
+                                                  ? `${chunk.content.substring(0, 200)}...`
                                                   : chunk.content}
                                               </p>
                                               {chunk.content.length > 200 && (
-                                                <button 
+                                                <button
                                                   onClick={(e) => {
                                                     e.stopPropagation();
                                                     toggleTextExpansion(chunkKey);
@@ -1270,21 +1264,19 @@ const Chat = () => {
                         <nav className="-mb-px flex space-x-8 space-x-reverse" aria-label="Tabs">
                           <button
                             onClick={() => setDocumentsTab('crawled')}
-                            className={`${
-                              documentsTab === 'crawled'
-                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                            className={`${documentsTab === 'crawled'
+                              ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                           >
                             دامنه‌های خزش شده
                           </button>
                           <button
                             onClick={() => setDocumentsTab('manual')}
-                            className={`${
-                              documentsTab === 'manual'
-                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                            className={`${documentsTab === 'manual'
+                              ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                           >
                             مستندات دستی
                           </button>
@@ -1323,7 +1315,7 @@ const Chat = () => {
                             </button>
                           </div>
                         ) : fileContent ? (
-                          <ModifyDocument 
+                          <ModifyDocument
                             fileContent={fileContent}
                             selectedFile={selectedFile}
                             selectedDomain={selectedDomain}
@@ -1378,8 +1370,8 @@ const Chat = () => {
                     ) : documentsTab === 'crawled' ? (
                       <div className="space-y-6">
                         {showCrawlUrl ? (
-                          <CrawlUrl 
-                            onClose={() => setShowCrawlUrl(false)} 
+                          <CrawlUrl
+                            onClose={() => setShowCrawlUrl(false)}
                             onCrawledDocClick={(doc) => {
                               setPreviousTab('add-knowledge');
                               setSelectedFile({
@@ -1535,14 +1527,14 @@ const Chat = () => {
                     ) : null}
                   </div>
                 );
-                
+
               case 'wizard':
                 return (
                   <div className="space-y-4">
-                    
+
                     <WizardIndex />
                     {showCreateWizard && (
-                      <CreateWizard 
+                      <CreateWizard
                         onClose={() => {
                           setShowCreateWizard(false);
                           setSelectedWebsiteData(null);
@@ -1553,7 +1545,7 @@ const Chat = () => {
                   </div>
                 );
 
-              
+
               default:
                 return null;
             }
