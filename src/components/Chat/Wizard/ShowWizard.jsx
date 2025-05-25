@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import CreateWizard from './CreateWizard';
 
 const ShowWizard = ({ wizard, onWizardSelect }) => {
     const [wizardData, setWizardData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showCreateWizard, setShowCreateWizard] = useState(false)
 
     useEffect(() => {
         const fetchWizardData = async () => {
@@ -42,6 +44,17 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
         onWizardSelect(childWizard);
     };
 
+    const addNewChild = (child) => {
+        let children = wizard.children || []
+
+        console.log(children);
+        
+        
+        children.push(child)
+
+        wizardData.children = children
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center p-8">
@@ -74,21 +87,31 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
 
     return (
         <div className="space-y-6">
+            {showCreateWizard ? <CreateWizard onWizardCreated={addNewChild} onClose={() => setShowCreateWizard(false)} parent_id={wizard.id}/> : ''}
+            
             {/* Header with back button */}
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
                     {wizardData.title}
                 </h2>
                 {(
-                    <button
-                        onClick={handleBackClick}
-                        className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                        </svg>
-                        بازگشت
-                    </button>
+                    <div className='flex gap-x-2'>
+                        <button
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            onClick={() => setShowCreateWizard(true)}
+                        >
+                            ایجاد ویزارد فرزند جدید
+                        </button>
+                        <button
+                            onClick={handleBackClick}
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                            </svg>
+                            بازگشت
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -138,8 +161,8 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${child.enabled
-                                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                                                 }`}>
                                                 {child.enabled ? 'فعال' : 'غیرفعال'}
                                             </span>
