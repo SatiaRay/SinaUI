@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDataSources, askQuestion } from '../../services/api.js';
-import CreateWizard from './CreateWizard';
-import WizardIndex from './WizardIndex';
+import CreateWizard from './Wizard/CreateWizard';
+import WizardIndex from './Wizard/WizardIndex';
 import WizardButtons from './WizardButtons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
