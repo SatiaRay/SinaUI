@@ -149,7 +149,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                 if (vectorizationStatus.message.includes('Queued')) {
                     return 'در صف پردازش';
                 } else if (vectorizationStatus.message.includes('html to markdown')) {
-                    return 'در حال تبدیل به مارک‌داون';
+                    return 'درحال آماده سازی';
                 } else if (vectorizationStatus.message.includes('Storing data')) {
                     return 'در حال ذخیره در پایگاه داده';
                 }
