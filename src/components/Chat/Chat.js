@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDataSources, askQuestion } from '../../services/api.js';
-import CreateWizard from './Wizard/CreateWizard';
-import WizardIndex from './Wizard/WizardIndex';
-import WizardButtons from './WizardButtons';
+import { CreateWizard, WizardIndex, WizardButtons, WizardButton } from "./Wizard"
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { flushSync } from 'react-dom';
@@ -595,6 +593,15 @@ const Chat = () => {
       answer: wizardData.context,
       timestamp: new Date()
     }]);
+
+    (wizardData.children || []).map(child => {
+      setChatHistory(prev => [...prev, {
+        type: 'button',
+        wizard: child,
+        timestamp: new Date()
+      }]);
+    })
+
   };
 
 
@@ -961,43 +968,51 @@ const Chat = () => {
                                   />
                                 </div>
                               ) : (
-                                <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
-                                  <div className="flex justify-between items-center mb-2">
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                                      {formatTimestamp(item.timestamp)}
-                                    </span>
-                                    <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
-                                  </div>
-                                  <div className="mb-4">
-                                    <div
-                                      className="text-gray-700 dark:text-white chat-message"
-                                      dangerouslySetInnerHTML={{ __html: item.answer }}
-                                    />
-                                  </div>
-                                  {item.sources && item.sources.length > 0 && (
-                                    <div>
-                                      <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">منابع:</h3>
-                                      <ul className="list-disc pl-4">
-                                        {item.sources.map((source, sourceIndex) => (
-                                          <li key={sourceIndex} className="mb-2">
-                                            <div
-                                              className="text-sm text-gray-700 dark:text-white"
-                                              dangerouslySetInnerHTML={{ __html: source.text }}
-                                            />
-                                            <a
-                                              href={source.metadata.url}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                                            >
-                                              منبع: {source.metadata.source}
-                                            </a>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                </div>
+                                (
+                                  item.type == 'button' ?
+                                    (
+                                      <WizardButton wizard={item.wizard} onWizardClick={handleWizardSelect}/>
+                                    ) :
+                                    (
+                                      <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                                        <div className="flex justify-between items-center mb-2">
+                                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            {formatTimestamp(item.timestamp)}
+                                          </span>
+                                          <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
+                                        </div>
+                                        <div className="mb-4">
+                                          <div
+                                            className="text-gray-700 dark:text-white chat-message"
+                                            dangerouslySetInnerHTML={{ __html: item.answer }}
+                                          />
+                                        </div>
+                                        {item.sources && item.sources.length > 0 && (
+                                          <div>
+                                            <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">منابع:</h3>
+                                            <ul className="list-disc pl-4">
+                                              {item.sources.map((source, sourceIndex) => (
+                                                <li key={sourceIndex} className="mb-2">
+                                                  <div
+                                                    className="text-sm text-gray-700 dark:text-white"
+                                                    dangerouslySetInnerHTML={{ __html: source.text }}
+                                                  />
+                                                  <a
+                                                    href={source.metadata.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+                                                  >
+                                                    منبع: {source.metadata.source}
+                                                  </a>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )
+                                )
                               )}
                             </div>
                           ))
@@ -1440,7 +1455,7 @@ const Chat = () => {
                         )}
                       </div>
                     ) : documentsTab === 'manual' ? (
-                      (showAddKnowledge ? <CreateDocument onClose={() => {setShowAddKnowledge(false); fetchManualDocuments()}}/> : <div className="space-y-4">
+                      (showAddKnowledge ? <CreateDocument onClose={() => { setShowAddKnowledge(false); fetchManualDocuments() }} /> : <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">اسناد دستی</h2>
                           <button

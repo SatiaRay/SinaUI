@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import CreateWizard from './CreateWizard';
 import ShowWizard from './ShowWizard';
+import WizardCard from './WizardCard';
 
 const WizardIndex = () => {
   const [wizards, setWizards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [updatingStatus, setUpdatingStatus] = useState({});
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [selectedWizard, setSelectedWizard] = useState(null);
 
@@ -33,45 +33,18 @@ const WizardIndex = () => {
     setWizards(prevWizards => [newWizard, ...prevWizards]);
   };
 
-  const toggleWizardStatus = async (wizardId, currentStatus) => {
-    setUpdatingStatus(prev => ({ ...prev, [wizardId]: true }));
-    try {
-      const endpoint = currentStatus ? 'disable' : 'enable';
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/${wizardId}/${endpoint}`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        throw new Error('خطا در تغییر وضعیت ویزارد');
-      }
-
-      // Update the local state
-      setWizards(prevWizards =>
-        prevWizards.map(wizard =>
-          wizard.id === wizardId
-            ? { ...wizard, enabled: !currentStatus }
-            : wizard
-        )
-      );
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setUpdatingStatus(prev => ({ ...prev, [wizardId]: false }));
-    }
-  };
-
   const handleWizardClick = (wizard) => {
     setSelectedWizard(wizard);
   };
 
   if (selectedWizard) {
     return (
-      <ShowWizard
-        wizard={selectedWizard}
-        onWizardSelect={setSelectedWizard}
-      />
+        <ShowWizard
+            wizard={selectedWizard}
+            onWizardSelect={setSelectedWizard}
+        />
     );
-  }
+}
 
   return (
     <div className="space-y-6">
@@ -117,48 +90,7 @@ const WizardIndex = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {wizards.map((wizard) => (
-              <div
-                key={wizard.id}
-                onClick={() => handleWizardClick(wizard)}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                      {wizard.title}
-                    </h3>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleWizardStatus(wizard.id, wizard.enabled);
-                      }}
-                      disabled={updatingStatus[wizard.id]}
-                      className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors ${wizard.enabled
-                          ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800'
-                          : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {updatingStatus[wizard.id] ? (
-                        <div className="flex items-center gap-1">
-                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-                          <span>در حال تغییر...</span>
-                        </div>
-                      ) : wizard.enabled ? (
-                        'فعال'
-                      ) : (
-                        'غیرفعال'
-                      )}
-                    </button>
-                  </div>
-
-                  <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                    <span>شناسه: {wizard.id}</span>
-                    <span>
-                      {new Date(wizard.created_at).toLocaleString('fa-IR')}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <WizardCard key={wizard.id} wizard={wizard} onClickWizard={handleWizardClick}/>
             ))}
           </div>
         )
