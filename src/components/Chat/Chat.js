@@ -220,6 +220,7 @@ const Chat = () => {
   const [documentsTab, setDocumentsTab] = useState('crawled');
   const [showAddKnowledge, setShowAddKnowledge] = useState(false);
   const [showCrawlUrl, setShowCrawlUrl] = useState(false);
+  const [backHandlers, setBackHandlers] = useState([]);
   // Socket 
   const socketRef = useRef(null);
   const [manualDocuments, setManualDocuments] = useState([]);
@@ -366,15 +367,22 @@ const Chat = () => {
 
   const handleDomainClick = (domain) => {
     fetchDomainFiles(domain);
+    addBackHandler(() => { setSelectedDomain(null)})
   };
 
   const handleBackClick = () => {
-    setSelectedDomain(null);
-    setDomainFiles([]);
+    setBackHandlers(prev => {
+      if (prev.length === 0) return prev;
+      const lastHandler = prev[prev.length - 1];
+      lastHandler();
+      return prev.slice(0, -1);
+    });
   };
 
   const handleFileClick = (file) => {
     fetchFileContent(file);
+
+    addBackHandler(() => {setSelectedFile(null)})
   };
 
   const handleBackToFiles = () => {
@@ -747,6 +755,14 @@ const Chat = () => {
     }
   };
 
+  const addBackHandler = (handler) => {
+    console.log('Adding back handler:', handler);
+    setBackHandlers(prev => {
+      console.log('Previous handlers:', prev);
+      return [...prev, handler];
+    });
+  }
+
   const fetchFileContent = async (file) => {
     setFileContentLoading(true);
     setError(null);
@@ -847,19 +863,22 @@ const Chat = () => {
   };
 
   const handleManualDocClick = (doc) => {
-    setPreviousTab('documents');
     setSelectedFile({
       id: doc.id,
       title: doc.title,
       uri: doc.uri
     });
-    setSelectedDomain({ domain: doc.domain });
-    setActiveTab('documents');
+    
     fetchFileContent({
       id: doc.id,
       title: doc.title,
       uri: doc.uri
     });
+
+    addBackHandler(() => {
+      setFileContent(null);
+      setSelectedFile(null);
+    })
   };
 
   return (
@@ -1260,7 +1279,7 @@ const Chat = () => {
                         {selectedDomain ? 'فایل‌های دامنه' : 'مستندات'}
                       </h2>
                       <div className="flex items-center gap-4">
-                        {selectedDomain && (
+                        {backHandlers.length > 0 && (
                           <button
                             onClick={handleBackClick}
                             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
@@ -1341,22 +1360,32 @@ const Chat = () => {
                     ) : selectedDomain && !selectedFile ? (
                       <div className="space-y-6">
                         <div className="flex justify-end">
-                          <button
-                            onClick={() => setShowCrawlUrl(true)}
+                          {/* <button
+                            onClick={() => {
+                              console.log('Button clicked');
+                              // const handler = () => {
+                              //   console.log('Handler executing');
+                              //   setShowCrawlUrl(false);
+                              // };
+                              // addBackHandler(handler);
+                              // setShowCrawlUrl(true);
+                            }}
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                             </svg>
                             خزش لینک جدید
-                          </button>
+                          </button> */}
                         </div>
                         {domainFiles.length > 0 ? (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {domainFiles.map((file) => (
                               <div
                                 key={file.id}
-                                onClick={() => handleFileClick(file)}
+                                onClick={() => {
+                                  handleFileClick(file)
+                                }}
                                 className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
                               >
                                 <div className="flex items-center justify-between">
@@ -1409,7 +1438,13 @@ const Chat = () => {
                           <>
                             <div className="flex justify-end">
                               <button
-                                onClick={() => setShowCrawlUrl(true)}
+                                 onClick={() => {
+                                  const handler = () => {
+                                    setShowCrawlUrl(false);
+                                  };
+                                  addBackHandler(handler);
+                                  setShowCrawlUrl(true);
+                                }}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -1459,7 +1494,10 @@ const Chat = () => {
                         <div className="flex justify-between items-center">
                           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">اسناد دستی</h2>
                           <button
-                            onClick={() => setShowAddKnowledge(true)}
+                            onClick={() => {
+                              setShowAddKnowledge(true)
+                              addBackHandler(() => {setShowAddKnowledge(false)})
+                            }}
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                           >
                             ایجاد سند جدید
