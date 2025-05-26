@@ -16,7 +16,7 @@ const WizardIndex = () => {
 
   const fetchWizards = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/roots`);
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/roots?enabled_only=false`);
       if (!response.ok) {
         throw new Error('خطا در دریافت لیست ویزاردها');
       }

@@ -4,14 +4,12 @@ import ShowWizard from './ShowWizard';
 const WizardCard = ({ wizard, onClickWizard, onDeleteWizard }) => {
     const [error, setError] = useState(null);
     const [updatingStatus, setUpdatingStatus] = useState({});
-    const [selectedWizard, setSelectedWizard] = useState(null);
-    const [wizards, setWizards] = useState([]);
 
     const toggleWizardStatus = async (wizardId, currentStatus) => {
         setUpdatingStatus(prev => ({ ...prev, [wizardId]: true }));
         try {
             const endpoint = currentStatus ? 'disable' : 'enable';
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/${wizardId}/${endpoint}`, {
+            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizardId}/${endpoint}`, {
                 method: 'POST',
             });
 
@@ -19,14 +17,7 @@ const WizardCard = ({ wizard, onClickWizard, onDeleteWizard }) => {
                 throw new Error('خطا در تغییر وضعیت ویزارد');
             }
 
-            // Update the local state
-            setWizards(prevWizards =>
-                prevWizards.map(wizard =>
-                    wizard.id === wizardId
-                        ? { ...wizard, enabled: !currentStatus }
-                        : wizard
-                )
-            );
+            wizard.enabled = !wizard.enabled
         } catch (err) {
             setError(err.message);
         } finally {
