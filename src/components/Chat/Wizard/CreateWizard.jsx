@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-const CreateWizard = ({ onClose, onWizardCreated }) => {
+const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
     const [title, setTitle] = useState('');
     const [context, setContext] = useState('');
     const [loading, setLoading] = useState(false);
@@ -44,7 +44,8 @@ const CreateWizard = ({ onClose, onWizardCreated }) => {
                 },
                 body: JSON.stringify({
                     title,
-                    context
+                    context,
+                    parent_id
                 })
             });
 

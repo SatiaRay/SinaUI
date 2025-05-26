@@ -1,0 +1,181 @@
+import React, { useState, useEffect } from 'react';
+import CreateWizard from './CreateWizard';
+
+const ShowWizard = ({ wizard, onWizardSelect }) => {
+    const [wizardData, setWizardData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [showCreateWizard, setShowCreateWizard] = useState(false)
+
+    useEffect(() => {
+        const fetchWizardData = async () => {
+            if (!wizard?.id) return;
+
+            setLoading(true);
+            setError(null);
+
+            try {
+                const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizard.id}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch wizard data');
+                }
+                const data = await response.json();
+                setWizardData(data);
+            } catch (err) {
+                setError(err.message);
+                console.error('Error fetching wizard:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchWizardData();
+    }, [wizard?.id]);
+
+    const handleBackClick = () => {
+        if (wizardData?.parent_id) {
+            onWizardSelect({ id: wizardData.parent_id });
+        } else
+            onWizardSelect(null);
+
+    };
+
+    const handleChildClick = (childWizard) => {
+        onWizardSelect(childWizard);
+    };
+
+    const addNewChild = (child) => {
+        let children = wizard.children || []
+
+        console.log(children);
+        
+        
+        children.push(child)
+
+        wizardData.children = children
+    };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
+                <p className="text-red-500 dark:text-red-400">{error}</p>
+                <button
+                    onClick={() => onWizardSelect(wizard)}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                    تلاش مجدد
+                </button>
+            </div>
+        );
+    }
+
+    if (!wizardData) {
+        return (
+            <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+                ویزاردی یافت نشد
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6">
+            {showCreateWizard ? <CreateWizard onWizardCreated={addNewChild} onClose={() => setShowCreateWizard(false)} parent_id={wizard.id}/> : ''}
+            
+            {/* Header with back button */}
+            <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                    {wizardData.title}
+                </h2>
+                {(
+                    <div className='flex gap-x-2'>
+                        <button
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            onClick={() => setShowCreateWizard(true)}
+                        >
+                            ایجاد ویزارد فرزند جدید
+                        </button>
+                        <button
+                            onClick={handleBackClick}
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                            </svg>
+                            بازگشت
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Wizard content */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div
+                    className="prose dark:prose-invert max-w-none [&_a]:text-blue-600 [&_a]:underline [&_a]:hover:text-blue-700 dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
+                    dangerouslySetInnerHTML={{ __html: wizardData.context }}
+                />
+            </div>
+
+            {/* Children table */}
+            {wizardData.children && wizardData.children.length > 0 && (
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                            زیر ویزاردها
+                        </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead className="bg-gray-50 dark:bg-gray-900">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        عنوان
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        تاریخ ایجاد
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        وضعیت
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                {wizardData.children.map((child) => (
+                                    <tr
+                                        key={child.id}
+                                        onClick={() => handleChildClick(child)}
+                                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                                    >
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                            {child.title}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            {new Date(child.created_at).toLocaleString('fa-IR')}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${child.enabled
+                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                                }`}>
+                                                {child.enabled ? 'فعال' : 'غیرفعال'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ShowWizard;

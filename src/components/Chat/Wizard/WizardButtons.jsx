@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import WizardButton from './WizardButton';
 
 const WizardButtons = ({ onWizardSelect }) => {
   const [wizards, setWizards] = useState([]);
@@ -11,7 +12,7 @@ const WizardButtons = ({ onWizardSelect }) => {
 
   const fetchEnabledWizards = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards?enabled=true`);
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/roots`);
       if (!response.ok) {
         throw new Error('خطا در دریافت ویزاردها');
       }
@@ -24,17 +25,8 @@ const WizardButtons = ({ onWizardSelect }) => {
     }
   };
 
-  const handleWizardClick = async (wizardId) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizardId}`);
-      if (!response.ok) {
-        throw new Error('خطا در دریافت محتوای ویزارد');
-      }
-      const data = await response.json();
-      onWizardSelect(data);
-    } catch (err) {
-      setError(err.message);
-    }
+  const handleWizardClick = async (wizard) => {
+    onWizardSelect(wizard)
   };
 
   if (loading) {
@@ -64,13 +56,7 @@ const WizardButtons = ({ onWizardSelect }) => {
   return (
     <div className="flex flex-wrap gap-2 py-4">
       {wizards.map((wizard) => (
-        <button
-          key={wizard.id}
-          onClick={() => handleWizardClick(wizard.id)}
-          className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 transition-colors"
-        >
-          {wizard.title}
-        </button>
+        <WizardButton wizard={wizard} onWizardClick={handleWizardClick} />
       ))}
     </div>
   );
