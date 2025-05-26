@@ -33,6 +33,10 @@ const WizardIndex = () => {
     setWizards(prevWizards => [newWizard, ...prevWizards]);
   };
 
+  const handleWizardDeleted = (wizardId) => {
+    setWizards(prevWizards => prevWizards.filter(w => w.id !== wizardId));
+  };
+
   const handleWizardClick = (wizard) => {
     setSelectedWizard(wizard);
   };
@@ -88,9 +92,9 @@ const WizardIndex = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 xxl:grid-cols-4 gap-4">
             {wizards.map((wizard) => (
-              <WizardCard key={wizard.id} wizard={wizard} onClickWizard={handleWizardClick}/>
+              <WizardCard key={wizard.id} wizard={wizard} onClickWizard={handleWizardClick} onDeleteWizard={handleWizardDeleted}/>
             ))}
           </div>
         )

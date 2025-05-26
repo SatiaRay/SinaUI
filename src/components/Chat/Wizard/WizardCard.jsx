@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ShowWizard from './ShowWizard';
 
-const WizardCard = ({ wizard, onClickWizard }) => {
+const WizardCard = ({ wizard, onClickWizard, onDeleteWizard }) => {
     const [error, setError] = useState(null);
     const [updatingStatus, setUpdatingStatus] = useState({});
     const [selectedWizard, setSelectedWizard] = useState(null);
@@ -34,6 +34,24 @@ const WizardCard = ({ wizard, onClickWizard }) => {
         }
     };
 
+    const submitDelete = () => {
+        if (window.confirm('آیا از حذف این ویزارد مطمئن هستید ؟')) {
+            fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizard.id}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('خطا در حذف ویزارد');
+                }
+                onDeleteWizard(wizard.id);
+            })
+            .catch(error => {
+                console.error('Error deleting wizard:', error);
+                alert('خطا در حذف ویزارد');
+            });
+        }
+    }
+
 
     return (
         <div
@@ -45,6 +63,7 @@ const WizardCard = ({ wizard, onClickWizard }) => {
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                         {wizard.title}
                     </h3>
+                    <div className='flex gap-1'>
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -67,6 +86,17 @@ const WizardCard = ({ wizard, onClickWizard }) => {
                             'غیرفعال'
                         )}
                     </button>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            submitDelete();
+                        }}
+                        disabled={updatingStatus[wizard.id]}
+                        className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-red-200`}
+                    >
+                        حذف
+                    </button>
+                    </div>
                 </div>
 
                 <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
