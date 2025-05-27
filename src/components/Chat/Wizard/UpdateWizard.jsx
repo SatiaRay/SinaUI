@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
     const [title, setTitle] = useState('');
@@ -14,25 +14,6 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
             setContext(wizard.context || '');
         }
     }, [wizard]);
-
-    const modules = {
-        toolbar: [
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'align': [] }],
-            ['link', 'image'],
-            ['clean']
-        ],
-    };
-
-    const formats = [
-        'header',
-        'bold', 'italic', 'underline', 'strike',
-        'list', 'bullet',
-        'align',
-        'link', 'image'
-    ];
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -112,15 +93,80 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
                                 <label htmlFor="context" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     متن ویزارد
                                 </label>
-                                <div className="h-[calc(100vh-400px)]">
-                                    <ReactQuill
-                                        theme="snow"
-                                        value={context}
-                                        onChange={setContext}
-                                        modules={modules}
-                                        formats={formats}
-                                        className="h-full"
-                                        style={{ height: 'calc(100% - 42px)' }}
+                                <div className="h-[calc(100%-8rem)]">
+                                    <CKEditor
+                                        editor={ClassicEditor}
+                                        data={context}
+                                        onChange={(event, editor) => {
+                                            const data = editor.getData();
+                                            setContext(data);
+                                        }}
+                                        config={{
+                                            language: 'fa',
+                                            direction: 'rtl',
+                                            toolbar: {
+                                                items: [
+                                                    'heading',
+                                                    '|',
+                                                    'bold',
+                                                    'italic',
+                                                    'link',
+                                                    'bulletedList',
+                                                    'numberedList',
+                                                    '|',
+                                                    'outdent',
+                                                    'indent',
+                                                    '|',
+                                                    'insertTable',
+                                                    'undo',
+                                                    'redo'
+                                                ]
+                                            },
+                                            table: {
+                                                contentToolbar: [
+                                                    'tableColumn',
+                                                    'tableRow',
+                                                    'mergeTableCells',
+                                                    'tableProperties',
+                                                    'tableCellProperties'
+                                                ],
+                                                defaultProperties: {
+                                                    borderWidth: '1px',
+                                                    borderColor: '#ccc',
+                                                    borderStyle: 'solid',
+                                                    alignment: 'right'
+                                                }
+                                            },
+                                            htmlSupport: {
+                                                allow: [
+                                                    {
+                                                        name: 'table',
+                                                        attributes: true,
+                                                        classes: true,
+                                                        styles: true
+                                                    },
+                                                    {
+                                                        name: 'tr',
+                                                        attributes: true,
+                                                        classes: true,
+                                                        styles: true
+                                                    },
+                                                    {
+                                                        name: 'td',
+                                                        attributes: true,
+                                                        classes: true,
+                                                        styles: true
+                                                    },
+                                                    {
+                                                        name: 'th',
+                                                        attributes: true,
+                                                        classes: true,
+                                                        styles: true
+                                                    }
+                                                ]
+                                            }
+                                        }}
+                                        style={{ direction: 'rtl', textAlign: 'right' }}
                                     />
                                 </div>
                             </div>

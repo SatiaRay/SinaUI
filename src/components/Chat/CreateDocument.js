@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const modules = {
     toolbar: [
@@ -114,14 +114,80 @@ const CreateDocument = ({ onClose }) => {
                 <label htmlFor="text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     متن
                 </label>
-                <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
-                    <ReactQuill
-                        theme="snow"
-                        value={manualText}
-                        modules={modules}
-                        formats={formats}
-                        style={{ height: '200px', direction: 'rtl', textAlign: 'right' }}
-                        onChange={setManualText}
+                <div className="h-[calc(100%-8rem)]">
+                    <CKEditor
+                        editor={ClassicEditor}
+                        data={manualText}
+                        onChange={(event, editor) => {
+                            const data = editor.getData();
+                            setManualText(data);
+                        }}
+                        config={{
+                            language: 'fa',
+                            direction: 'rtl',
+                            toolbar: {
+                                items: [
+                                    'heading',
+                                    '|',
+                                    'bold',
+                                    'italic',
+                                    'link',
+                                    'bulletedList',
+                                    'numberedList',
+                                    '|',
+                                    'outdent',
+                                    'indent',
+                                    '|',
+                                    'insertTable',
+                                    'undo',
+                                    'redo'
+                                ]
+                            },
+                            table: {
+                                contentToolbar: [
+                                    'tableColumn',
+                                    'tableRow',
+                                    'mergeTableCells',
+                                    'tableProperties',
+                                    'tableCellProperties'
+                                ],
+                                defaultProperties: {
+                                    borderWidth: '1px',
+                                    borderColor: '#ccc',
+                                    borderStyle: 'solid',
+                                    alignment: 'right'
+                                }
+                            },
+                            htmlSupport: {
+                                allow: [
+                                    {
+                                        name: 'table',
+                                        attributes: true,
+                                        classes: true,
+                                        styles: true
+                                    },
+                                    {
+                                        name: 'tr',
+                                        attributes: true,
+                                        classes: true,
+                                        styles: true
+                                    },
+                                    {
+                                        name: 'td',
+                                        attributes: true,
+                                        classes: true,
+                                        styles: true
+                                    },
+                                    {
+                                        name: 'th',
+                                        attributes: true,
+                                        classes: true,
+                                        styles: true
+                                    }
+                                ]
+                            }
+                        }}
+                        style={{ direction: 'rtl', textAlign: 'right' }}
                     />
                 </div>
             </div>

@@ -171,46 +171,11 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         };
     }, []);
 
-    
-    const handleSaveContent = async () => {
-        if (!selectedFile || !editorContent) return;
-        
-        setSaving(true);
-        try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    html: ckEditorContent
-                })
-            });
-    
-            if (!response.ok) {
-                throw new Error('خطا در ذخیره محتوا');
-            }
-    
-            // Update local state with new content
-            setFileContent(prev => ({
-                ...prev,
-                html: ckEditorContent
-            }));
-    
-            // Show success message or handle as needed
-            alert('محتوا با موفقیت ذخیره شد');
-        } catch (err) {
-            setError(err.message);
-            console.error('Error saving content:', err);
-        } finally {
-            setSaving(false);
-        }
-    };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div className="space-y-4">
-                <div className="flex justify-between items-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-[calc(100vh-12rem)]">
+            <div className="flex-1 min-h-0 flex flex-col">
+                <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
                         محتوای فایل
                     </h2>
@@ -231,116 +196,107 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                         </button>
                     </div>
                 </div>
-                <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
-                    <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
-                </div>
-                <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
-                    {selectedDomain ? (
-                        <a
-                            href={`https://${selectedDomain.domain}${fileContent.uri}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
-                        >
-                            {`https://${selectedDomain.domain}${fileContent.uri}`}
-                        </a>
-                    ) : (
-                        <span className="text-gray-400">بدون آدرس دامنه</span>
-                    )}
-                </div>
-                {/* <div>
-                    <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
-                        <ReactQuill
-                            theme="snow"
-                            value={editorContent}
-                            modules={modules}
-                            formats={formats}
-                            style={{ height: 'auto', direction: 'rtl', textAlign: 'right' }}
-                            onChange={handleEditorChange}
-                        />
+                <div className="flex-1 flex flex-col min-h-0">
+                    <div>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
+                        <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
                     </div>
-                </div> */}
-                <div className="mt-8">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">CKEditor:</h3>
-                    <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
-                        <CKEditor
-                            editor={ClassicEditor}
-                            data={ckEditorContent}
-                            onChange={(event, editor) => {
-                                console.log('change change');
-                                
-                                const data = editor.getData();
-                                setCkEditorContent(data);
-                            }}
-                            config={{
-                                language: 'fa',
-                                direction: 'rtl',
-                                toolbar: {
-                                    items: [
-                                        'heading',
-                                        '|',
-                                        'bold',
-                                        'italic',
-                                        'link',
-                                        'bulletedList',
-                                        'numberedList',
-                                        '|',
-                                        'outdent',
-                                        'indent',
-                                        '|',
-                                        'insertTable',
-                                        'undo',
-                                        'redo'
-                                    ]
-                                },
-                                table: {
-                                    contentToolbar: [
-                                        'tableColumn',
-                                        'tableRow',
-                                        'mergeTableCells',
-                                        'tableProperties',
-                                        'tableCellProperties'
-                                    ],
-                                    defaultProperties: {
-                                        borderWidth: '1px',
-                                        borderColor: '#ccc',
-                                        borderStyle: 'solid',
-                                        alignment: 'right'
-                                    }
-                                },
-                                htmlSupport: {
-                                    allow: [
-                                        {
-                                            name: 'table',
-                                            attributes: true,
-                                            classes: true,
-                                            styles: true
-                                        },
-                                        {
-                                            name: 'tr',
-                                            attributes: true,
-                                            classes: true,
-                                            styles: true
-                                        },
-                                        {
-                                            name: 'td',
-                                            attributes: true,
-                                            classes: true,
-                                            styles: true
-                                        },
-                                        {
-                                            name: 'th',
-                                            attributes: true,
-                                            classes: true,
-                                            styles: true
+                    <div className="mt-4">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
+                        {selectedDomain ? (
+                            <a
+                                href={`https://${selectedDomain.domain}${fileContent.uri}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
+                            >
+                                {`https://${selectedDomain.domain}${fileContent.uri}`}
+                            </a>
+                        ) : (
+                            <span className="text-gray-400">بدون آدرس دامنه</span>
+                        )}
+                    </div>
+                  
+                    <div className="mt-8 flex-1 min-h-0 flex flex-col">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">CKEditor:</h3>
+                        <div className="flex-1 min-h-0 overflow-auto">
+                            <CKEditor
+                                editor={ClassicEditor}
+                                data={ckEditorContent}
+                                onChange={(event, editor) => {
+                                    console.log('change change');
+                                    
+                                    const data = editor.getData();
+                                    setCkEditorContent(data);
+                                }}
+                                config={{
+                                    language: 'fa',
+                                    direction: 'rtl',
+                                    toolbar: {
+                                        items: [
+                                            'heading',
+                                            '|',
+                                            'bold',
+                                            'italic',
+                                            'link',
+                                            'bulletedList',
+                                            'numberedList',
+                                            '|',
+                                            'outdent',
+                                            'indent',
+                                            '|',
+                                            'insertTable',
+                                            'undo',
+                                            'redo'
+                                        ]
+                                    },
+                                    table: {
+                                        contentToolbar: [
+                                            'tableColumn',
+                                            'tableRow',
+                                            'mergeTableCells',
+                                            'tableProperties',
+                                            'tableCellProperties'
+                                        ],
+                                        defaultProperties: {
+                                            borderWidth: '1px',
+                                            borderColor: '#ccc',
+                                            borderStyle: 'solid',
+                                            alignment: 'right'
                                         }
-                                    ]
-                                }
-                            }}
-                            style={{ direction: 'rtl', textAlign: 'right' }}
-                        />
+                                    },
+                                    htmlSupport: {
+                                        allow: [
+                                            {
+                                                name: 'table',
+                                                attributes: true,
+                                                classes: true,
+                                                styles: true
+                                            },
+                                            {
+                                                name: 'tr',
+                                                attributes: true,
+                                                classes: true,
+                                                styles: true
+                                            },
+                                            {
+                                                name: 'td',
+                                                attributes: true,
+                                                classes: true,
+                                                styles: true
+                                            },
+                                            {
+                                                name: 'th',
+                                                attributes: true,
+                                                classes: true,
+                                                styles: true
+                                            }
+                                        ]
+                                    }
+                                }}
+                                style={{ direction: 'rtl', textAlign: 'right' }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
