@@ -10,9 +10,6 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     const [selectedDomain, setSelectedDomain] = useState(initialSelectedDomain);
     const [storingVector, setStoringVector] = useState(false);
     const [error, setError] = useState(null);
-    const [editorContent, setEditorContent] = useState('');
-    const [quillEditor, setQuillEditor] = useState(null);
-    const [saving, setSaving] = useState(false);
     const [vectorizationStatus, setVectorizationStatus] = useState(null);
     const socketRef = useRef(null);
     const [ckEditorContent, setCkEditorContent] = useState('');
@@ -38,7 +35,8 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
     useEffect(() => {
         if (fileContent?.html) {
-            setEditorContent(fileContent.html);
+            console.log('change');
+            
             setCkEditorContent(fileContent.html);
         }
     }, [fileContent]);
@@ -114,7 +112,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    html: editorContent,
+                    html: ckEditorContent,
                     metadata: {
                         source: `https://${selectedDomain.domain}${fileContent.uri}`,
                         title: fileContent.title,
@@ -173,9 +171,6 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         };
     }, []);
 
-    const handleEditorChange = (content) => {
-        setEditorContent(content);
-    };
     
     const handleSaveContent = async () => {
         if (!selectedFile || !editorContent) return;
@@ -267,8 +262,6 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                         />
                     </div>
                 </div> */}
-                {ckEditorContent}
-
                 <div className="mt-8">
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">CKEditor:</h3>
                     <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
@@ -276,6 +269,8 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                             editor={ClassicEditor}
                             data={ckEditorContent}
                             onChange={(event, editor) => {
+                                console.log('change change');
+                                
                                 const data = editor.getData();
                                 setCkEditorContent(data);
                             }}
