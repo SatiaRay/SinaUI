@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDataSources, askQuestion } from '../../services/api.js';
 import { CreateWizard, WizardIndex, WizardButtons, WizardButton } from "./Wizard"
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { flushSync } from 'react-dom';
 import { v4 as uuidv4 } from 'uuid';
 import UpdateDataSource from './UpdateDataSource';

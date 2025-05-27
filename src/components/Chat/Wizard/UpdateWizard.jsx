@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
-const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
+const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
     const [title, setTitle] = useState('');
     const [context, setContext] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (wizard) {
+            setTitle(wizard.title || '');
+            setContext(wizard.context || '');
+        }
+    }, [wizard]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,30 +25,30 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards`, {
-                method: 'POST',
+            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizard.id}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     title,
                     context,
-                    parent_id
+                    parent_id: wizard.parent_id
                 })
             });
 
             if (!response.ok) {
-                throw new Error('خطا در ایجاد ویزارد');
+                throw new Error('خطا در بروزرسانی ویزارد');
             }
 
-            const newWizard = await response.json();
-            if (onWizardCreated) {
-                onWizardCreated(newWizard);
+            const updatedWizard = await response.json();
+            if (onWizardUpdated) {
+                onWizardUpdated(updatedWizard);
             }
             onClose();
         } catch (err) {
             setError(err.message);
-            console.error('Error creating wizard:', err);
+            console.error('Error updating wizard:', err);
         } finally {
             setLoading(false);
         }
@@ -65,7 +72,7 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
                     </div>
 
                     <div className="h-full overflow-y-auto">
-                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">ایجاد ویزارد جدید</h2>
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">ویرایش ویزارد</h2>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
@@ -177,10 +184,10 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
                                     {loading ? (
                                         <>
                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                            در حال ایجاد...
+                                            در حال بروزرسانی...
                                         </>
                                     ) : (
-                                        'ایجاد ویزارد'
+                                        'بروزرسانی ویزارد'
                                     )}
                                 </button>
                             </div>
@@ -192,4 +199,4 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
     );
 };
 
-export default CreateWizard; 
+export default UpdateWizard;
