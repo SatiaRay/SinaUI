@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initialSelectedFile, selectedDomain: initialSelectedDomain, onBack }) => {
     const [fileContent, setFileContent] = useState(initialFileContent);
@@ -13,6 +15,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     const [saving, setSaving] = useState(false);
     const [vectorizationStatus, setVectorizationStatus] = useState(null);
     const socketRef = useRef(null);
+    const [ckEditorContent, setCkEditorContent] = useState('');
 
     const modules = {
         toolbar: [
@@ -36,6 +39,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     useEffect(() => {
         if (fileContent?.html) {
             setEditorContent(fileContent.html);
+            setCkEditorContent(fileContent.html);
         }
     }, [fileContent]);
 
@@ -184,7 +188,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    html: editorContent
+                    html: ckEditorContent
                 })
             });
     
@@ -195,7 +199,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
             // Update local state with new content
             setFileContent(prev => ({
                 ...prev,
-                html: editorContent
+                html: ckEditorContent
             }));
     
             // Show success message or handle as needed
@@ -251,29 +255,97 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                         <span className="text-gray-400">بدون آدرس دامنه</span>
                     )}
                 </div>
-                <div>
+                {/* <div>
                     <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
                         <ReactQuill
                             theme="snow"
                             value={editorContent}
                             modules={modules}
                             formats={formats}
-                            style={{ height: '400px', direction: 'rtl', textAlign: 'right' }}
+                            style={{ height: 'auto', direction: 'rtl', textAlign: 'right' }}
                             onChange={handleEditorChange}
                         />
                     </div>
-                </div>
-                <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Markdown:</h3>
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                            تعداد کاراکترها: {fileContent.markdown?.length || 0}
-                        </span>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                        <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                            {fileContent.markdown || ''}
-                        </pre>
+                </div> */}
+                {ckEditorContent}
+
+                <div className="mt-8">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">CKEditor:</h3>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
+                        <CKEditor
+                            editor={ClassicEditor}
+                            data={ckEditorContent}
+                            onChange={(event, editor) => {
+                                const data = editor.getData();
+                                setCkEditorContent(data);
+                            }}
+                            config={{
+                                language: 'fa',
+                                direction: 'rtl',
+                                toolbar: {
+                                    items: [
+                                        'heading',
+                                        '|',
+                                        'bold',
+                                        'italic',
+                                        'link',
+                                        'bulletedList',
+                                        'numberedList',
+                                        '|',
+                                        'outdent',
+                                        'indent',
+                                        '|',
+                                        'insertTable',
+                                        'undo',
+                                        'redo'
+                                    ]
+                                },
+                                table: {
+                                    contentToolbar: [
+                                        'tableColumn',
+                                        'tableRow',
+                                        'mergeTableCells',
+                                        'tableProperties',
+                                        'tableCellProperties'
+                                    ],
+                                    defaultProperties: {
+                                        borderWidth: '1px',
+                                        borderColor: '#ccc',
+                                        borderStyle: 'solid',
+                                        alignment: 'right'
+                                    }
+                                },
+                                htmlSupport: {
+                                    allow: [
+                                        {
+                                            name: 'table',
+                                            attributes: true,
+                                            classes: true,
+                                            styles: true
+                                        },
+                                        {
+                                            name: 'tr',
+                                            attributes: true,
+                                            classes: true,
+                                            styles: true
+                                        },
+                                        {
+                                            name: 'td',
+                                            attributes: true,
+                                            classes: true,
+                                            styles: true
+                                        },
+                                        {
+                                            name: 'th',
+                                            attributes: true,
+                                            classes: true,
+                                            styles: true
+                                        }
+                                    ]
+                                }
+                            }}
+                            style={{ direction: 'rtl', textAlign: 'right' }}
+                        />
                     </div>
                 </div>
             </div>
