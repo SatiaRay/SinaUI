@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import CreateWizard from './CreateWizard';
+import UpdateWizard from './UpdateWizard';
 
 const ShowWizard = ({ wizard, onWizardSelect }) => {
     const [wizardData, setWizardData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [showCreateWizard, setShowCreateWizard] = useState(false)
+    const [showCreateWizard, setShowCreateWizard] = useState(false);
+    const [selectedWizardForEdit, setSelectedWizardForEdit] = useState(null);
 
     useEffect(() => {
         const fetchWizardData = async () => {
@@ -55,6 +57,17 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
         wizardData.children = children
     };
 
+    const handleWizardUpdated = (updatedWizard) => {
+        // Update the wizard in the children array
+        const updatedChildren = wizardData.children.map(child => 
+            child.id === updatedWizard.id ? updatedWizard : child
+        );
+        setWizardData(prev => ({
+            ...prev,
+            children: updatedChildren
+        }));
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center p-8">
@@ -88,6 +101,13 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     return (
         <div className="space-y-6">
             {showCreateWizard ? <CreateWizard onWizardCreated={addNewChild} onClose={() => setShowCreateWizard(false)} parent_id={wizard.id}/> : ''}
+            {selectedWizardForEdit && (
+                <UpdateWizard 
+                    wizard={selectedWizardForEdit} 
+                    onClose={() => setSelectedWizardForEdit(null)}
+                    onWizardUpdated={handleWizardUpdated}
+                />
+            )}
             
             {/* Header with back button */}
             <div className="flex items-center justify-between">
@@ -144,28 +164,52 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         وضعیت
                                     </th>
+                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        عملیات
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 {wizardData.children.map((child) => (
                                     <tr
                                         key={child.id}
-                                        onClick={() => handleChildClick(child)}
-                                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                                        className="hover:bg-gray-50 dark:hover:bg-gray-700"
                                     >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                        <td 
+                                            className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white cursor-pointer"
+                                            onClick={() => handleChildClick(child)}
+                                        >
                                             {child.title}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        <td 
+                                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 cursor-pointer"
+                                            onClick={() => handleChildClick(child)}
+                                        >
                                             {new Date(child.created_at).toLocaleString('fa-IR')}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                        <td 
+                                            className="px-6 py-4 whitespace-nowrap text-sm cursor-pointer"
+                                            onClick={() => handleChildClick(child)}
+                                        >
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${child.enabled
                                                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                                 : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                                                 }`}>
                                                 {child.enabled ? 'فعال' : 'غیرفعال'}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedWizardForEdit(child);
+                                                }}
+                                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                </svg>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
