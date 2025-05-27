@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShowWizard, UpdateWizard } from './index';
 
-const WizardCard = ({ wizard, onClickWizard, onDeleteWizard }) => {
+const WizardCard = ({ wizard, onClickWizard, onDeleteWizard, onWizardUpdated}) => {
     const [error, setError] = useState(null);
     const [updatingStatus, setUpdatingStatus] = useState({});
     const [showUpdateWizard, setShowUpdateWizard] = useState(false)
@@ -51,10 +51,7 @@ const WizardCard = ({ wizard, onClickWizard, onDeleteWizard }) => {
                 <UpdateWizard
                     wizard={wizard}
                     onClose={() => setShowUpdateWizard(false)}
-                    onWizardUpdated={(updatedWizard) => {
-                        // Handle the updated wizard data
-                        // e.g., update the wizard list
-                    }}
+                    onWizardUpdated={onWizardUpdated}
                 /> :
                 (<div
                     onClick={() => onClickWizard(wizard)}
@@ -88,15 +85,18 @@ const WizardCard = ({ wizard, onClickWizard, onDeleteWizard }) => {
                                         'غیرفعال'
                                     )}
                                 </button>
-                                
+
                                 <button
-                                    onClick={() => setShowUpdateWizard(true)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowUpdateWizard(true)
+                                    }}
                                     disabled={updatingStatus[wizard.id]}
                                     className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-blue-200`}
                                 >
                                     ویرایش
                                 </button>
-                                
+
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();

@@ -17,7 +17,7 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!title.trim() || !context.trim()) {
+        if (!title.trim()) {
             setError('لطفا تمام فیلدها را پر کنید');
             return;
         }
