@@ -201,6 +201,7 @@
             title: doc.title,
             uri: doc.url,
         });
+        setShowCrawlUrl(false)
     };
 
     const handlePageChange = (newOffset) => {
@@ -460,7 +461,7 @@
                                         ) : fileContent ? (
                                             <>
                                                 <ModifyDocument
-                                                    file={selectedFile}
+                                                    selectedFile={selectedFile}
                                                     fileContent={fileContent}
                                                     selectedDomain={selectedDomain}
                                                     onBack={handleBackToFiles}

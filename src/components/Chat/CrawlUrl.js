@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const CrawlUrl = ({ onClose, onCrawledDocClick }) => {
+const CrawlUrl = ({ onClose, onDocClick }) => {
     const [crawlUrl, setCrawlUrl] = useState('');
     const [crawlRecursive, setCrawlRecursive] = useState(false);
     const [crawling, setCrawling] = useState(false);
@@ -236,7 +236,7 @@ const CrawlUrl = ({ onClose, onCrawledDocClick }) => {
                                             {job.docs.map((doc) => (
                                                 <div
                                                     key={doc.id}
-                                                    onClick={() => onCrawledDocClick(doc)}
+                                                    onClick={() => onDocClick(doc)}
                                                     className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors"
                                                 >
                                                     <h5 className="font-medium text-gray-900 dark:text-white">{doc.title}</h5>
