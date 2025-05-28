@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Login from './components/Login';
@@ -22,12 +22,12 @@ function App() {
 function AppContent() {
     const location = useLocation();
     const showNavbar = location.pathname !== '/login';
-    const [desktopSidebarVisible, setDesktopSidebarVisible] = React.useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            {showNavbar && <Navbar desktopSidebarVisible={desktopSidebarVisible} setDesktopSidebarVisible={setDesktopSidebarVisible} />}
-            <div className={`transition-all duration-300 ${desktopSidebarVisible ? 'md:mr-64' : 'md:mr-0'}`}>
+            {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
+            <div className={`transition-all duration-300 ${sidebarCollapsed ? 'md:mr-0' : 'md:mr-64'}`}>
                 <Routes>
                     <Route path="/login" element={<Login />} />
 
