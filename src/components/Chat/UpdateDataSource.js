@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const UpdateDataSource = (props) => {
     const { document_id, previousTab, onBack } = props;
@@ -9,25 +9,6 @@ const UpdateDataSource = (props) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [updating, setUpdating] = useState(false);
-
-    const modules = {
-        toolbar: [
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'align': [] }],
-            ['link', 'image'],
-            ['clean']
-        ],
-    };
-
-    const formats = [
-        'header',
-        'bold', 'italic', 'underline', 'strike',
-        'list', 'bullet',
-        'align',
-        'link', 'image'
-    ];
 
     useEffect(() => {
         fetchDocument();
@@ -112,16 +93,7 @@ const UpdateDataSource = (props) => {
 
     return (
         <div className="flex flex-col h-[calc(100vh-12rem)]">
-            <div className="flex-1 min-h-0">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">ویرایش سند</h3>
-                    <button
-                        onClick={onBack}
-                        className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    >
-                        بازگشت
-                    </button>
-                </div>
+            <div className="flex-1 min-h-0 flex flex-col">
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         عنوان سند
@@ -133,22 +105,89 @@ const UpdateDataSource = (props) => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                 </div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    محتوای سند
-                </label>
-                <div className="h-[calc(100%-8rem)]">
-                    <ReactQuill
-                        theme="snow"
-                        value={editedContent}
-                        onChange={setEditedContent}
-                        modules={modules}
-                        formats={formats}
-                        className="h-full"
-                        style={{ height: 'calc(100% - 42px)' }}
-                    />
+                <div className="flex-1 flex flex-col min-h-0">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        محتوای سند
+                    </label>
+                    <div className="flex-1 min-h-0 overflow-auto">
+                        <CKEditor
+                            editor={ClassicEditor}
+                            data={editedContent}
+                            onChange={(event, editor) => {
+                                const data = editor.getData();
+                                setEditedContent(data);
+                            }}
+                            config={{
+                                language: 'fa',
+                                direction: 'rtl',
+                                toolbar: {
+                                    items: [
+                                        'heading',
+                                        '|',
+                                        'bold',
+                                        'italic',
+                                        'link',
+                                        'bulletedList',
+                                        'numberedList',
+                                        '|',
+                                        'outdent',
+                                        'indent',
+                                        '|',
+                                        'insertTable',
+                                        'undo',
+                                        'redo'
+                                    ]
+                                },
+                                table: {
+                                    contentToolbar: [
+                                        'tableColumn',
+                                        'tableRow',
+                                        'mergeTableCells',
+                                        'tableProperties',
+                                        'tableCellProperties'
+                                    ],
+                                    defaultProperties: {
+                                        borderWidth: '1px',
+                                        borderColor: '#ccc',
+                                        borderStyle: 'solid',
+                                        alignment: 'right'
+                                    }
+                                },
+                                htmlSupport: {
+                                    allow: [
+                                        {
+                                            name: 'table',
+                                            attributes: true,
+                                            classes: true,
+                                            styles: true
+                                        },
+                                        {
+                                            name: 'tr',
+                                            attributes: true,
+                                            classes: true,
+                                            styles: true
+                                        },
+                                        {
+                                            name: 'td',
+                                            attributes: true,
+                                            classes: true,
+                                            styles: true
+                                        },
+                                        {
+                                            name: 'th',
+                                            attributes: true,
+                                            classes: true,
+                                            styles: true
+                                        }
+                                    ]
+                                }
+                            }}
+                            style={{ direction: 'rtl', textAlign: 'right' }}
+                        />
+                    </div>
                 </div>
             </div>
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-end mt-4 sticky bottom-0 bg-white dark:bg-gray-800 py-2">
                 <button
                     onClick={handleUpdate}
                     disabled={updating}
