@@ -1415,7 +1415,6 @@ const Chat = () => {
                           <CrawlUrl
                             onClose={() => setShowCrawlUrl(false)}
                             onCrawledDocClick={(doc) => {
-                              setPreviousTab('add-knowledge');
                               setSelectedFile({
                                 id: doc.id,
                                 title: doc.title,
@@ -1430,6 +1429,10 @@ const Chat = () => {
                                 title: doc.title,
                                 uri: doc.url
                               });
+                              addBackHandler(() => {
+                                setSelectedFile(null)
+                                setSelectedDomain(null)
+                              })
                             }}
                           />
                         ) : (

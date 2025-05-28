@@ -56,7 +56,9 @@ const WizardButtons = ({ onWizardSelect }) => {
   return (
     <div className="flex flex-wrap gap-2 py-4">
       {wizards.map((wizard) => (
-        <WizardButton wizard={wizard} onWizardClick={handleWizardClick} />
+        <div className="w-auto">
+          <WizardButton wizard={wizard} onWizardClick={handleWizardClick} />
+        </div>
       ))}
     </div>
   );

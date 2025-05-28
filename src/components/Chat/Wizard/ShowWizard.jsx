@@ -47,14 +47,11 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     };
 
     const addNewChild = (child) => {
-        let children = wizard.children || []
-
-        console.log(children);
-        
-        
-        children.push(child)
-
-        wizardData.children = children
+        let children = wizardData.children || [];
+        setWizardData(prev => ({
+            ...prev,
+            children: [...children, child]
+        }));
     };
 
     const handleWizardUpdated = (updatedWizard) => {

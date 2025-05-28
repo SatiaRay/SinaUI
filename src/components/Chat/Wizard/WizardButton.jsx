@@ -20,7 +20,7 @@ const WizardButton = ({ wizard, onWizardClick }) => {
         <button
             key={wizard.id}
             onClick={() => {handleWizardClick(wizard.id)}}
-            className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 transition-colors"
+            className="inline-flex px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 transition-colors"
         >
             {wizard.title}
         </button>
