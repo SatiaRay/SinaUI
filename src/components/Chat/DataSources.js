@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { getDataSources } from '../../services/api';
 import UpdateDataSource from './UpdateDataSource';
@@ -121,10 +120,12 @@ const DataSources = () => {
         </div>
       ) : editingSource ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-
           <UpdateDataSource
             document_id={editingSource}
-            onBack={() => setEditingSource(null)}
+            onBack={() => {
+              setEditingSource(null);
+              fetchDataSources();
+            }}
           />
         </div>
       ) : sources && Array.isArray(sources) && sources.length > 0 ? (

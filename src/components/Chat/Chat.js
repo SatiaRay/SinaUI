@@ -482,7 +482,7 @@ const Chat = () => {
   return (
       <>
         <style>{globalStyles}</style>
-        <div className="flex flex-col h-full max-w-2xl mx-auto">
+        <div className="flex flex-col h-full p-6 max-w-7xl mx-auto">
           <div
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto mb-4 space-y-4"

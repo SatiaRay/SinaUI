@@ -4,15 +4,15 @@ import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from '../contexts/ThemeToggle';
 import { Bars3Icon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
-const Navbar = () => {
+const Navbar = ({ desktopSidebarVisible, setDesktopSidebarVisible }) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [desktopSidebarVisible, setDesktopSidebarVisible] = useState(false); // تغییر پیش‌فرض به false برای دسکتاپ
 
     const handleLogout = async () => {
         try {
             await logout();
+            setDesktopSidebarVisible(false);
             navigate('/login');
         } catch (error) {
             console.error('Error logging out:', error);
@@ -49,12 +49,14 @@ const Navbar = () => {
 
             {/* Desktop Menu Button - Hamburger Style */}
             <div className="hidden md:block fixed top-4 right-4 z-50">
-                <button
-                    onClick={toggleDesktopSidebar}
-                    className="text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-md transition-all duration-300 bg-white dark:bg-gray-800 shadow-md"
-                >
-                    {desktopSidebarVisible ? null : <Bars3Icon className="h-6 w-6" />}
-                </button>
+                {!desktopSidebarVisible && (
+                    <button
+                        onClick={toggleDesktopSidebar}
+                        className="text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-md transition-all duration-300 bg-white dark:bg-gray-800 shadow-md"
+                    >
+                        <Bars3Icon className="h-6 w-6" />
+                    </button>
+                )}
             </div>
 
             {/* Sidebar - Desktop */}
@@ -201,11 +203,6 @@ const Navbar = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Main Content Wrapper */}
-            <div className={`transition-all duration-300 ${desktopSidebarVisible ? 'md:mr-64' : 'md:mr-0'}`}>
-                {/* محتوای اصلی */}
             </div>
         </>
     );

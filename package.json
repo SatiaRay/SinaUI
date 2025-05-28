@@ -18,6 +18,7 @@
     "ckeditor5": "^45.1.0",
     "date-fns": "^3.3.1",
     "date-fns-jalali": "^4.1.0-0",
+    "jwt-decode": "^4.0.0",
     "moment-jalaali": "^0.10.4",
     "quill": "^2.0.3",
     "quill-table": "^1.0.0",

@@ -176,9 +176,11 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-[calc(100vh-12rem)]">
             <div className="flex-1 min-h-0 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                        محتوای فایل
-                    </h2>
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                            محتوای فایل
+                        </h2>
+                    </div>
                     <div className="flex gap-2">
                         <button
                             onClick={handleStoreVector}
