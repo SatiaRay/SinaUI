@@ -100,6 +100,8 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     };
 
     const handleStoreVector = async () => {
+        console.log(fileContent, selectedFile);
+        
         if (!fileContent || !selectedFile) return;
 
         setStoringVector(true);
