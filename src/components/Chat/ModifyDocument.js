@@ -24,7 +24,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
             ['clean']
         ],
     };
-    
+
     const formats = [
         'header',
         'bold', 'italic', 'underline', 'strike',
@@ -36,7 +36,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     useEffect(() => {
         if (fileContent?.html) {
             console.log('change');
-            
+
             setCkEditorContent(fileContent.html);
         }
     }, [fileContent]);
@@ -44,9 +44,9 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     const connectToVectorizationSocket = (jobId) => {
         const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL);
         const wsUrl = `ws://${url.hostname}:${url.port}/ws/documents/vectorize/${jobId}`;
-        
+
         const socket = new WebSocket(wsUrl);
-        
+
         socket.onopen = () => {
             console.log(`Connected to vectorization socket: ${jobId}`);
         };
@@ -54,7 +54,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         socket.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                
+
                 switch (data.event) {
                     case 'change_progress':
                         handleProgressChange(data);
@@ -101,7 +101,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
     const handleStoreVector = async () => {
         if (!fileContent || !selectedFile) return;
-        
+
         setStoringVector(true);
         setError(null);
         try {
@@ -121,11 +121,11 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                     }
                 })
             });
-    
+
             if (!vectorizeResponse.ok) {
                 throw new Error('خطا در ذخیره در پایگاه داده برداری');
             }
-    
+
             const vectorizeData = await vectorizeResponse.json();
             if (!vectorizeData.job_id) {
                 throw new Error('خطا در ذخیره در پایگاه داده برداری');
@@ -133,7 +133,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
             // Connect to vectorization WebSocket
             connectToVectorizationSocket(vectorizeData.job_id);
-    
+
         } catch (err) {
             setError(err.message);
             console.error('Error in vectorization process:', err);
@@ -143,9 +143,9 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
     const getButtonText = () => {
         if (!storingVector) return 'ذخیره در پایگاه داده برداری';
-        
+
         if (!vectorizationStatus) return 'در حال ارسال...';
-        
+
         switch (vectorizationStatus.status) {
             case 'started':
                 if (vectorizationStatus.message.includes('Queued')) {
@@ -176,9 +176,11 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-[calc(100vh-12rem)]">
             <div className="flex-1 min-h-0 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                        محتوای فایل
-                    </h2>
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                            محتوای فایل
+                        </h2>
+                    </div>
                     <div className="flex gap-2">
                         <button
                             onClick={handleStoreVector}
@@ -225,7 +227,6 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                                 data={ckEditorContent}
                                 onChange={(event, editor) => {
                                     console.log('change change');
-                                    
                                     const data = editor.getData();
                                     setCkEditorContent(data);
                                 }}
@@ -301,7 +302,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 export default ModifyDocument;
