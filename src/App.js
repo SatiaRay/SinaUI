@@ -27,7 +27,13 @@ function AppContent() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
-            <div className={`transition-all duration-300 ${sidebarCollapsed ? 'md:mr-0' : 'md:mr-64'}`}>
+            <div 
+                className={`transition-all duration-300 ${
+                    showNavbar 
+                        ? (sidebarCollapsed ? 'md:mr-0' : 'md:mr-64') 
+                        : 'flex items-center justify-center'
+                }`}
+            >
                 <Routes>
                     <Route path="/login" element={<Login />} />
 

@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from '../contexts/ThemeToggle';
 import { Bars3Icon, XMarkIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 
-const Navbar = () => {
+const Navbar = ({ onSidebarCollapse }) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,6 +12,11 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         try {
+            // Reset sidebar states before logout
+            setDesktopSidebarCollapsed(false);
+            setSidebarOpen(false);
+            onSidebarCollapse(false);
+            
             await logout();
             navigate('/login');
         } catch (error) {
@@ -28,7 +33,9 @@ const Navbar = () => {
     };
 
     const toggleDesktopSidebar = () => {
-        setDesktopSidebarCollapsed(!desktopSidebarCollapsed);
+        const newState = !desktopSidebarCollapsed;
+        setDesktopSidebarCollapsed(newState);
+        onSidebarCollapse(newState);
     };
 
     return (
@@ -62,44 +69,48 @@ const Navbar = () => {
                     desktopSidebarCollapsed ? 'w-0' : 'w-64'
                 }`}
             >
-                <div className={`flex flex-col h-full transition-all duration-300 ${desktopSidebarCollapsed ? 'opacity-0' : 'opacity-100'}`}>
-                    <div className="p-4 border-b border-gray-700">
+                <div 
+                    className={`flex flex-col h-full transition-all duration-300 ${
+                        desktopSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-64'
+                    }`}
+                >
+                    <div className="p-4 border-b border-gray-700 whitespace-nowrap overflow-hidden">
                         <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
                     </div>
-                    <div className="flex-1 px-4 py-6 space-y-2">
+                    <div className="flex-1 px-4 py-6 space-y-2 overflow-hidden">
                         <Link
                             to="/chat"
-                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                         >
-                            چت ساده
+                            چت
                         </Link>
                         <Link
                             to="/data-sources"
-                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                         >
                             منابع داده
                         </Link>
                         <Link
                             to="/documents"
-                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                         >
                             اسناد
                         </Link>
                         <Link
                             to="/wizard"
-                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                         >
                             پاسخ‌های ویزارد
                         </Link>
                     </div>
-                    <div className="p-4 border-t border-gray-700">
-                        <div className="flex items-center justify-between mb-4">
+                    <div className="p-4 border-t border-gray-700 overflow-hidden">
+                        <div className="flex items-center justify-between mb-4 whitespace-nowrap">
                             <span className="text-gray-300 text-sm">حالت نمایش</span>
                             <ThemeToggle />
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                            className="w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                         >
                             خروج
                         </button>
