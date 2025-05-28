@@ -1,396 +1,307 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getDataSources, askQuestion } from '../../services/api.js';
-import { CreateWizard, WizardIndex, WizardButtons, WizardButton } from "./Wizard"
-import { flushSync } from 'react-dom';
+import { askQuestion } from '../../services/api';
+import { WizardButtons, WizardButton } from './Wizard/';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { v4 as uuidv4 } from 'uuid';
-import UpdateDataSource from './UpdateDataSource';
-import CreateDocument from './CreateDocument';
-import CrawlUrl from './CrawlUrl';
-import ModifyDocument from './ModifyDocument';
-// Global styles for chat messages
+
+// استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
-  .chat-message table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-  }
-  
-  .chat-message table th {
-    background-color: white;
-    color: black;
-    padding: 0.5rem;
-    border: 1px solid #e5e7eb;
-    text-align: right;
-  }
+    .chat-message table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
 
-  .msg{
-    transition: height 0.3s ease-in-out;
-  }
-  
-  .chat-message table td {
-    padding: 0.5rem;
-    border: 1px solid #e5e7eb;
-    text-align: right;
-  }
-  
-  .dark .chat-message table th {
-    background-color: white;
-    color: black;
-    border-color: #374151;
-  }
-  
-  .dark .chat-message table td {
-    color: white;
-    border-color: #374151;
-  }
+.chat-message table th {
+  background-color: white;
+  color: black;
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  text-align: right;
+}
 
-  /* Quill Editor RTL Styles */
-  .ql-editor {
-    direction: rtl !important;
-    text-align: right !important;
-  }
+.msg {
+  transition: height 0.3s ease-in-out;
+}
 
-  .ql-toolbar {
-    direction: rtl !important;
-  }
+.chat-message table td {
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  text-align: right;
+}
 
-  .ql-toolbar .ql-formats {
-    margin-left: 15px !important;
-    margin-right: 0 !important;
-  }
+.dark .chat-message table th {
+  background-color: white;
+  color: black;
+  border-color: #374151;
+}
 
-  .ql-toolbar .ql-picker {
-    margin-left: 15px !important;
-    margin-right: 0 !important;
-  }
+.dark .chat-message table td {
+  color: white;
+  border-color: #374151;
+}
 
-  /* Quill Editor Dark Mode Styles */
-  .dark .ql-toolbar {
-    background-color: #1f2937 !important;
-    border-color: #374151 !important;
-  }
+/* Quill Editor RTL Styles */
+.ql-editor {
+  direction: rtl !important;
+  text-align: right !important;
+}
 
-  .dark .ql-toolbar button {
-    color: #ffffff !important;
-  }
+.ql-toolbar {
+  direction: rtl !important;
+}
 
-  .dark .ql-toolbar button:hover {
-    color: #3b82f6 !important;
-  }
+.ql-toolbar .ql-formats {
+  margin-left: 15px !important;
+  margin-right: 0 !important;
+}
 
-  .dark .ql-toolbar button.ql-active {
-    color: #3b82f6 !important;
-  }
+.ql-toolbar .ql-picker {
+  margin-left: 15px !important;
+  margin-right: 0 !important;
+}
 
-  .dark .ql-toolbar .ql-picker {
-    color: #ffffff !important;
-  }
+/* Quill Editor Dark Mode Styles */
+.dark .ql-toolbar {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
 
-  .dark .ql-toolbar .ql-picker-options {
-    background-color: #1f2937 !important;
-    border-color: #374151 !important;
-  }
+.dark .ql-toolbar button {
+  color: #ffffff !important;
+}
 
-  .dark .ql-toolbar .ql-picker-item {
-    color: #ffffff !important;
-  }
+.dark .ql-toolbar button:hover {
+  color: #3b82f6 !important;
+}
 
-  .dark .ql-toolbar .ql-picker-item:hover {
-    color: #3b82f6 !important;
-  }
+.dark .ql-toolbar button.ql-active {
+  color: #3b82f6 !important;
+}
 
-  .dark .ql-container {
-    background-color: #1f2937 !important;
-    border-color: #374151 !important;
-  }
+.dark .ql-toolbar .ql-picker {
+  color: #ffffff !important;
+}
 
-  .dark .ql-editor {
-    color: #ffffff !important;
-  }
+.dark .ql-toolbar .ql-picker-options {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
 
-  .dark .ql-editor.ql-blank::before {
-    color: #9ca3af !important;
-  }
+.dark .ql-toolbar .ql-picker-item {
+  color: #ffffff !important;
+}
 
-  /* SVG Icon Styles for Dark Mode */
-  .dark .ql-toolbar .ql-stroke {
-    stroke: #ffffff !important;
-  }
+.dark .ql-toolbar .ql-picker-item:hover {
+  color: #3b82f6 !important;
+}
 
-  .dark .ql-toolbar .ql-fill {
-    fill: #ffffff !important;
-  }
+.dark .ql-container {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
 
-  .dark .ql-toolbar .ql-even {
-    fill: #ffffff !important;
-  }
+.dark .ql-editor {
+  color: #ffffff !important;
+}
 
-  .dark .ql-toolbar .ql-thin {
-    stroke: #ffffff !important;
-  }
+.dark .ql-editor.ql-blank::before {
+  color: #9ca3af !important;
+}
 
-  .dark .ql-toolbar button:hover .ql-stroke,
-  .dark .ql-toolbar button:hover .ql-fill,
-  .dark .ql-toolbar button:hover .ql-even,
-  .dark .ql-toolbar button:hover .ql-thin {
-    stroke: #3b82f6 !important;
-    fill: #3b82f6 !important;
-  }
+/* SVG Icon Styles for Dark Mode */
+.dark .ql-toolbar .ql-stroke {
+  stroke: #ffffff !important;
+}
 
-  .dark .ql-toolbar button.ql-active .ql-stroke,
-  .dark .ql-toolbar button.ql-active .ql-fill,
-  .dark .ql-toolbar button.ql-active .ql-even,
-  .dark .ql-toolbar button.ql-active .ql-thin {
-    stroke: #3b82f6 !important;
-    fill: #3b82f6 !important;
-  }
+.dark .ql-toolbar .ql-fill {
+  fill: #ffffff !important;
+}
 
-  .dark .ql-toolbar .ql-picker-label {
-    color: #ffffff !important;
-  }
+.dark .ql-toolbar .ql-even {
+  fill: #ffffff !important;
+}
 
-  .dark .ql-toolbar .ql-picker-label:hover {
-    color: #3b82f6 !important;
-  }
+.dark .ql-toolbar .ql-thin {
+  stroke: #ffffff !important;
+}
 
-  .dark .ql-toolbar .ql-picker-label.ql-active {
-    color: #3b82f6 !important;
-  }
+.dark .ql-toolbar button:hover .ql-stroke,
+.dark .ql-toolbar button:hover .ql-fill,
+.dark .ql-toolbar button:hover .ql-even,
+.dark .ql-toolbar button:hover .ql-thin {
+  stroke: #3b82f6 !important;
+  fill: #3b82f6 !important;
+}
 
-  /* Chat message links styling */
-  .chat-message a {
-    color: #2563eb !important; /* Tailwind blue-600 */
-    text-decoration: underline;
-    word-break: break-all;
-  }
-  .chat-message a:hover {
-    color: #1d4ed8 !important; /* Tailwind blue-700 */
-  }
-  .dark .chat-message a {
-    color: #60a5fa !important; /* Tailwind blue-400 */
-  }
-  .dark .chat-message a:hover {
-    color: #3b82f6 !important; /* Tailwind blue-500 */
-  }
+.dark .ql-toolbar button.ql-active .ql-stroke,
+.dark .ql-toolbar button.ql-active .ql-fill,
+.dark .ql-toolbar button.ql-active .ql-even,
+.dark .ql-toolbar button.ql-active .ql-thin {
+  stroke: #3b82f6 !important;
+  fill: #3b82f6 !important;
+}
+
+.dark .ql-toolbar .ql-picker-label {
+  color: #ffffff !important;
+}
+
+.dark .ql-toolbar .ql-picker-label:hover {
+  color: #3b82f6 !important;
+}
+
+.dark .ql-toolbar .ql-picker-label.ql-active {
+  color: #3b82f6 !important;
+}
+
+/* Chat message links styling */
+.chat-message a {
+  color: #2563eb !important;
+  text-decoration: underline;
+  word-break: break-all;
+}
+.chat-message a:hover {
+  color: #1d4ed8 !important;
+}
+.dark .chat-message a {
+  color: #60a5fa !important;
+}
+.dark .chat-message a:hover {
+  color: #3b82f6 !important;
+}
 `;
 
-// کامپوننت چت
 const Chat = () => {
-  const [activeTab, setActiveTab] = useState('chat');
-  const [sources, setSources] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [question, setQuestion] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
-  const initialMessageAddedRef = useRef(false)
   const [chatLoading, setChatLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
+  const [error, setError] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
+  const [currentWizards, setCurrentWizards] = useState([]);
+  const [rootWizards, setRootWizards] = useState([]); // New state to store root wizards
   const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
-  const [expandedSourceId, setExpandedSourceId] = useState(null);
-  const [expandedTexts, setExpandedTexts] = useState({});
-  const [domains, setDomains] = useState([]);
-  const [domainsLoading, setDomainsLoading] = useState(false);
-  const [selectedDomain, setSelectedDomain] = useState(null);
-  const [domainFiles, setDomainFiles] = useState([]);
-  const [filesLoading, setFilesLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [fileContent, setFileContent] = useState(null);
-  const [fileContentLoading, setFileContentLoading] = useState(false);
-  const [storingVector, setStoringVector] = useState(false);
-  const [showCreateWizard, setShowCreateWizard] = useState(false);
-  const [selectedWebsiteData, setSelectedWebsiteData] = useState(null);
-  const [wizardMessage, setWizardMessage] = useState(null);
-
-  // Add new state for manual knowledge entry
-  const [manualText, setManualText] = useState('');
-  const [sessionId, setSessionId] = useState(null);
-  const [deletingSource, setDeletingSource] = useState(null);
-  const [editingSource, setEditingSource] = useState(null);
-  const [crawlUrl, setCrawlUrl] = useState('');
-  const [crawling, setCrawling] = useState(false);
-  const [crawledDocs, setCrawledDocs] = useState([]);
-  const [previousTab, setPreviousTab] = useState(null);
-  const [crawlRecursive, setCrawlRecursive] = useState(false);
-  const [addKnowledgeTab, setAddKnowledgeTab] = useState('manual');
-  const [documentsTab, setDocumentsTab] = useState('crawled');
-  const [showAddKnowledge, setShowAddKnowledge] = useState(false);
-  const [showCrawlUrl, setShowCrawlUrl] = useState(false);
-  const [backHandlers, setBackHandlers] = useState([]);
-  // Socket 
   const socketRef = useRef(null);
-  const [manualDocuments, setManualDocuments] = useState([]);
-  const [pagination, setPagination] = useState({
-    limit: 20,
-    offset: 0,
-    total: 0
-  });
-
-  // stores deltas for table buffering
-  let inCompatibleMessage = ''
+  const initialMessageAddedRef = useRef(false);
+  let inCompatibleMessage = '';
 
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ 'align': [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ align: [] }],
       ['link', 'image'],
-      ['clean']
+      ['clean'],
     ],
   };
 
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'align',
-    'link', 'image'
-  ];
-
   useEffect(() => {
-    if (activeTab === 'data-sources') {
-      fetchDataSources();
-    } else if (activeTab === 'documents') {
-      fetchDomains();
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    // Scroll to bottom when chat history changes
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatHistory]);
-
-
-
-  useEffect(() => {
-    // Try to get existing session ID from localStorage
     const storedSessionId = localStorage.getItem('chat_session_id');
-
     if (storedSessionId) {
       setSessionId(storedSessionId);
     } else {
-      // Generate new session ID if none exists
-      const generateToken = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const prefix = 'chat_';
-        const remainingLength = 255 - prefix.length;
-        let token = prefix;
-
-        for (let i = 0; i < remainingLength; i++) {
-          token += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-
-        return token;
-      };
-
-      const newSessionId = generateToken();
+      const newSessionId = `uuid_${uuidv4()}`;
       localStorage.setItem('chat_session_id', newSessionId);
       setSessionId(newSessionId);
     }
   }, []);
 
-  const fetchDataSources = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getDataSources();
-      console.log("Received data:", data);
-      // Check if data is an array or get the appropriate property that contains the array
-      if (Array.isArray(data)) {
-        setSources(data);
-      } else if (data && Array.isArray(data.results)) {
-        // If data has a results property that is an array
-        setSources(data.results);
-      } else if (data && Array.isArray(data.data)) {
-        // If data has a data property that is an array
-        setSources(data.data);
-      } else if (data && Array.isArray(data.sources)) {
-        // If data has a sources property that is an array
-        setSources(data.sources);
-      } else {
-        // If we can't find an array in the response
-        console.error("Unexpected data format:", data);
-        setSources([]);
-        setError('ساختار داده‌های دریافتی نامعتبر است');
-      }
-    } catch (err) {
-      console.error('Error in fetchDataSources:', err);
-      setError(err.message || 'خطا در دریافت منابع داده');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (sessionId) {
+      fetchChatHistory(0);
+      fetchRootWizards();
     }
-  };
+  }, [sessionId]);
 
-  const fetchDomains = async () => {
-    setDomainsLoading(true);
-    setError(null);
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatHistory]);
+
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [historyLoading, hasMoreHistory, historyOffset]);
+
+  useEffect(() => {
+    if (!historyLoading && chatHistory.length > 0) {
+      const scrollToBottom = () => {
+        if (chatEndRef.current) {
+          chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+      scrollToBottom();
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [historyLoading, chatHistory.length]);
+
+  const fetchRootWizards = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/domains`);
+      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/hierarchy/roots`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       if (!response.ok) {
-        throw new Error('خطا در دریافت لیست دامنه‌ها');
+        throw new Error('خطا در دریافت ویزاردها');
       }
       const data = await response.json();
-      setDomains(data);
+      setRootWizards(data); // Store root wizards
+      setCurrentWizards(data); // Set initial current wizards
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching domains:', err);
-    } finally {
-      setDomainsLoading(false);
     }
   };
 
-  const fetchDomainFiles = async (domain) => {
-    setFilesLoading(true);
-    setError(null);
+  const fetchChatHistory = async (offset = 0, limit = 20) => {
+    if (!sessionId) return;
+
+    setHistoryLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/?domain_id=${domain.id}`);
+      const response = await fetch(
+          `${process.env.REACT_APP_PYTHON_APP_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          }
+      );
+
       if (!response.ok) {
-        throw new Error('خطا در دریافت فایل‌های دامنه');
+        throw new Error('خطا در دریافت تاریخچه چت');
       }
-      const data = await response.json();
-      setDomainFiles(data);
-      setSelectedDomain(domain);
+
+      const messages = await response.json();
+
+      if (Array.isArray(messages)) {
+        const transformedMessages = messages.map((msg) => ({
+          type: msg.role === 'user' ? 'question' : 'answer',
+          text: msg.role === 'user' ? msg.body : undefined,
+          answer: msg.role === 'assistant' ? msg.body : undefined,
+          timestamp: new Date(msg.created_at),
+        }));
+
+        const reversedMessages = [...transformedMessages].reverse();
+
+        if (offset === 0) {
+          setChatHistory(reversedMessages);
+        } else {
+          setChatHistory((prev) => [...reversedMessages, ...prev]);
+        }
+        setHasMoreHistory(messages.length === limit);
+      }
     } catch (err) {
       setError(err.message);
-      console.error('Error fetching domain files:', err);
+      console.error('Error fetching chat history:', err);
     } finally {
-      setFilesLoading(false);
-    }
-  };
-
-
-
-  const handleDomainClick = (domain) => {
-    fetchDomainFiles(domain);
-    addBackHandler(() => { setSelectedDomain(null)})
-  };
-
-  const handleBackClick = () => {
-    setBackHandlers(prev => {
-      if (prev.length === 0) return prev;
-      const lastHandler = prev[prev.length - 1];
-      lastHandler();
-      return prev.slice(0, -1);
-    });
-  };
-
-  const handleFileClick = (file) => {
-    fetchFileContent(file);
-
-    addBackHandler(() => {setSelectedFile(null)})
-  };
-
-  const handleBackToFiles = () => {
-    setSelectedFile(null);
-    setFileContent(null);
-    if (previousTab) {
-      setActiveTab(previousTab);
-      setPreviousTab(null);
-    } else {
-      setActiveTab('documents');
+      setHistoryLoading(false);
     }
   };
 
@@ -403,18 +314,22 @@ const Chat = () => {
     setChatLoading(true);
     setError(null);
 
-    // Add the user question to chat history immediately
-    setChatHistory(prev => [...prev, { type: 'question', text: currentQuestion, timestamp: new Date() }]);
+    setChatHistory((prev) => [
+      ...prev,
+      { type: 'question', text: currentQuestion, timestamp: new Date() },
+    ]);
 
     try {
       const response = await askQuestion(currentQuestion);
-      // Add the answer to chat history
-      setChatHistory(prev => [...prev, {
-        type: 'answer',
-        answer: response.answer,
-        sources: response.sources,
-        timestamp: new Date()
-      }]);
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          type: 'answer',
+          answer: response.answer,
+          sources: response.sources || [],
+          timestamp: new Date(),
+        },
+      ]);
     } catch (err) {
       setError('خطا در دریافت پاسخ');
       console.error('Error asking question:', err);
@@ -423,8 +338,6 @@ const Chat = () => {
     }
   };
 
-
-  /* Receives the response in socket connection */
   const realtimeHandleSubmit = async (e) => {
     e.preventDefault();
     if (!question.trim()) return;
@@ -433,50 +346,42 @@ const Chat = () => {
     setQuestion('');
     setError(null);
 
-    // Add the user question to chat history immediately
     const userMessage = {
       type: 'question',
       text: currentQuestion,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-    setChatHistory(prev => [...prev, userMessage]);
+    setChatHistory((prev) => [...prev, userMessage]);
 
     if (socketRef.current) {
       socketRef.current.close();
     }
 
-    initialMessageAddedRef.current = false
+    initialMessageAddedRef.current = false;
 
-    const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL)
+    const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL);
     const hostPort = `${url.hostname}:${url.port}`;
-
-    // Get session ID from localStorage
     const storedSessionId = localStorage.getItem('chat_session_id');
     if (!storedSessionId) {
       setError('خطا در شناسایی نشست');
       return;
     }
 
-    // Use stored sessionId in WebSocket connection
     socketRef.current = new WebSocket(`ws://${hostPort}/ws/ask?session_id=${storedSessionId}`);
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connection established');
-
-      inCompatibleMessage = ""
-
-      // Send a question as JSON
-      socketRef.current.send(JSON.stringify({
-        question: currentQuestion,
-        session_id: storedSessionId
-      }));
-
+      inCompatibleMessage = '';
+      socketRef.current.send(
+          JSON.stringify({
+            question: currentQuestion,
+            session_id: storedSessionId,
+          })
+      );
       setChatLoading(true);
-
-
     };
 
-    socketRef.current.onmessage = handleDeltaResponse
+    socketRef.current.onmessage = handleDeltaResponse;
 
     socketRef.current.onclose = () => {
       console.log('WebSocket connection closed');
@@ -491,215 +396,69 @@ const Chat = () => {
   };
 
   const handleDeltaResponse = (event) => {
-
-
-
     if (!initialMessageAddedRef.current) {
-      // Add empty bot response message
       const botMessage = {
         type: 'answer',
         answer: '',
         sources: [],
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      setChatHistory(prev => [...prev, botMessage]);
+      setChatHistory((prev) => [...prev, botMessage]);
       setChatLoading(false);
-      initialMessageAddedRef.current = true
+      initialMessageAddedRef.current = true;
     }
 
-    let delta = event.data
-
-    inCompatibleMessage += delta
-
-    let msg = inCompatibleMessage
+    let delta = event.data;
+    inCompatibleMessage += delta;
+    let msg = inCompatibleMessage;
 
     const openTableTags = (msg.match(/<table>/g) || []).length;
     const closeTableTags = (msg.match(/<\/table>/g) || []).length;
-
-    let openTableExists = openTableTags > closeTableTags;
+    const openTableExists = openTableTags > closeTableTags;
 
     if (openTableExists) {
       const openTrCount = (msg.match(/<tr>/g) || []).length;
       const closeTrCount = (msg.match(/<\/tr>/g) || []).length;
-
-      let openTrExists = openTrCount > closeTrCount;
+      const openTrExists = openTrCount > closeTrCount;
 
       if (openTrExists) {
-        // Find the last <tr> that doesn't have a corresponding </tr>
         const lastOpenTrIndex = msg.lastIndexOf('<tr>');
         if (lastOpenTrIndex !== -1) {
-          // Keep everything before that <tr>
           msg = msg.substring(0, lastOpenTrIndex);
         }
       }
     }
 
-    setChatHistory(prev => {
+    setChatHistory((prev) => {
       const updated = [...prev];
       const lastIndex = updated.length - 1;
-
       updated[lastIndex] = {
         ...updated[lastIndex],
-        answer: msg
-      }
-
+        answer: msg,
+      };
       return updated;
     });
-
-  }
-
-  const toggleChunks = (sourceId) => {
-    if (expandedSourceId === sourceId) {
-      setExpandedSourceId(null);
-    } else {
-      setExpandedSourceId(sourceId);
-    }
-  };
-
-  const toggleTextExpansion = (chunkId) => {
-    setExpandedTexts(prev => ({
-      ...prev,
-      [chunkId]: !prev[chunkId]
-    }));
-  };
-
-  // تابع تبدیل دوره بروزرسانی به فارسی
-  const translateRefreshStatus = (status) => {
-    const translations = {
-      'Never': 'هرگز',
-      'Daily': 'روزانه',
-      'Weekly': 'هفتگی',
-      'Monthly': 'ماهانه'
-    };
-
-    return translations[status] || status || 'هرگز';
-  };
-
-  // Format timestamp
-  const formatTimestamp = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const handleCreateWizardFromWebsite = async (file) => {
-    try {
-      setSelectedWebsiteData({
-        title: file.title,
-        text: file.html
-      });
-      setActiveTab('wizard');
-      setShowCreateWizard(true);
-    } catch (err) {
-      setError(err.message);
-    }
   };
 
   const handleWizardSelect = (wizardData) => {
-    setChatHistory(prev => [...prev, {
-      type: 'answer',
-      answer: wizardData.context,
-      timestamp: new Date()
-    }]);
+    // Add the wizard's context as an answer to the chat history
+    setChatHistory((prev) => [
+      ...prev,
+      {
+        type: 'answer',
+        answer: wizardData.context,
+        timestamp: new Date(),
+      },
+    ]);
 
-    (wizardData.children || []).map(child => {
-      setChatHistory(prev => [...prev, {
-        type: 'button',
-        wizard: child,
-        timestamp: new Date()
-      }]);
-    })
-
-  };
-
-
-
-
-  const handleDeleteSource = async (sourceId) => {
-    if (!window.confirm('آیا از حذف این منبع داده اطمینان دارید؟')) {
-      return;
-    }
-
-    setDeletingSource(sourceId);
-    try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/data_sources/${sourceId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('خطا در حذف منبع داده');
-      }
-
-      // Remove the deleted source from the state
-      setSources(prev => prev.filter(source => source.source_id !== sourceId));
-      alert('منبع داده با موفقیت حذف شد');
-    } catch (err) {
-      setError(err.message);
-      console.error('Error deleting source:', err);
-    } finally {
-      setDeletingSource(null);
+    // Update currentWizards based on whether the wizard has children
+    if (wizardData.children && wizardData.children.length > 0) {
+      setCurrentWizards(wizardData.children);
+    } else {
+      setCurrentWizards(rootWizards); // Reset to root wizards if no children
     }
   };
 
-  const handleCrawl = async () => {
-    if (!crawlUrl) {
-      setError('لطفا آدرس وب‌سایت را وارد کنید');
-      return;
-    }
-
-    try {
-      new URL(crawlUrl); // Validate URL
-    } catch (e) {
-      setError('لطفا یک آدرس معتبر وارد کنید');
-      return;
-    }
-
-    setCrawling(true);
-    setError(null);
-    try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/crawl`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: crawlUrl,
-          recursive: crawlRecursive
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('خطا در خزش وب‌سایت');
-      }
-
-      const data = await response.json();
-      setCrawledDocs(data.docs);
-      setCrawlUrl(''); // Clear the input after successful crawl
-    } catch (err) {
-      setError(err.message);
-      console.error('Error crawling website:', err);
-    } finally {
-      setCrawling(false);
-    }
-  };
-
-  const handleCrawledDocClick = (doc) => {
-    setPreviousTab('add-knowledge');
-    setSelectedFile({
-      id: doc.id,
-      title: doc.title,
-      uri: doc.url
-    });
-    // Extract domain from doc.url (e.g., 'satia.co/')
-    const domain = doc.url.split('/')[0];
-    setSelectedDomain({ domain });
-    setActiveTab('documents');
-    fetchFileContent({
-      id: doc.id,
-      title: doc.title,
-      uri: doc.url
-    });
-  };
-
-  // Add scroll handler
   const handleScroll = () => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
 
@@ -711,900 +470,133 @@ const Chat = () => {
     }
   };
 
-  const fetchChatHistory = async (offset = 0, limit = 20) => {
-    if (!sessionId) return;
-
-    setHistoryLoading(true);
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_PYTHON_APP_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`
-      );
-
-      if (!response.ok) {
-        throw new Error('خطا در دریافت تاریخچه چت');
-      }
-
-      const messages = await response.json();
-
-      if (Array.isArray(messages)) {
-        // Transform the API response format to match our chat history format
-        const transformedMessages = messages.map(msg => ({
-          type: msg.role === 'user' ? 'question' : 'answer',
-          text: msg.role === 'user' ? msg.body : undefined,
-          answer: msg.role === 'assistant' ? msg.body : undefined,
-          timestamp: new Date(msg.created_at)
-        }));
-
-        // Reverse the array to show older messages at the top
-        const reversedMessages = [...transformedMessages].reverse();
-
-        if (offset === 0) {
-          setChatHistory(reversedMessages);
-        } else {
-          setChatHistory(prev => [...reversedMessages, ...prev]);
-        }
-        setHasMoreHistory(messages.length === limit);
-      }
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching chat history:', err);
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-
-  const addBackHandler = (handler) => {
-    console.log('Adding back handler:', handler);
-    setBackHandlers(prev => {
-      console.log('Previous handlers:', prev);
-      return [...prev, handler];
-    });
-  }
-
-  const fetchFileContent = async (file) => {
-    setFileContentLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${file.id}`);
-      if (!response.ok) {
-        throw new Error('خطا در دریافت محتوای فایل');
-      }
-      const data = await response.json();
-
-      // Log the content for debugging
-      console.log('HTML length:', data.html?.length);
-      console.log('Markdown length:', data.markdown?.length);
-
-      setFileContent(data);
-      setSelectedFile(file);
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching file content:', err);
-    } finally {
-      setFileContentLoading(false);
-    }
-  };
-
-  // Add useEffect to fetch history when component mounts
-  useEffect(() => {
-    if (sessionId) {
-      fetchChatHistory(0);
-    }
-  }, [sessionId]);
-
-  // Add scroll event listener
-  useEffect(() => {
-    const container = chatContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
-  }, [historyLoading, hasMoreHistory, historyOffset]);
-
-  // Add useEffect to scroll to bottom when new messages are added
-  useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatHistory]);
-
-  // Add useEffect to scroll to bottom after initial load
-  useEffect(() => {
-    if (!historyLoading && chatHistory.length > 0) {
-      const scrollToBottom = () => {
-        if (chatEndRef.current) {
-          chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-      };
-
-      // Try immediate scroll
-      scrollToBottom();
-
-      // Also try after a small delay to ensure DOM is updated
-      setTimeout(scrollToBottom, 100);
-    }
-  }, [historyLoading, chatHistory.length]);
-
-  const fetchManualDocuments = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/manual?limit=${pagination.limit}&offset=${pagination.offset}`
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت لیست اسناد');
-      }
-      const data = await response.json();
-      setManualDocuments(data);
-      // Assuming the API returns total count in headers
-      const total = response.headers.get('X-Total-Count');
-      if (total) {
-        setPagination(prev => ({ ...prev, total: parseInt(total) }));
-      }
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching manual documents:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (documentsTab === 'manual') {
-      fetchManualDocuments();
-    }
-  }, [documentsTab, pagination.offset]);
-
-  const handlePageChange = (newOffset) => {
-    setPagination(prev => ({ ...prev, offset: newOffset }));
-  };
-
-  const handleManualDocClick = (doc) => {
-    setSelectedFile({
-      id: doc.id,
-      title: doc.title,
-      uri: doc.uri
-    });
-    
-    fetchFileContent({
-      id: doc.id,
-      title: doc.title,
-      uri: doc.uri
+  const formatTimestamp = (timestamp) => {
+    return new Date(timestamp).toLocaleTimeString('fa-IR', {
+      hour: '2-digit',
+      minute: '2-digit',
     });
 
-    addBackHandler(() => {
-      setFileContent(null);
-      setSelectedFile(null);
-    })
+  
   };
 
   return (
-    <>
-      <style>{globalStyles}</style>
-      <div className="flex flex-col h-full">
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => setActiveTab('simple-chat')}
-            className={`px-4 py-2 text-sm font-medium ${activeTab === 'simple-chat'
-              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-              }`}
+      <>
+        <style>{globalStyles}</style>
+        <div className="flex flex-col h-full p-6 max-w-7xl mx-auto">
+          <div
+              ref={chatContainerRef}
+              className="flex-1 overflow-y-auto mb-4 space-y-4"
+              style={{
+                height: 'calc(100vh - 200px)',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
           >
-            چت ساده
-          </button>
-          <button
-            onClick={() => setActiveTab('data-sources')}
-            className={`px-4 py-2 text-sm font-medium ${activeTab === 'data-sources'
-              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-              }`}
-          >
-            منابع داده
-          </button>
-          <button
-            onClick={() => setActiveTab('documents')}
-            className={`px-4 py-2 text-sm font-medium ${activeTab === 'documents'
-              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-              }`}
-          >
-            اسناد
-          </button>
-          <button
-            onClick={() => setActiveTab('wizard')}
-            className={`px-4 py-2 text-sm font-medium ${activeTab === 'wizard'
-              ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
-              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-              }`}
-          >
-            پاسخ‌های ویزارد
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-auto p-4">
-          {(() => {
-            switch (activeTab) {
-              case 'simple-chat':
-                return (
-                  <div className="flex flex-col h-full">
-                    <div
-                      ref={chatContainerRef}
-                      className="flex-1 overflow-y-auto mb-4 space-y-4"
-                      style={{
-                        height: 'calc(100vh - 200px)',
-                        display: 'flex',
-                        flexDirection: 'column'
-                      }}
-                    >
-                      {historyLoading && (
-                        <div className="flex items-center justify-center p-4">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
-                          <p className="text-gray-600 dark:text-gray-300">در حال بارگذاری تاریخچه...</p>
-                        </div>
-                      )}
-
-                      <div className="flex-1">
-                        {wizardMessage && (
-                          <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {formatTimestamp(wizardMessage.timestamp)}
-                              </span>
-                              <span className="text-xs font-medium text-green-600 dark:text-green-400">
-                                {wizardMessage.title}
-                              </span>
-                            </div>
-                            <div className="mb-4">
+            {historyLoading && (
+                <div className="flex items-center justify-center p-4">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
+                  <p className="text-gray-600 dark:text-gray-300">در حال بارگذاری تاریخچه...</p>
+                </div>
+            )}
+            <div className="flex-1">
+              {chatHistory.length === 0 && !historyLoading ? (
+                  <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+                    سوال خود را بپرسید تا گفتگو شروع شود
+                  </div>
+              ) : (
+                  chatHistory.map((item, index) => (
+                      <div key={index} className="mb-4 msg">
+                        {item.type === 'question' ? (
+                            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
+                              <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatTimestamp(item.timestamp)}
+                        </span>
+                                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">شما</span>
+                              </div>
                               <div
-                                className="text-gray-700 dark:text-white chat-message"
-                                dangerouslySetInnerHTML={{ __html: wizardMessage.content }}
+                                  className="text-gray-800 dark:text-white chat-message"
+                                  dangerouslySetInnerHTML={{ __html: item.text }}
                               />
                             </div>
-                          </div>
-                        )}
-
-                        {chatHistory.length === 0 && !historyLoading ? (
-                          <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-                            سوال خود را بپرسید تا گفتگو شروع شود
-                          </div>
                         ) : (
-                          chatHistory.map((item, index) => (
-                            <div key={index} className="mb-4 msg">
-                              {item.type === 'question' ? (
-                                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                                      {formatTimestamp(item.timestamp)}
-                                    </span>
-                                    <span className="text-xs font-medium text-blue-600 dark:text-blue-400">شما</span>
-                                  </div>
-                                  <div
-                                    className="text-gray-800 dark:text-white chat-message"
-                                    dangerouslySetInnerHTML={{ __html: item.text }}
-                                  />
-                                </div>
-                              ) : (
-                                (
-                                  item.type == 'button' ?
-                                    (
-                                      <WizardButton wizard={item.wizard} onWizardClick={handleWizardSelect}/>
-                                    ) :
-                                    (
-                                      <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
-                                        <div className="flex justify-between items-center mb-2">
-                                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                                            {formatTimestamp(item.timestamp)}
-                                          </span>
-                                          <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
-                                        </div>
-                                        <div className="mb-4">
-                                          <div
-                                            className="text-gray-700 dark:text-white chat-message"
-                                            dangerouslySetInnerHTML={{ __html: item.answer }}
-                                          />
-                                        </div>
-                                        {item.sources && item.sources.length > 0 && (
-                                          <div>
-                                            <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">منابع:</h3>
-                                            <ul className="list-disc pl-4">
-                                              {item.sources.map((source, sourceIndex) => (
-                                                <li key={sourceIndex} className="mb-2">
-                                                  <div
-                                                    className="text-sm text-gray-700 dark:text-white"
-                                                    dangerouslySetInnerHTML={{ __html: source.text }}
-                                                  />
-                                                  <a
-                                                    href={source.metadata.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                                                  >
-                                                    منبع: {source.metadata.source}
-                                                  </a>
-                                                </li>
-                                              ))}
-                                            </ul>
-                                          </div>
-                                        )}
-                                      </div>
-                                    )
-                                )
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      {chatLoading && (
-                        <div className="flex items-center justify-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg mb-4 animate-pulse">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
-                          <p className="text-gray-600 dark:text-gray-300">در حال دریافت پاسخ...</p>
-                        </div>
-                      )}
-
-                      <div ref={chatEndRef} />
-                    </div>
-
-                    <WizardButtons onWizardSelect={handleWizardSelect} />
-                    <form onSubmit={realtimeHandleSubmit} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        placeholder="سوال خود را بپرسید..."
-                        className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                        disabled={chatLoading}
-                      />
-                      <button
-                        type="submit"
-                        disabled={chatLoading || !question.trim()}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center"
-                      >
-                        {chatLoading ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            <span>در حال ارسال...</span>
-                          </>
-                        ) : (
-                          'ارسال'
-                        )}
-                      </button>
-                    </form>
-                    {error && <div className="text-red-500 mt-2">{error}</div>}
-                  </div>
-                );
-
-              case 'data-sources':
-                return (
-                  <div className="space-y-4">
-                    {loading ? (
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                      </div>
-                    ) : error ? (
-                      <div className="text-center p-4">
-                        <div className="text-red-500 mb-2">{error}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                          لطفاً موارد زیر را بررسی کنید:
-                          <ul className="list-disc list-inside mt-2 text-right">
-                            <li>اتصال به اینترنت</li>
-                            <li>وضعیت سرور</li>
-                            <li>آدرس API در فایل .env</li>
-                          </ul>
-                        </div>
-                        <button
-                          onClick={fetchDataSources}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                        >
-                          تلاش مجدد
-                        </button>
-                      </div>
-                    ) : sources && Array.isArray(sources) && sources.length > 0 ? (
-                      <div className="grid gap-4">
-                        {editingSource ? (
-                          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                            <div className="flex justify-between items-center mb-4">
-                              <h3 className="text-lg font-medium text-gray-900 dark:text-white">ویرایش سند</h3>
-                              <button
-                                onClick={() => setEditingSource(null)}
-                                className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                              >
-                                بازگشت
-                              </button>
-                            </div>
-                            <UpdateDataSource
-                              document_id={editingSource}
-                              previousTab={activeTab}
-                              onBack={() => setEditingSource(null)}
-                            />
-                          </div>
-                        ) : (
-                          sources.map((source, index) => (
-                            <div
-                              key={source.source_id || index}
-                              className="p-4 border rounded-lg dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingSource(source.source_id);
-                              }}
-                            >
-                              <div className="flex flex-col">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <h3 className="font-medium text-gray-900 dark:text-white">
-                                      {source.chunks[0].metadata.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                      وارد شده توسط: {source.imported_by || 'نامشخص'}
-                                    </p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                      تاریخ وارد کردن: {source.import_date ? new Date(source.import_date).toLocaleString('fa-IR') : 'نامشخص'}
-                                    </p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                      دوره بروزرسانی: {translateRefreshStatus(source.refresh_status)}
-                                    </p>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEditingSource(source.source_id);
-                                      }}
-                                      className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
-                                    >
-                                      ویرایش
-                                    </button>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteSource(source.source_id);
-                                      }}
-                                      disabled={deletingSource === source.source_id}
-                                      className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 focus:outline-none"
-                                    >
-                                      {deletingSource === source.source_id ? (
-                                        <div className="flex items-center">
-                                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500 mr-2"></div>
-                                          در حال حذف...
-                                        </div>
-                                      ) : (
-                                        'حذف'
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="mt-2 flex items-center justify-between">
-                                <p className="text-sm text-gray-600 dark:text-gray-300">
-                                  تعداد قطعات متن: {source.chunks ? source.chunks.length : 0}
-                                </p>
-                                {/* <span className="text-xs text-blue-500">
-                                  {expandedSourceId === (source.source_id || index) ? 'بستن' : 'مشاهده جزئیات'}
-                                </span> */}
-                              </div>
-                              {expandedSourceId === (source.source_id || index) && source.chunks && source.chunks.length > 0 && (
-                                <div className="mt-4 border-t pt-3 dark:border-gray-700">
-                                  <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">قطعات متن:</h4>
-                                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 max-h-60 overflow-y-auto">
-                                    {source.chunks.map((chunk, chunkIndex) => {
-                                      const chunkKey = chunk.id || `chunk-${source.source_id || index}-${chunkIndex}`;
-                                      const isTextExpanded = expandedTexts[chunkKey];
-
-                                      return (
-                                        <div
-                                          key={chunkKey}
-                                          className="p-3 mb-3 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800"
-                                        >
-                                          <div className="flex justify-between mb-2 border-b pb-2 dark:border-gray-700">
-                                            <p className="font-medium text-gray-700 dark:text-gray-300">شناسه: {chunk.id || `بخش ${chunkIndex + 1}`}</p>
-                                            <p className="text-gray-500 dark:text-gray-400 text-xs">صفحه: {chunk.metadata?.page || 'نامشخص'}</p>
-                                          </div>
-
-                                          {chunk.title && (
-                                            <div className="mb-2">
-                                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">عنوان:</p>
-                                              <p className="text-sm text-gray-800 dark:text-gray-200 font-medium">{chunk.title}</p>
-                                            </div>
-                                          )}
-
-                                          {chunk.text && (
-                                            <div className="mb-2">
-                                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">متن:</p>
-                                              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                                {chunk.text.length > 200 && !isTextExpanded
-                                                  ? `${chunk.text.substring(0, 200)}...`
-                                                  : chunk.text}
-                                              </p>
-                                              {chunk.text.length > 200 && (
-                                                <button
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleTextExpansion(chunkKey);
-                                                  }}
-                                                  className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
-                                                >
-                                                  {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
-                                                </button>
-                                              )}
-                                            </div>
-                                          )}
-
-                                          {chunk.content && !chunk.text && (
-                                            <div className="mb-2">
-                                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">محتوا:</p>
-                                              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                                {chunk.content.length > 200 && !isTextExpanded
-                                                  ? `${chunk.content.substring(0, 200)}...`
-                                                  : chunk.content}
-                                              </p>
-                                              {chunk.content.length > 200 && (
-                                                <button
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleTextExpansion(chunkKey);
-                                                  }}
-                                                  className="mt-2 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 focus:outline-none"
-                                                >
-                                                  {isTextExpanded ? 'نمایش کمتر' : 'نمایش بیشتر'}
-                                                </button>
-                                              )}
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center text-gray-500 dark:text-gray-400">
-                        هیچ منبع داده‌ای یافت نشد
-                      </div>
-                    )}
-                  </div>
-                );
-
-              case 'documents':
-                return (
-                  <div className="flex flex-col h-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                        {selectedDomain ? 'فایل‌های دامنه' : 'مستندات'}
-                      </h2>
-                      <div className="flex items-center gap-4">
-                        {backHandlers.length > 0 && (
-                          <button
-                            onClick={handleBackClick}
-                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
-                          >
-                            بازگشت
-                          </button>
-                        )}
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          تعداد: {selectedDomain ? domainFiles.length : domains.length}
+                            <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                              <div className="flex justify-between items-center mb-2">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatTimestamp(item.timestamp)}
                         </span>
-                      </div>
-                    </div>
-
-                    {!selectedDomain && (
-                      <div className="border-b border-gray-200 dark:border-gray-700 mb-4">
-                        <nav className="-mb-px flex space-x-8 space-x-reverse" aria-label="Tabs">
-                          <button
-                            onClick={() => setDocumentsTab('crawled')}
-                            className={`${documentsTab === 'crawled'
-                              ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                          >
-                            دامنه‌های خزش شده
-                          </button>
-                          <button
-                            onClick={() => setDocumentsTab('manual')}
-                            className={`${documentsTab === 'manual'
-                              ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                          >
-                            مستندات دستی
-                          </button>
-                        </nav>
-                      </div>
-                    )}
-
-                    {filesLoading || domainsLoading ? (
-                      <div className="flex justify-center items-center p-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                      </div>
-                    ) : error ? (
-                      <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
-                        <p className="text-red-500 dark:text-red-400">{error}</p>
-                        <button
-                          onClick={selectedDomain ? () => fetchDomainFiles(selectedDomain) : fetchDomains}
-                          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                        >
-                          تلاش مجدد
-                        </button>
-                      </div>
-                    ) : selectedFile ? (
-                      <div className="flex flex-col h-full">
-                        {fileContentLoading ? (
-                          <div className="flex justify-center items-center p-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                          </div>
-                        ) : error ? (
-                          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
-                            <p className="text-red-500 dark:text-red-400">{error}</p>
-                            <button
-                              onClick={() => fetchFileContent(selectedFile)}
-                              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                            >
-                              تلاش مجدد
-                            </button>
-                          </div>
-                        ) : fileContent ? (
-                          <ModifyDocument
-                            fileContent={fileContent}
-                            selectedFile={selectedFile}
-                            selectedDomain={selectedDomain}
-                            onBack={handleBackToFiles}
-                          />
-                        ) : null}
-                      </div>
-                    ) : selectedDomain && !selectedFile ? (
-                      <div className="space-y-6">
-                        <div className="flex justify-end">
-                          {/* <button
-                            onClick={() => {
-                              console.log('Button clicked');
-                              // const handler = () => {
-                              //   console.log('Handler executing');
-                              //   setShowCrawlUrl(false);
-                              // };
-                              // addBackHandler(handler);
-                              // setShowCrawlUrl(true);
-                            }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                            </svg>
-                            خزش لینک جدید
-                          </button> */}
-                        </div>
-                        {domainFiles.length > 0 ? (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {domainFiles.map((file) => (
-                              <div
-                                key={file.id}
-                                onClick={() => {
-                                  handleFileClick(file)
-                                }}
-                                className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                    {file.title}
-                                  </h3>
-                                </div>
-                                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                  <p>آدرس: {file.uri}</p>
-                                </div>
+                                <span className="text-xs font-medium text-green-600 dark:text-green-400">چت‌بات</span>
                               </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">هیچ فایلی در این دامنه وجود ندارد</h3>
-                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                              برای خزش لینک جدید، روی دکمه "خزش لینک جدید" کلیک کنید
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ) : documentsTab === 'crawled' ? (
-                      <div className="space-y-6">
-                        {showCrawlUrl ? (
-                          <CrawlUrl
-                            onClose={() => setShowCrawlUrl(false)}
-                            onCrawledDocClick={(doc) => {
-                              setPreviousTab('add-knowledge');
-                              setSelectedFile({
-                                id: doc.id,
-                                title: doc.title,
-                                uri: doc.url
-                              });
-                              // Extract domain from doc.url (e.g., 'satia.co/')
-                              const domain = doc.url.split('/')[0];
-                              setSelectedDomain({ domain });
-                              setActiveTab('documents');
-                              fetchFileContent({
-                                id: doc.id,
-                                title: doc.title,
-                                uri: doc.url
-                              });
-                            }}
-                          />
-                        ) : (
-                          <>
-                            <div className="flex justify-end">
-                              <button
-                                 onClick={() => {
-                                  const handler = () => {
-                                    setShowCrawlUrl(false);
-                                  };
-                                  addBackHandler(handler);
-                                  setShowCrawlUrl(true);
-                                }}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                                </svg>
-                                خزش لینک جدید
-                              </button>
-                            </div>
-                            {domains.length > 0 ? (
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {domains.map((domain) => (
-                                  <div
-                                    key={domain.id}
-                                    onClick={() => handleDomainClick(domain)}
-                                    className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                        {domain.domain}
-                                      </h3>
-                                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                                        {domain.document_count} فایل
-                                      </span>
-                                    </div>
-                                    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                      <p>تاریخ ایجاد: {new Date(domain.created_at).toLocaleString('fa-IR')}</p>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                </svg>
-                                <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">هیچ دامنه‌ای خزش نشده است</h3>
-                                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                  برای خزش دامنه جدید، روی دکمه "خزش لینک جدید" کلیک کنید
-                                </p>
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    ) : documentsTab === 'manual' ? (
-                      (showAddKnowledge ? <CreateDocument onClose={() => { setShowAddKnowledge(false); fetchManualDocuments() }} /> : <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">اسناد دستی</h2>
-                          <button
-                            onClick={() => {
-                              setShowAddKnowledge(true)
-                              addBackHandler(() => {setShowAddKnowledge(false)})
-                            }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                          >
-                            ایجاد سند جدید
-                          </button>
-                        </div>
-
-                        {loading ? (
-                          <div className="flex justify-center items-center p-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                          </div>
-                        ) : error ? (
-                          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
-                            <p className="text-red-500 dark:text-red-400">{error}</p>
-                            <button
-                              onClick={fetchManualDocuments}
-                              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                            >
-                              تلاش مجدد
-                            </button>
-                          </div>
-                        ) : manualDocuments.length === 0 ? (
-                          <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">هیچ سندی وجود ندارد</h3>
-                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                              برای ایجاد سند جدید، روی دکمه "ایجاد سند جدید" کلیک کنید
-                            </p>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {manualDocuments.map((doc) => (
+                              <div className="mb-4">
+                                <h3 className="font-bold mb-2 text-gray-900 dark:text-white">پاسخ:</h3>
                                 <div
-                                  key={doc.id}
-                                  onClick={() => handleManualDocClick(doc)}
-                                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
-                                >
-                                  <div className="space-y-4">
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                      {doc.title}
-                                    </h3>
-                                    <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                                      <span>شناسه: {doc.id}</span>
-                                      <span>
-                                        {new Date(doc.created_at).toLocaleString('fa-IR')}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-
-                            {/* Pagination */}
-                            {pagination.total > pagination.limit && (
-                              <div className="flex justify-center items-center space-x-2 space-x-reverse mt-4">
-                                <button
-                                  onClick={() => handlePageChange(Math.max(0, pagination.offset - pagination.limit))}
-                                  disabled={pagination.offset === 0}
-                                  className="px-3 py-1 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  قبلی
-                                </button>
-                                <span className="text-gray-700 dark:text-gray-300">
-                                  صفحه {Math.floor(pagination.offset / pagination.limit) + 1} از {Math.ceil(pagination.total / pagination.limit)}
-                                </span>
-                                <button
-                                  onClick={() => handlePageChange(pagination.offset + pagination.limit)}
-                                  disabled={pagination.offset + pagination.limit >= pagination.total}
-                                  className="px-3 py-1 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  بعدی
-                                </button>
+                                    className="text-gray-700 dark:text-white chat-message"
+                                    dangerouslySetInnerHTML={{ __html: item.answer }}
+                                />
                               </div>
-                            )}
-                          </>
+                              {item.sources && item.sources.length > 0 && (
+                                  <div>
+                                    <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">منابع:</h3>
+                                    <ul className="list-disc pl-4">
+                                      {item.sources.map((source, sourceIndex) => (
+                                          <li key={sourceIndex} className="mb-2">
+                                            <p className="text-sm text-gray-700 dark:text-white">{source.text}</p>
+                                            <a
+                                                href={source.metadata?.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+                                            >
+                                              منبع: {source.metadata?.source || 'نامشخص'}
+                                            </a>
+                                          </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                              )}
+                            </div>
                         )}
-                      </div>)
-                    ) : null}
-                  </div>
-                );
-
-              case 'wizard':
-                return (
-                  <div className="space-y-4">
-
-                    <WizardIndex />
-                    {showCreateWizard && (
-                      <CreateWizard
-                        onClose={() => {
-                          setShowCreateWizard(false);
-                          setSelectedWebsiteData(null);
-                        }}
-                        websiteData={selectedWebsiteData}
-                      />
-                    )}
-                  </div>
-                );
-
-
-              default:
-                return null;
-            }
-          })()}
+                      </div>
+                  ))
+              )}
+            </div>
+            {chatLoading && (
+                <div className="flex items-center justify-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg mb-4 animate-pulse">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
+                  <p className="text-gray-600 dark:text-gray-300">در حال دریافت پاسخ...</p>
+                </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+          <WizardButtons onWizardSelect={handleWizardSelect} wizards={currentWizards} />
+          <div className="flex gap-2">
+            <input
+                type="text"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="سوال خود را بپرسید..."
+                className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                disabled={chatLoading}
+            />
+            <button
+                onClick={realtimeHandleSubmit}
+                disabled={chatLoading || !question.trim()}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center"
+            >
+              {chatLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <span>در حال ارسال...</span>
+                  </>
+              ) : (
+                  'ارسال'
+              )}
+            </button>
+          </div>
+          {error && <div className="text-red-500 mt-2">{error}</div>}
         </div>
-      </div>
-    </>
+      </>
   );
 };
 
-export default Chat; 
+export default Chat;

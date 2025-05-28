@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDataSources } from '../../emb/dataSourcesApi';
+import { getDataSources } from '../../services/api';
 
 const DataSources = () => {
   const [sources, setSources] = useState([]);
