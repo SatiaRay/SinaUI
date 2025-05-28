@@ -476,10 +476,7 @@ const Chat = () => {
       minute: '2-digit',
     });
 
-    addBackHandler(() => {
-      setFileContent(null);
-      setSelectedFile(null);
-    })
+  
   };
 
   return (

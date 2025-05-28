@@ -225,108 +225,6 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                                 data={ckEditorContent}
                                 onChange={(event, editor) => {
                                     console.log('change change');
-                                    
-                                    const data = editor.getData();
-                                    setCkEditorContent(data);
-                                }}
-                                config={{
-                                    language: 'fa',
-                                    direction: 'rtl',
-                                    toolbar: {
-                                        items: [
-                                            'heading',
-                                            '|',
-                                            'bold',
-                                            'italic',
-                                            'link',
-                                            'bulletedList',
-                                            'numberedList',
-                                            '|',
-                                            'outdent',
-                                            'indent',
-                                            '|',
-                                            'insertTable',
-                                            'undo',
-                                            'redo'
-                                        ]
-                                    },
-                                    table: {
-                                        contentToolbar: [
-                                            'tableColumn',
-                                            'tableRow',
-                                            'mergeTableCells',
-                                            'tableProperties',
-                                            'tableCellProperties'
-                                        ],
-                                        defaultProperties: {
-                                            borderWidth: '1px',
-                                            borderColor: '#ccc',
-                                            borderStyle: 'solid',
-                                            alignment: 'right'
-                                        }
-                                    },
-                                    htmlSupport: {
-                                        allow: [
-                                            {
-                                                name: 'table',
-                                                attributes: true,
-                                                classes: true,
-                                                styles: true
-                                            },
-                                            {
-                                                name: 'tr',
-                                                attributes: true,
-                                                classes: true,
-                                                styles: true
-                                            },
-                                            {
-                                                name: 'td',
-                                                attributes: true,
-                                                classes: true,
-                                                styles: true
-                                            },
-                                            {
-                                                name: 'th',
-                                                attributes: true,
-                                                classes: true,
-                                                styles: true
-                                            }
-                                        ]
-                                    }
-                                }}
-                                style={{ direction: 'rtl', textAlign: 'right' }}
-                            />
-                        </div>
-                <div className="flex-1 flex flex-col min-h-0">
-                    <div>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
-                        <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
-                    </div>
-                    <div className="mt-4">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
-                        {selectedDomain ? (
-                            <a
-                                href={`https://${selectedDomain.domain}${fileContent.uri}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
-                            >
-                                {`https://${selectedDomain.domain}${fileContent.uri}`}
-                            </a>
-                        ) : (
-                            <span className="text-gray-400">بدون آدرس دامنه</span>
-                        )}
-                    </div>
-
-                    <div className="mt-8 flex-1 min-h-0 flex flex-col">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">CKEditor:</h3>
-                        <div className="flex-1 min-h-0 overflow-auto">
-                            <CKEditor
-                                editor={ClassicEditor}
-                                data={ckEditorContent}
-                                onChange={(event, editor) => {
-                                    console.log('change change');
-
                                     const data = editor.getData();
                                     setCkEditorContent(data);
                                 }}
@@ -402,7 +300,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 export default ModifyDocument;
