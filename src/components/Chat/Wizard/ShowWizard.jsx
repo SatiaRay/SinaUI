@@ -8,6 +8,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     const [error, setError] = useState(null);
     const [showCreateWizard, setShowCreateWizard] = useState(false);
     const [selectedWizardForEdit, setSelectedWizardForEdit] = useState(null);
+    const [updatingStatus, setUpdatingStatus] = useState({});
 
     useEffect(() => {
         const fetchWizardData = async () => {
@@ -47,14 +48,11 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     };
 
     const addNewChild = (child) => {
-        let children = wizard.children || []
-
-        console.log(children);
-        
-        
-        children.push(child)
-
-        wizardData.children = children
+        let children = wizardData.children || [];
+        setWizardData(prev => ({
+            ...prev,
+            children: [...children, child]
+        }));
     };
 
     const handleWizardUpdated = (updatedWizard) => {
@@ -87,6 +85,32 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                     console.error('Error deleting wizard:', error);
                     alert('خطا در حذف ویزارد');
                 });
+        }
+    };
+
+    const toggleWizardStatus = async (wizardId, currentStatus) => {
+        setUpdatingStatus(prev => ({ ...prev, [wizardId]: true }));
+        try {
+            const endpoint = currentStatus ? 'disable' : 'enable';
+            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizardId}/${endpoint}`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                throw new Error('خطا در تغییر وضعیت ویزارد');
+            }
+
+            // Update the wizard status in the children array
+            setWizardData(prev => ({
+                ...prev,
+                children: prev.children.map(child => 
+                    child.id === wizardId ? { ...child, enabled: !child.enabled } : child
+                )
+            }));
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setUpdatingStatus(prev => ({ ...prev, [wizardId]: false }));
         }
     };
 
@@ -217,12 +241,28 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                                                     className="px-6 py-4 whitespace-nowrap text-sm cursor-pointer"
                                                     onClick={() => handleChildClick(child)}
                                                 >
-                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${child.enabled
-                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                                        }`}>
-                                                        {child.enabled ? 'فعال' : 'غیرفعال'}
-                                                    </span>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleWizardStatus(child.id, child.enabled);
+                                                        }}
+                                                        disabled={updatingStatus[child.id]}
+                                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer transition-colors ${child.enabled
+                                                            ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800'
+                                                            : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
+                                                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                                    >
+                                                        {updatingStatus[child.id] ? (
+                                                            <div className="flex items-center gap-1">
+                                                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                                                                <span>در حال تغییر...</span>
+                                                            </div>
+                                                        ) : child.enabled ? (
+                                                            'فعال'
+                                                        ) : (
+                                                            'غیرفعال'
+                                                        )}
+                                                    </button>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                                     <div className="flex gap-2">
