@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from '../utils/axios';
+import axios from './axios';
 
 const AuthContext = createContext(null);
 
@@ -23,11 +23,11 @@ export const AuthProvider = ({ children }) => {
         try {
             const token = localStorage.getItem('token');
             const userData = localStorage.getItem('user');
-            
+
             if (token && userData) {
                 // Set the token in axios headers
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                
+
                 // Verify token validity by making a test request
                 try {
                     await axios.get('/api/verify-token');
@@ -55,14 +55,14 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await axios.post('/api/login', credentials);
             const { token, user: userData } = response.data;
-            
+
             // Store token and user data
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(userData));
-            
+
             // Set axios default header
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
+
             setUser(userData);
             return response;
         } catch (error) {
@@ -98,4 +98,4 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export default AuthContext; 
+export default AuthContext;

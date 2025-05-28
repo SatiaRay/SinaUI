@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const modules = {
     toolbar: [
@@ -77,15 +77,6 @@ const CreateDocument = ({ onClose }) => {
     return <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 pb-12">
         <div className='flex justify-between items-center mb-6'>
             <div className='flex items-center gap-4'>
-                <button
-                    onClick={onClose}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 flex items-center gap-2"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                    </svg>
-                    بازگشت
-                </button>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">ایجاد سند جدید</h2>
             </div>
             <button
@@ -123,14 +114,80 @@ const CreateDocument = ({ onClose }) => {
                 <label htmlFor="text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     متن
                 </label>
-                <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
-                    <ReactQuill
-                        theme="snow"
-                        value={manualText}
-                        modules={modules}
-                        formats={formats}
-                        style={{ height: '200px', direction: 'rtl', textAlign: 'right' }}
-                        onChange={setManualText}
+                <div className="h-[calc(100%-8rem)]">
+                    <CKEditor
+                        editor={ClassicEditor}
+                        data={manualText}
+                        onChange={(event, editor) => {
+                            const data = editor.getData();
+                            setManualText(data);
+                        }}
+                        config={{
+                            language: 'fa',
+                            direction: 'rtl',
+                            toolbar: {
+                                items: [
+                                    'heading',
+                                    '|',
+                                    'bold',
+                                    'italic',
+                                    'link',
+                                    'bulletedList',
+                                    'numberedList',
+                                    '|',
+                                    'outdent',
+                                    'indent',
+                                    '|',
+                                    'insertTable',
+                                    'undo',
+                                    'redo'
+                                ]
+                            },
+                            table: {
+                                contentToolbar: [
+                                    'tableColumn',
+                                    'tableRow',
+                                    'mergeTableCells',
+                                    'tableProperties',
+                                    'tableCellProperties'
+                                ],
+                                defaultProperties: {
+                                    borderWidth: '1px',
+                                    borderColor: '#ccc',
+                                    borderStyle: 'solid',
+                                    alignment: 'right'
+                                }
+                            },
+                            htmlSupport: {
+                                allow: [
+                                    {
+                                        name: 'table',
+                                        attributes: true,
+                                        classes: true,
+                                        styles: true
+                                    },
+                                    {
+                                        name: 'tr',
+                                        attributes: true,
+                                        classes: true,
+                                        styles: true
+                                    },
+                                    {
+                                        name: 'td',
+                                        attributes: true,
+                                        classes: true,
+                                        styles: true
+                                    },
+                                    {
+                                        name: 'th',
+                                        attributes: true,
+                                        classes: true,
+                                        styles: true
+                                    }
+                                ]
+                            }
+                        }}
+                        style={{ direction: 'rtl', textAlign: 'right' }}
                     />
                 </div>
             </div>

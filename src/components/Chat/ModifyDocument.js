@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initialSelectedFile, selectedDomain: initialSelectedDomain, onBack }) => {
     const [fileContent, setFileContent] = useState(initialFileContent);
@@ -8,11 +10,9 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     const [selectedDomain, setSelectedDomain] = useState(initialSelectedDomain);
     const [storingVector, setStoringVector] = useState(false);
     const [error, setError] = useState(null);
-    const [editorContent, setEditorContent] = useState('');
-    const [quillEditor, setQuillEditor] = useState(null);
-    const [saving, setSaving] = useState(false);
     const [vectorizationStatus, setVectorizationStatus] = useState(null);
     const socketRef = useRef(null);
+    const [ckEditorContent, setCkEditorContent] = useState('');
 
     const modules = {
         toolbar: [
@@ -24,7 +24,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
             ['clean']
         ],
     };
-    
+
     const formats = [
         'header',
         'bold', 'italic', 'underline', 'strike',
@@ -35,16 +35,18 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
     useEffect(() => {
         if (fileContent?.html) {
-            setEditorContent(fileContent.html);
+            console.log('change');
+
+            setCkEditorContent(fileContent.html);
         }
     }, [fileContent]);
 
     const connectToVectorizationSocket = (jobId) => {
         const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL);
         const wsUrl = `ws://${url.hostname}:${url.port}/ws/documents/vectorize/${jobId}`;
-        
+
         const socket = new WebSocket(wsUrl);
-        
+
         socket.onopen = () => {
             console.log(`Connected to vectorization socket: ${jobId}`);
         };
@@ -52,7 +54,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         socket.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                
+
                 switch (data.event) {
                     case 'change_progress':
                         handleProgressChange(data);
@@ -99,7 +101,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
     const handleStoreVector = async () => {
         if (!fileContent || !selectedFile) return;
-        
+
         setStoringVector(true);
         setError(null);
         try {
@@ -110,7 +112,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    html: editorContent,
+                    html: ckEditorContent,
                     metadata: {
                         source: `https://${selectedDomain.domain}${fileContent.uri}`,
                         title: fileContent.title,
@@ -119,11 +121,11 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                     }
                 })
             });
-    
+
             if (!vectorizeResponse.ok) {
                 throw new Error('خطا در ذخیره در پایگاه داده برداری');
             }
-    
+
             const vectorizeData = await vectorizeResponse.json();
             if (!vectorizeData.job_id) {
                 throw new Error('خطا در ذخیره در پایگاه داده برداری');
@@ -131,7 +133,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
             // Connect to vectorization WebSocket
             connectToVectorizationSocket(vectorizeData.job_id);
-    
+
         } catch (err) {
             setError(err.message);
             console.error('Error in vectorization process:', err);
@@ -141,15 +143,15 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
 
     const getButtonText = () => {
         if (!storingVector) return 'ذخیره در پایگاه داده برداری';
-        
+
         if (!vectorizationStatus) return 'در حال ارسال...';
-        
+
         switch (vectorizationStatus.status) {
             case 'started':
                 if (vectorizationStatus.message.includes('Queued')) {
                     return 'در صف پردازش';
                 } else if (vectorizationStatus.message.includes('html to markdown')) {
-                    return 'در حال تبدیل به مارک‌داون';
+                    return 'درحال آماده سازی';
                 } else if (vectorizationStatus.message.includes('Storing data')) {
                     return 'در حال ذخیره در پایگاه داده';
                 }
@@ -169,59 +171,15 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         };
     }, []);
 
-    const handleEditorChange = (content) => {
-        setEditorContent(content);
-    };
-    
-    const handleSaveContent = async () => {
-        if (!selectedFile || !editorContent) return;
-        
-        setSaving(true);
-        try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    html: editorContent
-                })
-            });
-    
-            if (!response.ok) {
-                throw new Error('خطا در ذخیره محتوا');
-            }
-    
-            // Update local state with new content
-            setFileContent(prev => ({
-                ...prev,
-                html: editorContent
-            }));
-    
-            // Show success message or handle as needed
-            alert('محتوا با موفقیت ذخیره شد');
-        } catch (err) {
-            setError(err.message);
-            console.error('Error saving content:', err);
-        } finally {
-            setSaving(false);
-        }
-    };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div className="space-y-4">
-                <div className="flex justify-between items-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-[calc(100vh-12rem)]">
+            <div className="flex-1 min-h-0 flex flex-col">
+                <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
                         محتوای فایل
                     </h2>
                     <div className="flex gap-2">
-                        <button
-                            onClick={onBack}
-                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
-                        >
-                            بازگشت
-                        </button>
                         <button
                             onClick={handleStoreVector}
                             disabled={storingVector}
@@ -238,48 +196,107 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                         </button>
                     </div>
                 </div>
-                <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
-                    <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
-                </div>
-                <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
-                    {selectedDomain ? (
-                        <a
-                            href={`https://${selectedDomain.domain}${fileContent.uri}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
-                        >
-                            {`https://${selectedDomain.domain}${fileContent.uri}`}
-                        </a>
-                    ) : (
-                        <span className="text-gray-400">بدون آدرس دامنه</span>
-                    )}
-                </div>
-                <div>
-                    <div className="bg-white dark:bg-gray-800 rounded-lg" dir="rtl">
-                        <ReactQuill
-                            theme="snow"
-                            value={editorContent}
-                            modules={modules}
-                            formats={formats}
-                            style={{ height: '400px', direction: 'rtl', textAlign: 'right' }}
-                            onChange={handleEditorChange}
-                        />
+                <div className="flex-1 flex flex-col min-h-0">
+                    <div>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
+                        <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
                     </div>
-                </div>
-                <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Markdown:</h3>
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                            تعداد کاراکترها: {fileContent.markdown?.length || 0}
-                        </span>
+                    <div className="mt-4">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
+                        {selectedDomain ? (
+                            <a
+                                href={`https://${selectedDomain.domain}${fileContent.uri}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
+                            >
+                                {`https://${selectedDomain.domain}${fileContent.uri}`}
+                            </a>
+                        ) : (
+                            <span className="text-gray-400">بدون آدرس دامنه</span>
+                        )}
                     </div>
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-                        <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                            {fileContent.markdown || ''}
-                        </pre>
+
+                    <div className="mt-8 flex-1 min-h-0 flex flex-col">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">CKEditor:</h3>
+                        <div className="flex-1 min-h-0 overflow-auto">
+                            <CKEditor
+                                editor={ClassicEditor}
+                                data={ckEditorContent}
+                                onChange={(event, editor) => {
+                                    console.log('change change');
+
+                                    const data = editor.getData();
+                                    setCkEditorContent(data);
+                                }}
+                                config={{
+                                    language: 'fa',
+                                    direction: 'rtl',
+                                    toolbar: {
+                                        items: [
+                                            'heading',
+                                            '|',
+                                            'bold',
+                                            'italic',
+                                            'link',
+                                            'bulletedList',
+                                            'numberedList',
+                                            '|',
+                                            'outdent',
+                                            'indent',
+                                            '|',
+                                            'insertTable',
+                                            'undo',
+                                            'redo'
+                                        ]
+                                    },
+                                    table: {
+                                        contentToolbar: [
+                                            'tableColumn',
+                                            'tableRow',
+                                            'mergeTableCells',
+                                            'tableProperties',
+                                            'tableCellProperties'
+                                        ],
+                                        defaultProperties: {
+                                            borderWidth: '1px',
+                                            borderColor: '#ccc',
+                                            borderStyle: 'solid',
+                                            alignment: 'right'
+                                        }
+                                    },
+                                    htmlSupport: {
+                                        allow: [
+                                            {
+                                                name: 'table',
+                                                attributes: true,
+                                                classes: true,
+                                                styles: true
+                                            },
+                                            {
+                                                name: 'tr',
+                                                attributes: true,
+                                                classes: true,
+                                                styles: true
+                                            },
+                                            {
+                                                name: 'td',
+                                                attributes: true,
+                                                classes: true,
+                                                styles: true
+                                            },
+                                            {
+                                                name: 'th',
+                                                attributes: true,
+                                                classes: true,
+                                                styles: true
+                                            }
+                                        ]
+                                    }
+                                }}
+                                style={{ direction: 'rtl', textAlign: 'right' }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
