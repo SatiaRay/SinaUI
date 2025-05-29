@@ -25,30 +25,32 @@ export const AuthProvider = ({ children }) => {
             const userData = localStorage.getItem('user');
 
             if (token && userData) {
-                // Set the token in axios headers
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-                // Verify token validity by making a test request
+                setUser(JSON.parse(userData)); // ابتدا کاربر را ست کنید
                 try {
                     await axios.get('/api/verify-token');
-                    setUser(JSON.parse(userData));
+                    // اگر درخواست موفق بود، توکن معتبر است
                 } catch (error) {
-                    // If token verification fails, clear everything
                     console.error('Token verification failed:', error);
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    delete axios.defaults.headers.common['Authorization'];
-                    setUser(null);
+                    // فقط در صورت خطای 401 (توکن نامعتبر) پاک کنید
+                    if (error.response?.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        delete axios.defaults.headers.common['Authorization'];
+                        setUser(null);
+                    }
+                    // در صورت خطاهای دیگر (مثل مشکلات شبکه)، توکن را نگه دارید
                 }
+            } else {
+                setUser(null);
             }
         } catch (error) {
             console.error('Auth check failed:', error);
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            delete axios.defaults.headers.common['Authorization'];
+            // در صورت خطای کلی، توکن را نگه دارید
             setUser(null);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const login = async (credentials) => {
