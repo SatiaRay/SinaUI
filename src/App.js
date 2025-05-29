@@ -8,7 +8,8 @@ import Chat from './components/Chat/Chat';
 import DataSources from './components/Chat/DataSources';
 import Documents from './components/Chat/Documents';
 import Wizard from './components/Chat/Wizard';
-import WorkflowEditor from './components/Workflow/WorkflowEditor';
+import Workflow from './components/Workflow/WorkflowIndex';
+import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
 
 function App() {
     return (
@@ -75,14 +76,32 @@ function AppContent() {
                             </PrivateRoute>
                         }
                     />
-                    <Route
-                        path="/workflow"
-                        element={
-                            <PrivateRoute>
-                                <WorkflowEditor />
-                            </PrivateRoute>
-                        }
-                    />
+                    <Route path="/workflow">
+                        <Route
+                            index
+                            element={
+                                <PrivateRoute>
+                                    <Workflow />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route 
+                            path=":workflowId"
+                            element={
+                                <PrivateRoute>
+                                    <WorkflowEditor />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route 
+                            path="create"
+                            element={
+                                <PrivateRoute>
+                                    <WorkflowEditor />
+                                </PrivateRoute>
+                            }
+                        />
+                    </Route>
                 </Routes>
             </div>
         </div>

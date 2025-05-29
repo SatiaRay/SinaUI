@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -16,6 +17,7 @@ import FunctionNode from './nodes/FunctionNode';
 import ResponseNode from './nodes/ResponseNode';
 import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
+import { workflowEndpoints } from '../../../utils/apis';
 
 const nodeTypes = {
   start: StartNode,
@@ -45,12 +47,86 @@ const initialNodes = [
 ];
 
 const WorkflowEditor = () => {
+  const { workflowId } = useParams();
+  const navigate = useNavigate();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [activePage, setActivePage] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [workflowName, setWorkflowName] = useState('');
+
+  // Fetch workflow data if workflowId is provided
+  useEffect(() => {
+    const fetchWorkflow = async () => {
+      if (!workflowId) return; // Skip if no workflowId (create mode)
+
+      try {
+        setLoading(true);
+        setError(null);
+        const workflow = await workflowEndpoints.getWorkflow(workflowId);
+        
+        // Set workflow name
+        setWorkflowName(workflow.name || '');
+        
+        // Convert workflow data to nodes and edges
+        const workflowNodes = workflow.schema.map((step, index) => ({
+          id: step.id,
+          type: step.type === 'action' ? 'process' : step.type,
+          position: { x: index * 250, y: 250 },
+          data: {
+            label: step.label,
+            description: step.description || '',
+            conditions: step.type === 'decision' ? Object.keys(step.conditions || {}) : [],
+            jsonConfig: null,
+            pageConfig: {
+              showPage: false,
+              pageUrl: '',
+              closeOnAction: false
+            }
+          },
+        }));
+
+        // Create edges from the workflow data
+        const workflowEdges = workflow.schema.reduce((acc, step) => {
+          if (step.type === 'decision' && step.conditions) {
+            // For decision nodes, create edges for each condition
+            Object.entries(step.conditions).forEach(([condition, targetId]) => {
+              acc.push({
+                id: `${step.id}-${targetId}`,
+                source: step.id,
+                target: targetId,
+                sourceHandle: condition,
+                type: 'step',
+              });
+            });
+          } else if (step.next) {
+            // For other nodes, create a single edge
+            acc.push({
+              id: `${step.id}-${step.next}`,
+              source: step.id,
+              target: step.next,
+              type: 'step',
+            });
+          }
+          return acc;
+        }, []);
+
+        setNodes(workflowNodes);
+        setEdges(workflowEdges);
+      } catch (err) {
+        console.error('Error fetching workflow:', err);
+        setError('خطا در دریافت اطلاعات گردش کار');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkflow();
+  }, [workflowId, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params) => {
@@ -183,8 +259,8 @@ const WorkflowEditor = () => {
 
   // Function to generate JSON output
   const generateWorkflowJson = useCallback(() => {
-    const workflowSteps = nodes
-      .filter(node => node.type !== 'end') // Exclude end nodes from steps
+    const workflowschema = nodes
+      .filter(node => node.type !== 'end') // Exclude end nodes from schema
       .map(node => {
         const step = {
           id: node.id,
@@ -231,16 +307,182 @@ const WorkflowEditor = () => {
 
     // Structure the final JSON
     const workflowData = {
-      steps: workflowSteps,
+      schema: workflowschema,
     };
 
     console.log('Workflow JSON:', JSON.stringify(workflowData, null, 2));
 
   }, [nodes, edges]);
 
+  // Function to import workflow from JSON
+  const importWorkflow = useCallback((jsonString) => {
+    try {
+      const workflowData = JSON.parse(jsonString);
+      if (!workflowData.schema || !Array.isArray(workflowData.schema)) {
+        throw new Error('Invalid workflow format');
+      }
+
+      const newNodes = [];
+      const newEdges = [];
+      const xOffset = 250; // Horizontal spacing between nodes
+
+      // Create nodes
+      workflowData.schema.forEach((step, index) => {
+        const node = {
+          id: step.id,
+          type: step.type === 'action' ? 'process' : step.type, // Map 'action' type to 'process'
+          position: { x: index * xOffset, y: 250 },
+          data: {
+            label: step.label,
+            description: step.description || '',
+            conditions: step.type === 'decision' ? Object.keys(step.conditions || {}) : [],
+            jsonConfig: null,
+            pageConfig: {
+              showPage: false,
+              pageUrl: '',
+              closeOnAction: false
+            }
+          },
+        };
+        newNodes.push(node);
+
+        // Create edges
+        if (step.type === 'decision' && step.conditions) {
+          // For decision nodes, create edges for each condition
+          Object.entries(step.conditions).forEach(([condition, targetId]) => {
+            newEdges.push({
+              id: `${step.id}-${targetId}`,
+              source: step.id,
+              target: targetId,
+              sourceHandle: condition,
+              type: 'step',
+            });
+          });
+        } else if (step.next) {
+          // For other nodes, create a single edge
+          newEdges.push({
+            id: `${step.id}-${step.next}`,
+            source: step.id,
+            target: step.next,
+            type: 'step',
+          });
+        }
+      });
+
+      // Update state with new nodes and edges
+      setNodes(newNodes);
+      setEdges(newEdges);
+    } catch (error) {
+      console.error('Error importing workflow:', error);
+      alert('Error importing workflow: ' + error.message);
+    }
+  }, [setNodes, setEdges]);
+
+
+  // Function to save workflow
+  const saveWorkflow = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      if (!workflowName.trim()) {
+        setError('لطفا نام گردش کار را وارد کنید');
+        setLoading(false);
+        return;
+      }
+      
+      const workflowData = {
+        name: workflowName.trim(),
+        schema: nodes
+          .filter(node => node.type !== 'end')
+          .map(node => {
+            const step = {
+              id: node.id,
+              label: node.data.label,
+            };
+
+            switch (node.type) {
+              case 'start':
+                step.type = 'start';
+                break;
+              case 'process':
+              case 'function':
+              case 'response':
+                step.type = 'action';
+                step.description = node.data.description;
+                break;
+              case 'decision':
+                step.type = 'decision';
+                const outgoingEdges = edges.filter(edge => edge.source === node.id);
+                step.conditions = outgoingEdges.reduce((acc, edge) => {
+                  acc[edge.sourceHandle] = edge.target;
+                  return acc;
+                }, {});
+                break;
+              default:
+                step.type = 'unknown';
+            }
+
+            if (node.type !== 'decision') {
+              const outgoingEdges = edges.filter(edge => edge.source === node.id);
+              if (outgoingEdges.length > 0) {
+                step.next = outgoingEdges[0].target;
+              } else if (node.type !== 'end') {
+                step.next = null;
+              }
+            }
+
+            return step;
+          }),
+      };
+
+      if (workflowId) {
+        await workflowEndpoints.updateWorkflow(workflowId, workflowData);
+      } else {
+        await workflowEndpoints.createWorkflow(workflowData);
+      }
+
+      navigate('/workflow');
+    } catch (err) {
+      console.error('Error saving workflow:', err);
+      setError('خطا در ذخیره گردش کار');
+    } finally {
+      setLoading(false);
+    }
+  }, [nodes, edges, workflowId, navigate, workflowName]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen w-full">
       <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4">
+          <label htmlFor="workflow-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            نام گردش کار
+          </label>
+          <input
+            type="text"
+            id="workflow-name"
+            value={workflowName}
+            onChange={(e) => setWorkflowName(e.target.value)}
+            placeholder="نام گردش کار را وارد کنید"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+          />
+        </div>
         <button
           onClick={() => addNode('start')}
           className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
@@ -278,10 +520,10 @@ const WorkflowEditor = () => {
           افزودن پایان
         </button>
         <button
-          onClick={generateWorkflowJson}
+          onClick={saveWorkflow}
           className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
         >
-          ذخیره گردش کار
+          {workflowId ? 'بروزرسانی گردش کار' : 'ذخیره گردش کار'}
         </button>
       </div>
 
