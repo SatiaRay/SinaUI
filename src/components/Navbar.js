@@ -102,6 +102,12 @@ const Navbar = ({ onSidebarCollapse }) => {
                         >
                             پاسخ‌های ویزارد
                         </Link>
+                        <Link
+                            to="/workflow"
+                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                        >
+                            گردش کار
+                        </Link>
                     </div>
                     <div className="p-4 border-t border-gray-700 overflow-hidden">
                         <div className="flex items-center justify-between mb-4 whitespace-nowrap">
@@ -173,6 +179,12 @@ const Navbar = ({ onSidebarCollapse }) => {
                                 onClick={closeSidebar}
                             >
                                 پاسخ‌های ویزارد
+                            </Link>
+                            <Link
+                                to="/workflow"
+                                className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                            >
+                                گردش کار
                             </Link>
                         </div>
                         <div className="p-4 border-t border-gray-700">
