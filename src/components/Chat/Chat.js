@@ -367,7 +367,7 @@ const Chat = () => {
       return;
     }
 
-    socketRef.current = new WebSocket(`ws://${hostPort}/ws/ask?session_id=${storedSessionId}`);
+    socketRef.current = new WebSocket(`wss://${hostPort}/ws/ask?session_id=${storedSessionId}`);
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connection established');
