@@ -116,7 +116,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                 body: JSON.stringify({
                     html: ckEditorContent,
                     metadata: {
-                        source: `https://${selectedDomain.domain}${fileContent.uri}`,
+                        source: selectedDomain ? `https://${selectedDomain.domain}${fileContent.uri}` : null,
                         title: fileContent.title,
                         author: "خزش شده",
                         date: new Date(fileContent.created_at).toISOString().split('T')[0]

@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                 setUser(JSON.parse(userData)); // ابتدا کاربر را ست کنید
                 try {
-                    await axios.get('/api/verify-token');
+                    await axios.get('/verify-token');
                     // اگر درخواست موفق بود، توکن معتبر است
                 } catch (error) {
                     console.error('Token verification failed:', error);

@@ -559,7 +559,7 @@ return (
                                             <ReactMarkdown>{fileContent.markdown || fileContent.html || 'محتوا در دسترس نیست'}</ReactMarkdown>
                                         </div>
                                         <ModifyDocument
-                                            file={selectedFile}
+                                            selectedFile={selectedFile}
                                             fileContent={fileContent}
                                             selectedDomain={selectedDomain}
                                             onBack={handleBackToFiles}
