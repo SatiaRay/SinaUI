@@ -4,6 +4,7 @@ import { WizardButtons, WizardButton } from './Wizard/';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { v4 as uuidv4 } from 'uuid';
+import { getWebSocketUrl } from '../../utils/websocket';
 
 // استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
@@ -367,7 +368,7 @@ const Chat = () => {
       return;
     }
 
-    socketRef.current = new WebSocket(`wss://${hostPort}/ws/ask?session_id=${storedSessionId}`);
+    socketRef.current = new WebSocket(getWebSocketUrl(`/ws/ask?session_id=${storedSessionId}`));
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connection established');
@@ -574,6 +575,14 @@ const Chat = () => {
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
+                onKeyPress={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (!chatLoading && question.trim()) {
+                            realtimeHandleSubmit(e);
+                        }
+                    }
+                }}
                 placeholder="سوال خود را بپرسید..."
                 className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 disabled={chatLoading}
