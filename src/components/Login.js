@@ -1,102 +1,112 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/api'; // فرض می‌کنیم api.js در پوشه utils است
-import { jwtDecode } from 'jwt-decode'; // Assuming jwt-decode is installed
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth hook
+import { useAuth } from '../contexts/AuthContext';
+import { jwtDecode } from 'jwt-decode';
+import NetworkBackground3D from './NetworkBackground3D';
 
 const Login = () => {
-  const { login: authLogin } = useAuth(); // Use the login function from AuthContext
-  const [formData, setFormData] = useState({
+  const { login: authLogin, user } = useAuth();
+  const [formData, setFormData] = React.useState({
     email: 'admin@example.com',
     password: '123456789',
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
   const navigate = useNavigate();
 
-  // useEffect for Google Sign-In
   useEffect(() => {
+    if (user) {
+      console.log('User is already logged in, redirecting to /chat');
+      navigate('/chat', { replace: true });
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    console.log('Google Client ID:', process.env.REACT_APP_GOOGLE_CLIENT_ID);
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
     document.body.appendChild(script);
 
-    script.onload = () => {
+    const initializeGoogleSignIn = () => {
       if (window.google && window.google.accounts && window.google.accounts.id) {
+        console.log('Initializing Google Sign-In');
         window.google.accounts.id.initialize({
-          // Replace with your actual Google Client ID
-          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID, // Assuming you have this in your .env
+          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
           callback: handleGoogleSignIn,
+          auto_select: false,
+          context: 'signin',
         });
 
-        window.google.accounts.id.renderButton(
-          document.getElementById('googleSignInButton'),
-          {
-            theme: 'outline', // You can make this dynamic based on theme if you have theme context
+        const googleButtonDiv = document.getElementById('googleSignInButton');
+        if (googleButtonDiv) {
+          console.log('Rendering Google Sign-In button');
+          window.google.accounts.id.renderButton(googleButtonDiv, {
+            theme: 'filled_blue',
             size: 'large',
-            width: '350', // Adjust width as needed
-            text: 'signin_with', // or 'signup_with'
-          }
-        );
+            width: '350',
+            text: 'signin_with',
+          });
+          console.log('Google button rendered successfully');
+        } else {
+          console.error('Google Sign-In button div not found');
+          setTimeout(initializeGoogleSignIn, 100); // Retry after 100ms
+        }
       } else {
-        console.error('Google Identity Services script failed to load.');
+        console.error('Google Identity Services not available, retrying...');
+        setTimeout(initializeGoogleSignIn, 100); // Retry after 100ms
       }
     };
 
+    script.onload = () => {
+      console.log('Google script loaded');
+      initializeGoogleSignIn();
+    };
+
+    script.onerror = () => {
+      console.error('Error loading Google Identity Services script');
+      setError('خطا در بارگذاری اسکریپت گوگل');
+    };
+
     return () => {
-      // Clean up the script when the component unmounts
       if (document.body.contains(script)) {
         document.body.removeChild(script);
       }
     };
-  }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
+  }, []);
 
   const handleGoogleSignIn = async (response) => {
     const credential = response.credential;
     console.log('Google Credential:', credential);
 
     try {
-      // Decode the token (optional, but useful for getting user info on frontend)
       const decodedToken = jwtDecode(credential);
       console.log('Decoded User Info:', decodedToken);
 
-      // --- Integration with your backend and AuthContext ---
-      // This part depends on how your backend handles Google login.
-      // You might need to send the `credential` to your backend
-      // which then verifies it and returns your application's JWT.
-      // For now, let's assume your `login` function can handle this.
-      // You might need to adjust your backend and useAuth hook accordingly.
-
-      // Example: Sending credential to backend and then using the response to log in
+      console.log('Sending request to:', `${process.env.REACT_APP_PYTHON_APP_API_URL}/auth/google`);
       const backendResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: credential }), // Send the Google credential
+        body: JSON.stringify({ token: credential }),
       });
 
+      console.log('Backend Response Status:', backendResponse.status);
       if (!backendResponse.ok) {
         const errorData = await backendResponse.json();
+        console.error('Backend Response Error:', errorData);
         throw new Error(errorData.detail || 'Backend Google login failed');
       }
 
       const backendData = await backendResponse.json();
+      console.log('Backend Response Data:', backendData);
 
-      // Assuming your backend returns your application's token and maybe user info
       if (backendData.token) {
-        // Use your existing login function from AuthContext or similar logic
-        // This might involve setting the received token in localStorage and context
-        localStorage.setItem('token', backendData.token); // Store your app's token
-        // Assuming backendData might contain user info needed for context
-        // localStorage.setItem('user', JSON.stringify(backendData.user));
-
-        // Call the login function from AuthContext if it supports setting token/user directly
-        // Or you might need a separate function in AuthContext for Google login
-        // Example: context.googleLogin(backendData.token, backendData.user);
-
-        // For simplicity, let's just navigate after successful backend auth
-        // You might need to trigger context update here based on your AuthContext implementation
-        navigate('/chat'); // Redirect to chat page after successful login
+        console.log('Storing token:', backendData.token);
+        localStorage.setItem('token', backendData.token);
+        localStorage.setItem('user', JSON.stringify(backendData.user));
+        await authLogin({ token: backendData.token, user: backendData.user });
+        navigate('/chat', { replace: true });
       } else {
         throw new Error('Backend did not return an authentication token');
       }
@@ -120,12 +130,10 @@ const Login = () => {
     setError('');
 
     try {
-      // Call your existing login function for email/password
-      const response = await authLogin(formData);
-      // Assuming login function handles token storage and context update internally
-      navigate('/chat');
+      await authLogin(formData);
+      navigate('/chat', { replace: true });
     } catch (error) {
-      console.error('Login error:', error.message);
+      console.error('Login error:', error);
       setError(error.message || 'خطا در ورود به سیستم');
     } finally {
       setLoading(false);
@@ -133,69 +141,90 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <NetworkBackground3D />
+        <div className="relative z-10 max-w-md w-full space-y-8 bg-gray-900/80 dark:bg-gray-900/80 backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
+          <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">
             ورود به سیستم
           </h2>
-        </div>
-        <div className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                ایمیل
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                placeholder="ایمیل"
-                value={formData.email}
-                onChange={handleChange}
-              />
+          <div className="mt-6 space-y-6">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="sr-only">
+                  ایمیل
+                </label>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                    placeholder="ایمیل"
+                    value={formData.email}
+                    onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="sr-only">
+                  رمز عبور
+                </label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                    placeholder="رمز عبور"
+                    value={formData.password}
+                    onChange={handleChange}
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                رمز عبور
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                placeholder="رمز عبور"
-                value={formData.password}
-                onChange={handleChange}
-              />
+
+            {error && (
+                <div className="text-red-400 text-sm text-center animate-pulse">{error}</div>
+            )}
+
+            <div className="space-y-4">
+              <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className={`group relative w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-100'}`}
+              >
+                {loading ? (
+                    <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                      <circle
+                          className="opacity-50"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                      ></circle>
+                      <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.272A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                ) : (
+                    'ورود'
+                )}
+              </button>
+
+              <div className="flex justify-center">
+                <div id="googleSignInButton" className="w-full flex justify-center transition-all duration-300 hover:scale-100"></div>
+              </div>
             </div>
           </div>
-
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
-
-          <div>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {loading ? 'در حال ورود...' : 'ورود'}
-            </button>
-          </div>
-        </div>
-
-        {/* Google Sign-In Button Container */}
-        <div className="mt-6 flex justify-center">
-          <div id="googleSignInButton"></div>
         </div>
       </div>
-    </div>
   );
 };
 
