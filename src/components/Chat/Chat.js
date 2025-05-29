@@ -4,6 +4,7 @@ import { WizardButtons, WizardButton } from './Wizard/';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { v4 as uuidv4 } from 'uuid';
+import { getWebSocketUrl } from '../../utils/websocket';
 
 // استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
@@ -359,15 +360,13 @@ const Chat = () => {
 
     initialMessageAddedRef.current = false;
 
-    const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL);
-    const hostPort = `${url.hostname}:${url.port}`;
     const storedSessionId = localStorage.getItem('chat_session_id');
     if (!storedSessionId) {
       setError('خطا در شناسایی نشست');
       return;
     }
 
-    socketRef.current = new WebSocket(`ws://${hostPort}/ws/ask?session_id=${storedSessionId}`);
+    socketRef.current = new WebSocket(getWebSocketUrl(`/ws/ask?session_id=${storedSessionId}`));
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connection established');

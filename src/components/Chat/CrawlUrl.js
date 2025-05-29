@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { getWebSocketUrl } from '../../utils/websocket';
 
 const CrawlUrl = ({ onClose, onDocClick }) => {
     const [crawlUrl, setCrawlUrl] = useState('');
@@ -65,8 +66,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
     };
 
     const connectToJobSocket = (jobId) => {
-        const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL);
-        const wsUrl = `ws://${url.hostname}:${url.port}/ws/jobs/${jobId}`;
+        const wsUrl = getWebSocketUrl(`/ws/jobs/${jobId}`);
         
         const socket = new WebSocket(wsUrl);
         

@@ -3,6 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { getWebSocketUrl } from '../../utils/websocket';
 
 const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initialSelectedFile, selectedDomain: initialSelectedDomain, onBack }) => {
     const [fileContent, setFileContent] = useState(initialFileContent);
@@ -42,8 +43,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     }, [fileContent]);
 
     const connectToVectorizationSocket = (jobId) => {
-        const url = new URL(process.env.REACT_APP_PYTHON_APP_API_URL);
-        const wsUrl = `ws://${url.hostname}:${url.port}/ws/documents/vectorize/${jobId}`;
+        const wsUrl = getWebSocketUrl(`/ws/documents/vectorize/${jobId}`);
 
         const socket = new WebSocket(wsUrl);
 
