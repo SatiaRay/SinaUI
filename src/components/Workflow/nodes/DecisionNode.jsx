@@ -4,7 +4,7 @@ import { Handle, Position } from 'reactflow';
 const DecisionNode = ({ data }) => {
   return (
     <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-yellow-400">
-      <Handle type="target" position={Position.Top} className="w-16 !bg-yellow-500" />
+      <Handle type="target" position={Position.Left} className="w-16 !bg-yellow-500" />
       <div className="flex items-center">
         <div className="rounded-full w-12 h-12 flex items-center justify-center bg-yellow-100">
           <svg
@@ -27,8 +27,23 @@ const DecisionNode = ({ data }) => {
           <div className="text-gray-500">{data.description}</div>
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="w-16 !bg-yellow-500" />
-      <Handle type="source" position={Position.Right} className="w-16 !bg-yellow-500" />
+      {data.conditions && data.conditions.filter(condition => condition && condition.trim() !== '').map((condition, index) => (
+        <div key={index} className="relative group">
+          <Handle
+            type="source"
+            position={Position.Right}
+            id={condition}
+            style={{ top: `${(index + 1) * (100 / (data.conditions.filter(c => c && c.trim() !== '').length + 1))}%` }}
+            className="w-4 h-4 !bg-yellow-500 hover:!bg-yellow-600 transition-colors"
+          />
+          <div 
+            className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-md z-50"
+            style={{ top: `${(index + 1) * (100 / (data.conditions.filter(c => c && c.trim() !== '').length + 1))}%` }}
+          >
+            {condition}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

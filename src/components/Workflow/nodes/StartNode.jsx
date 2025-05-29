@@ -32,7 +32,7 @@ const StartNode = ({ data }) => {
           <div className="text-gray-500">{data.description}</div>
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="w-16 !bg-green-500" />
+      <Handle type="source" position={Position.Right} className="w-16 !bg-green-500" />
     </div>
   );
 };

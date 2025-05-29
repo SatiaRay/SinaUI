@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
 
-const NodeDetails = ({ node, onUpdate, onClose }) => {
+const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
   const [details, setDetails] = useState({
     label: node.data.label || '',
     description: node.data.description || '',
     connections: node.data.connections || [],
     conditions: node.data.conditions || []
   });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onUpdate(node.id, details);
+    onClose();
+  };
+
+  const handleDelete = () => {
+    onDelete(node.id);
     onClose();
   };
 
@@ -156,6 +162,13 @@ const NodeDetails = ({ node, onUpdate, onClose }) => {
           <div className="flex justify-end gap-2 mt-6">
             <button
               type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
+            >
+              حذف
+            </button>
+            <button
+              type="button"
               onClick={onClose}
               className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
             >
@@ -170,6 +183,35 @@ const NodeDetails = ({ node, onUpdate, onClose }) => {
           </div>
         </form>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              تایید حذف
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              آیا از حذف این {node.type === 'start' ? 'شروع' : 
+                            node.type === 'process' ? 'فرآیند' : 
+                            node.type === 'decision' ? 'تصمیم' : 'پایان'} اطمینان دارید؟
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              >
+                انصراف
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
+              >
+                حذف
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { Handle, Position } from 'reactflow';
 const ProcessNode = ({ data }) => {
   return (
     <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-400">
-      <Handle type="target" position={Position.Top} className="w-16 !bg-blue-500" />
+      <Handle type="target" position={Position.Left} className="w-16 !bg-blue-500" />
       <div className="flex items-center">
         <div className="rounded-full w-12 h-12 flex items-center justify-center bg-blue-100">
           <svg
@@ -27,7 +27,7 @@ const ProcessNode = ({ data }) => {
           <div className="text-gray-500">{data.description}</div>
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="w-16 !bg-blue-500" />
+      <Handle type="source" position={Position.Right} className="w-16 !bg-blue-500" />
     </div>
   );
 };
