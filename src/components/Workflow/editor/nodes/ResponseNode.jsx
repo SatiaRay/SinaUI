@@ -15,7 +15,7 @@ const ResponseNode = ({ data }) => {
         </div>
         <div className="ml-2">
           <div className="text-lg font-bold">{data.label || "پاسخ"}</div>
-          <div className="text-gray-500">{data.description}</div>
+          <div className="text-gray-500 text-sm break-words" style={{ maxWidth: '250px' }}>{data.description}</div>
         </div>
       </div>
       <Handle type="source" position={Position.Right} className="w-16 !bg-orange-500" />

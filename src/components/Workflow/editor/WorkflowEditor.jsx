@@ -138,7 +138,24 @@ const WorkflowEditor = () => {
         params.sourceHandle = 'right';
       }
       
-      setEdges((eds) => addEdge(params, eds));
+      // For decision nodes, ensure we have a valid sourceHandle
+      if (sourceNode?.type === 'decision') {
+        if (!params.sourceHandle) {
+          // If no sourceHandle is provided, use the first condition
+          const firstCondition = sourceNode.data.conditions?.find(c => c && c.trim() !== '');
+          if (firstCondition) {
+            params.sourceHandle = firstCondition;
+          }
+        }
+      }
+
+      // Add the edge with the updated params
+      setEdges((eds) => addEdge({
+        ...params,
+        type: 'step',
+        animated: true,
+        style: { stroke: '#f59e0b' }
+      }, eds));
     },
     [setEdges, nodes]
   );
@@ -399,6 +416,7 @@ const WorkflowEditor = () => {
             const step = {
               id: node.id,
               label: node.data.label,
+              description: node.data.description || null,
             };
 
             switch (node.type) {
@@ -409,7 +427,6 @@ const WorkflowEditor = () => {
               case 'function':
               case 'response':
                 step.type = 'action';
-                step.description = node.data.description;
                 break;
               case 'decision':
                 step.type = 'decision';

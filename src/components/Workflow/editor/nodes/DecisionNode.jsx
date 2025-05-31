@@ -2,9 +2,16 @@ import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 
 const DecisionNode = ({ data }) => {
+  const validConditions = data.conditions?.filter(condition => condition && condition.trim() !== '') || [];
+  const handleSpacing = 100 / (validConditions.length + 1);
+
   return (
     <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-yellow-400">
-      <Handle type="target" position={Position.Left} className="w-16 !bg-yellow-500" />
+      <Handle 
+        type="target" 
+        position={Position.Left} 
+        className="w-3 h-3 !bg-yellow-500 hover:!bg-yellow-600 transition-colors" 
+      />
       <div className="flex items-center">
         <div className="rounded-full w-12 h-12 flex items-center justify-center bg-yellow-100">
           <svg
@@ -24,21 +31,29 @@ const DecisionNode = ({ data }) => {
         </div>
         <div className="ml-2">
           <div className="text-lg font-bold">{data.label}</div>
-          <div className="text-gray-500">{data.description}</div>
+          <div className="text-gray-500 text-sm break-words" style={{ maxWidth: '250px' }}>{data.description}</div>
         </div>
       </div>
-      {data.conditions && data.conditions.filter(condition => condition && condition.trim() !== '').map((condition, index) => (
+      {validConditions.map((condition, index) => (
         <div key={index} className="relative group">
           <Handle
             type="source"
             position={Position.Right}
             id={condition}
-            style={{ top: `${(index + 1) * (100 / (data.conditions.filter(c => c && c.trim() !== '').length + 1))}%` }}
-            className="w-4 h-4 !bg-yellow-500 hover:!bg-yellow-600 transition-colors"
+            style={{ 
+              top: `${(index + 1) * handleSpacing}%`,
+              transform: 'translateY(-50%)',
+              right: '-4px'
+            }}
+            className="w-3 h-3 !bg-yellow-500 hover:!bg-yellow-600 transition-colors cursor-crosshair"
+            isConnectable={true}
           />
           <div 
             className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-md z-50"
-            style={{ top: `${(index + 1) * (100 / (data.conditions.filter(c => c && c.trim() !== '').length + 1))}%` }}
+            style={{ 
+              top: `${(index + 1) * handleSpacing}%`,
+              transform: 'translateY(-50%)'
+            }}
           >
             {condition}
           </div>
