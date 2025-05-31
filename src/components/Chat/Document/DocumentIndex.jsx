@@ -72,7 +72,22 @@ const DocumentIndex = () => {
             )}
             <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
                 {documents.map((document) => (
-                    <DocumentCard document={document} onCardClick={handleDocumentCardClick} />
+                    <DocumentCard 
+                        key={document.id}
+                        document={document} 
+                        onCardClick={handleDocumentCardClick}
+                        onStatusChange={async (documentId) => {
+                            try {
+                                const isManual = location.pathname.endsWith('/manuals');
+                                const response = await getDocuments(isManual);
+                                if (response && response.data) {
+                                    setDocuments(response.data);
+                                }
+                            } catch (err) {
+                                console.error('Error refreshing documents:', err);
+                            }
+                        }}
+                    />
                 ))}
             </div>
         </>

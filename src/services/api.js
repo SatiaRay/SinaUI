@@ -157,10 +157,19 @@ export const getDocuments = async (manualType = false, limit=20,offset=0) => {
 }
 
 export const getDocument = async (document_id) => {
-  console.log('Fetching document:', document_id);
-  
   try {
     const response = await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
+    console.log('Document API raw response:', response);
+    return response;
+  } catch (err) {
+    console.error('Error fetching document:', err.message);
+    throw err;
+  }
+}
+
+export const toggleDocumentVectorStatus = async (document_id) => {
+  try {
+    const response = await axios.post(`${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`);
     console.log('Document API raw response:', response);
     return response;
   } catch (err) {
