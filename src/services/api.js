@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // تنظیم baseURL برای APIهای مختلف
 const API_URL = process.env.REACT_APP_API_URL || 'http://144.76.160.218:81/api';
-const PYTHON_CHAT_DATA_SOURCE = process.env.REACT_APP_PYTHON_CHAT_DATA_SOURCE || process.env.REACT_APP_PYTHON_APP_API_URL || 'http://144.76.160.218:81/api';
+const PYTHON_APP_URL = process.env.REACT_APP_PYTHON_APP_URL || process.env.REACT_APP_PYTHON_APP_API_URL || 'http://144.76.160.218:81/api';
 
 // ایجاد نمونه axios با تنظیمات پیش‌فرض
 const axiosInstance = axios.create({
@@ -17,7 +17,7 @@ const axiosInstance = axios.create({
 
 // ایجاد نمونه axios برای چت
 const chatAxiosInstance = axios.create({
-  baseURL: PYTHON_CHAT_DATA_SOURCE,
+  baseURL: PYTHON_APP_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -26,20 +26,20 @@ const chatAxiosInstance = axios.create({
 
 // افزودن interceptor برای افزودن توکن به هدرها
 chatAxiosInstance.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
 
 // دریافت لیست منابع داده
 export const getDataSources = async () => {
   try {
-    console.log('Fetching data sources from:', `${PYTHON_CHAT_DATA_SOURCE}/data_sources/`);
+    console.log('Fetching data sources from:', `${PYTHON_APP_URL}/data_sources/`);
     const response = await chatAxiosInstance.get('/data_sources/');
     console.log('Data sources response structure:', {
       isArray: Array.isArray(response.data),
@@ -75,7 +75,7 @@ export const getDataSources = async () => {
 // ارسال سوال به چت‌بات
 export const askQuestion = async (question) => {
   try {
-    console.log('Sending question to:', `${PYTHON_CHAT_DATA_SOURCE}/ask`);
+    console.log('Sending question to:', `${PYTHON_APP_URL}/ask`);
     const response = await chatAxiosInstance.post('/ask', { question });
     console.log('Chat response:', response.data);
     return response.data;
@@ -132,3 +132,39 @@ export const login = async (email, password) => {
     }
   }
 };
+
+export const getDomains = async () => {
+  try {
+    return await axios.get(`${PYTHON_APP_URL}/domains`)
+  } catch (err) {
+    console.error(err.message)
+    return null
+  }
+}
+
+export const getDocuments = async (manualType = false, limit=20,offset=0) => {
+  const url = 
+    manualType ?
+      `${PYTHON_APP_URL}/documents/manual?limit=${limit}&offset=${offset}`:
+      `${PYTHON_APP_URL}/documents?limit=${limit}&offset=${offset}`;
+
+  try {
+    return await axios.get(url)
+  } catch (err) {
+    console.error(err.message)
+    return null
+  }
+}
+
+export const getDocument = async (document_id) => {
+  console.log('Fetching document:', document_id);
+  
+  try {
+    const response = await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
+    console.log('Document API raw response:', response);
+    return response;
+  } catch (err) {
+    console.error('Error fetching document:', err.message);
+    throw err;
+  }
+}

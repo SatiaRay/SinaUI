@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { getWebSocketUrl } from '../../utils/websocket';
+import { Link } from 'react-router-dom';
 
 const CrawlUrl = ({ onClose, onDocClick }) => {
     const [crawlUrl, setCrawlUrl] = useState('');
@@ -15,14 +16,14 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
             setError('لطفا آدرس وب‌سایت را وارد کنید');
             return;
         }
-    
+
         try {
             new URL(crawlUrl); // Validate URL
         } catch (e) {
             setError('لطفا یک آدرس معتبر وارد کنید');
             return;
         }
-    
+
         setCrawling(true);
         setError(null);
         try {
@@ -36,13 +37,13 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                     recursive: crawlRecursive
                 })
             });
-    
+
             if (!response.ok) {
                 throw new Error('خطا در خزش وب‌سایت');
             }
-    
+
             const data = await response.json();
-            
+
             // Add new job to active jobs
             setActiveJobs(prev => ({
                 ...prev,
@@ -55,7 +56,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
 
             // Connect to job WebSocket
             connectToJobSocket(data.job_id);
-            
+
             setCrawlUrl(''); // Clear the input after successful crawl
         } catch (err) {
             setError(err.message);
@@ -67,9 +68,9 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
 
     const connectToJobSocket = (jobId) => {
         const wsUrl = getWebSocketUrl(`/ws/jobs/${jobId}`);
-        
+
         const socket = new WebSocket(wsUrl);
-        
+
         socket.onopen = () => {
             console.log(`Connected to job socket: ${jobId}`);
         };
@@ -77,7 +78,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
         socket.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                
+
                 switch (data.event) {
                     case 'change_progress':
                         handleProgressChange(jobId, data);
@@ -165,9 +166,15 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
     }, []);
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 m-10">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">خزش وب‌سایت</h2>
+                <Link
+                    to="/document"
+                    className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300"
+                >
+                    بازگشت
+                </Link>
             </div>
             <div className="space-y-4">
                 <div>
@@ -221,14 +228,13 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                                 <div key={jobId} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                                     <div className="flex justify-between items-start mb-2">
                                         <h4 className="font-medium text-gray-900 dark:text-white">{job.url}</h4>
-                                        <span className={`text-sm px-2 py-1 rounded ${
-                                            job.status === 'finished' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                                            job.status === 'started' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
-                                            'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
-                                        }`}>
+                                        <span className={`text-sm px-2 py-1 rounded ${job.status === 'finished' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                                                job.status === 'started' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
+                                                    'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+                                            }`}>
                                             {job.status === 'finished' ? 'تکمیل شده' :
-                                             job.status === 'started' ? 'در حال اجرا' :
-                                             'در صف'}
+                                                job.status === 'started' ? 'در حال اجرا' :
+                                                    'در صف'}
                                         </span>
                                     </div>
                                     {job.docs.length > 0 && (
