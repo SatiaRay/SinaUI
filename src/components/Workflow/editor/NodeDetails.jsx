@@ -5,13 +5,16 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
     label: node.data.label || '',
     description: node.data.description || '',
     connections: node.data.connections || [],
-    conditions: node.data.conditions || []
+    conditions: node.data.conditions?.filter((c) => c && c.trim() !== '') || [],
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onUpdate(node.id, details);
+    onUpdate(node.id, {
+      ...details,
+      conditions: details.conditions.filter((c) => c && c.trim() !== ''),
+    });
     onClose();
   };
 
@@ -20,26 +23,26 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
     onClose();
   };
 
-  const addConnection = () => {
-    setDetails(prev => ({
+  const addCondition = () => {
+    setDetails((prev) => ({
       ...prev,
-      connections: [...prev.connections, { targetId: '', label: '' }]
+      conditions: [...prev.conditions, `شرط ${prev.conditions.length + 1}`], // نام منحصر به فرد
     }));
   };
 
-  const removeConnection = (index) => {
-    setDetails(prev => ({
+  const removeCondition = (index) => {
+    setDetails((prev) => ({
       ...prev,
-      connections: prev.connections.filter((_, i) => i !== index)
+      conditions: prev.conditions.filter((_, i) => i !== index),
     }));
   };
 
-  const updateConnection = (index, field, value) => {
-    setDetails(prev => ({
+  const updateCondition = (index, value) => {
+    setDetails((prev) => ({
       ...prev,
-      connections: prev.connections.map((conn, i) => 
-        i === index ? { ...conn, [field]: value } : conn
-      )
+      conditions: prev.conditions.map((condition, i) =>
+        i === index ? value : condition
+      ),
     }));
   };
 
@@ -47,11 +50,16 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-          ویرایش {node.type === 'start' ? 'شروع' : 
-                  node.type === 'process' ? 'فرآیند' : 
-                  node.type === 'decision' ? 'تصمیم' : 'پایان'}
+          ویرایش{' '}
+          {node.type === 'start'
+            ? 'شروع'
+            : node.type === 'process'
+            ? 'فرآیند'
+            : node.type === 'decision'
+            ? 'تصمیم'
+            : 'پایان'}
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -60,7 +68,7 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
             <input
               type="text"
               value={details.label}
-              onChange={(e) => setDetails(prev => ({ ...prev, label: e.target.value }))}
+              onChange={(e) => setDetails((prev) => ({ ...prev, label: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
@@ -71,7 +79,9 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
             </label>
             <textarea
               value={details.description}
-              onChange={(e) => setDetails(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setDetails((prev) => ({ ...prev, description: e.target.value }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               rows="3"
             />
@@ -88,20 +98,13 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
                     <input
                       type="text"
                       value={condition}
-                      onChange={(e) => {
-                        const newConditions = [...details.conditions];
-                        newConditions[index] = e.target.value;
-                        setDetails(prev => ({ ...prev, conditions: newConditions }));
-                      }}
+                      onChange={(e) => updateCondition(index, e.target.value)}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       placeholder="شرط تصمیم"
                     />
                     <button
                       type="button"
-                      onClick={() => {
-                        const newConditions = details.conditions.filter((_, i) => i !== index);
-                        setDetails(prev => ({ ...prev, conditions: newConditions }));
-                      }}
+                      onClick={() => removeCondition(index)}
                       className="px-3 py-2 text-red-600 hover:text-red-700"
                     >
                       حذف
@@ -110,7 +113,7 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
                 ))}
                 <button
                   type="button"
-                  onClick={() => setDetails(prev => ({ ...prev, conditions: [...prev.conditions, ''] }))}
+                  onClick={addCondition}
                   className="text-blue-600 hover:text-blue-700 text-sm"
                 >
                   + افزودن شرط
@@ -118,46 +121,6 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
               </div>
             </div>
           )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              اتصالات
-            </label>
-            <div className="space-y-2">
-              {details.connections.map((connection, index) => (
-                <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={connection.targetId}
-                    onChange={(e) => updateConnection(index, 'targetId', e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    placeholder="شناسه نود مقصد"
-                  />
-                  <input
-                    type="text"
-                    value={connection.label}
-                    onChange={(e) => updateConnection(index, 'label', e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    placeholder="برچسب اتصال"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeConnection(index)}
-                    className="px-3 py-2 text-red-600 hover:text-red-700"
-                  >
-                    حذف
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addConnection}
-                className="text-blue-600 hover:text-blue-700 text-sm"
-              >
-                + افزودن اتصال
-              </button>
-            </div>
-          </div>
 
           <div className="flex justify-end gap-2 mt-6">
             <button
@@ -191,9 +154,15 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
               تایید حذف
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              آیا از حذف این {node.type === 'start' ? 'شروع' : 
-                            node.type === 'process' ? 'فرآیند' : 
-                            node.type === 'decision' ? 'تصمیم' : 'پایان'} اطمینان دارید؟
+              آیا از حذف این{' '}
+              {node.type === 'start'
+                ? 'شروع'
+                : node.type === 'process'
+                ? 'فرآیند'
+                : node.type === 'decision'
+                ? 'تصمیم'
+                : 'پایان'}{' '}
+              اطمینان دارید؟
             </p>
             <div className="flex justify-end gap-2">
               <button
@@ -215,5 +184,4 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
     </div>
   );
 };
-
-export default NodeDetails; 
+export default NodeDetails;

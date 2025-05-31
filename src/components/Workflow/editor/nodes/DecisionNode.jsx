@@ -2,15 +2,21 @@ import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 
 const DecisionNode = ({ data }) => {
-  const validConditions = data.conditions?.filter(condition => condition && condition.trim() !== '') || [];
-  const handleSpacing = 100 / (validConditions.length + 1);
+  const validConditions = data.conditions?.filter((condition) => condition && condition.trim() !== '') || [];
+  const baseTop = 30; // موقعیت پایه برای اولین Handle (پیکسل)
+  const handleSpacing = 40; // فاصله ثابت بین Handleها (پیکسل)
+  const nodeHeight = Math.max(80 + (validConditions.length * handleSpacing), 120); // ارتفاع پویا
 
   return (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-yellow-400">
-      <Handle 
-        type="target" 
-        position={Position.Left} 
-        className="w-3 h-3 !bg-yellow-500 hover:!bg-yellow-600 transition-colors" 
+    <div
+      className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-yellow-400 relative"
+      style={{ minHeight: `${nodeHeight}px`, position: 'relative', zIndex: 0 }}
+    >
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-3 h-3 !bg-yellow-500 hover:!bg-yellow-600 transition-colors"
+        style={{ top: '50%', transform: 'translateY(-50%)' }}
       />
       <div className="flex items-center">
         <div className="rounded-full w-12 h-12 flex items-center justify-center bg-yellow-100">
@@ -31,36 +37,50 @@ const DecisionNode = ({ data }) => {
         </div>
         <div className="ml-2">
           <div className="text-lg font-bold">{data.label}</div>
-          <div className="text-gray-500 text-sm break-words" style={{ maxWidth: '250px' }}>{data.description}</div>
-        </div>
-      </div>
-      {validConditions.map((condition, index) => (
-        <div key={index} className="relative group">
-          <Handle
-            type="source"
-            position={Position.Right}
-            id={condition}
-            style={{ 
-              top: `${(index + 1) * handleSpacing}%`,
-              transform: 'translateY(-50%)',
-              right: '-4px'
-            }}
-            className="w-3 h-3 !bg-yellow-500 hover:!bg-yellow-600 transition-colors cursor-crosshair"
-            isConnectable={true}
-          />
-          <div 
-            className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-md z-50"
-            style={{ 
-              top: `${(index + 1) * handleSpacing}%`,
-              transform: 'translateY(-50%)'
-            }}
-          >
-            {condition}
+          <div className="text-gray-500 text-sm break-words" style={{ maxWidth: '250px' }}>
+            {data.description}
           </div>
         </div>
-      ))}
+      </div>
+      {validConditions.length > 0 ? (
+        validConditions.map((condition, index) => {
+          const topPosition = baseTop + (index * handleSpacing); // موقعیت با فاصله ثابت
+          return (
+            <div key={`${condition}-${index}`} className="relative">
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={condition}
+                style={{
+                  top: `${topPosition}px`,
+                  transform: 'translateY(-50%)',
+                  right: '-10px',
+                  position: 'absolute',
+                  zIndex: 10,
+                }}
+                className="w-5 h-5 !bg-yellow-500 hover:!bg-yellow-600 transition-colors cursor-crosshair"
+                isConnectable={true}
+              />
+              {/* برچسب ثابت برای نمایش condition */}
+              <div
+                className="absolute text-sm text-gray-700 bg-transparent px-2 py-1 rounded whitespace-nowrap"
+                style={{
+                  top: `${topPosition}px`,
+                  right: '10px', // فاصله از لبه نود
+                  transform: 'translateY(-50%)',
+                  zIndex: 5, // کمتر از Handle اما بالاتر از نود
+                }}
+              >
+                {condition}
+              </div>
+            </div>
+          );
+        })
+      ) : (
+        <div className="text-gray-500 text-sm mt-2">بدون شرط</div>
+      )}
     </div>
   );
 };
 
-export default memo(DecisionNode); 
+export default memo(DecisionNode);

@@ -80,6 +80,7 @@ const WorkflowEditor = () => {
           data: {
             label: step.label,
             description: step.description || '',
+            position: step.position,
             conditions: step.type === 'decision' ? Object.keys(step.conditions || {}) : [],
             jsonConfig: null,
             pageConfig: {
@@ -130,34 +131,42 @@ const WorkflowEditor = () => {
 
   const onConnect = useCallback(
     (params) => {
-      // Find the source node
-      const sourceNode = nodes.find(node => node.id === params.source);
-      
-      // If it's a start node, force the handle position to be on the right
+      const sourceNode = nodes.find((node) => node.id === params.source);
+  
       if (sourceNode?.type === 'start') {
         params.sourceHandle = 'right';
       }
-      
-      // For decision nodes, ensure we have a valid sourceHandle
+  
       if (sourceNode?.type === 'decision') {
-        if (!params.sourceHandle) {
-          // If no sourceHandle is provided, use the first condition
-          const firstCondition = sourceNode.data.conditions?.find(c => c && c.trim() !== '');
-          if (firstCondition) {
-            params.sourceHandle = firstCondition;
-          }
+        if (!params.sourceHandle || !sourceNode.data.conditions.includes(params.sourceHandle)) {
+          console.warn(`Invalid sourceHandle: ${params.sourceHandle}`);
+          return;
         }
       }
-
-      // Add the edge with the updated params
-      setEdges((eds) => addEdge({
-        ...params,
-        type: 'step',
-        animated: true,
-        style: { stroke: '#f59e0b' }
-      }, eds));
+  
+      // Check if source node already has an outgoing connection (except for decision nodes)
+      if (sourceNode?.type !== 'decision') {
+        const existingOutgoingEdges = edges.filter(edge => edge.source === params.source);
+        if (existingOutgoingEdges.length > 0) {
+          console.warn('Only decision nodes can have multiple outgoing connections');
+          return;
+        }
+      }
+  
+      setEdges((eds) => {
+        return addEdge(
+          {
+            ...params,
+            id: `${params.source}-${params.sourceHandle}-${params.target}-${Date.now()}`,
+            type: 'step',
+            animated: true,
+            style: { stroke: '#f59e0b' },
+          },
+          eds
+        );
+      });
     },
-    [setEdges, nodes]
+    [setEdges, nodes, edges]
   );
 
   const onNodeClick = useCallback((event, node) => {
@@ -178,63 +187,80 @@ const WorkflowEditor = () => {
             data: {
               ...node.data,
               ...newData,
+              conditions: newData.conditions?.filter((c) => c && c.trim() !== '') || [],
             },
           };
         }
         return node;
       })
     );
-
-    // Update edges based on connections
-    if (newData.connections) {
-      const newEdges = newData.connections.map((conn) => ({
-        id: `${nodeId}-${conn.targetId}`,
-        source: nodeId,
-        target: conn.targetId,
-        label: conn.label,
-        type: 'step',
-      }));
-      
+  
+    if (newData.conditions && newData.type === 'decision') {
       setEdges((eds) => {
-        // Remove old edges for this node
-        const filteredEdges = eds.filter((edge) => edge.source !== nodeId);
-        // Add new edges
-        return [...filteredEdges, ...newEdges];
+        const existingEdges = eds.filter((edge) => edge.source === nodeId);
+        const otherEdges = eds.filter((edge) => edge.source !== nodeId);
+        const newConditions = newData.conditions.filter((condition) => condition && condition.trim() !== '');
+  
+        const newEdges = newConditions.map((condition, index) => {
+          const existingEdge = existingEdges.find(
+            (edge) => edge.source === nodeId && edge.sourceHandle === condition
+          );
+          if (existingEdge) {
+            return existingEdge;
+          }
+          return {
+            id: `${nodeId}-${condition}-${index}`,
+            source: nodeId,
+            target: null,
+            sourceHandle: condition,
+            type: 'step',
+            animated: true,
+            style: { stroke: '#f59e0b' },
+          };
+        });
+  
+        const validEdges = existingEdges.filter((edge) =>
+          newConditions.includes(edge.sourceHandle)
+        );
+  
+        return [...otherEdges, ...validEdges, ...newEdges.filter((edge) => edge.target === null)];
       });
     }
-
-    // اگر تنظیمات صفحه تغییر کرده باشد، آن را به‌روزرسانی می‌کنیم
-    if (newData.pageConfig) {
-      setActivePage(newData.pageConfig);
-    }
   }, [setNodes, setEdges]);
-
+ 
   const addNode = (type) => {
     const lastNode = nodes[nodes.length - 1];
-    const xOffset = 250; // Horizontal spacing between nodes
-    
+    const xOffset = 250;
+  
     const newNode = {
       id: `${nodes.length + 1}`,
       type,
-      position: { 
+      position: {
         x: lastNode ? lastNode.position.x + xOffset : 50,
-        y: 250 // Keep all nodes at the same height
+        y: 250,
       },
       data: {
-        label: type === 'start' ? 'شروع' :
-               type === 'process' ? 'فرآیند' :
-               type === 'decision' ? 'تصمیم' :
-               type === 'function' ? 'تابع' :
-               type === 'response' ? 'پاسخ' : 'پایان',
+        label:
+          type === 'start'
+            ? 'شروع'
+            : type === 'process'
+            ? 'فرآیند'
+            : type === 'decision'
+            ? 'تصمیم'
+            : type === 'function'
+            ? 'تابع'
+            : type === 'response'
+            ? 'پاسخ'
+            : 'پایان',
         description: '',
         connections: [],
-        conditions: type === 'decision' ? [''] : [],
+        conditions: type === 'decision' ? ['شرط پیش‌فرض'] : [], // شرط پیش‌فرض معتبر
         jsonConfig: null,
         pageConfig: {
           showPage: false,
           pageUrl: '',
-          closeOnAction: false
-        }
+          closeOnAction: false,
+        },
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -352,6 +378,7 @@ const WorkflowEditor = () => {
           data: {
             label: step.label,
             description: step.description || '',
+            position: step.position,
             conditions: step.type === 'decision' ? Object.keys(step.conditions || {}) : [],
             jsonConfig: null,
             pageConfig: {
@@ -395,78 +422,80 @@ const WorkflowEditor = () => {
     }
   }, [setNodes, setEdges]);
 
+const saveWorkflow = useCallback(async () => {
+  let workflowData = null; // Declare outside try block
+  try {
+    setLoading(true);
+    setError(null);
 
-  // Function to save workflow
-  const saveWorkflow = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      if (!workflowName.trim()) {
-        setError('لطفا نام گردش کار را وارد کنید');
-        setLoading(false);
-        return;
-      }
-      
-      const workflowData = {
-        name: workflowName.trim(),
-        schema: nodes
-          .filter(node => node.type !== 'end')
-          .map(node => {
-            const step = {
-              id: node.id,
-              label: node.data.label,
-              description: node.data.description || null,
-            };
-
-            switch (node.type) {
-              case 'start':
-                step.type = 'start';
-                break;
-              case 'process':
-              case 'function':
-              case 'response':
-                step.type = 'action';
-                break;
-              case 'decision':
-                step.type = 'decision';
-                const outgoingEdges = edges.filter(edge => edge.source === node.id);
-                step.conditions = outgoingEdges.reduce((acc, edge) => {
-                  acc[edge.sourceHandle] = edge.target;
-                  return acc;
-                }, {});
-                break;
-              default:
-                step.type = 'unknown';
-            }
-
-            if (node.type !== 'decision') {
-              const outgoingEdges = edges.filter(edge => edge.source === node.id);
-              if (outgoingEdges.length > 0) {
-                step.next = outgoingEdges[0].target;
-              } else if (node.type !== 'end') {
-                step.next = null;
-              }
-            }
-
-            return step;
-          }),
-      };
-
-      if (workflowId) {
-        await workflowEndpoints.updateWorkflow(workflowId, workflowData);
-      } else {
-        await workflowEndpoints.createWorkflow(workflowData);
-      }
-
-      navigate('/workflow');
-    } catch (err) {
-      console.error('Error saving workflow:', err);
-      setError('خطا در ذخیره گردش کار');
-    } finally {
+    if (!workflowName.trim()) {
+      setError('لطفا نام گردش کار را وارد کنید');
       setLoading(false);
+      return;
     }
-  }, [nodes, edges, workflowId, navigate, workflowName]);
+
+    workflowData = {
+      name: workflowName.trim(),
+      schema: nodes
+        .filter((node) => node.type !== 'end')
+        .map((node) => {
+          const step = {
+            id: node.id,
+            label: node.data.label,
+            description: node.data.description || null,
+            position: node.position,
+          };
+
+          switch (node.type) {
+            case 'start':
+              step.type = 'start';
+              break;
+            case 'process':
+            case 'function':
+            case 'response':
+              step.type = 'action';
+              break;
+            case 'decision':
+              step.type = 'decision';
+              const outgoingEdges = edges.filter((edge) => edge.source === node.id && edge.target);
+              step.conditions = outgoingEdges.map((edge) => ({
+                label: edge.sourceHandle,
+                next: edge.target,
+              }));
+              break;
+            default:
+              step.type = 'unknown';
+          }
+
+          if (node.type !== 'decision') {
+            const outgoingEdges = edges.filter((edge) => edge.source === node.id && edge.target);
+            if (outgoingEdges.length > 0) {
+              step.next = outgoingEdges[0].target;
+            } else if (node.type !== 'end') {
+              step.next = null;
+            }
+          }
+
+          return step;
+        }),
+    };
+
+    if (workflowId) {
+      await workflowEndpoints.updateWorkflow(workflowId, workflowData);
+    } else {
+      await workflowEndpoints.createWorkflow(workflowData);
+    }
+
+    navigate('/workflow');
+  } catch (err) {
+    console.error('Error saving workflow:', err);
+    setError('خطا در ذخیره گردش کار');
+    console.log('Workflow Data Sent:', JSON.stringify(workflowData, null, 2));
+  } finally {
+    setLoading(false);
+  }
+}, [nodes, edges, workflowId, navigate, workflowName]);
+
 
   if (loading) {
     return (
