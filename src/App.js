@@ -6,8 +6,8 @@ import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Chat from './components/Chat/Chat';
 import DataSources from './components/Chat/DataSources';
-import Documents from './components/Chat/Documents';
 import Wizard from './components/Chat/Wizard';
+import { DocumentIndex } from './components/Chat/Document';
 
 function App() {
     return (
@@ -59,10 +59,10 @@ function AppContent() {
                         }
                     />
                     <Route
-                        path="/documents"
+                        path="/document"
                         element={
                             <PrivateRoute>
-                                <Documents />
+                                <DocumentIndex />
                             </PrivateRoute>
                         }
                     />

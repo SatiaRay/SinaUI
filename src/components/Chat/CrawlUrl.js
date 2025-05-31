@@ -123,7 +123,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
         // Fetch document details for each doc_id
         const docPromises = data.doc_ids.map(async (docId) => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${docId}`);
+                const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/document/${docId}`);
                 if (!response.ok) throw new Error('Failed to fetch document');
                 const doc = await response.json();
                 // Map the document data to ensure we have the correct properties

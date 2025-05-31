@@ -18,7 +18,7 @@ const UpdateDataSource = (props) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/vector/${document_id}`);
+            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/document/vector/${document_id}`);
             if (!response.ok) {
                 throw new Error('خطا در دریافت اطلاعات سند');
             }
@@ -42,7 +42,7 @@ const UpdateDataSource = (props) => {
         setUpdating(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${documentData.id}?update_vector=true`, {
+            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/document/${documentData.id}?update_vector=true`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

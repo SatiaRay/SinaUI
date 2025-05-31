@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import CrawlUrl from './CrawlUrl';
+import CrawlUrl from '../CrawlUrl';
 import CreateDocument from './CreateDocument';
-import ModifyDocument from './ModifyDocument';
+import EditDocument from './EditDocument';
 import ReactMarkdown from 'react-markdown';
+import DocumentCard from './DocumentCard';
 
 // استایل‌های سراسری برای جداول در Markdown و CKEditor
 const globalStyles = `
@@ -41,7 +42,7 @@ const globalStyles = `
 }
 `;
 
-const Documents = () => {
+const DocumentIndex = () => {
   const [domains, setDomains] = useState([]);
   const [domainsLoading, setDomainsLoading] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState(null);
@@ -53,9 +54,9 @@ const Documents = () => {
   const [error, setError] = useState(null);
   const [showCrawlUrl, setShowCrawlUrl] = useState(false);
   const [crawledDocs, setCrawledDocs] = useState([]);
-  const [documentsTab, setDocumentsTab] = useState('crawled');
+  const [documentindexTab, setDocumentIndexTab] = useState('crawled');
   const [showAddKnowledge, setShowAddKnowledge] = useState(false);
-  const [manualDocuments, setManualDocuments] = useState([]);
+  const [manualDocumentIndex, setManualDocumentIndex] = useState([]);
   const [pagination, setPagination] = useState({
     limit: 20,
     offset: 0,
@@ -63,12 +64,12 @@ const Documents = () => {
   });
 
   useEffect(() => {
-    if (documentsTab === 'crawled') {
+    if (documentindexTab === 'crawled') {
       fetchDomains();
-    } else if (documentsTab === 'manual') {
-      fetchManualDocuments();
+    } else if (documentindexTab === 'manual') {
+      fetchManualDocumentIndex();
     }
-  }, [documentsTab, pagination.offset]);
+  }, [documentindexTab, pagination.offset]);
 
   const fetchDomains = async () => {
     setDomainsLoading(true);
@@ -97,7 +98,7 @@ const fetchDomainFiles = async (domain) => {
     setError(null);
     try {
         const response = await fetch(
-            `${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/?domain_id=${domain.id}`,
+            `${process.env.REACT_APP_PYTHON_APP_API_URL}/documents?domain_id=${domain.id}`,
             {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -141,7 +142,7 @@ const fetchFileContent = async (file) => {
     }
 };
 
-const fetchManualDocuments = async () => {
+const fetchManualDocumentIndex = async () => {
     setDomainsLoading(true);
     setError(null);
     try {
@@ -157,14 +158,14 @@ const fetchManualDocuments = async () => {
             throw new Error('خطا در دریافت لیست اسناد');
         }
         const data = await response.json();
-        setManualDocuments(data);
+        setManualDocumentIndex(data);
         const total = response.headers.get('X-Total-Count');
         if (total) {
             setPagination((prev) => ({ ...prev, total: parseInt(total) }));
         }
     } catch (err) {
         setError(err.message);
-        console.error('Error fetching manual documents:', err);
+        console.error('Error fetching manual documentindex:', err);
     } finally {
         setDomainsLoading(false);
     }
@@ -246,7 +247,7 @@ return (
                     {!selectedFile && (
                         <div className="flex items-center gap-4">
                             {/* Crawl URL Button (only on initial crawled tab view)*/}
-                            {(documentsTab === 'crawled' && !selectedDomain && !selectedFile) && (
+                            {(documentindexTab === 'crawled' && !selectedDomain && !selectedFile) && (
                                 <button
                                     onClick={() => { setShowCrawlUrl(true); setShowAddKnowledge(false); }}
                                     className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center gap-2"
@@ -267,7 +268,7 @@ return (
                                 </button>
                             )}
                             {/* Add Knowledge Button (only on initial manual tab view) */}
-                            {(documentsTab === 'manual' && !selectedDomain && !selectedFile) && (
+                            {(documentindexTab === 'manual' && !selectedDomain && !selectedFile) && (
                                 <button
                                     onClick={() => { setShowAddKnowledge(true); setShowCrawlUrl(false); }}
                                     className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center gap-2"
@@ -290,7 +291,7 @@ return (
                             {/* Count (only in list views) */}
                             {(!selectedFile) && (
                                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                                تعداد: {selectedDomain ? domainFiles.length : documentsTab === 'crawled' ? domains.length : manualDocuments.length}
+                                تعداد: {selectedDomain ? domainFiles.length : documentindexTab === 'crawled' ? domains.length : manualDocumentIndex.length}
             </span>
                             )}
                 </div>
@@ -301,9 +302,9 @@ return (
                 {!selectedDomain && !selectedFile && (
             <div className="mb-6 flex gap-4">
                 <button
-                    onClick={() => setDocumentsTab('crawled')}
+                    onClick={() => setDocumentIndexTab('crawled')}
                     className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                        documentsTab === 'crawled'
+                        documentindexTab === 'crawled'
                             ? 'bg-blue-600 text-white shadow-lg'
                             : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
                     }`}
@@ -311,9 +312,9 @@ return (
                     خزیده‌شده
                 </button>
                 <button
-                    onClick={() => setDocumentsTab('manual')}
+                    onClick={() => setDocumentIndexTab('manual')}
                     className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                        documentsTab === 'manual'
+                        documentindexTab === 'manual'
                             ? 'bg-blue-600 text-white shadow-lg'
                             : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
                     }`}
@@ -328,7 +329,7 @@ return (
                 <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center mb-6">
                     <p className="text-red-500 dark:text-red-400">{error}</p>
                     <button
-                        onClick={documentsTab === 'crawled' ? fetchDomains : fetchManualDocuments}
+                        onClick={documentindexTab === 'crawled' ? fetchDomains : fetchManualDocumentIndex}
                         className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                     >
                         تلاش مجدد
@@ -347,7 +348,7 @@ return (
             {/* محتوای تب‌ها */}
             {!domainsLoading && !error && (
                 <div className="flex-1 overflow-y-auto">
-                    {documentsTab === 'crawled' && !selectedDomain && !selectedFile && (
+                    {documentindexTab === 'crawled' && !selectedDomain && !selectedFile && (
                         <div>
                             {domains.length === 0 ? (
                                 <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
@@ -398,7 +399,7 @@ return (
                         </div>
                     )}
 
-                    {documentsTab === 'crawled' && selectedDomain && !selectedFile && (
+                    {documentindexTab === 'crawled' && selectedDomain && !selectedFile && (
                         <div>
                             {domainFiles.length === 0 ? (
                                 <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
@@ -426,27 +427,14 @@ return (
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {domainFiles.map((file) => (
-                                        <div
-                                            key={file.id}
-                                            onClick={() => handleFileClick(file)}
-                                            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700"
-                                        >
-                                            <div className="flex items-center justify-between">
-                                                <h3 className="text-lg font-medium text-gray-900 dark:text-white truncate">
-                                                    {file.title || file.uri}
-                                                </h3>
-                                            </div>
-                                            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                                <p>آدرس: {file.uri}</p>
-                                            </div>
-                                        </div>
+                                        <DocumentCard document={file} onCardClick={handleFileClick}/>
                                     ))}
                                 </div>
                             )}
                         </div>
                     )}
 
-                    {documentsTab === 'crawled' && selectedFile && (
+                    {documentindexTab === 'crawled' && selectedFile && (
                         <div>
                             <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
                                 
@@ -457,7 +445,7 @@ return (
                                         <div className="text-red-500">{error}</div>
                                     ) : fileContent ? (
                                         <>
-                                            <ModifyDocument
+                                            <EditDocument
                                                 file={selectedFile}
                                                 fileContent={fileContent}
                                                 selectedDomain={selectedDomain}
@@ -472,9 +460,9 @@ return (
                         </div>
                     )}
 
-                    {documentsTab === 'manual' && !selectedFile && (
+                    {documentindexTab === 'manual' && !selectedFile && (
                         <div>
-                            {manualDocuments.length === 0 ? (
+                            {manualDocumentIndex.length === 0 ? (
                                 <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
                                     <svg
                                         className="mx-auto h-12 w-12 text-gray-400"
@@ -499,7 +487,7 @@ return (
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {manualDocuments.map((doc) => (
+                                    {manualDocumentIndex.map((doc) => (
                                         <div
                                             key={doc.id}
                                             onClick={() => handleFileClick(doc)}
@@ -543,7 +531,7 @@ return (
                         </div>
                     )}
 
-                    {documentsTab === 'manual' && selectedFile && (
+                    {documentindexTab === 'manual' && selectedFile && (
                         <div>
                             <div className="p-4 bg-white rounded-lg shadow-lg dark:bg-gray-800">
                                 <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-gray-200">
@@ -558,7 +546,7 @@ return (
                                         <div className="prose max-w-full dark:prose-invert">
                                             <ReactMarkdown>{fileContent.markdown || fileContent.html || 'محتوا در دسترس نیست'}</ReactMarkdown>
                                         </div>
-                                        <ModifyDocument
+                                        <EditDocument
                                             file={selectedFile}
                                             fileContent={fileContent}
                                             selectedDomain={selectedDomain}
@@ -601,8 +589,8 @@ return (
                             onClick={(e) => e.stopPropagation()}
                         >
                 <CreateDocument
-                                onClose={() => { setShowAddKnowledge(false); fetchManualDocuments(); }}
-                    onDocumentCreated={fetchManualDocuments}
+                                onClose={() => { setShowAddKnowledge(false); fetchManualDocumentIndex(); }}
+                    onDocumentCreated={fetchManualDocumentIndex}
                 />
                         </div>
                     )}
@@ -612,4 +600,4 @@ return (
 );
 };
 
-export default Documents;
+export default DocumentIndex;

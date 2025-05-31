@@ -3,9 +3,9 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { getWebSocketUrl } from '../../utils/websocket';
+import { getWebSocketUrl } from '../../../utils/websocket';
 
-const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initialSelectedFile, selectedDomain: initialSelectedDomain, onBack }) => {
+const EditDocument = ({ fileContent: initialFileContent, selectedFile: initialSelectedFile, selectedDomain: initialSelectedDomain, onBack }) => {
     const [fileContent, setFileContent] = useState(initialFileContent);
     const [selectedFile, setSelectedFile] = useState(initialSelectedFile);
     const [selectedDomain, setSelectedDomain] = useState(initialSelectedDomain);
@@ -43,7 +43,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     }, [fileContent]);
 
     const connectToVectorizationSocket = (jobId) => {
-        const wsUrl = getWebSocketUrl(`/ws/documents/vectorize/${jobId}`);
+        const wsUrl = getWebSocketUrl(`/ws/document/vectorize/${jobId}`);
 
         const socket = new WebSocket(wsUrl);
 
@@ -108,7 +108,7 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         setError(null);
         try {
             // First, vectorize the document
-            const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}/vectorize`, {
+            const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/document/${selectedFile.id}/vectorize`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -307,4 +307,4 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     );
 }
 
-export default ModifyDocument;
+export default EditDocument;
