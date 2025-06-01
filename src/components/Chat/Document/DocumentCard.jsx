@@ -2,15 +2,17 @@ import { useState } from 'react';
 import { Link } from "react-router-dom";
 import { toggleDocumentVectorStatus } from '../../../services/api';
 
-const DocumentCard = ({ document, onCardClick, onStatusChange }) => {
+const DocumentCard = ({ document, onStatusChange }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const toggleVectorStatus = async () => {
         try {
             setIsLoading(true);
-            await toggleDocumentVectorStatus(document.id);
-            if (onStatusChange) {
-                onStatusChange(document.id);
+            const response = await toggleDocumentVectorStatus(document.id);
+            if (response.status === 200) {
+                if (onStatusChange) {
+                    onStatusChange(document.id);
+                }
             }
 
         } catch (error) {
@@ -21,14 +23,13 @@ const DocumentCard = ({ document, onCardClick, onStatusChange }) => {
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700">
+        <Link to={`/document/edit/${document.id}`} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700">
             <div className="flex items-center justify-between">
-                <Link
-                    to={`/document/edit/${document.id}`}
-                    className="text-lg font-medium text-gray-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400"
+                <h5
+                    className="text-lg font-medium text-gray-900 dark:text-white truncate"
                 >
                     {document.title || document.uri}
-                </Link>
+                </h5>
                 <span
                     onClick={(e) => {
                         e.preventDefault();
@@ -55,9 +56,16 @@ const DocumentCard = ({ document, onCardClick, onStatusChange }) => {
                 </span>
             </div>
             <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                <p>آدرس: {document.uri}</p>
+                <p>
+                    {document.domain_id && (
+
+                        <span>آدرس: {document.uri} - </span>
+                    )}
+
+                    <span>آخرین بروزرسانی: {new Date(document.updated_at).toLocaleDateString('fa-IR')}</span>
+                </p>
             </div>
-        </div>
+        </Link>
     )
 }
 

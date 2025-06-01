@@ -214,7 +214,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                             )}
                         </button>
                         <Link
-                            to={document.domain_id ? `/documents/domain/${document.domain_id}` : '/documents/manuals'}
+                            to={document.domain_id ? `/document/domain/${document.domain_id}` : '/document/manuals'}
                             className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300"
                         >
                             بازگشت

@@ -75,7 +75,6 @@ const DocumentIndex = () => {
                     <DocumentCard 
                         key={document.id}
                         document={document} 
-                        onCardClick={handleDocumentCardClick}
                         onStatusChange={async (documentId) => {
                             try {
                                 const isManual = location.pathname.endsWith('/manuals');
