@@ -18,7 +18,7 @@ import ResponseNode from './nodes/ResponseNode';
 import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
 import { workflowEndpoints } from '../../../utils/apis';
-
+import { v4 as uuidv4 } from 'uuid'; // اضافه کردن uuid برای تولید id یکتا
 const nodeTypes = {
   start: StartNode,
   process: ProcessNode,
@@ -33,8 +33,8 @@ const initialNodes = [
     id: '1',
     type: 'start',
     position: { x: 50, y: 250 },
-    data: { 
-      label: 'شروع', 
+    data: {
+      label: 'شروع',
       description: 'نقطه شروع فرآیند',
       jsonConfig: null,
       pageConfig: {
@@ -68,20 +68,26 @@ const WorkflowEditor = () => {
         setLoading(true);
         setError(null);
         const workflow = await workflowEndpoints.getWorkflow(workflowId);
-        
+
         // Set workflow name
         setWorkflowName(workflow.name || '');
-        
-        // Convert workflow data to nodes and edges
-        const workflowNodes = workflow.schema.map((step, index) => ({
+
+        // Convert workflow data to nodes
+        const workflowNodes = workflow.schema.map((step) => ({
           id: step.id,
           type: step.type === 'action' ? 'process' : step.type,
-          position: { x: index * 250, y: 250 },
+          position: {
+            x: step.position?.x ?? 50, // Use position from API or default to 50
+            y: step.position?.y ?? 250, // Use position from API or default to 250
+          },
           data: {
             label: step.label,
             description: step.description || '',
-            position: step.position,
-            conditions: step.type === 'decision' ? Object.keys(step.conditions || {}) : [],
+            conditions: step.type === 'decision' ? (step.conditions || []).map(c => c.label) : [],
+            conditionTargets: step.type === 'decision' ? (step.conditions || []).reduce((acc, c) => {
+              acc[c.label] = c.next;
+              return acc;
+            }, {}) : {},
             jsonConfig: null,
             pageConfig: {
               showPage: false,
@@ -95,14 +101,18 @@ const WorkflowEditor = () => {
         const workflowEdges = workflow.schema.reduce((acc, step) => {
           if (step.type === 'decision' && step.conditions) {
             // For decision nodes, create edges for each condition
-            Object.entries(step.conditions).forEach(([condition, targetId]) => {
-              acc.push({
-                id: `${step.id}-${targetId}`,
-                source: step.id,
-                target: targetId,
-                sourceHandle: condition,
-                type: 'step',
-              });
+            step.conditions.forEach(condition => {
+              if (condition.next) {
+                acc.push({
+                  id: `${step.id}-${condition.next}-${condition.label}`,
+                  source: step.id,
+                  target: condition.next,
+                  sourceHandle: condition.label,
+                  type: 'step',
+                  animated: true,
+                  style: { stroke: '#f59e0b' },
+                });
+              }
             });
           } else if (step.next) {
             // For other nodes, create a single edge
@@ -111,6 +121,8 @@ const WorkflowEditor = () => {
               source: step.id,
               target: step.next,
               type: 'step',
+              animated: true,
+              style: { stroke: '#f59e0b' },
             });
           }
           return acc;
@@ -128,22 +140,21 @@ const WorkflowEditor = () => {
 
     fetchWorkflow();
   }, [workflowId, setNodes, setEdges]);
-
   const onConnect = useCallback(
     (params) => {
       const sourceNode = nodes.find((node) => node.id === params.source);
-  
+
       if (sourceNode?.type === 'start') {
         params.sourceHandle = 'right';
       }
-  
+
       if (sourceNode?.type === 'decision') {
         if (!params.sourceHandle || !sourceNode.data.conditions.includes(params.sourceHandle)) {
           console.warn(`Invalid sourceHandle: ${params.sourceHandle}`);
           return;
         }
       }
-  
+
       // Check if source node already has an outgoing connection (except for decision nodes)
       if (sourceNode?.type !== 'decision') {
         const existingOutgoingEdges = edges.filter(edge => edge.source === params.source);
@@ -152,7 +163,7 @@ const WorkflowEditor = () => {
           return;
         }
       }
-  
+
       setEdges((eds) => {
         return addEdge(
           {
@@ -171,7 +182,7 @@ const WorkflowEditor = () => {
 
   const onNodeClick = useCallback((event, node) => {
     setSelectedNode(node);
-    
+
     // اگر نود دارای تنظیمات صفحه باشد، آن را نمایش می‌دهیم
     if (node.data.pageConfig?.showPage) {
       setActivePage(node.data.pageConfig);
@@ -188,19 +199,20 @@ const WorkflowEditor = () => {
               ...node.data,
               ...newData,
               conditions: newData.conditions?.filter((c) => c && c.trim() !== '') || [],
+
             },
           };
         }
         return node;
       })
     );
-  
+
     if (newData.conditions && newData.type === 'decision') {
       setEdges((eds) => {
         const existingEdges = eds.filter((edge) => edge.source === nodeId);
         const otherEdges = eds.filter((edge) => edge.source !== nodeId);
         const newConditions = newData.conditions.filter((condition) => condition && condition.trim() !== '');
-  
+
         const newEdges = newConditions.map((condition, index) => {
           const existingEdge = existingEdges.find(
             (edge) => edge.source === nodeId && edge.sourceHandle === condition
@@ -218,43 +230,46 @@ const WorkflowEditor = () => {
             style: { stroke: '#f59e0b' },
           };
         });
-  
+
         const validEdges = existingEdges.filter((edge) =>
           newConditions.includes(edge.sourceHandle)
         );
-  
+
         return [...otherEdges, ...validEdges, ...newEdges.filter((edge) => edge.target === null)];
       });
     }
   }, [setNodes, setEdges]);
- 
+
   const addNode = (type) => {
-    const lastNode = nodes[nodes.length - 1];
-    const xOffset = 250;
-  
+    // پیدا کردن نود با بزرگ‌ترین مختصات x
+    const maxXNode = nodes.reduce((maxNode, node) => {
+      return !maxNode || node.position.x > maxNode.position.x ? node : maxNode;
+    }, null);
+
+    const xOffset = 250; // فاصله افقی از نود دورترین
     const newNode = {
-      id: `${nodes.length + 1}`,
+      id: uuidv4(), // استفاده از UUID برای id یکتا
       type,
       position: {
-        x: lastNode ? lastNode.position.x + xOffset : 50,
-        y: 250,
+        x: maxXNode ? maxXNode.position.x + xOffset : 50,
+        y: maxXNode ? maxXNode.position.y : 250, // حفظ y نود دورترین
       },
       data: {
         label:
-          type === 'start'
-            ? 'شروع'
-            : type === 'process'
-            ? 'فرآیند'
-            : type === 'decision'
-            ? 'تصمیم'
-            : type === 'function'
-            ? 'تابع'
-            : type === 'response'
-            ? 'پاسخ'
-            : 'پایان',
+            type === 'start'
+                ? 'شروع'
+                : type === 'process'
+                    ? 'فرآیند'
+                    : type === 'decision'
+                        ? 'تصمیم'
+                        : type === 'function'
+                            ? 'تابع'
+                            : type === 'response'
+                                ? 'پاسخ'
+                                : 'پایان',
         description: '',
         connections: [],
-        conditions: type === 'decision' ? ['شرط پیش‌فرض'] : [], // شرط پیش‌فرض معتبر
+        conditions: type === 'decision' ? ['شرط پیش‌فرض'] : [],
         jsonConfig: null,
         pageConfig: {
           showPage: false,
@@ -300,17 +315,15 @@ const WorkflowEditor = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedEdge, selectedNode, setEdges, deleteNode]);
 
-  // Function to generate JSON output
   const generateWorkflowJson = useCallback(() => {
     const workflowschema = nodes
-      .filter(node => node.type !== 'end') // Exclude end nodes from schema
+      .filter(node => node.type !== 'end')
       .map(node => {
         const step = {
           id: node.id,
-          label: node.data.label, // Include label for all step types
+          label: node.data.label,
         };
 
-        // Map internal node type to workflow step type
         switch (node.type) {
           case 'start':
             step.type = 'start';
@@ -319,13 +332,11 @@ const WorkflowEditor = () => {
           case 'function':
           case 'response':
             step.type = 'action';
-            step.description = node.data.description; // Add description for action types
+            step.description = node.data.description;
             break;
           case 'decision':
             step.type = 'decision';
-            // Get outgoing edges for this decision node
             const outgoingEdges = edges.filter(edge => edge.source === node.id);
-            // Create conditions object mapping condition to target node
             step.conditions = outgoingEdges.reduce((acc, edge) => {
               acc[edge.sourceHandle] = edge.target;
               return acc;
@@ -429,7 +440,7 @@ const saveWorkflow = useCallback(async () => {
     setError(null);
 
     if (!workflowName.trim()) {
-      setError('لطفا نام گردش کار را وارد کنید');
+      alert('لطفا نام گردش کار را وارد کنید');
       setLoading(false);
       return;
     }
@@ -645,4 +656,4 @@ const saveWorkflow = useCallback(async () => {
   );
 };
 
-export default WorkflowEditor; 
+export default WorkflowEditor;
