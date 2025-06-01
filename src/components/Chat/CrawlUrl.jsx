@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getWebSocketUrl } from '../../utils/websocket';
 import { Link } from 'react-router-dom';
-import { crawlUrl } from '../../services/api';
+import { crawlUrl, getDocument } from '../../services/api';
 
 const CrawlUrl = ({ onClose, onDocClick }) => {
     const [url, setUrl] = useState('');
@@ -112,9 +112,10 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
         // Fetch document details for each doc_id
         const docPromises = data.doc_ids.map(async (docId) => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/document/${docId}`);
-                if (!response.ok) throw new Error('Failed to fetch document');
-                const doc = await response.json();
+                const response = await getDocument(docId)
+
+                const doc = response.data;
+
                 // Map the document data to ensure we have the correct properties
                 return {
                     id: doc.id,
@@ -242,14 +243,14 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                                     {job.docs.length > 0 && (
                                         <div className="mt-4 space-y-2">
                                             {job.docs.map((doc) => (
-                                                <div
+                                                <Link
                                                     key={doc.id}
-                                                    onClick={() => onDocClick(doc)}
+                                                    to={`/document/edit/${doc.id}`}
                                                     className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors"
                                                 >
                                                     <h5 className="font-medium text-gray-900 dark:text-white">{doc.title}</h5>
                                                     <p className="text-sm text-gray-500 dark:text-gray-400">{doc.uri}</p>
-                                                </div>
+                                                </Link>
                                             ))}
                                         </div>
                                     )}
