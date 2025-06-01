@@ -158,9 +158,7 @@ export const getDocuments = async (manualType = false, limit=20,offset=0) => {
 
 export const getDocument = async (document_id) => {
   try {
-    const response = await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
-    console.log('Document API raw response:', response);
-    return response;
+    return await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
   } catch (err) {
     console.error('Error fetching document:', err.message);
     throw err;
@@ -169,11 +167,31 @@ export const getDocument = async (document_id) => {
 
 export const toggleDocumentVectorStatus = async (document_id) => {
   try {
-    const response = await axios.post(`${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`);
-    console.log('Document API raw response:', response);
-    return response;
+    return await axios.post(`${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`);
   } catch (err) {
     console.error('Error fetching document:', err.message);
+    throw err;
+  }
+}
+
+export const crawlUrl = async (url, recursive = false, store_in_vector = false) => {
+  try {
+    return await axios.post(`${PYTHON_APP_URL}/crawl`, {
+      "url" : url,
+      "recursive" : recursive,
+      "store_in_vector" : store_in_vector
+    });
+  } catch (err) {
+    console.error('Error fetching document:', err.message);
+    throw err;
+  }
+}
+
+export const vectorizeDocument = async (document_id, document) => {
+  try {
+    return await axios.post(`${PYTHON_APP_URL}/documents/${document_id}/vectorize`, document);
+  } catch (err) {
+    console.error('Error vectorizing document:', err.message);
     throw err;
   }
 }

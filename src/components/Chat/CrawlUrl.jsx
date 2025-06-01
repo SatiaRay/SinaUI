@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { getWebSocketUrl } from '../../utils/websocket';
 import { Link } from 'react-router-dom';
+import { crawlUrl } from '../../services/api';
 
 const CrawlUrl = ({ onClose, onDocClick }) => {
-    const [crawlUrl, setCrawlUrl] = useState('');
+    const [url, setUrl] = useState('');
     const [crawlRecursive, setCrawlRecursive] = useState(false);
+    const [storeInVector, setStoreInVector] = useState(false);
     const [crawling, setCrawling] = useState(false);
     const [crawledDocs, setCrawledDocs] = useState([]);
     const [error, setError] = useState(null);
@@ -12,13 +14,13 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
     const socketRef = useRef(null);
 
     const handleCrawl = async () => {
-        if (!crawlUrl) {
+        if (!url) {
             setError('لطفا آدرس وب‌سایت را وارد کنید');
             return;
         }
 
         try {
-            new URL(crawlUrl); // Validate URL
+            new URL(url); // Validate URL
         } catch (e) {
             setError('لطفا یک آدرس معتبر وارد کنید');
             return;
@@ -27,22 +29,8 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
         setCrawling(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/crawl`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    url: crawlUrl,
-                    recursive: crawlRecursive
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('خطا در خزش وب‌سایت');
-            }
-
-            const data = await response.json();
+            const response = await crawlUrl(url, crawlRecursive, storeInVector);
+            const data = response.data;
 
             // Add new job to active jobs
             setActiveJobs(prev => ({
@@ -57,7 +45,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
             // Connect to job WebSocket
             connectToJobSocket(data.job_id);
 
-            setCrawlUrl(''); // Clear the input after successful crawl
+            setUrl(''); // Clear the input after successful crawl
         } catch (err) {
             setError(err.message);
             console.error('Error crawling website:', err);
@@ -185,8 +173,8 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                         <input
                             type="url"
                             id="crawl-url"
-                            value={crawlUrl}
-                            onChange={(e) => setCrawlUrl(e.target.value)}
+                            value={url}
+                            onChange={(e) => setUrl(e.target.value)}
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             placeholder="https://example.com"
                         />
@@ -205,17 +193,31 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                             )}
                         </button>
                     </div>
-                    <div className="mt-2 flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id="crawl-recursive"
-                            checked={crawlRecursive}
-                            onChange={e => setCrawlRecursive(e.target.checked)}
-                            className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
-                        />
-                        <label htmlFor="crawl-recursive" className="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
-                            خزش تو در تو (Recursive)
-                        </label>
+                    <div className="mt-5 grid grid-cols-1 gap-4">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="crawl-recursive"
+                                checked={crawlRecursive}
+                                onChange={e => setCrawlRecursive(e.target.checked)}
+                                className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                            />
+                            <label htmlFor="crawl-recursive" className="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
+                                خزش تو در تو (Recursive)
+                            </label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="store-in-vector"
+                                checked={storeInVector}
+                                onChange={e => setStoreInVector(e.target.checked)}
+                                className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                            />
+                            <label htmlFor="store-in-vector" className="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
+                                اسناد ساخته شده پس از خزش فعال شوند و در دسترس هوش مصنوعی قرار گیرند.
+                            </label>
+                        </div>
                     </div>
                 </div>
 

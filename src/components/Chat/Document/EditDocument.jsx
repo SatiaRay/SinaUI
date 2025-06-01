@@ -5,7 +5,7 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { getWebSocketUrl } from '../../../utils/websocket';
 import { Link, useParams } from 'react-router-dom';
-import { getDocument } from '../../../services/api';
+import { getDocument, vectorizeDocument } from '../../../services/api';
 
 const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
     const { document_id } = useParams();
@@ -40,12 +40,10 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
         const loadDocument = async () => {
             try {
                 const response = await getDocument(document_id);
-                console.log('Document API Response:', response);
 
                 if (response?.data) {
                     setDocument(response.data);
                     if (response.data.html) {
-                        console.log('Setting editor content:', response.data.html);
                         setCkEditorContent(response.data.html);
                     }
                 } else {
@@ -62,7 +60,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
     }, [document_id]);
 
     const connectToVectorizationSocket = (jobId) => {
-        const wsUrl = getWebSocketUrl(`/ws/document/vectorize/${jobId}`);
+        const wsUrl = getWebSocketUrl(`/ws/documents/vectorize/${jobId}`);
 
         const socket = new WebSocket(wsUrl);
 
@@ -124,27 +122,24 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
         setStoringVector(true);
         setError(null);
         try {
-            const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/document/${document_id}/vectorize`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    html: ckEditorContent,
-                    metadata: {
-                        source: `https://${selectedDomain.domain}${document.uri}`,
-                        title: document.title,
-                        author: "خزش شده",
-                        date: new Date(document.created_at).toISOString().split('T')[0]
-                    }
-                })
-            });
+            const documentData = {
+                html: ckEditorContent,
+                metadata: {
+                    source: document.domain ? `https://${document.domain.domain}${document.uri}` : null,
+                    title: document.title,
+                    author: "خزش شده",
+                    date: new Date(document.created_at).toISOString().split('T')[0]
+                }
+            }
 
-            if (!vectorizeResponse.ok) {
+            const vectorizeResponse = await vectorizeDocument(document.id, documentData)
+
+            if (vectorizeResponse.status !== 200) {
                 throw new Error('خطا در ذخیره در پایگاه داده برداری');
             }
 
-            const vectorizeData = await vectorizeResponse.json();
+            const vectorizeData = vectorizeResponse.data;
+
             if (!vectorizeData.job_id) {
                 throw new Error('خطا در ذخیره در پایگاه داده برداری');
             }
@@ -219,7 +214,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                             )}
                         </button>
                         <Link
-                            to={document.domain_id ? `/document/domain/${document.domain_id}` : '/document/manuals'}
+                            to={document.domain_id ? `/documents/domain/${document.domain_id}` : '/documents/manuals'}
                             className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300"
                         >
                             بازگشت

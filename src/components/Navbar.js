@@ -85,12 +85,6 @@ const Navbar = ({ onSidebarCollapse }) => {
                             چت
                         </Link>
                         <Link
-                            to="/data-sources"
-                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
-                        >
-                            منابع داده
-                        </Link>
-                        <Link
                             to="/document"
                             className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                         >

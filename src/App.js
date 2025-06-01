@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import Chat from './components/Chat/Chat';
-import DataSources from './components/Chat/DataSources';
 import { Document, DocumentIndex, DomainIndex, EditDocument } from './components/Chat/Document';
 import Wizard from './components/Chat/Wizard';
 import Login from './components/Login';
@@ -50,14 +49,7 @@ function AppContent() {
                             </PrivateRoute>
                         }
                     />
-                    <Route
-                        path="/data-sources"
-                        element={
-                            <PrivateRoute>
-                                <DataSources />
-                            </PrivateRoute>
-                        }
-                    />
+                
                     /** Document routes */
                     <Route>
                         <Route
