@@ -142,11 +142,11 @@ export const getDomains = async () => {
   }
 }
 
-export const getDocuments = async (manualType = false, limit=20,offset=0) => {
+export const getDocuments = async (manualType = false, page=1,size=10) => {
   const url = 
     manualType ?
-      `${PYTHON_APP_URL}/documents/manual?limit=${limit}&offset=${offset}`:
-      `${PYTHON_APP_URL}/documents?limit=${limit}&offset=${offset}`;
+      `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}`:
+      `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
 
   try {
     return await axios.get(url)
