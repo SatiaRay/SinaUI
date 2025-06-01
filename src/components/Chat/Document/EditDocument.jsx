@@ -3,11 +3,13 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { getWebSocketUrl } from '../../utils/websocket';
+import { getWebSocketUrl } from '../../../utils/websocket';
+import { Link, useParams } from 'react-router-dom';
+import { getDocument, vectorizeDocument } from '../../../services/api';
 
-const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initialSelectedFile, selectedDomain: initialSelectedDomain, onBack }) => {
-    const [fileContent, setFileContent] = useState(initialFileContent);
-    const [selectedFile, setSelectedFile] = useState(initialSelectedFile);
+const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
+    const { document_id } = useParams();
+    const [document, setDocument] = useState(null);
     const [selectedDomain, setSelectedDomain] = useState(initialSelectedDomain);
     const [storingVector, setStoringVector] = useState(false);
     const [error, setError] = useState(null);
@@ -35,12 +37,27 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     ];
 
     useEffect(() => {
-        if (fileContent?.html) {
-            console.log('change');
+        const loadDocument = async () => {
+            try {
+                const response = await getDocument(document_id);
 
-            setCkEditorContent(fileContent.html);
-        }
-    }, [fileContent]);
+                if (response?.data) {
+                    setDocument(response.data);
+                    if (response.data.html) {
+                        setCkEditorContent(response.data.html);
+                    }
+                } else {
+                    console.error('Invalid document response:', response);
+                    setError('سند با ساختار نامعتبر دریافت شد');
+                }
+            } catch (err) {
+                console.error('Error loading document:', err);
+                setError('خطا در بارگذاری سند');
+            }
+        };
+
+        loadDocument();
+    }, [document_id]);
 
     const connectToVectorizationSocket = (jobId) => {
         const wsUrl = getWebSocketUrl(`/ws/documents/vectorize/${jobId}`);
@@ -100,40 +117,33 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     };
 
     const handleStoreVector = async () => {
-        console.log(fileContent, selectedFile);
-        
-        if (!fileContent || !selectedFile) return;
+        if (!document) return;
 
         setStoringVector(true);
         setError(null);
         try {
-            // First, vectorize the document
-            const vectorizeResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${selectedFile.id}/vectorize`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    html: ckEditorContent,
-                    metadata: {
-                        source: `https://${selectedDomain.domain}${fileContent.uri}`,
-                        title: fileContent.title,
-                        author: "خزش شده",
-                        date: new Date(fileContent.created_at).toISOString().split('T')[0]
-                    }
-                })
-            });
+            const documentData = {
+                html: ckEditorContent,
+                metadata: {
+                    source: document.domain ? `https://${document.domain.domain}${document.uri}` : null,
+                    title: document.title,
+                    author: "خزش شده",
+                    date: new Date(document.created_at).toISOString().split('T')[0]
+                }
+            }
 
-            if (!vectorizeResponse.ok) {
+            const vectorizeResponse = await vectorizeDocument(document.id, documentData)
+
+            if (vectorizeResponse.status !== 200) {
                 throw new Error('خطا در ذخیره در پایگاه داده برداری');
             }
 
-            const vectorizeData = await vectorizeResponse.json();
+            const vectorizeData = vectorizeResponse.data;
+
             if (!vectorizeData.job_id) {
                 throw new Error('خطا در ذخیره در پایگاه داده برداری');
             }
 
-            // Connect to vectorization WebSocket
             connectToVectorizationSocket(vectorizeData.job_id);
 
         } catch (err) {
@@ -173,14 +183,19 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
         };
     }, []);
 
+    if (!document) {
+        return <div className="flex items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>;
+    }
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-[calc(100vh-12rem)]">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-[calc(100vh-12rem)] m-10">
             <div className="flex-1 min-h-0 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-4">
                         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                            محتوای فایل
+                            محتوای سند
                         </h2>
                     </div>
                     <div className="flex gap-2">
@@ -198,29 +213,35 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                                 'ذخیره در پایگاه داده برداری'
                             )}
                         </button>
+                        <Link
+                            to={document.domain_id ? `/document/domain/${document.domain_id}` : '/document/manuals'}
+                            className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300"
+                        >
+                            بازگشت
+                        </Link>
                     </div>
                 </div>
                 <div className="flex-1 flex flex-col min-h-0">
                     <div>
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
-                        <p className="text-gray-700 dark:text-gray-300">{fileContent.title}</p>
+                        <p className="text-gray-700 dark:text-gray-300">{document.title}</p>
                     </div>
                     <div className="mt-4">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
                         {selectedDomain ? (
                             <a
-                                href={`https://${selectedDomain.domain}${fileContent.uri}`}
+                                href={`https://${selectedDomain.domain}${document.uri}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
                             >
-                                {`https://${selectedDomain.domain}${fileContent.uri}`}
+                                {`https://${selectedDomain.domain}${document.uri}`}
                             </a>
                         ) : (
                             <span className="text-gray-400">بدون آدرس دامنه</span>
                         )}
                     </div>
-                  
+
                     <div className="mt-8 flex-1 min-h-0 flex flex-col">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">CKEditor:</h3>
                         <div className="flex-1 min-h-0 overflow-auto">
@@ -228,7 +249,6 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
                                 editor={ClassicEditor}
                                 data={ckEditorContent}
                                 onChange={(event, editor) => {
-                                    console.log('change change');
                                     const data = editor.getData();
                                     setCkEditorContent(data);
                                 }}
@@ -307,4 +327,4 @@ const ModifyDocument = ({ fileContent: initialFileContent, selectedFile: initial
     );
 }
 
-export default ModifyDocument;
+export default EditDocument;
