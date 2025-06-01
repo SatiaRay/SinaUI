@@ -207,7 +207,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                                 خزش تو در تو (Recursive)
                             </label>
                         </div>
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                             <input
                                 type="checkbox"
                                 id="store-in-vector"
@@ -218,7 +218,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                             <label htmlFor="store-in-vector" className="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
                                 اسناد ساخته شده پس از خزش فعال شوند و در دسترس هوش مصنوعی قرار گیرند.
                             </label>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 
