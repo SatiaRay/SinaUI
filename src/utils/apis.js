@@ -61,6 +61,16 @@ export const workflowEndpoints = {
   }
 };
 
+export const getVersion = async() => {
+  try {
+    const response = await axios.get(`${BASE_URL}/version`);
+    return response.data;
+  } catch (error) {
+    console.error('Error get version:', error);
+    throw error;
+  }
+}
+
 // You can add more endpoint categories here
 // For example:
 // export const userEndpoints = { ... }
