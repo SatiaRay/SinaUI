@@ -1,4 +1,5 @@
 import DocumentCard from "./DocumentCard";
+import CreateDocument from "./CreateDocument"; // وارد کردن CreateDocument
 import { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import { Link, useLocation } from 'react-router-dom';
@@ -14,6 +15,7 @@ const DocumentIndex = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(20);
+    const [showAddKnowledge, setShowAddKnowledge] = useState(false); // حالت جدید برای فرم
     const location = useLocation();
 
     const pageSizeOptions = [20, 50, 100];
@@ -33,7 +35,7 @@ const DocumentIndex = () => {
                 setError(err.message);
                 console.error('Error fetching documents:', err);
             }
-        }
+        };
 
         fetchDocuments();
     }, [location.pathname, currentPage, pageSize]);
@@ -75,46 +77,87 @@ const DocumentIndex = () => {
         setCurrentPage(1); // Reset to first page when changing page size
     };
 
+    const handleAddKnowledge = () => {
+        setShowAddKnowledge(true);
+    };
+
+    const handleCloseAddKnowledge = () => {
+        setShowAddKnowledge(false);
+        // بازخوانی اسناد پس از بستن فرم
+        const fetchDocuments = async () => {
+            try {
+                const isManual = location.pathname.endsWith('/manuals');
+                const response = await getDocuments(isManual, currentPage, pageSize);
+                if (response && response.data) {
+                    setDocuments(response.data.items);
+                    setTotalPages(response.data.pages);
+                    setTotalItems(response.data.total);
+                }
+            } catch (err) {
+                console.error('Error refreshing documents:', err);
+                setError(err.message || 'Failed to refresh documents');
+            }
+        };
+        fetchDocuments();
+    };
+
     const shouldShowPagination = totalItems > minPageSize;
 
     return (
         <>
-            {location.pathname.includes('/domain/') && (
-                <div className="flex justify-end mb-3">
+            <div className="flex justify-between mb-3">
+                {location.pathname.includes('/domain/') && (
                     <Link
                         to="/document/domains"
                         className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300"
                     >
                         بازگشت
                     </Link>
+                )}
+                {location.pathname.endsWith('/manuals') && (
+                    <button
+                        onClick={handleAddKnowledge}
+                        className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
+                    >
+                        افزودن دانش
+                    </button>
+                )}
+            </div>
+
+            {documentContentLoading ? (
+                <div className="text-center">Loading document content...</div>
+            ) : error ? (
+                <div className="text-red-500 text-center">Error: {error}</div>
+            ) : documents.length === 0 ? (
+                <div className="text-center">No documents found.</div>
+            ) : (
+                <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
+                    {documents.map((document) => (
+                        <DocumentCard
+                            key={document.id}
+                            document={document}
+                            onStatusChange={async () => {
+                                try {
+                                    const isManual = location.pathname.endsWith('/manuals');
+                                    const response = await getDocuments(isManual, currentPage, pageSize);
+                                    if (response && response.data) {
+                                        setDocuments(response.data.items);
+                                        setTotalPages(response.data.pages);
+                                        setTotalItems(response.data.total);
+                                    }
+                                } catch (err) {
+                                    console.error('Error refreshing documents:', err);
+                                    setError(err.message || 'Failed to refresh documents');
+                                }
+                            }}
+                            onClick={() => handleDocumentCardClick(document)} // اضافه کردن onClick
+                        />
+                    ))}
                 </div>
             )}
-            <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
-                {documents.map((document) => (
-                    <DocumentCard 
-                        key={document.id}
-                        document={document} 
-                        onStatusChange={async (documentId) => {
-                            try {
-                                const isManual = location.pathname.endsWith('/manuals');
-                                const response = await getDocuments(isManual, currentPage, pageSize);
-                                if (response && response.data) {
-                                    setDocuments(response.data.items);
-                                    setTotalPages(response.data.pages);
-                                    setTotalItems(response.data.total);
-                                }
-                            } catch (err) {
-                                console.error('Error refreshing documents:', err);
-                            }
-                        }}
-                    />
-                ))}
-            </div>
-            
-            {/* Pagination Controls */}
+
             {shouldShowPagination && (
                 <div className="flex flex-col sm:flex-row justify-center items-center mt-6 gap-4">
-                    {/* Page Size Selector */}
                     <div className="flex items-center gap-2">
                         <label htmlFor="pageSize" className="text-sm text-gray-600">
                             تعداد در هر صفحه:
@@ -125,38 +168,34 @@ const DocumentIndex = () => {
                             onChange={handlePageSizeChange}
                             className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            {pageSizeOptions.map(size => (
+                            {pageSizeOptions.map((size) => (
                                 <option key={size} value={size}>
                                     {size}
                                 </option>
                             ))}
                         </select>
                     </div>
-
-                    {/* Pagination Buttons */}
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
                             className={`px-4 py-2 rounded-lg ${
-                                currentPage === 1 
-                                    ? 'bg-gray-200 cursor-not-allowed' 
+                                currentPage === 1
+                                    ? 'bg-gray-200 cursor-not-allowed'
                                     : 'bg-blue-500 text-white hover:bg-blue-600'
                             }`}
                         >
                             قبلی
                         </button>
-                        
                         <span className="mx-4">
                             صفحه {currentPage} از {totalPages}
                         </span>
-                        
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
                             className={`px-4 py-2 rounded-lg ${
-                                currentPage === totalPages 
-                                    ? 'bg-gray-200 cursor-not-allowed' 
+                                currentPage === totalPages
+                                    ? 'bg-gray-200 cursor-not-allowed'
                                     : 'bg-blue-500 text-white hover:bg-blue-600'
                             }`}
                         >
@@ -165,15 +204,30 @@ const DocumentIndex = () => {
                     </div>
                 </div>
             )}
+
+            {showAddKnowledge && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-[999] flex justify-center items-center"
+                    onClick={handleCloseAddKnowledge}
+                >
+                    <div
+                        className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden max-w-3xl w-full p-6"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <CreateDocument onClose={handleCloseAddKnowledge} />
+                    </div>
+                </div>
+            )}
         </>
-    )
-}
+    );
+};
 
 DocumentIndex.propTypes = {
-    documents: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-        // Add other document properties as needed
-    }))
+    documents: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        })
+    ),
 };
 
 export default DocumentIndex;

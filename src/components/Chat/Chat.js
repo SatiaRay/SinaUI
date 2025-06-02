@@ -202,6 +202,20 @@ const Chat = () => {
   };
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      const chatLinks = document.querySelectorAll('.chat-message a');
+      console.log('Found chat links:', chatLinks.length); // برای دیباگ
+      chatLinks.forEach((link) => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      });
+    }, 100); // تأخیر کوچک برای اطمینان از رندر DOM
+    return () => clearTimeout(timer);
+  }, [chatHistory]);
+
+
+
+  useEffect(() => {
     const storedSessionId = localStorage.getItem('chat_session_id');
     if (storedSessionId) {
       setSessionId(storedSessionId);
@@ -275,8 +289,8 @@ const Chat = () => {
           }
       );
 
-      if (!response.ok) {
-        throw new Error('خطا در دریافت تاریخچه چت');
+      if (response.status !== 200) {
+       return
       }
 
       const messages = await response.json();
