@@ -1,6 +1,7 @@
-import DocumentCard from "./DocumentCard";
-import CreateDocument from "./CreateDocument"; // وارد کردن CreateDocument
-import { useEffect, useState } from "react";
+// DocumentIndex.js
+import DocumentCard from './DocumentCard';
+import CreateDocument from './CreateDocument';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useLocation } from 'react-router-dom';
 import { getDocuments } from '../../../services/api';
@@ -15,28 +16,29 @@ const DocumentIndex = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(20);
-    const [showAddKnowledge, setShowAddKnowledge] = useState(false); // حالت جدید برای فرم
+    const [showAddKnowledge, setShowAddKnowledge] = useState(false);
     const location = useLocation();
 
     const pageSizeOptions = [20, 50, 100];
     const minPageSize = Math.min(...pageSizeOptions);
 
-    useEffect(() => {
-        const fetchDocuments = async () => {
-            try {
-                const isManual = location.pathname.endsWith('/manuals');
-                const response = await getDocuments(isManual, currentPage, pageSize);
-                if (response && response.data) {
-                    setDocuments(response.data.items);
-                    setTotalPages(response.data.pages);
-                    setTotalItems(response.data.total);
-                }
-            } catch (err) {
-                setError(err.message);
-                console.error('Error fetching documents:', err);
+    const fetchDocuments = async () => {
+        try {
+            const isManual = location.pathname.endsWith('/manuals');
+            const response = await getDocuments(isManual, currentPage, pageSize);
+            console.log('Get Documents Response:', response.data.items); // لاگ برای دیباگ
+            if (response && response.data) {
+                setDocuments(response.data.items);
+                setTotalPages(response.data.pages);
+                setTotalItems(response.data.total);
             }
-        };
+        } catch (err) {
+            setError(err.message);
+            console.error('Error fetching documents:', err);
+        }
+    };
 
+    useEffect(() => {
         fetchDocuments();
     }, [location.pathname, currentPage, pageSize]);
 
@@ -74,7 +76,7 @@ const DocumentIndex = () => {
     const handlePageSizeChange = (event) => {
         const newSize = parseInt(event.target.value);
         setPageSize(newSize);
-        setCurrentPage(1); // Reset to first page when changing page size
+        setCurrentPage(1);
     };
 
     const handleAddKnowledge = () => {
@@ -83,22 +85,23 @@ const DocumentIndex = () => {
 
     const handleCloseAddKnowledge = () => {
         setShowAddKnowledge(false);
-        // بازخوانی اسناد پس از بستن فرم
-        const fetchDocuments = async () => {
-            try {
-                const isManual = location.pathname.endsWith('/manuals');
-                const response = await getDocuments(isManual, currentPage, pageSize);
-                if (response && response.data) {
-                    setDocuments(response.data.items);
-                    setTotalPages(response.data.pages);
-                    setTotalItems(response.data.total);
-                }
-            } catch (err) {
-                console.error('Error refreshing documents:', err);
-                setError(err.message || 'Failed to refresh documents');
-            }
-        };
         fetchDocuments();
+    };
+
+    const handleStatusChange = async (documentId, newVectorId) => {
+        try {
+            // به‌روزرسانی موقت در کلاینت
+            setDocuments((prevDocuments) =>
+                prevDocuments.map((doc) =>
+                    doc.id === documentId ? { ...doc, vector_id: newVectorId } : doc
+                )
+            );
+            // رفرش لیست از سرور
+            await fetchDocuments();
+        } catch (err) {
+            console.error('Error refreshing documents:', err);
+            setError(err.message || 'Failed to refresh documents');
+        }
     };
 
     const shouldShowPagination = totalItems > minPageSize;
@@ -136,21 +139,8 @@ const DocumentIndex = () => {
                         <DocumentCard
                             key={document.id}
                             document={document}
-                            onStatusChange={async () => {
-                                try {
-                                    const isManual = location.pathname.endsWith('/manuals');
-                                    const response = await getDocuments(isManual, currentPage, pageSize);
-                                    if (response && response.data) {
-                                        setDocuments(response.data.items);
-                                        setTotalPages(response.data.pages);
-                                        setTotalItems(response.data.total);
-                                    }
-                                } catch (err) {
-                                    console.error('Error refreshing documents:', err);
-                                    setError(err.message || 'Failed to refresh documents');
-                                }
-                            }}
-                            onClick={() => handleDocumentCardClick(document)} // اضافه کردن onClick
+                            onStatusChange={handleStatusChange}
+                            onClick={() => handleDocumentCardClick(document)}
                         />
                     ))}
                 </div>
