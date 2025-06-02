@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import Login from './components/Login';
+import PrivateRoute from './components/PrivateRoute';
+import Navbar from './components/Navbar';
 import Chat from './components/Chat/Chat';
 import { Document, DocumentIndex, DomainIndex, EditDocument } from './components/Chat/Document';
 import Wizard from './components/Chat/Wizard';
-import Login from './components/Login';
-import Navbar from './components/Navbar';
-import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from './contexts/AuthContext';
+import Workflow from './components/Workflow/WorkflowIndex';
+import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
+import { getVersion } from './utils/apis';
 import CrawlUrl from './components/Chat/CrawlUrl';
 
 function App() {
@@ -23,6 +26,20 @@ function AppContent() {
     const location = useLocation();
     const showNavbar = location.pathname !== '/login';
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [appVersion, setAppVersion] = useState(null)
+
+    useEffect(() => {
+        const fetchVersion = async () => {
+            try{
+                const res = await getVersion()
+                setAppVersion(res.version)
+            } catch (err) {
+                setAppVersion('undefined')
+            }
+        }
+
+        fetchVersion()
+    }, [])
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -110,7 +127,36 @@ function AppContent() {
                             </PrivateRoute>
                         }
                     />
+                    <Route path="/workflow">
+                        <Route
+                            index
+                            element={
+                                <PrivateRoute>
+                                    <Workflow />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route 
+                            path=":workflowId"
+                            element={
+                                <PrivateRoute>
+                                    <WorkflowEditor />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route 
+                            path="create"
+                            element={
+                                <PrivateRoute>
+                                    <WorkflowEditor />
+                                </PrivateRoute>
+                            }
+                        />
+                    </Route>
                 </Routes>
+                <span style={{position:'fixed', bottom: "5px", left: "10px"}}>
+                    نسخه : {appVersion}
+                </span>
             </div>
         </div>
     );
