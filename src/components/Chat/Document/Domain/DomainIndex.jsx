@@ -21,7 +21,7 @@ const DomainIndex = () => {
 
     return (
         <>
-            <div className="flex justify-end mb-3">
+            <div className="flex justify-between mb-3">
                 <Link
                     to="/crawl-url"
                     className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center gap-2"

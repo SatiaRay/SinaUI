@@ -1,21 +1,19 @@
-import DocumentCard from "./DocumentCard";
-import CreateDocument from "./CreateDocument"; // وارد کردن CreateDocument
-import { useEffect, useState } from "react";
-import PropTypes from 'prop-types';
+import DocumentCard from './DocumentCard';
+import CreateDocument from './CreateDocument';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { getDocuments } from '../../../services/api';
 
-const DocumentIndex = () => {
-    const [documentContentLoading, setDocumentContentLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [documentContent, setDocumentContent] = useState(null);
-    const [selectedDocument, setSelectedDocument] = useState(null);
+const ManualIndex = () => {
     const [documents, setDocuments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(20);
-    const [showAddKnowledge, setShowAddKnowledge] = useState(false); // حالت جدید برای فرم
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [showAddKnowledge, setShowAddKnowledge] = useState(false);
     const location = useLocation();
 
     const pageSizeOptions = [20, 50, 100];
@@ -23,49 +21,31 @@ const DocumentIndex = () => {
 
     useEffect(() => {
         const fetchDocuments = async () => {
+            setLoading(true);
             try {
-                const isManual = location.pathname.endsWith('/manuals');
-                const response = await getDocuments(isManual, currentPage, pageSize);
+                const response = await getDocuments(true, currentPage, pageSize); // isManual = true برای اسناد دستی
                 if (response && response.data) {
                     setDocuments(response.data.items);
                     setTotalPages(response.data.pages);
                     setTotalItems(response.data.total);
+                } else {
+                    setDocuments([]);
+                    setTotalPages(1);
+                    setTotalItems(0);
+                    setError('Invalid response from server');
                 }
             } catch (err) {
-                setError(err.message);
-                console.error('Error fetching documents:', err);
+                setError(err.message || 'Failed to fetch documents');
+                setDocuments([]);
+                setTotalPages(1);
+                setTotalItems(0);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchDocuments();
-    }, [location.pathname, currentPage, pageSize]);
-
-    const handleDocumentCardClick = (document) => {
-        fetchDocument(document);
-    };
-
-    const fetchDocument = async (document) => {
-        setDocumentContentLoading(true);
-        setError(null);
-        try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${document.id}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            });
-            if (!response.ok) {
-                throw new Error('خطا در دریافت محتوای فایل');
-            }
-            const data = await response.json();
-            setDocumentContent(data);
-            setSelectedDocument(document);
-        } catch (err) {
-            setError(err.message);
-            console.error('Error fetching document content:', err);
-        } finally {
-            setDocumentContentLoading(false);
-        }
-    };
+    }, [currentPage, pageSize]);
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
@@ -74,7 +54,7 @@ const DocumentIndex = () => {
     const handlePageSizeChange = (event) => {
         const newSize = parseInt(event.target.value);
         setPageSize(newSize);
-        setCurrentPage(1); // Reset to first page when changing page size
+        setCurrentPage(1); // بازنشانی به صفحه اول هنگام تغییر اندازه صفحه
     };
 
     const handleAddKnowledge = () => {
@@ -83,11 +63,10 @@ const DocumentIndex = () => {
 
     const handleCloseAddKnowledge = () => {
         setShowAddKnowledge(false);
-        // بازخوانی اسناد پس از بستن فرم
+        // بازخوانی اسناد دستی پس از بستن فرم
         const fetchDocuments = async () => {
             try {
-                const isManual = location.pathname.endsWith('/manuals');
-                const response = await getDocuments(isManual, currentPage, pageSize);
+                const response = await getDocuments(true, currentPage, pageSize);
                 if (response && response.data) {
                     setDocuments(response.data.items);
                     setTotalPages(response.data.pages);
@@ -114,18 +93,16 @@ const DocumentIndex = () => {
                         بازگشت
                     </Link>
                 )}
-                {location.pathname.endsWith('/manuals') && (
-                    <button
-                        onClick={handleAddKnowledge}
-                        className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
-                    >
-                        افزودن دانش
-                    </button>
-                )}
+                <button
+                    onClick={handleAddKnowledge}
+                    className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
+                >
+                    افزودن دانش
+                </button>
             </div>
 
-            {documentContentLoading ? (
-                <div className="text-center">Loading document content...</div>
+            {loading ? (
+                <div className="text-center">Loading documents...</div>
             ) : error ? (
                 <div className="text-red-500 text-center">Error: {error}</div>
             ) : documents.length === 0 ? (
@@ -138,8 +115,7 @@ const DocumentIndex = () => {
                             document={document}
                             onStatusChange={async () => {
                                 try {
-                                    const isManual = location.pathname.endsWith('/manuals');
-                                    const response = await getDocuments(isManual, currentPage, pageSize);
+                                    const response = await getDocuments(true, currentPage, pageSize);
                                     if (response && response.data) {
                                         setDocuments(response.data.items);
                                         setTotalPages(response.data.pages);
@@ -150,13 +126,12 @@ const DocumentIndex = () => {
                                     setError(err.message || 'Failed to refresh documents');
                                 }
                             }}
-                            onClick={() => handleDocumentCardClick(document)} // اضافه کردن onClick
                         />
                     ))}
                 </div>
             )}
 
-            {shouldShowPagination && (
+            {shouldShowPagination && !loading && (
                 <div className="flex flex-col sm:flex-row justify-center items-center mt-6 gap-4">
                     <div className="flex items-center gap-2">
                         <label htmlFor="pageSize" className="text-sm text-gray-600">
@@ -222,7 +197,7 @@ const DocumentIndex = () => {
     );
 };
 
-DocumentIndex.propTypes = {
+ManualIndex.propTypes = {
     documents: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -230,4 +205,4 @@ DocumentIndex.propTypes = {
     ),
 };
 
-export default DocumentIndex;
+export default ManualIndex;
