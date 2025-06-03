@@ -298,20 +298,15 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                                                 style={{ width: `${getCombinedProgress(job)}%` }}
                                             ></div>
                                         </div>
-                                        <div className="flex justify-between text-sm mt-1 text-gray-600 dark:text-gray-400">
-                                            <span>پیشرفت کل: {getCombinedProgress(job).toFixed(1)}%</span>
-                                            <span>
-                                                {job.crawledUrls} از {job.totalUrls} لینک خزیده شده
-                                            </span>
+                                        <div className="flex justify-center text-sm mt-1 text-gray-600 dark:text-gray-400">
+                                            <span> {getCombinedProgress(job).toFixed(1)}%</span>
+                                            {/*<span>*/}
+                                            {/*    {job.crawledUrls} از {job.totalUrls} لینک خزیده شده*/}
+                                            {/*</span>*/}
                                         </div>
                                     </div>
                                     {/* Detailed Progress Info */}
-                                    <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                        <p>خزش: {job.crawlProgress}%</p>
-                                        {job.vectorizationProgress !== null && (
-                                            <p>وکتورسازی: {job.vectorizationProgress}% ({job.vectorizationProgress === 100 ? 'کامل شد' : 'در حال انجام...'})</p>
-                                        )}
-                                    </div>
+
                                     {job.exceptionUrls > 0 && (
                                         <p className="text-sm text-red-500 mt-2 animate-pulse">
                                             {job.exceptionUrls} لینک با خطا مواجه شده‌اند

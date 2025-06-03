@@ -11,6 +11,8 @@ import Workflow from './components/Workflow/WorkflowIndex';
 import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
 import { getVersion } from './utils/apis';
 import CrawlUrl from './components/Chat/CrawlUrl';
+import Status1 from './components/Chat/Status';
+
 
 function App() {
     return (
@@ -112,6 +114,15 @@ function AppContent() {
                         element={
                             <PrivateRoute>
                                 <EditDocument />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/processes"
+                        element={
+                            <PrivateRoute>
+                                <Status1 />
                             </PrivateRoute>
                         }
                     />
