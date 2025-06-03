@@ -228,14 +228,14 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                     </div>
                     <div className="mt-4">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
-                        {selectedDomain ? (
+                        {document.domain && document.uri ? (
                             <a
-                                href={`https://${selectedDomain.domain}${document.uri}`}
+                                href={`https://${document.domain.domain}${document.uri}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
                             >
-                                {`https://${selectedDomain.domain}${document.uri}`}
+                                {`https://${document.domain.domain}${document.uri}`}
                             </a>
                         ) : (
                             <span className="text-gray-400">بدون آدرس دامنه</span>
