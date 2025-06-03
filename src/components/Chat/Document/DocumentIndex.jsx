@@ -3,8 +3,8 @@ import DocumentCard from './DocumentCard';
 import CreateDocument from './CreateDocument';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link, useLocation } from 'react-router-dom';
-import { getDocuments } from '../../../services/api';
+import {Link, useLocation, useParams} from 'react-router-dom';
+import {getDocuments, getDomainDocuments} from '../../../services/api';
 
 const DocumentIndex = () => {
     const [documentContentLoading, setDocumentContentLoading] = useState(false);
@@ -18,6 +18,7 @@ const DocumentIndex = () => {
     const [pageSize, setPageSize] = useState(20);
     const [showAddKnowledge, setShowAddKnowledge] = useState(false);
     const location = useLocation();
+    const {domain_id} = useParams()
 
     const pageSizeOptions = [20, 50, 100];
     const minPageSize = Math.min(...pageSizeOptions);
@@ -25,7 +26,7 @@ const DocumentIndex = () => {
     const fetchDocuments = async () => {
         try {
             const isManual = location.pathname.endsWith('/manuals');
-            const response = await getDocuments(isManual, currentPage, pageSize);
+            const response = isManual ? await getDocuments(isManual, currentPage, pageSize) : await getDomainDocuments(domain_id, currentPage, pageSize);
             console.log('Get Documents Response:', response.data.items); // لاگ برای دیباگ
             if (response && response.data) {
                 setDocuments(response.data.items);

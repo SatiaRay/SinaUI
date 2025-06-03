@@ -156,6 +156,16 @@ export const getDocuments = async (manualType = false, page=1,size=10) => {
   }
 }
 
+export const getDomainDocuments = async (domain_id, page=1,size=10) => {
+  const url = `${PYTHON_APP_URL}/documents/domain/${domain_id}?page=${page}&size=${size}`;
+  try {
+    return await axios.get(url)
+  } catch (err) {
+    console.error(err.message)
+    return null
+  }
+}
+
 export const getDocument = async (document_id) => {
   try {
     return await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
