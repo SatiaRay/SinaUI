@@ -200,35 +200,31 @@ const WorkflowEditor = () => {
         })
     );
 
-    if (newData.conditions && newData.type === 'decision') {
+    if (newData.type === 'decision') {
       setEdges((eds) => {
-        const existingEdges = eds.filter((edge) => edge.source === nodeId);
+        // فقط edges غیرمرتبط با این نود و edges معتبر را نگه دار
         const otherEdges = eds.filter((edge) => edge.source !== nodeId);
-        const newConditions = newData.conditions.filter((condition) => condition && condition.trim() !== '');
+        const newConditions = newData.conditions?.filter((c) => c && c.trim() !== '') || [];
 
-        const newEdges = newConditions.map((condition, index) => {
-          const existingEdge = existingEdges.find(
-              (edge) => edge.source === nodeId && edge.sourceHandle === condition
-          );
-          if (existingEdge) {
-            return existingEdge;
-          }
-          return {
-            id: `${nodeId}-${condition}-${index}`,
-            source: nodeId,
-            target: null,
-            sourceHandle: condition,
-            type: 'step',
-            animated: true,
-            style: { stroke: '#f59e0b' },
-          };
-        });
-
-        const validEdges = existingEdges.filter((edge) =>
-            newConditions.includes(edge.sourceHandle)
+        // فقط edges مربوط به شرایط جدید را نگه دار
+        const validEdges = eds.filter(
+            (edge) => edge.source === nodeId && newConditions.includes(edge.sourceHandle)
         );
 
-        return [...otherEdges, ...validEdges, ...newEdges.filter((edge) => edge.target === null)];
+        // ایجاد edges جدید برای شرایطی که هنوز target ندارند
+        const newEdges = newConditions
+            .filter((condition) => !validEdges.some((edge) => edge.sourceHandle === condition))
+            .map((condition, index) => ({
+              id: `${nodeId}-${condition}-${index}`,
+              source: nodeId,
+              target: null,
+              sourceHandle: condition,
+              type: 'step',
+              animated: true,
+              style: { stroke: '#f59e0b' },
+            }));
+
+        return [...otherEdges, ...validEdges, ...newEdges];
       });
     }
   }, [setNodes, setEdges]);
@@ -453,7 +449,9 @@ const WorkflowEditor = () => {
               break;
             case 'decision':
               step.type = 'decision';
-              const outgoingEdges = edges.filter((edge) => edge.source === node.id && edge.target);
+              const outgoingEdges = edges.filter(
+                  (edge) => edge.source === node.id && edge.target && node.data.conditions.includes(edge.sourceHandle)
+              );
               step.conditions = outgoingEdges.map((edge) => ({
                 label: edge.sourceHandle,
                 next: edge.target,
@@ -494,7 +492,6 @@ const WorkflowEditor = () => {
       setLoading(false);
     }
   }, [nodes, edges, workflowId, navigate, workflowName]);
-
   if (loading) {
     return (
         <div className="flex items-center justify-center h-screen">
@@ -528,8 +525,14 @@ const WorkflowEditor = () => {
             />
           </div>
           <button
-              onClick={() => addNode('start')}
+              onClick={saveWorkflow}
               className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+          >
+            {workflowId ? 'بروزرسانی گردش کار' : 'ذخیره گردش کار'}
+          </button>
+          <button
+              onClick={() => addNode('start')}
+              className="px-4 py-2 bg-cyan-500 text-white rounded-md  hover:bg-cyan-600"
           >
             افزودن شروع
           </button>
@@ -563,12 +566,7 @@ const WorkflowEditor = () => {
           >
             افزودن پایان
           </button>
-          <button
-              onClick={saveWorkflow}
-              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-          >
-            {workflowId ? 'بروزرسانی گردش کار' : 'ذخیره گردش کار'}
-          </button>
+
         </div>
 
         <ReactFlow
