@@ -272,32 +272,7 @@ const DocumentIndex = () => {
                 </div>
 
                 {/* تب‌ها */}
-                {!selectedDomain && !selectedFile && (
-                    <div className="mb-6 flex gap-4">
-                        <NavLink
-                            to="domains"
-                            className={({ isActive }) =>
-                                `px-6 py-3 rounded-lg font-medium transition-all ${location.pathname.includes('domain')
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-                                }`
-                            }
-                        >
-                            خزیده‌شده
-                        </NavLink>
-                        <NavLink
-                            to="manuals"
-                            className={({ isActive }) =>
-                                `px-6 py-3 rounded-lg font-medium transition-all ${isActive
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-                                }`
-                            }
-                        >
-                            دستی
-                        </NavLink>
-                    </div>
-                )}
+
 
                 {/* نمایش خطا */}
                 {error && (

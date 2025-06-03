@@ -2,21 +2,23 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from '../contexts/ThemeToggle';
-import { Bars3Icon, XMarkIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ChevronRightIcon, ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 const Navbar = ({ onSidebarCollapse }) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
+    const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
 
     const handleLogout = async () => {
         try {
             // Reset sidebar states before logout
             setDesktopSidebarCollapsed(false);
             setSidebarOpen(false);
+            setDocumentsDropdownOpen(false);
             onSidebarCollapse(false);
-            
+
             await logout();
             navigate('/login');
         } catch (error) {
@@ -30,12 +32,17 @@ const Navbar = ({ onSidebarCollapse }) => {
 
     const closeSidebar = () => {
         setSidebarOpen(false);
+        setDocumentsDropdownOpen(false);
     };
 
     const toggleDesktopSidebar = () => {
         const newState = !desktopSidebarCollapsed;
         setDesktopSidebarCollapsed(newState);
         onSidebarCollapse(newState);
+    };
+
+    const toggleDocumentsDropdown = () => {
+        setDocumentsDropdownOpen(!documentsDropdownOpen);
     };
 
     return (
@@ -64,12 +71,12 @@ const Navbar = ({ onSidebarCollapse }) => {
             </button>
 
             {/* Desktop Sidebar - Always visible on desktop */}
-            <div 
+            <div
                 className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${
                     desktopSidebarCollapsed ? 'w-0' : 'w-64'
                 }`}
             >
-                <div 
+                <div
                     className={`flex flex-col h-full transition-all duration-300 ${
                         desktopSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-64'
                     }`}
@@ -84,23 +91,56 @@ const Navbar = ({ onSidebarCollapse }) => {
                         >
                             چت
                         </Link>
-                        <Link
-                            to="/document"
-                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
-                        >
-                            اسناد
-                        </Link>
+                        <div>
+                            <button
+                                onClick={toggleDocumentsDropdown}
+                                className="flex items-center w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                            >
+                                اسناد
+                                <ChevronDownIcon
+                                    className={`h-4 w-4 mr-2 transition-transform duration-200 ${
+                                        documentsDropdownOpen ? 'rotate-180' : ''
+                                    }`}
+                                />
+                            </button>
+                            <div
+                                className={`mr-4 overflow-hidden transition-all duration-200 ${
+                                    documentsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                }`}
+                            >
+                                <Link
+                                    to="/document/manuals"
+                                    className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                                >
+                                    خزش دستی
+                                </Link>
+                                <Link
+                                    to="/document"
+                                    className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                                >
+                                    خزیده شده‌ها
+                                </Link>
+                                <Link
+                                    to="/crawl-url"
+                                    className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                                    onClick={closeSidebar}
+                                >
+                                    خزش URL
+                                </Link>
+
+                                <Link
+                                    to="/processes"
+                                    className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                                >
+                                    پردازش
+                                </Link>
+                            </div>
+                        </div>
                         <Link
                             to="/wizard"
                             className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                         >
                             پاسخ‌های ویزارد
-                        </Link>
-                        <Link
-                            to="/processes"
-                            className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
-                        >
-                           پردازش ها
                         </Link>
                         <Link
                             to="/workflow"
@@ -110,7 +150,7 @@ const Navbar = ({ onSidebarCollapse }) => {
                         </Link>
                     </div>
                     <div className="p-4 border-t border-gray-700 overflow-hidden">
-                        <div className="flex items-center justify-between mb-4 whitespace-nowrap">
+                        <div className="flex items-center mb-4 whitespace-nowrap">
                             <span className="text-gray-300 text-sm">حالت نمایش</span>
                             <ThemeToggle />
                         </div>
@@ -159,20 +199,54 @@ const Navbar = ({ onSidebarCollapse }) => {
                             >
                                 چت
                             </Link>
-                            <Link
-                                to="/data-sources"
-                                className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium"
-                                onClick={closeSidebar}
-                            >
-                                منابع داده
-                            </Link>
-                            <Link
-                                to="/document"
-                                className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium"
-                                onClick={closeSidebar}
-                            >
-                                اسناد
-                            </Link>
+                            <div>
+                                <button
+                                    onClick={toggleDocumentsDropdown}
+                                    className="flex items-center w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                                >
+                                    اسناد
+                                    <ChevronDownIcon
+                                        className={`h-4 w-4 mr-2 transition-transform duration-200 ${
+                                            documentsDropdownOpen ? 'rotate-180' : ''
+                                        }`}
+                                    />
+                                </button>
+                                <div
+                                    className={`mr-4 overflow-hidden transition-all duration-200 ${
+                                        documentsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                    }`}
+                                >
+                                    <Link
+                                        to="/document/manuals"
+                                        className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                                        onClick={closeSidebar}
+                                    >
+                                        خزش دستی
+                                    </Link>
+                                    <Link
+                                        to="/document"
+                                        className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                                        onClick={closeSidebar}
+                                    >
+                                        خزیده شده‌ها
+                                    </Link>
+                                    <Link
+                                        to="/crawl-url"
+                                        className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                                        onClick={closeSidebar}
+                                    >
+                                        خزش URL
+                                    </Link>
+
+                                    <Link
+                                        to="/processes"
+                                        className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                                        onClick={closeSidebar}
+                                    >
+                                        پردازش
+                                    </Link>
+                                </div>
+                            </div>
                             <Link
                                 to="/wizard"
                                 className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -181,19 +255,12 @@ const Navbar = ({ onSidebarCollapse }) => {
                                 پاسخ‌های ویزارد
                             </Link>
                             <Link
-                                to="/processes"
-                                className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
-                            >
-                                پردازش ها
-
-                            </Link>
-                            <Link
                                 to="/workflow"
                                 className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                                onClick={closeSidebar}
                             >
                                 گردش کار
                             </Link>
-
                         </div>
                         <div className="p-4 border-t border-gray-700">
                             <div className="flex items-center justify-between mb-4">

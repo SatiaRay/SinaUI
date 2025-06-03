@@ -208,7 +208,6 @@ const JobDetailsModal = ({ job, onClose, setActiveJobs }) => {
                     {job.status !== 'finished' && (
                         <>
                             <div>
-                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">پیشرفت:</p>
                                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden mt-2">
                                     <div
                                         className={`h-full rounded-full transition-all duration-500 ease-in-out ${

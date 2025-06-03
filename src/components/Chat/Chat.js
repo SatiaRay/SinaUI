@@ -598,7 +598,7 @@ const Chat = () => {
                     }
                 }}
                 placeholder="سوال خود را بپرسید..."
-                className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 disabled={chatLoading}
             />
             <button
