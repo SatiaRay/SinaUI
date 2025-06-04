@@ -71,6 +71,64 @@ export const getVersion = async() => {
   }
 }
 
+// Instruction Endpoints
+export const instructionEndpoints = {
+  // Get instruction by ID
+  getInstruction: async (instructionId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/instructions/${instructionId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching instruction:', error);
+      throw error;
+    }
+  },
+
+  // Create new instruction
+  createInstruction: async (instructionData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/instructions/`, instructionData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating instruction:', error);
+      throw error;
+    }
+  },
+
+  // Update existing instruction
+  updateInstruction: async (instructionId, instructionData) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/instructions/${instructionId}`, instructionData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating instruction:', error);
+      throw error;
+    }
+  },
+
+  // Delete instruction
+  deleteInstruction: async (instructionId) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/instructions/${instructionId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting instruction:', error);
+      throw error;
+    }
+  },
+
+  // List all instructions
+  listInstructions: async (page = 1) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/instructions/?page=${page}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error listing instructions:', error);
+      throw error;
+    }
+  }
+};
+
 // You can add more endpoint categories here
 // For example:
 // export const userEndpoints = { ... }

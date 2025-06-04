@@ -12,6 +12,9 @@ import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
 import { getVersion } from './utils/apis';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import Status1 from './components/Chat/Status';
+import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
+import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
+import EditInstruction from './components/Chat/Instruction/EditInstruction';
 
 
 function App() {
@@ -160,6 +163,34 @@ function AppContent() {
                             element={
                                 <PrivateRoute>
                                     <WorkflowEditor />
+                                </PrivateRoute>
+                            }
+                        />
+                    </Route>
+
+                    {/* Instruction Routes */}
+                    <Route path="/instructions">
+                        <Route
+                            index
+                            element={
+                                <PrivateRoute>
+                                    <InstructionIndex />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="create"
+                            element={
+                                <PrivateRoute>
+                                    <CreateInstruction />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="edit/:id"
+                            element={
+                                <PrivateRoute>
+                                    <EditInstruction />
                                 </PrivateRoute>
                             }
                         />
