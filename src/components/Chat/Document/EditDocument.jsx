@@ -16,6 +16,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
     const [vectorizationStatus, setVectorizationStatus] = useState(null);
     const socketRef = useRef(null);
     const [ckEditorContent, setCkEditorContent] = useState('');
+    const [editedTitle, setEditedTitle] = useState('');
 
     const modules = {
         toolbar: [
@@ -43,6 +44,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
 
                 if (response?.data) {
                     setDocument(response.data);
+                    setEditedTitle(response.data.title);
                     if (response.data.html) {
                         setCkEditorContent(response.data.html);
                     }
@@ -123,10 +125,10 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
         setError(null);
         try {
             const documentData = {
+                title: editedTitle,
                 html: ckEditorContent,
                 metadata: {
                     source: document.domain ? `https://${document.domain.domain}${document.uri}` : null,
-                    title: document.title,
                     author: "خزش شده",
                     date: new Date(document.created_at).toISOString().split('T')[0]
                 }
@@ -224,7 +226,13 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                 <div className="flex-1 flex flex-col min-h-0">
                     <div>
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">عنوان:</h3>
-                        <p className="text-gray-700 dark:text-gray-300">{document.title}</p>
+                        <input
+                            type="text"
+                            value={editedTitle}
+                            onChange={(e) => setEditedTitle(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="عنوان سند"
+                        />
                     </div>
                     <div className="mt-4">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">آدرس:</h3>
