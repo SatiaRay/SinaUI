@@ -7,7 +7,7 @@ const CreateInstruction = () => {
     const [formData, setFormData] = useState({
         label: '',
         text: '',
-        status: 'active'
+        status: 1
     });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ const CreateInstruction = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: name === 'status' ? parseInt(value) : value
         }));
     };
 
@@ -84,8 +84,8 @@ const CreateInstruction = () => {
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         >
-                            <option value="active">فعال</option>
-                            <option value="inactive">غیرفعال</option>
+                            <option value={1}>فعال</option>
+                            <option value={0}>غیرفعال</option>
                         </select>
                     </div>
 
