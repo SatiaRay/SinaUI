@@ -7,6 +7,8 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
+  useReactFlow,
+  ReactFlowProvider,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { toast, ToastContainer } from 'react-toastify';
@@ -49,7 +51,7 @@ const initialNodes = [
   },
 ];
 
-const WorkflowEditor = () => {
+const WorkflowEditorContent = () => {
   const { workflowId } = useParams();
   const navigate = useNavigate();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -61,6 +63,7 @@ const WorkflowEditor = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [workflowName, setWorkflowName] = useState('');
+  const reactFlowInstance = useReactFlow();
 
   useEffect(() => {
     const fetchWorkflow = async () => {
@@ -232,17 +235,16 @@ const WorkflowEditor = () => {
   }, [setNodes, setEdges]);
 
   const addNode = (type) => {
-    const maxXNode = nodes.reduce((maxNode, node) => {
-      return !maxNode || node.position.x > maxNode.position.x ? node : maxNode;
-    }, null);
+    const { x, y, zoom } = reactFlowInstance.getViewport();
+    const centerX = -x + (window.innerWidth / 2 / zoom);
+    const centerY = -y + (window.innerHeight / 2 / zoom);
 
-    const xOffset = 250;
     const newNode = {
       id: uuidv4(),
       type,
       position: {
-        x: maxXNode ? maxXNode.position.x + xOffset : 50,
-        y: maxXNode ? maxXNode.position.y : 250,
+        x: centerX,
+        y: centerY,
       },
       data: {
         label:
@@ -655,6 +657,14 @@ const WorkflowEditor = () => {
             </div>
         )}
       </div>
+  );
+};
+
+const WorkflowEditor = () => {
+  return (
+    <ReactFlowProvider>
+      <WorkflowEditorContent />
+    </ReactFlowProvider>
   );
 };
 
