@@ -596,6 +596,7 @@ const WorkflowEditor = () => {
             onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
             fitView
+            proOptions={{ hideAttribution: true }}
         >
           <Controls />
           <MiniMap />
