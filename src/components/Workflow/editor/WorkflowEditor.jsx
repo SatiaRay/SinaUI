@@ -21,7 +21,7 @@ import FunctionNode from './nodes/FunctionNode';
 import ResponseNode from './nodes/ResponseNode';
 import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
-import { workflowEndpoints } from '../../../utils/apis';
+import { workflowEndpoints, aiFunctionsEndpoints } from '../../../utils/apis';
 import { v4 as uuidv4 } from 'uuid';
 
 const nodeTypes = {
@@ -63,6 +63,8 @@ const WorkflowEditorContent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [workflowName, setWorkflowName] = useState('');
+  const [showFunctionModal, setShowFunctionModal] = useState(false);
+  const [aiFunctions, setAiFunctions] = useState([]);
   const reactFlowInstance = useReactFlow();
 
   useEffect(() => {
@@ -234,7 +236,26 @@ const WorkflowEditorContent = () => {
     }
   }, [setNodes, setEdges]);
 
+  const fetchAiFunctions = useCallback(async () => {
+    try {
+      const data = await aiFunctionsEndpoints.getFunctionsMap();
+      setAiFunctions(data.functions || []);
+    } catch (err) {
+      console.error('Error fetching AI functions:', err);
+      toast.error('خطا در دریافت لیست توابع');
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAiFunctions();
+  }, [fetchAiFunctions]);
+
   const addNode = (type) => {
+    if (type === 'function') {
+      setShowFunctionModal(true);
+      return;
+    }
+
     const { x, y, zoom } = reactFlowInstance.getViewport();
     const centerX = -x + (window.innerWidth / 2 / zoom);
     const centerY = -y + (window.innerHeight / 2 / zoom);
@@ -271,6 +292,35 @@ const WorkflowEditorContent = () => {
       },
     };
     setNodes((nds) => [...nds, newNode]);
+  };
+
+  const addFunctionNode = (functionData) => {
+    const { x, y, zoom } = reactFlowInstance.getViewport();
+    const centerX = -x + (window.innerWidth / 2 / zoom);
+    const centerY = -y + (window.innerHeight / 2 / zoom);
+
+    const newNode = {
+      id: uuidv4(),
+      type: 'function',
+      position: {
+        x: centerX,
+        y: centerY,
+      },
+      data: {
+        label: functionData.name,
+        description: functionData.description,
+        functionData: functionData,
+        connections: [],
+        jsonConfig: null,
+        pageConfig: {
+          showPage: false,
+          pageUrl: '',
+          closeOnAction: false,
+        },
+      },
+    };
+    setNodes((nds) => [...nds, newNode]);
+    setShowFunctionModal(false);
   };
 
   const handlePageClose = useCallback(() => {
@@ -447,6 +497,9 @@ const WorkflowEditorContent = () => {
               break;
             case 'function':
               step.type = 'function';
+              step.functionName = node.data.functionData?.name;
+              step.functionDescription = node.data.functionData?.description;
+              step.functionParameters = node.data.functionData?.parameters;
               break;
             case 'response':
               step.type = 'response';
@@ -620,6 +673,36 @@ const WorkflowEditorContent = () => {
                 pageConfig={activePage}
                 onClose={handlePageClose}
             />
+        )}
+
+        {showFunctionModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                  انتخاب تابع
+                </h3>
+                <div className="max-h-96 overflow-y-auto">
+                  {aiFunctions.map((func) => (
+                    <div
+                      key={func.name}
+                      className="p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                      onClick={() => addFunctionNode(func)}
+                    >
+                      <h4 className="font-medium text-gray-900 dark:text-white">{func.name}</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{func.description}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={() => setShowFunctionModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  >
+                    انصراف
+                  </button>
+                </div>
+              </div>
+            </div>
         )}
 
         {showDeleteConfirm && selectedNode && (

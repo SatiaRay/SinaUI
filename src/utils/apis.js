@@ -61,7 +61,7 @@ export const workflowEndpoints = {
   }
 };
 
-export const getVersion = async() => {
+export const getVersion = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/version`);
     return response.data;
@@ -124,6 +124,18 @@ export const instructionEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error listing instructions:', error);
+      throw error;
+    }
+  }
+};
+
+export const aiFunctionsEndpoints = {
+  getFunctionsMap: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/ai-functions/map`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching AI functions:', error);
       throw error;
     }
   }
