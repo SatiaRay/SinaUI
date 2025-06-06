@@ -92,7 +92,7 @@ const InstructionIndex = () => {
                                     {instruction.text}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                                    {instruction.status === 1 ? 'فعال' : 'غیرفعال'}
+                                    {instruction.status == 1 ? 'فعال' : 'غیرفعال'}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <Link

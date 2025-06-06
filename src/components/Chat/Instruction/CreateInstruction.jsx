@@ -16,7 +16,7 @@ const CreateInstruction = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'status' ? parseInt(value) : value
+            [name]: name === 'status' ? Number(value) : value
         }));
     };
 

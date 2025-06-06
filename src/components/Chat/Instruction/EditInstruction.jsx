@@ -24,7 +24,7 @@ const EditInstruction = () => {
             setFormData({
                 label: data.label,
                 text: data.text,
-                status: data.status
+                status: Number(data.status)
             });
             setLoading(false);
         } catch (err) {
@@ -37,7 +37,7 @@ const EditInstruction = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'status' ? parseInt(value) : value
+            [name]: name === 'status' ? Number(value) : value
         }));
     };
 

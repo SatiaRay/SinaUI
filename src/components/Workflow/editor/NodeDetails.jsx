@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
+const NodeDetails = ({ node, onUpdate, onClose, onDelete, saveWorkflow }) => {
   const [details, setDetails] = useState({
     label: node.data.label || '',
     description: node.data.description || '',
@@ -9,12 +9,13 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete }) => {
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     onUpdate(node.id, {
       ...details,
       conditions: details.conditions.filter((c) => c && c.trim() !== ''),
     });
+    await saveWorkflow();
     onClose();
   };
 

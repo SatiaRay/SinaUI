@@ -9,6 +9,8 @@ import ReactFlow, {
   addEdge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import StartNode from './nodes/StartNode';
 import ProcessNode from './nodes/ProcessNode';
 import DecisionNode from './nodes/DecisionNode';
@@ -419,7 +421,7 @@ const WorkflowEditor = () => {
       setError(null);
 
       if (!workflowName.trim()) {
-        alert('لطفا نام گردش کار را وارد کنید');
+        toast.error('لطفا نام گردش کار را وارد کنید');
         setLoading(false);
         return;
       }
@@ -479,19 +481,21 @@ const WorkflowEditor = () => {
 
       if (workflowId) {
         await workflowEndpoints.updateWorkflow(workflowId, workflowData);
+        toast.success('گردش کار با موفقیت بروزرسانی شد');
       } else {
         await workflowEndpoints.createWorkflow(workflowData);
+        toast.success('گردش کار با موفقیت ایجاد شد');
       }
-
-      navigate('/workflow');
     } catch (err) {
       console.error('Error saving workflow:', err);
       setError('خطا در ذخیره گردش کار');
+      toast.error('خطا در ذخیره گردش کار');
       console.log('Workflow Data Sent:', JSON.stringify(workflowData, null, 2));
     } finally {
       setLoading(false);
     }
-  }, [nodes, edges, workflowId, navigate, workflowName]);
+  }, [nodes, edges, workflowId, workflowName]);
+
   if (loading) {
     return (
         <div className="flex items-center justify-center h-screen">
@@ -510,6 +514,18 @@ const WorkflowEditor = () => {
 
   return (
       <div className="h-screen w-full">
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={true}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
         <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4">
             <label htmlFor="workflow-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -592,6 +608,7 @@ const WorkflowEditor = () => {
                 onUpdate={onNodeUpdate}
                 onClose={() => setSelectedNode(null)}
                 onDelete={deleteNode}
+                saveWorkflow={saveWorkflow}
             />
         )}
 
