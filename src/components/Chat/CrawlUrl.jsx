@@ -195,7 +195,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 m-10 max-w-4xl mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-10 max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">خزش وب‌سایت</h2>
                 <Link
