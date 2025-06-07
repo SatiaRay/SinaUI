@@ -61,7 +61,23 @@ const Navbar = ({ onSidebarCollapse }) => {
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
     }, []);
+    useEffect(() => {
+        const handleMessage = (event) => {
+            if (event.data.type === 'HIDE_NAVBAR') {
+                setDesktopSidebarCollapsed(true);
+                // مخفی کردن دکمه نوار کناری
+                const toggleButton = document.querySelector('.md\\:flex.fixed.right-64.top-4');
+                if (toggleButton) toggleButton.style.display = 'none';
+            } else if (event.data.type === 'SHOW_NAVBAR') {
+                setDesktopSidebarCollapsed(false);
+                const toggleButton = document.querySelector('.md\\:flex.fixed.right-64.top-4');
+                if (toggleButton) toggleButton.style.display = 'block';
+            }
+        };
 
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
     return (
         <>
             {/* Mobile Menu Button - Only visible on mobile */}

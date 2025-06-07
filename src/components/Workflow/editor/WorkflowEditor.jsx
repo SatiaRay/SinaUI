@@ -23,8 +23,8 @@ import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
 import { workflowEndpoints, aiFunctionsEndpoints } from '../../../utils/apis';
 import { v4 as uuidv4 } from 'uuid';
-import ChatNoHistory from '../../Chat/ChatNoHistory'; // فرض می‌کنیم این کامپوننت رو ساختیم
-
+import ChatNoHistory from '../../Chat/ChatNoHistory';
+import WorkflowEditorSidebar from './WorkflowEditorSidebar';
 const nodeTypes = {
   start: StartNode,
   process: ProcessNode,
@@ -67,17 +67,14 @@ const WorkflowEditorContent = () => {
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [aiFunctions, setAiFunctions] = useState([]);
   const [showChatModal, setShowChatModal] = useState(false);
-  const reactFlowInstance = useReactFlow()
-
-
-
-
+  const reactFlowInstance = useReactFlow();
 
   useEffect(() => {
     if (showChatModal) {
       window.parent.postMessage({ type: 'HIDE_NAVBAR' }, '*');
     }
   }, [showChatModal]);
+
   useEffect(() => {
     const fetchWorkflow = async () => {
       if (!workflowId) return;
@@ -202,21 +199,24 @@ const WorkflowEditorContent = () => {
   }, []);
 
   const onNodeUpdate = useCallback((nodeId, newData) => {
-    setNodes((nds) =>
-        nds.map((node) => {
-          if (node.id === nodeId) {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                ...newData,
-                conditions: newData.conditions?.filter((c) => c && c.trim() !== '') || [],
-              },
-            };
-          }
-          return node;
-        })
-    );
+    console.log('Updating node:', nodeId, newData); // لاگ برای دیباگ
+    setNodes((nds) => {
+      const updatedNodes = nds.map((node) => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...newData,
+              conditions: newData.conditions?.filter((c) => c && c.trim() !== '') || [],
+            },
+          };
+        }
+        return node;
+      });
+      console.log('Updated nodes:', updatedNodes); // لاگ برای دیباگ
+      return updatedNodes;
+    });
 
     if (newData.type === 'decision') {
       setEdges((eds) => {
@@ -237,6 +237,7 @@ const WorkflowEditorContent = () => {
               style: { stroke: '#f59e0b' },
             }));
 
+        console.log('Updated edges:', [...otherEdges, ...validEdges, ...newEdges]); // لاگ برای دیباگ
         return [...otherEdges, ...validEdges, ...newEdges];
       });
     }
@@ -297,6 +298,7 @@ const WorkflowEditorContent = () => {
         },
       },
     };
+    console.log('Adding new node:', newNode); // لاگ برای دیباگ
     setNodes((nds) => [...nds, newNode]);
   };
 
@@ -510,7 +512,7 @@ const WorkflowEditorContent = () => {
     }
   }, [setNodes, setEdges]);
 
-  const saveWorkflow = useCallback(async () => {
+  const saveWorkflow = useCallback(async (customNodes = nodes) => {
     let workflowData = null;
     try {
       setLoading(true);
@@ -524,7 +526,7 @@ const WorkflowEditorContent = () => {
 
       workflowData = {
         name: workflowName.trim(),
-        schema: nodes.map((node) => {
+        schema: customNodes.map((node) => {
           const step = {
             id: node.id,
             label: node.data.label,
@@ -578,6 +580,8 @@ const WorkflowEditorContent = () => {
         }),
       };
 
+      console.log('Saving workflow data:', JSON.stringify(workflowData, null, 2)); // لاگ برای دیباگ
+
       if (workflowId) {
         await workflowEndpoints.updateWorkflow(workflowId, workflowData);
         toast.success('گردش کار با موفقیت بروزرسانی شد');
@@ -585,6 +589,9 @@ const WorkflowEditorContent = () => {
         await workflowEndpoints.createWorkflow(workflowData);
         toast.success('گردش کار با موفقیت ایجاد شد');
       }
+
+      // به‌روزرسانی state اصلی
+      setNodes(customNodes);
     } catch (err) {
       console.error('Error saving workflow:', err);
       setError('خطا در ذخیره گردش کار');
@@ -593,7 +600,7 @@ const WorkflowEditorContent = () => {
     } finally {
       setLoading(false);
     }
-  }, [nodes, edges, workflowId, workflowName]);
+  }, [nodes, edges, workflowId, workflowName, setNodes]);
 
   if (loading) {
     return (
@@ -625,69 +632,14 @@ const WorkflowEditorContent = () => {
             pauseOnHover
             theme="light"
         />
-        <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4">
-            <label htmlFor="workflow-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              نام گردش کار
-            </label>
-            <input
-                type="text"
-                id="workflow-name"
-                value={workflowName}
-                onChange={(e) => setWorkflowName(e.target.value)}
-                placeholder="نام گردش کار را وارد کنید"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-          <button
-              onClick={saveWorkflow}
-              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-          >
-            {workflowId ? 'بروزرسانی گردش کار' : 'ذخیره گردش کار'}
-          </button>
-          <button
-              onClick={() => addNode('start')}
-              className="px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600"
-          >
-            افزودن شروع
-          </button>
-          <button
-              onClick={() => addNode('process')}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          >
-            افزودن فرآیند
-          </button>
-          <button
-              onClick={() => addNode('decision')}
-              className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-          >
-            افزودن تصمیم
-          </button>
-          <button
-              onClick={() => addNode('function')}
-              className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
-          >
-            افزودن تابع
-          </button>
-          <button
-              onClick={() => addNode('response')}
-              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
-          >
-            افزودن پاسخ
-          </button>
-          <button
-              onClick={() => addNode('end')}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-          >
-            افزودن پایان
-          </button>
-          <button
-              onClick={() => setShowChatModal(true)}
-              className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600"
-          >
-            Run
-          </button>
-        </div>
+        <WorkflowEditorSidebar
+            workflowName={workflowName}
+            setWorkflowName={setWorkflowName}
+            workflowId={workflowId}
+            saveWorkflow={saveWorkflow}
+            addNode={addNode}
+            setShowChatModal={setShowChatModal}
+        />
 
         <ReactFlow
             nodes={nodes}
@@ -715,6 +667,7 @@ const WorkflowEditorContent = () => {
                 onClose={() => setSelectedNode(null)}
                 onDelete={deleteNode}
                 saveWorkflow={saveWorkflow}
+                nodes={nodes}
                 style={{ zIndex: 10 }}
             />
         )}
@@ -796,7 +749,6 @@ const WorkflowEditorContent = () => {
             <div className="fixed inset-0 flex" style={{ zIndex: 10, pointerEvents: 'none' }}>
               <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-1/3 h-full flex flex-col justify-between" style={{ pointerEvents: 'auto' }}>
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Chat Test (No History)</h3>
                   <div className="overflow-y-auto max-h-[calc(100vh-120px)]">
                     <ChatNoHistory
                         onMessage={(message) => {
