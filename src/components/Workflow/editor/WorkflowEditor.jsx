@@ -23,6 +23,7 @@ import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
 import { workflowEndpoints, aiFunctionsEndpoints } from '../../../utils/apis';
 import { v4 as uuidv4 } from 'uuid';
+import ChatNoHistory from '../../Chat/ChatNoHistory'; // فرض می‌کنیم این کامپوننت رو ساختیم
 
 const nodeTypes = {
   start: StartNode,
@@ -65,8 +66,18 @@ const WorkflowEditorContent = () => {
   const [workflowName, setWorkflowName] = useState('');
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [aiFunctions, setAiFunctions] = useState([]);
-  const reactFlowInstance = useReactFlow();
+  const [showChatModal, setShowChatModal] = useState(false);
+  const reactFlowInstance = useReactFlow()
 
+
+
+
+
+  useEffect(() => {
+    if (showChatModal) {
+      window.parent.postMessage({ type: 'HIDE_NAVBAR' }, '*');
+    }
+  }, [showChatModal]);
   useEffect(() => {
     const fetchWorkflow = async () => {
       if (!workflowId) return;
@@ -209,16 +220,11 @@ const WorkflowEditorContent = () => {
 
     if (newData.type === 'decision') {
       setEdges((eds) => {
-        // فقط edges غیرمرتبط با این نود و edges معتبر را نگه دار
         const otherEdges = eds.filter((edge) => edge.source !== nodeId);
         const newConditions = newData.conditions?.filter((c) => c && c.trim() !== '') || [];
-
-        // فقط edges مربوط به شرایط جدید را نگه دار
         const validEdges = eds.filter(
             (edge) => edge.source === nodeId && newConditions.includes(edge.sourceHandle)
         );
-
-        // ایجاد edges جدید برای شرایطی که هنوز target ندارند
         const newEdges = newConditions
             .filter((condition) => !validEdges.some((edge) => edge.sourceHandle === condition))
             .map((condition, index) => ({
@@ -405,7 +411,45 @@ const WorkflowEditorContent = () => {
     };
 
     console.log('Workflow JSON:', JSON.stringify(workflowData, null, 2));
+    return workflowData;
   }, [nodes, edges]);
+
+  const executeWorkflow = async (userInput) => {
+    let currentNodeId = nodes.find(node => node.type === 'start')?.id;
+    let chatHistory = [];
+    let sessionId = `uuid_${uuidv4()}`;
+
+    while (currentNodeId) {
+      const currentNode = nodes.find(node => node.id === currentNodeId);
+      if (!currentNode) break;
+
+      chatHistory.push({ type: 'answer', answer: currentNode.data.label, timestamp: new Date() });
+
+      switch (currentNode.type) {
+        case 'process':
+        case 'function':
+        case 'response':
+          chatHistory.push({ type: 'answer', answer: currentNode.data.description || 'No description', timestamp: new Date() });
+          currentNodeId = edges.find(edge => edge.source === currentNodeId)?.target;
+          break;
+        case 'decision':
+          const condition = currentNode.data.conditions.find(cond => {
+            return userInput.toLowerCase().includes(cond.toLowerCase());
+          }) || currentNode.data.conditions[0];
+          const nextEdge = edges.find(edge => edge.source === currentNodeId && edge.sourceHandle === condition);
+          currentNodeId = nextEdge?.target;
+          break;
+        case 'end':
+          chatHistory.push({ type: 'answer', answer: 'Workflow ended', timestamp: new Date() });
+          currentNodeId = null;
+          break;
+        default:
+          currentNodeId = null;
+      }
+    }
+
+    return { chatHistory, sessionId };
+  };
 
   const importWorkflow = useCallback((jsonString) => {
     try {
@@ -568,18 +612,18 @@ const WorkflowEditorContent = () => {
   }
 
   return (
-      <div className="h-screen w-full">
+      <div className="h-screen w-full relative" style={{ zIndex: 10 }}>
         <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={true}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={true}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
         />
         <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4">
@@ -603,7 +647,7 @@ const WorkflowEditorContent = () => {
           </button>
           <button
               onClick={() => addNode('start')}
-              className="px-4 py-2 bg-cyan-500 text-white rounded-md  hover:bg-cyan-600"
+              className="px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600"
           >
             افزودن شروع
           </button>
@@ -637,7 +681,12 @@ const WorkflowEditorContent = () => {
           >
             افزودن پایان
           </button>
-
+          <button
+              onClick={() => setShowChatModal(true)}
+              className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600"
+          >
+            Run
+          </button>
         </div>
 
         <ReactFlow
@@ -652,6 +701,7 @@ const WorkflowEditorContent = () => {
             nodeTypes={nodeTypes}
             fitView
             proOptions={{ hideAttribution: true }}
+            style={{ zIndex: 10 }}
         >
           <Controls />
           <MiniMap />
@@ -665,6 +715,7 @@ const WorkflowEditorContent = () => {
                 onClose={() => setSelectedNode(null)}
                 onDelete={deleteNode}
                 saveWorkflow={saveWorkflow}
+                style={{ zIndex: 10 }}
             />
         )}
 
@@ -672,31 +723,32 @@ const WorkflowEditorContent = () => {
             <PageViewer
                 pageConfig={activePage}
                 onClose={handlePageClose}
+                style={{ zIndex: 10 }}
             />
         )}
 
         {showFunctionModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 10 }}>
               <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4">
                 <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                   انتخاب تابع
                 </h3>
                 <div className="max-h-96 overflow-y-auto">
                   {aiFunctions.map((func) => (
-                    <div
-                      key={func.name}
-                      className="p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-                      onClick={() => addFunctionNode(func)}
-                    >
-                      <h4 className="font-medium text-gray-900 dark:text-white">{func.name}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{func.description}</p>
-                    </div>
+                      <div
+                          key={func.name}
+                          className="p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                          onClick={() => addFunctionNode(func)}
+                      >
+                        <h4 className="font-medium text-gray-900 dark:text-white">{func.name}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{func.description}</p>
+                      </div>
                   ))}
                 </div>
                 <div className="mt-4 flex justify-end">
                   <button
-                    onClick={() => setShowFunctionModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                      onClick={() => setShowFunctionModal(false)}
+                      className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                   >
                     انصراف
                   </button>
@@ -706,7 +758,7 @@ const WorkflowEditorContent = () => {
         )}
 
         {showDeleteConfirm && selectedNode && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 10 }}>
               <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4">
                 <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                   تایید حذف
@@ -739,15 +791,51 @@ const WorkflowEditorContent = () => {
               </div>
             </div>
         )}
+
+        {showChatModal && (
+            <div className="fixed inset-0 flex" style={{ zIndex: 10, pointerEvents: 'none' }}>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-1/3 h-full flex flex-col justify-between" style={{ pointerEvents: 'auto' }}>
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Chat Test (No History)</h3>
+                  <div className="overflow-y-auto max-h-[calc(100vh-120px)]">
+                    <ChatNoHistory
+                        onMessage={(message) => {
+                          executeWorkflow(message).then(({ chatHistory }) => {
+                            if (chatHistory.length > 0) {
+                              console.log('Latest response:', chatHistory[chatHistory.length - 1].answer);
+                            }
+                          });
+                        }}
+                        onClose={() => {
+                          setShowChatModal(false);
+                          window.parent.postMessage({ type: 'SHOW_NAVBAR' }, '*');
+                        }}
+                    />
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button
+                      onClick={() => {
+                        setShowChatModal(false);
+                        window.parent.postMessage({ type: 'SHOW_NAVBAR' }, '*');
+                      }}
+                      className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+        )}
       </div>
   );
 };
 
 const WorkflowEditor = () => {
   return (
-    <ReactFlowProvider>
-      <WorkflowEditorContent />
-    </ReactFlowProvider>
+      <ReactFlowProvider>
+        <WorkflowEditorContent />
+      </ReactFlowProvider>
   );
 };
 

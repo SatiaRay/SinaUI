@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from '../contexts/ThemeToggle';
@@ -44,6 +44,23 @@ const Navbar = ({ onSidebarCollapse }) => {
     const toggleDocumentsDropdown = () => {
         setDocumentsDropdownOpen(!documentsDropdownOpen);
     };
+
+    // گوش دادن به پیام‌ها برای کنترل سایدبار
+    useEffect(() => {
+        const handleMessage = (event) => {
+            if (event.data.type === 'HIDE_NAVBAR') {
+                setSidebarOpen(false);
+                setDesktopSidebarCollapsed(true);
+                onSidebarCollapse(true);
+            } else if (event.data.type === 'SHOW_NAVBAR') {
+                setDesktopSidebarCollapsed(false);
+                onSidebarCollapse(false);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
 
     return (
         <>
@@ -116,7 +133,7 @@ const Navbar = ({ onSidebarCollapse }) => {
                                 </Link>
                                 <Link
                                     to="/document"
-                                    className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                                    className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200"
                                 >
                                     خزیده شده‌ها
                                 </Link>
