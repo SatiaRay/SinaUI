@@ -86,7 +86,7 @@ const WorkflowEditorContent = () => {
 
         setWorkflowName(workflow.name || '');
 
-        const workflowNodes = workflow.schema.map((step) => ({
+        const workflowNodes = workflow.flow.map((step) => ({
           id: step.id,
           type: step.type === 'action' ? 'process' : step.type,
           position: {
@@ -110,7 +110,7 @@ const WorkflowEditorContent = () => {
           },
         }));
 
-        const workflowEdges = workflow.schema.reduce((acc, step) => {
+        const workflowEdges = workflow.flow.reduce((acc, step) => {
           if (step.type === 'decision' && step.conditions) {
             step.conditions.forEach(condition => {
               if (condition.next) {
@@ -456,7 +456,7 @@ const WorkflowEditorContent = () => {
   const importWorkflow = useCallback((jsonString) => {
     try {
       const workflowData = JSON.parse(jsonString);
-      if (!workflowData.schema || !Array.isArray(workflowData.schema)) {
+      if (!workflowData.flow || !Array.isArray(workflowData.flow)) {
         throw new Error('Invalid workflow format');
       }
 
@@ -464,7 +464,7 @@ const WorkflowEditorContent = () => {
       const newEdges = [];
       const xOffset = 250;
 
-      workflowData.schema.forEach((step, index) => {
+      workflowData.flow.forEach((step, index) => {
         const node = {
           id: step.id,
           type: step.type === 'action' ? 'process' : step.type,
@@ -526,7 +526,7 @@ const WorkflowEditorContent = () => {
 
       workflowData = {
         name: workflowName.trim(),
-        schema: customNodes.map((node) => {
+        flow: customNodes.map((node) => {
           const step = {
             id: node.id,
             label: node.data.label,
