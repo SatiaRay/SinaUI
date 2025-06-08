@@ -588,14 +588,7 @@ const Chat = () => {
                         disabled={chatLoading || !question.trim()}
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center"
                     >
-                        {chatLoading ? (
-                            <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                <span>در حال ارسال...</span>
-                            </>
-                        ) : (
-                            'ارسال'
-                        )}
+                        <span> ارسال</span>
                     </button>
                 </div>
                 {error && <div className="text-red-500 mt-2">{error}</div>}

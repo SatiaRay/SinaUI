@@ -747,10 +747,38 @@ const WorkflowEditorContent = () => {
 
         {showChatModal && (
             <div className="fixed inset-0 flex p-6" style={{ zIndex: 10, pointerEvents: 'none' }}>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md h-full flex flex-col justify-between" style={{ pointerEvents: 'auto' }}>
+              <div
+                  className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md h-full flex flex-col justify-between border border-gray-300 dark:border-gray-600"
+                  style={{ pointerEvents: 'auto' }}
+              >
                 <div>
+                  <div className="flex justify-end">
+                    <button
+                        onClick={() => {
+                          setShowChatModal(false);
+                          window.parent.postMessage({ type: 'SHOW_NAVBAR' }, '*');
+                        }}
+                        className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                    >
+                      <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                   <div className="overflow-y-auto max-h-[calc(100vh-120px)]">
                     <ChatNoHistory
+                        disableHistory={true}
                         onMessage={(message) => {
                           executeWorkflow(message).then(({ chatHistory }) => {
                             if (chatHistory.length > 0) {
@@ -764,17 +792,6 @@ const WorkflowEditorContent = () => {
                         }}
                     />
                   </div>
-                </div>
-                <div className="mt-4 flex justify-end">
-                  <button
-                      onClick={() => {
-                        setShowChatModal(false);
-                        window.parent.postMessage({ type: 'SHOW_NAVBAR' }, '*');
-                      }}
-                      className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                  >
-                    Close
-                  </button>
                 </div>
               </div>
             </div>
