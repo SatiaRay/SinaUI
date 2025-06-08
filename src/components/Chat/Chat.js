@@ -171,6 +171,409 @@ const globalStyles = `
 .dark .chat-message a:hover {
   color: #3b82f6 !important;
 }
+/* استایل‌های textarea برای چت */
+
+
+/* استایل‌های textarea برای چت */
+
+
+/* استایل‌های textarea برای چت */
+
+
+.chat-textarea {
+
+
+  resize: none; /* جلوگیری از تغییر دستی اندازه */
+
+
+  min-height: 2.5rem; /* ارتفاع اولیه */
+
+
+  max-height: 15rem; /* حداکثر ارتفاع */
+
+
+  width: 100%; /* عرض کامل */
+
+
+  flex: 1; /* پر کردن فضای موجود */
+
+
+  padding: 0.75rem 1rem;
+
+
+  border-radius: 0.75rem; /* گوشه‌های گرد */
+
+
+  border: 1px solid #d1d5db;
+
+
+  background-color: #ffffff;
+
+
+  direction: rtl; /* راست به چپ */
+
+
+  font-size: 0.9rem; /* فونت مدرن */
+
+
+  line-height: 1.6;
+
+
+  transition: height 0.3s ease-in-out, box-shadow 0.2s ease-in-out; /* انیمیشن نرم */
+
+
+  overflow-y: auto; /* اسکرول فعال اما مخفی */
+
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* سایه ظریف */
+
+
+  font-family: 'Inter', 'Vazirmatn', sans-serif; /* فونت حرفه‌ای */
+
+
+}
+
+
+
+
+
+/* مخفی کردن نوار اسکرول */
+
+
+.chat-textarea::-webkit-scrollbar {
+
+
+  display: none; /* مخفی کردن اسکرول در کروم و سافاری */
+
+
+}
+
+
+
+
+
+.chat-textarea {
+
+
+  -ms-overflow-style: none; /* مخفی کردن اسکرول در Edge */
+
+
+  scrollbar-width: none; /* مخفی کردن اسکرول در فایرفاکس */
+
+
+}
+
+
+
+
+
+/* فوکوس */
+
+
+.chat-textarea:focus {
+
+
+  outline: none;
+
+
+  border-color: #3b82f6;
+
+
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* افکت فوکوس مدرن */
+
+
+}
+
+
+
+
+
+/* حالت غیرفعال */
+
+
+.chat-textarea:disabled {
+
+
+  background-color: #f3f4f6;
+
+
+  cursor: not-allowed;
+
+
+  opacity: 0.7;
+
+
+}
+
+
+
+
+
+/* Dark Mode */
+
+
+.dark .chat-textarea {
+
+
+  background-color: #1e293b;
+
+
+  border-color: #374151;
+
+
+  color: #f9fafb;
+
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+
+}
+
+
+
+
+
+.dark .chat-textarea:focus {
+
+
+  border-color: #60a5fa;
+
+
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+
+
+}
+
+
+
+
+
+.dark .chat-textarea:disabled {
+
+
+  background-color: #2d3748;
+
+
+  color: #9ca3af;
+
+
+}
+
+
+
+
+
+/* ریسپانسیو برای صفحه‌نمایش‌های کوچک */
+
+
+@media (max-width: 640px) {
+
+
+  .chat-textarea {
+
+
+    font-size: 0.8rem;
+
+
+    padding: 0.5rem 0.75rem;
+
+
+    min-height: 2rem;
+
+
+    max-height: 10rem;
+
+
+  }
+
+
+}
+
+
+
+
+
+/* کانتینر ورودی */
+
+
+.chat-input-container {
+
+
+  display: flex;
+
+
+  flex-direction: row; /* چیدمان افقی */
+
+
+  gap: 0.75rem;
+
+
+  align-items: flex-end; /* تراز کردن از پایین */
+
+
+  padding: 0.75rem;
+
+
+  background-color: #f9fafb;
+
+
+  border-radius: 0.75rem;
+
+
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+
+
+  width: 100%; /* عرض کامل */
+
+
+  max-width: none; /* حذف محدودیت عرض */
+
+
+  margin: 0 auto;
+
+
+  position: relative; /* برای کنترل رشد به بالا */
+
+
+}
+
+
+
+
+
+.dark .chat-input-container {
+
+
+  background-color: #111827;
+
+
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+
+
+}
+
+
+
+
+
+/* استایل دکمه ارسال */
+
+
+.chat-submit-button {
+
+
+  padding: 0.5rem 1.25rem;
+
+
+  border-radius: 0.5rem;
+
+
+  background-color: #3b82f6;
+
+
+  color: #ffffff;
+
+
+  font-size: 0.9rem;
+
+
+  font-weight: 600;
+
+
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+
+
+  white-space: nowrap; /* جلوگیری از تغییر عرض دکمه */
+
+
+  flex-shrink: 0; /* جلوگیری از کوچک شدن دکمه */
+
+
+  align-self: flex-end; /* تراز دکمه در پایین */
+
+
+}
+
+
+
+
+
+.chat-submit-button:hover:not(:disabled) {
+
+
+  background-color: #2563eb;
+
+
+  transform: translateY(-1px); /* افکت شناور */
+
+
+}
+
+
+
+
+
+.chat-submit-button:disabled {
+
+
+  background-color: #9ca3af;
+
+
+  cursor: not-allowed;
+
+
+}
+
+
+
+
+
+.dark .chat-submit-button {
+
+
+  background-color: #60a5fa;
+
+
+}
+
+
+
+
+
+.dark .chat-submit-button:hover:not(:disabled) {
+
+
+  background-color: #3b82f6;
+
+
+  transform: translateY(-1px);
+
+
+}
+
+
+
+
+
+/* کانتینر برای رشد به بالا */
+
+
+.chat-textarea-wrapper {
+
+
+  display: flex;
+
+
+  flex-direction: column;
+
+
+  flex: 1;
+
+
+  position: relative;
+
+
+}
 `;
 
 const Chat = () => {
@@ -646,28 +1049,43 @@ const Chat = () => {
             <div ref={chatEndRef} />
           </div>
           <WizardButtons onWizardSelect={handleWizardSelect} wizards={currentWizards} />
-          <div className="flex gap-2">
-            <input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+          <div className="chat-input-container">
+            <div className="chat-textarea-wrapper">
+                <textarea
+                    value={question}
+                    onChange={(e) => {
+                      setQuestion(e.target.value);
+                      e.target.style.height = 'auto';
+                      const newHeight = Math.min(e.target.scrollHeight, 240); // حداکثر 15rem
+                      e.target.style.height = `${newHeight}px`;
+                      e.target.scrollTop = e.target.scrollHeight;
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         if (!chatLoading && question.trim()) {
-                            realtimeHandleSubmit(e);
+                          realtimeHandleSubmit(e);
                         }
-                    }
-                }}
-                placeholder="سوال خود را بپرسید..."
-                className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                disabled={chatLoading}
-            />
+                      } else if (e.key === 'Enter' && e.shiftKey) {
+                        e.preventDefault();
+                        setQuestion((prev) => prev + '\n');
+                        setTimeout(() => {
+                          e.target.style.height = 'auto';
+                          const newHeight = Math.min(e.target.scrollHeight, 240);
+                          e.target.style.height = `${newHeight}px`;
+                          e.target.scrollTop = e.target.scrollHeight;
+                        }, 0);
+                      }
+                    }}
+                    placeholder="سوال خود را بپرسید..."
+                    className="chat-textarea"
+                    disabled={chatLoading}
+                />
+            </div>
             <button
                 onClick={realtimeHandleSubmit}
                 disabled={chatLoading || !question.trim()}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center"
-            >
+                className="chat-submit-button"            >
               {chatLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
