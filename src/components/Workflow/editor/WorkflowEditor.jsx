@@ -746,8 +746,8 @@ const WorkflowEditorContent = () => {
         )}
 
         {showChatModal && (
-            <div className="fixed inset-0 flex" style={{ zIndex: 10, pointerEvents: 'none' }}>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-1/3 h-full flex flex-col justify-between" style={{ pointerEvents: 'auto' }}>
+            <div className="fixed inset-0 flex p-6" style={{ zIndex: 10, pointerEvents: 'none' }}>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md h-full flex flex-col justify-between" style={{ pointerEvents: 'auto' }}>
                 <div>
                   <div className="overflow-y-auto max-h-[calc(100vh-120px)]">
                     <ChatNoHistory

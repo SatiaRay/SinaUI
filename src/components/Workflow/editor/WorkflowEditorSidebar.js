@@ -1,33 +1,73 @@
 import React, { useState } from 'react';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import {
+    PlayIcon,
+    PlusCircleIcon,
+    CogIcon,
+    QuestionMarkCircleIcon,
+    XCircleIcon,
+    CheckIcon
+} from '@heroicons/react/24/outline';
 
-const WorkflowEditorSidebar = ({ workflowName, setWorkflowName, workflowId, saveWorkflow, addNode, setShowChatModal }) => {
+const WorkflowEditorSidebar = ({
+                                   workflowName,
+                                   setWorkflowName,
+                                   workflowId,
+                                   saveWorkflow,
+                                   addNode,
+                                   setShowChatModal,
+                               }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(true);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    const buttonStyles =
+        'flex items-center gap-2 w-full px-3 py-1.5 text-sm font-medium text-white rounded-md transition-all duration-200 hover:scale-102 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900';
+
     return (
-        <div className="absolute left-4 top-4 z-10 flex flex-col gap-2 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div className="absolute left-6 top-6 z-10 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+            <style>
+                {`
+          :root {
+            --primary-bg: #F9FAFB;
+            --primary-text: #1F2937;
+            --accent-green: #34D399;
+            --accent-blue: #4B5EAA;
+            --accent-yellow: #F59E0B;
+            --accent-purple: #A78BFA;
+            --accent-orange: #F97316;
+            --accent-red: #EF4444;
+            --accent-teal: #14B8A6;
+          }
+          .dark {
+            --primary-bg: #1F2937;
+            --primary-text: #F9FAFB;
+          }
+        `}
+            </style>
             <button
                 onClick={toggleMenu}
-                className="flex items-center justify-between w-full px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-t-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+                className="flex items-center justify-between w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
             >
-                <span className="text-sm font-medium">منوی گردش کار</span>
-                {isMenuOpen ? (
-                    <ChevronUpIcon className="h-5 w-5" />
-                ) : (
-                    <ChevronDownIcon className="h-5 w-5" />
-                )}
+                <span className="text-sm font-semibold">منوی گردش کار</span>
+                <FontAwesomeIcon
+                    icon={isMenuOpen ? faChevronUp : faChevronDown}
+                    className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                />
             </button>
             <div
-                className={`flex flex-col gap-2 px-4 pb-4 transition-all duration-300 ease-in-out ${
-                    isMenuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+                className={`flex flex-col gap-1.5 p-2 transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? 'max-h-[calc(100vh-110px)] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
                 }`}
             >
-                <div className="pt-2">
-                    <label htmlFor="workflow-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <div className="p-1.5">
+                    <label
+                        htmlFor="workflow-name"
+                        className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                    >
                         نام گردش کار
                     </label>
                     <input
@@ -36,56 +76,66 @@ const WorkflowEditorSidebar = ({ workflowName, setWorkflowName, workflowId, save
                         value={workflowName}
                         onChange={(e) => setWorkflowName(e.target.value)}
                         placeholder="نام گردش کار را وارد کنید"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        className="w-full px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                     />
                 </div>
+                <hr className="border-gray-200 dark:border-gray-700 my-1" />
                 <button
                     onClick={() => saveWorkflow()}
-                    className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                    className={`${buttonStyles} bg-[var(--accent-green)] hover:bg-green-500 focus:ring-green-400`}
                 >
-                    {workflowId ? 'بروزرسانی گردش کار' : 'ذخیره گردش کار'}
+                    <CheckIcon className="h-4 w-4" /> {/* جایگزینی با CheckIcon */}
+                    ذخیره
                 </button>
                 <button
                     onClick={() => addNode('start')}
-                    className="px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600"
+                    className={`${buttonStyles} bg-[var(--accent-blue)] hover:bg-blue-600 focus:ring-blue-400`}
                 >
-                    افزودن شروع
+                    <PlusCircleIcon className="h-4 w-4" />
+                    شروع
                 </button>
                 <button
                     onClick={() => addNode('process')}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    className={`${buttonStyles} bg-[var(--accent-blue)] hover:bg-blue-600 focus:ring-blue-400`}
                 >
-                    افزودن فرآیند
+                    <CogIcon className="h-4 w-4" />
+                    فرآیند
                 </button>
                 <button
                     onClick={() => addNode('decision')}
-                    className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                    className={`${buttonStyles} bg-[var(--accent-yellow)] hover:bg-yellow-600 focus:ring-yellow-400`}
                 >
-                    افزودن تصمیم
+                    <QuestionMarkCircleIcon className="h-4 w-4" />
+                    تصمیم
                 </button>
                 <button
                     onClick={() => addNode('function')}
-                    className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
+                    className={`${buttonStyles} bg-[var(--accent-purple)] hover:bg-purple-600 focus:ring-purple-400`}
                 >
-                    افزودن تابع
+                    <CogIcon className="h-4 w-4" />
+                    تابع
                 </button>
                 <button
                     onClick={() => addNode('response')}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+                    className={`${buttonStyles} bg-[var(--accent-orange)] hover:bg-orange-600 focus:ring-orange-400`}
                 >
-                    افزودن پاسخ
+                    <QuestionMarkCircleIcon className="h-4 w-4" />
+                    پاسخ
                 </button>
                 <button
                     onClick={() => addNode('end')}
-                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                    className={`${buttonStyles} bg-[var(--accent-red)] hover:bg-red-600 focus:ring-red-400`}
                 >
-                    افزودن پایان
+                    <XCircleIcon className="h-4 w-4" />
+                    پایان
                 </button>
+                <hr className="border-gray-200 dark:border-gray-700 my-1" />
                 <button
                     onClick={() => setShowChatModal(true)}
-                    className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600"
+                    className={`${buttonStyles} bg-[var(--accent-teal)] hover:bg-teal-600 focus:ring-teal-400 border border-teal-400`}
                 >
-                    Run
+                    <PlayIcon className="h-4 w-4" />
+                    اجرا
                 </button>
             </div>
         </div>

@@ -2,25 +2,6 @@ import React, { useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
-const modules = {
-    toolbar: [
-        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        [{ 'align': [] }],
-        ['link', 'image'],
-        ['clean']
-    ],
-};
-
-const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'align',
-    'link', 'image'
-];
-
 const CreateDocument = ({ onClose }) => {
     const [manualSubmitting, setManualSubmitting] = useState(false);
     const [manualTitle, setManualTitle] = useState('');
@@ -73,17 +54,16 @@ const CreateDocument = ({ onClose }) => {
         }
     };
 
-    // Handler for Enter key press
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // Prevent default Enter behavior
-            handleManualSubmit(e); // Trigger submit
+            e.preventDefault();
+            handleManualSubmit(e);
         }
     };
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow w-full max-w-3xl mx-auto h-[90vh] flex flex-col">
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div className="p-4 sm:p-6 flex-shrink-0">
                 <div className="flex justify-between items-center mb-4 sm:mb-6">
                     <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">ایجاد سند جدید</h2>
                 </div>
@@ -103,11 +83,11 @@ const CreateDocument = ({ onClose }) => {
                             required
                         />
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <label htmlFor="text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             متن
                         </label>
-                        <div className="min-h-[300px]">
+                        <div className="min-h-[200px] max-h-[calc(90vh-200px)] overflow-y-auto">
                             <CKEditor
                                 editor={ClassicEditor}
                                 data={manualText}
@@ -161,7 +141,6 @@ const CreateDocument = ({ onClose }) => {
                                     }
                                 }}
                                 onKeyDown={handleKeyDown}
-                                style={{ direction: 'rtl', textAlign: 'right' }}
                             />
                         </div>
                     </div>
@@ -170,7 +149,7 @@ const CreateDocument = ({ onClose }) => {
                     )}
                 </form>
             </div>
-            <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-600">
+            <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-600 flex-shrink-0">
                 <button
                     type="button"
                     onClick={handleManualSubmit}
