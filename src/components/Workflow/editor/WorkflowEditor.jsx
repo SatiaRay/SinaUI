@@ -586,7 +586,8 @@ const WorkflowEditorContent = () => {
         await workflowEndpoints.updateWorkflow(workflowId, workflowData);
         toast.success('گردش کار با موفقیت بروزرسانی شد');
       } else {
-        await workflowEndpoints.createWorkflow(workflowData);
+        const {id} = await workflowEndpoints.createWorkflow(workflowData);
+        navigate(`/workflow/${id}`)
         toast.success('گردش کار با موفقیت ایجاد شد');
       }
 
