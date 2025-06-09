@@ -15,6 +15,7 @@ import Status1 from './components/Chat/Status';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
 import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
+import VoiceStreamer from './components/Chat/Voice/VoiceStreamer';
 
 
 function App() {
@@ -35,7 +36,7 @@ function AppContent() {
 
     useEffect(() => {
         const fetchVersion = async () => {
-            try{
+            try {
                 const res = await getVersion()
                 setAppVersion(res.version)
             } catch (err) {
@@ -64,15 +65,30 @@ function AppContent() {
                         element={<Navigate to="/chat" replace />}
                     />
 
-                    <Route
-                        path="/chat"
-                        element={
-                            <PrivateRoute>
-                                <Chat />
-                            </PrivateRoute>
-                        }
-                    />
-                
+
+                    <Route>
+                        <Route
+                            path="/chat"
+                        >
+                            <Route
+                                path=''
+                                element={
+                                    <PrivateRoute>
+                                        <Chat />
+                                    </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="voice"
+                                element={
+                                    <PrivateRoute>
+                                        <VoiceStreamer />
+                                    </PrivateRoute>
+                                }
+                            />
+                        </Route>
+                    </Route>
+
                     /** Document routes */
                     <Route>
                         <Route
@@ -132,7 +148,7 @@ function AppContent() {
                     />
                     <Route
                         path='crawl-url'
-                        element={<CrawlUrl/>}
+                        element={<CrawlUrl />}
                     />
                     <Route
                         path="/wizard"
@@ -151,7 +167,7 @@ function AppContent() {
                                 </PrivateRoute>
                             }
                         />
-                        <Route 
+                        <Route
                             path=":workflowId"
                             element={
                                 <PrivateRoute>
@@ -159,7 +175,7 @@ function AppContent() {
                                 </PrivateRoute>
                             }
                         />
-                        <Route 
+                        <Route
                             path="create"
                             element={
                                 <PrivateRoute>
@@ -197,7 +213,7 @@ function AppContent() {
                         />
                     </Route>
                 </Routes>
-                <span style={{position:'fixed', bottom: "5px", left: "10px"}}>
+                <span style={{ position: 'fixed', bottom: "5px", left: "10px" }}>
                     نسخه : {appVersion}
                 </span>
             </div>
