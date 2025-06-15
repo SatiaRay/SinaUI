@@ -15,7 +15,6 @@ import Status1 from './components/Chat/Status';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
 import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
-import VoiceStreamer from './components/Chat/Voice/VoiceStreamer';
 
 
 function App() {
@@ -75,14 +74,6 @@ function AppContent() {
                                 element={
                                     <PrivateRoute>
                                         <Chat />
-                                    </PrivateRoute>
-                                }
-                            />
-                            <Route
-                                path="voice"
-                                element={
-                                    <PrivateRoute>
-                                        <VoiceStreamer />
                                     </PrivateRoute>
                                 }
                             />
