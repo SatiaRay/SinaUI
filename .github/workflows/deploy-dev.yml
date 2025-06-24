@@ -1,0 +1,44 @@
+name: 🧪 Deploy Development
+
+on:
+  push:
+    branches:
+      - 'release/*'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 🛠 Deploy Development Server
+    runs-on: dev-runner
+
+    steps:
+      - name: 📥 Pull or Clone Repository
+        run: |
+          PROJECT_DIR="/srv/projects/ai-react"
+          BRANCH="${{ github.ref_name }}"
+
+          if [ -d "$PROJECT_DIR/.git" ]; then
+            echo "🔄 Project already cloned. Pulling latest changes..."
+            cd "$PROJECT_DIR"
+            git fetch origin "$BRANCH"
+            git checkout "$BRANCH"
+            git pull origin "$BRANCH"
+          else
+            echo "📦 Cloning fresh project..."
+            git clone -b "$BRANCH" git@github.com:satiarepomahmoudi/ai-react.git "$PROJECT_DIR"
+            cd "$PROJECT_DIR"
+            npm install
+          fi
+
+      - name: 🚧 Build Docker Image for Development
+        run: |
+          cd /srv/projects/ai-react
+          docker build --build-arg REACT_APP_ENV_FILE=.env.development -t react-app-test .
+
+      - name: 🚀 Deploy with Docker
+        run: |
+          cd /srv/projects/ai-react
+          docker run -d -p 80:80 react-app-test
+
+      - name: ✅ Done
+        run: echo "✔ Development deployed with Docker!"
