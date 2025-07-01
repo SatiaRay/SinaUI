@@ -35,8 +35,12 @@ export const AuthProvider = ({ children }) => {
         setToken(null)
     }
 
+    const authorize = (userType) => {
+        return user && user.user_type == userType
+    }
+
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider value={{ user, token, login, logout, authorize }}>
             {children}
         </AuthContext.Provider>
     )
