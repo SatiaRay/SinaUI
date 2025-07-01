@@ -1,18 +1,16 @@
 import axios from 'axios';
 
 // تنظیم baseURL برای APIهای مختلف
-const API_URL = process.env.REACT_APP_API_URL || 'http://144.76.160.218:81/api';
-const PYTHON_APP_URL = process.env.REACT_APP_PYTHON_APP_URL || process.env.REACT_APP_PYTHON_APP_API_URL || 'http://144.76.160.218:81/api';
+const API_URL = process.env.REACT_APP_API_URL;
+const PYTHON_APP_URL = process.env.REACT_APP_PYTHON_APP_URL || process.env.REACT_APP_PYTHON_APP_API_URL;
 
 // ایجاد نمونه axios با تنظیمات پیش‌فرض
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'X-Requested-With': 'XMLHttpRequest',
-  },
-  withCredentials: true,
+    'Accept': 'application/json'
+  }
 });
 
 // ایجاد نمونه axios برای چت
@@ -104,11 +102,12 @@ export const askQuestion = async (question) => {
 // ارسال درخواست لاگین
 export const login = async (email, password) => {
   try {
-    console.log('Sending login request to:', `${API_URL}/login`);
-    const response = await axiosInstance.post('/login', {
+    const response = await axiosInstance.post('/auth/login', {
       email,
       password,
     });
+    console.log(response);
+    
     console.log('Login response:', response.data);
     return response.data;
   } catch (error) {

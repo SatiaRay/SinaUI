@@ -130,7 +130,7 @@ const Login = () => {
     setError('');
 
     try {
-      await authLogin(formData);
+      await authLogin(formData.email, formData.password);
       navigate('/chat', { replace: true });
     } catch (error) {
       console.error('Login error:', error);
