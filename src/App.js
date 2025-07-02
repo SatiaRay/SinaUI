@@ -15,15 +15,14 @@ import Status1 from './components/Chat/Status';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
 import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
-import { WorkspaceProvider } from './contexts/WorkspaceContext';
 
 
 function App() {
     return (
         <AuthProvider>
-            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                <AppContent />
-            </Router>
+                <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                    <AppContent />
+                </Router>
         </AuthProvider>
     );
 }
@@ -33,7 +32,6 @@ function AppContent() {
     const showNavbar = location.pathname !== '/login';
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [appVersion, setAppVersion] = useState(null)
-    const { user } = useAuth()
 
     useEffect(() => {
         const fetchVersion = async () => {
@@ -53,16 +51,14 @@ function AppContent() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 
-            <WorkspaceProvider>
-                {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
+            {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
-                <div className={`transition-all duration-300 ${showNavbar
-                        ? (sidebarCollapsed ? 'md:mr-0' : 'md:mr-64')
-                        : 'flex items-center justify-center'
-                    }`}>
-                    {privateRoutes()}
-                </div>
-            </WorkspaceProvider>
+            <div className={`transition-all duration-300 ${showNavbar
+                ? (sidebarCollapsed ? 'md:mr-0' : 'md:mr-64')
+                : 'flex items-center justify-center'
+                }`}>
+                {privateRoutes()}
+            </div>
 
             <div className="flex items-center justify-center">
                 {publicRoutes()}

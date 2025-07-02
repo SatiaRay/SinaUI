@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useWorkspace } from '../contexts/WorkspaceContext';
 import ThemeToggle from '../contexts/ThemeToggle';
 import { Bars3Icon, XMarkIcon, ChevronRightIcon, ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { Menu } from '@headlessui/react';
@@ -13,7 +12,6 @@ const Navbar = ({ onSidebarCollapse }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
     const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
-    const { currentWorkspace } =  useWorkspace()
 
     const handleLogout = async () => {
         try {
@@ -96,7 +94,7 @@ const Navbar = ({ onSidebarCollapse }) => {
                             <div className="py-3">
                                 <Menu.Item>
                                     <span className='p-3'>
-                                        {currentWorkspace?.name || ''}
+                                        {user.current_workspace?.name || ''}
                                     </span>
                                 </Menu.Item>
                                 <Menu.Item>
