@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 import ThemeToggle from '../contexts/ThemeToggle';
 import { Bars3Icon, XMarkIcon, ChevronRightIcon, ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { Menu } from '@headlessui/react';
+import { UserCircleIcon } from '@heroicons/react/24/outline';
 
 const Navbar = ({ onSidebarCollapse }) => {
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
     const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
+    const { currentWorkspace } =  useWorkspace()
 
     const handleLogout = async () => {
         try {
@@ -80,6 +84,36 @@ const Navbar = ({ onSidebarCollapse }) => {
     }, []);
     return (
         <>
+            {/* User Info Dropdown - Top Right */}
+            {user && (
+                <div className="fixed top-4 left-4 z-50 flex items-center space-x-2">
+                    <Menu as="div" className="relative inline-block text-left">
+                        <Menu.Button className="flex items-center space-x-2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-2 rounded shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                            <UserCircleIcon className="h-6 w-6 ml-3" />
+                            <span className="font-medium">{`${user.first_name} ${user.last_name}` || user.email}</span>
+                        </Menu.Button>
+                        <Menu.Items className="absolute left-0 mt-2 origin-top-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg focus:outline-none z-50">
+                            <div className="py-3">
+                                <Menu.Item>
+                                    <span className='p-3'>
+                                        {currentWorkspace?.name || ''}
+                                    </span>
+                                </Menu.Item>
+                                <Menu.Item>
+                                    {({ active }) => (
+                                        <button
+                                            className={`$ {active ? 'bg-gray-100 dark:bg-gray-700' : ''} w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200`}
+                                            onClick={logout}
+                                        >
+                                            خروج
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                            </div>
+                        </Menu.Items>
+                    </Menu>
+                </div>
+            )}
             {/* Mobile Menu Button - Only visible on mobile */}
             <div className="md:hidden fixed top-4 right-4 z-50">
                 <button
@@ -105,14 +139,12 @@ const Navbar = ({ onSidebarCollapse }) => {
 
             {/* Desktop Sidebar - Always visible on desktop */}
             <div
-                className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${
-                    desktopSidebarCollapsed ? 'w-0' : 'w-64'
-                }`}
+                className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${desktopSidebarCollapsed ? 'w-0' : 'w-64'
+                    }`}
             >
                 <div
-                    className={`flex flex-col h-full transition-all duration-300 ${
-                        desktopSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-64'
-                    }`}
+                    className={`flex flex-col h-full transition-all duration-300 ${desktopSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-64'
+                        }`}
                 >
                     <div className="p-4 border-b border-gray-700 whitespace-nowrap overflow-hidden">
                         <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
@@ -131,15 +163,13 @@ const Navbar = ({ onSidebarCollapse }) => {
                             >
                                 اسناد
                                 <ChevronDownIcon
-                                    className={`h-4 w-4 mr-2 transition-transform duration-200 ${
-                                        documentsDropdownOpen ? 'rotate-180' : ''
-                                    }`}
+                                    className={`h-4 w-4 mr-2 transition-transform duration-200 ${documentsDropdownOpen ? 'rotate-180' : ''
+                                        }`}
                                 />
                             </button>
                             <div
-                                className={`mr-4 overflow-hidden transition-all duration-200 ${
-                                    documentsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
-                                }`}
+                                className={`mr-4 overflow-hidden transition-all duration-200 ${documentsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                    }`}
                             >
                                 <Link
                                     to="/document/manuals"
@@ -205,20 +235,17 @@ const Navbar = ({ onSidebarCollapse }) => {
 
             {/* Mobile Sidebar - Only visible on mobile when toggled */}
             <div
-                className={`md:hidden fixed inset-0 z-50 transition-opacity duration-300 ${
-                    sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}
+                className={`md:hidden fixed inset-0 z-50 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                    }`}
             >
                 <div
-                    className={`fixed inset-0 bg-black transition-opacity duration-300 ${
-                        sidebarOpen ? 'bg-opacity-50' : 'bg-opacity-0'
-                    }`}
+                    className={`fixed inset-0 bg-black transition-opacity duration-300 ${sidebarOpen ? 'bg-opacity-50' : 'bg-opacity-0'
+                        }`}
                     onClick={closeSidebar}
                 ></div>
                 <div
-                    className={`fixed right-0 top-0 bottom-0 w-64 bg-gray-800 dark:bg-gray-900 shadow-lg transform transition-transform duration-300 ${
-                        sidebarOpen ? 'translate-x-0' : 'translate-x-full'
-                    }`}
+                    className={`fixed right-0 top-0 bottom-0 w-64 bg-gray-800 dark:bg-gray-900 shadow-lg transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+                        }`}
                 >
                     <div className="flex flex-col h-full">
                         <div className="flex items-center justify-between p-4 border-b border-gray-700">
@@ -245,15 +272,13 @@ const Navbar = ({ onSidebarCollapse }) => {
                                 >
                                     اسناد
                                     <ChevronDownIcon
-                                        className={`h-4 w-4 mr-2 transition-transform duration-200 ${
-                                            documentsDropdownOpen ? 'rotate-180' : ''
-                                        }`}
+                                        className={`h-4 w-4 mr-2 transition-transform duration-200 ${documentsDropdownOpen ? 'rotate-180' : ''
+                                            }`}
                                     />
                                 </button>
                                 <div
-                                    className={`mr-4 overflow-hidden transition-all duration-200 ${
-                                        documentsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
-                                    }`}
+                                    className={`mr-4 overflow-hidden transition-all duration-200 ${documentsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                        }`}
                                 >
                                     <Link
                                         to="/document/manuals"

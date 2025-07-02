@@ -21,6 +21,10 @@ export const AuthProvider = ({ children }) => {
         token ? localStorage.setItem('token', token) : localStorage.clear('token')
     }, [token, user])
 
+    const check = () => {
+        return user && token;
+    }
+
     const login = async (email, passwd) => {
         const { user, access_token } = await loginApi(email, passwd)
 
@@ -40,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, authorize }}>
+        <AuthContext.Provider value={{ user, token, check, login, logout, authorize }}>
             {children}
         </AuthContext.Provider>
     )

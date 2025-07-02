@@ -141,6 +141,110 @@ export const aiFunctionsEndpoints = {
   }
 };
 
+// Workspace Endpoints
+export const workspaceEndpoints = {
+  // 1. Create a new workspace
+  createWorkspace: async (workspaceData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/workspaces/`, workspaceData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating workspace:', error);
+      throw error;
+    }
+  },
+
+  // 2. List all workspaces with pagination
+  listWorkspaces: async (page = 1, per_page = 10) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/workspaces/`, {
+        params: { page, per_page }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error listing workspaces:', error);
+      throw error;
+    }
+  },
+
+  // 3. Get workspace details by ID
+  getWorkspace: async (workspaceId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/workspaces/${workspaceId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching workspace:', error);
+      throw error;
+    }
+  },
+
+  // 4. Update workspace by ID
+  updateWorkspace: async (workspaceId, updateData) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/workspaces/${workspaceId}`, updateData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating workspace:', error);
+      throw error;
+    }
+  },
+
+  // 5. Delete workspace by ID
+  deleteWorkspace: async (workspaceId) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/workspaces/${workspaceId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting workspace:', error);
+      throw error;
+    }
+  },
+
+  // 6. Add user to workspace
+  addUserToWorkspace: async (workspaceId, userData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/workspaces/${workspaceId}/users`, userData);
+      return response.data;
+    } catch (error) {
+      console.error('Error adding user to workspace:', error);
+      throw error;
+    }
+  },
+
+  // 7. Remove user from workspace
+  removeUserFromWorkspace: async (workspaceId, userId) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/workspaces/${workspaceId}/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error removing user from workspace:', error);
+      throw error;
+    }
+  },
+
+  // 8. List users in a workspace
+  listWorkspaceUsers: async (workspaceId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/workspaces/${workspaceId}/users`);
+      return response.data;
+    } catch (error) {
+      console.error('Error listing workspace users:', error);
+      throw error;
+    }
+  },
+
+  // 9. Select or switch the current workspace for the authenticated user
+  selectWorkspace: async (workspaceId) => {
+    try {
+      const response = await axios.patch(`${BASE_URL}/workspaces/select/${workspaceId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error selecting workspace:', error);
+      throw error;
+    }
+  }
+};
+
 // You can add more endpoint categories here
 // For example:
 // export const userEndpoints = { ... }

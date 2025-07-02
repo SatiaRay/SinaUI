@@ -5,9 +5,6 @@ import { useAuth } from '../contexts/AuthContext';
 const PrivateRoute = ({ children }) => {
   const {token, user, logout} = useAuth()
 
-  console.log(token, user);
-  
-
   if (!token || !user) {
     logout()
 
