@@ -1,247 +1,235 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/Login';
-import AccidentList from './components/AccidentList';
-import AccidentForm from './components/AccidentForm';
-import PassList from './components/PassList';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
-import GuardLogList from './components/GuardLogList';
-import AddGuardLog from './components/AddGuardLog';
-import VehicleList from './components/VehicleList';
-import StationList from './components/StationList';
-import PersonnelList from './components/PersonnelList';
-import PersonnelCreate from './components/PersonnelCreate';
-import PersonnelEdit from './components/PersonnelEdit';
-import RolesList from './components/RolesList';
-import RoleCreate from './components/RoleCreate';
-import RolePermissions from './components/RolePermissions';
-import OilList from './components/OilList';
-import OilEdit from './components/OilEdit';
 import Chat from './components/Chat/Chat';
+import { Document, DocumentIndex, DomainIndex, EditDocument } from './components/Chat/Document';
+import Wizard from './components/Chat/Wizard';
+import Workflow from './components/Workflow/WorkflowIndex';
+import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
+import { getVersion } from './utils/apis';
+import CrawlUrl from './components/Chat/CrawlUrl';
+import Status1 from './components/Chat/Status';
+import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
+import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
+import EditInstruction from './components/Chat/Instruction/EditInstruction';
+
 
 function App() {
-  return (
-    <AuthProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/chat"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <Chat />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/accidents"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <AccidentList />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/accidents/create"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <AccidentForm />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/passes"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <PassList />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/guard-logs"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <GuardLogList />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/guard-logs/create"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <AddGuardLog />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/vehicles"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <VehicleList />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/stations"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <StationList />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/personnel"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <PersonnelList />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/personnel/create"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <PersonnelCreate />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/personnel/:id/edit"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <PersonnelEdit />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/roles"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <RolesList />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/roles/create"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <RoleCreate />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/role-permissions"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <RolePermissions />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/oils"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <OilList />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/oils/edit/:id"
-              element={
-                <PrivateRoute>
-                  <>
-                    <Navbar />
-                    <div className="md:mr-64">
-                      <OilEdit />
-                    </div>
-                  </>
-                </PrivateRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/accidents" replace />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+                <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                    <AppContent />
+                </Router>
+        </AuthProvider>
+    );
 }
 
-export default App; 
+function AppContent() {
+    const location = useLocation();
+    const showNavbar = location.pathname !== '/login';
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [appVersion, setAppVersion] = useState(null)
+
+    useEffect(() => {
+        const fetchVersion = async () => {
+            try {
+                const res = await getVersion()
+                setAppVersion(res.version)
+            } catch (err) {
+                setAppVersion('undefined')
+            }
+        }
+
+        fetchVersion()
+    }, [])
+
+
+
+    return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+
+            {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
+
+            <div className={`transition-all duration-300 ${showNavbar
+                ? (sidebarCollapsed ? 'md:mr-0' : 'md:mr-64')
+                : 'flex items-center justify-center'
+                }`}>
+                {privateRoutes()}
+            </div>
+
+            <div className="flex items-center justify-center">
+                {publicRoutes()}
+            </div>
+
+            <span style={{ position: 'fixed', bottom: "5px", left: "10px" }}>
+                نسخه : {appVersion}
+            </span>
+        </div>
+    );
+
+}
+
+function privateRoutes() {
+    return (
+        <Routes>
+            <Route
+                path="/"
+                element={<Navigate to="/chat" replace />}
+            />
+
+
+            <Route>
+                <Route
+                    path="/chat"
+                >
+                    <Route
+                        path=''
+                        element={
+                            <PrivateRoute>
+                                <Chat />
+                            </PrivateRoute>
+                        }
+                    />
+                </Route>
+            </Route>
+
+                    /** Document routes */
+            <Route>
+                <Route
+                    path="/document"
+                    element={
+                        <PrivateRoute>
+                            <Document />
+                        </PrivateRoute>
+                    }
+                >
+                    <Route
+                        path=''
+                        element={<Navigate to="domains" />}
+                    />
+                    <Route
+                        path="domains"
+                        element={
+                            <PrivateRoute>
+                                <DomainIndex />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="domain/:domain_id"
+                        element={
+                            <PrivateRoute>
+                                <DocumentIndex />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="manuals"
+                        element={
+                            <PrivateRoute>
+                                <DocumentIndex />
+                            </PrivateRoute>
+                        }
+                    />
+                </Route>
+            </Route>
+            <Route
+                path="document/edit/:document_id"
+                element={
+                    <PrivateRoute>
+                        <EditDocument />
+                    </PrivateRoute>
+                }
+            />
+
+            <Route
+                path="/processes"
+                element={
+                    <PrivateRoute>
+                        <Status1 />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path='crawl-url'
+                element={<CrawlUrl />}
+            />
+            <Route
+                path="/wizard"
+                element={
+                    <PrivateRoute>
+                        <Wizard />
+                    </PrivateRoute>
+                }
+            />
+            <Route path="/workflow">
+                <Route
+                    index
+                    element={
+                        <PrivateRoute>
+                            <Workflow />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path=":workflowId"
+                    element={
+                        <PrivateRoute>
+                            <WorkflowEditor />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="create"
+                    element={
+                        <PrivateRoute>
+                            <WorkflowEditor />
+                        </PrivateRoute>
+                    }
+                />
+            </Route>
+
+            {/* Instruction Routes */}
+            <Route path="/instructions">
+                <Route
+                    index
+                    element={
+                        <PrivateRoute>
+                            <InstructionIndex />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="create"
+                    element={
+                        <PrivateRoute>
+                            <CreateInstruction />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="edit/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditInstruction />
+                        </PrivateRoute>
+                    }
+                />
+            </Route>
+        </Routes>
+    )
+}
+
+
+function publicRoutes() {
+    return (
+        <Routes>
+            <Route path="/login" element={<Login />} />
+        </Routes>
+    )
+}
+
+export default App;
