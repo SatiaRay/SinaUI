@@ -245,6 +245,19 @@ export const workspaceEndpoints = {
   }
 };
 
+export const documentEndpoints = {
+   // add document manuallay
+   addDocumentManually: async (data) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/add_manually_knowledge`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error add manually:', error);
+      throw error;
+    }
+  },
+}
+
 // You can add more endpoint categories here
 // For example:
 // export const userEndpoints = { ... }

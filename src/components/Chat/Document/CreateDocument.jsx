@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { documentEndpoints } from '../../../utils/apis';
 
 const CreateDocument = ({ onClose }) => {
     const [manualSubmitting, setManualSubmitting] = useState(false);
@@ -19,25 +20,32 @@ const CreateDocument = ({ onClose }) => {
         setError(null);
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/add_manually_knowledge`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    text: manualText,
-                    metadata: {
-                        source: 'manual',
-                        title: manualTitle
-                    }
-                })
-            });
+            // const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/add_manually_knowledge`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({
+            //         text: manualText,
+            //         metadata: {
+            //             source: 'manual',
+            //             title: manualTitle
+            //         }
+            //     })
+            // });
 
-            if (!response.ok) {
-                throw new Error('خطا در ذخیره اطلاعات');
-            }
+            // if (!response.ok) {
+            //     throw new Error('خطا در ذخیره اطلاعات');
+            // }
 
-            const data = await response.json();
+            const data = await documentEndpoints.addDocumentManually({
+                text: manualText,
+                metadata: {
+                    source: 'manual',
+                    title: manualTitle
+                }
+            })
+
             if (data.status === 'success') {
                 alert('اطلاعات با موفقیت ذخیره شد');
                 setManualTitle('');

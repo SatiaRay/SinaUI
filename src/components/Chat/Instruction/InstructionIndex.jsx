@@ -53,7 +53,7 @@ const InstructionIndex = () => {
     if (error) return <div className="p-4 text-red-500">{error}</div>;
 
     return (
-        <div className="p-4">
+        <div className="p-4 mt-12">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">دستورالعمل‌های بات</h1>
                 <Link
