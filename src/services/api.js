@@ -132,6 +132,8 @@ export const login = async (email, password) => {
   }
 };
 
+export const checkAuthorizationFetcher = (args) => axios.get(`${PYTHON_APP_URL}/auth/me`).then(res => res.data)
+
 export const getDomains = async () => {
   try {
     return await axios.get(`${PYTHON_APP_URL}/domains`)

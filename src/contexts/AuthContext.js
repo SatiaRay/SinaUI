@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
-import { login as loginApi } from "../services/api";
+import { checkAuthorizationFetcher, login as loginApi } from "../services/api";
+import useSwr from 'swr'
 
 export const AuthContext = createContext(null)
 
@@ -14,6 +15,19 @@ export const AuthProvider = ({ children }) => {
         return localStorage.getItem('token');
     });
 
+    const {authorization_error} = useSwr(
+        'check_authorization', 
+        checkAuthorizationFetcher,{
+            onError: (err, key, config) => {
+                logout()
+            },
+            refreshInterval : 60000
+        }
+    )
+
+    if(authorization_error)
+        console.log(authorization_error);
+        
     useEffect(() => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
