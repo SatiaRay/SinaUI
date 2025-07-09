@@ -15,8 +15,11 @@ export const AuthProvider = ({ children }) => {
         return localStorage.getItem('token');
     });
 
+    console.log(axios.defaults.headers.common['Authorization'] ? 'check_authorization' : null);
+    
+
     const {authorization_error} = useSwr(
-        'check_authorization', 
+        (token ? 'check_authorization' : null), 
         checkAuthorizationFetcher,{
             onError: (err, key, config) => {
                 logout()
@@ -29,7 +32,13 @@ export const AuthProvider = ({ children }) => {
         console.log(authorization_error);
         
     useEffect(() => {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        console.log(axios.defaults.headers.common['Authorization']);
+        
+
+        if(token)
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        else
+            delete axios.defaults.headers.common['Authorization']
 
         user ? localStorage.setItem('user', JSON.stringify(user)) : localStorage.clear('user')
         token ? localStorage.setItem('token', token) : localStorage.clear('token')
