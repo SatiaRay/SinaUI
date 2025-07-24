@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { sockets } from "../../utils/sockets";
 
-const VoiceBtn = () => {
+const VoiceBtn = ({ onTranscribe }) => {
     const recorderRef = useRef(null);
     const socketRef = useRef(null);
     var chunks = [];
@@ -9,7 +9,8 @@ const VoiceBtn = () => {
     useEffect(() => {
         // Initialize WebSocket connection if needed    
         if (!socketRef.current)
-            socketRef.current = sockets.voice();
+            socketRef.current = sockets.voice(handleTeranscribeResponse);
+
     }, []);
 
     // Reducer to manage recording state
@@ -46,6 +47,18 @@ const VoiceBtn = () => {
         isRecording: false,
         recorder: null
     });
+
+    const handleTeranscribeResponse = (event) => {
+
+        const data = event.data
+
+        try {
+            const parsed = JSON.parse(data);
+            console.log(event.data);
+        } catch (e) {
+            onTranscribe(data)
+        }
+    }
 
     // Send the audio data to the server socketRef
     const sendAudioData = () => {
