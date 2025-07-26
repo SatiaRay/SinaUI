@@ -3,7 +3,7 @@ const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 
 
 export const sockets = {
-    voice: () => {
+    voice: (handleTranscribe) => {
         // Create a new WebSocket connection
         const socket = new WebSocket(`${protocol}://${PYTHON_APP_URL}/ws/voice`);
 
@@ -21,6 +21,8 @@ export const sockets = {
         socket.onclose = () => {
             console.log('Voice socket : WebSocket connection closed');
         };
+
+        socket.onmessage = handleTranscribe
 
         return socket;
     }

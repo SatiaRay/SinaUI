@@ -1084,7 +1084,7 @@ const Chat = () => {
             />
           </div>
           <div className='flex flex-col gap-2'>
-            <VoiceBtn/>
+            <VoiceBtn onTranscribe={setQuestion}/>
             <button
               onClick={realtimeHandleSubmit}
               disabled={chatLoading || !question.trim()}
