@@ -6,6 +6,8 @@ import "react-quill/dist/quill.snow.css";
 import { v4 as uuidv4 } from "uuid";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
+import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { copyToClipboard } from "../../utils/copytext";
 
 // استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
@@ -577,7 +579,7 @@ const globalStyles = `
 }
 `;
 
-const Chat = () => {
+const Chat = ({item}) => {
   const [question, setQuestion] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [chatLoading, setChatLoading] = useState(false);
@@ -592,10 +594,10 @@ const Chat = () => {
   const chatEndRef = useRef(null);
   const socketRef = useRef(null);
   const initialMessageAddedRef = useRef(false);
+  
   let inCompatibleMessage = "";
   let bufferedTable = "";
   let isInsideTable = false;
-
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -1011,6 +1013,24 @@ const Chat = () => {
       minute: "2-digit",
     });
   };
+   const handleCopy = async () => {
+     if (!item || !item.answer) {
+       console.warn("Item or answer is missing");
+       return;
+     }
+
+     const tempEl = document.createElement('div');
+     tempEl.innerHTML = item.answer;
+     const plainText = tempEl.textContent || tempEl.innerText || '';
+
+     const success = await copyToClipboard(plainText);
+     if (success) {
+       alert('متن کپی شد ✅');
+     } else {
+       alert('کپی کردن انجام نشد ❌');
+     }
+   };
+
 
   return (
     <>
@@ -1057,16 +1077,20 @@ const Chat = () => {
                       />
                     </div>
                   ) : (
-                    <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
+                    <div className="bg-white px-4 py-2 rounded-lg shadow dark:bg-gray-800">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           {formatTimestamp(item.timestamp)}
                         </span>
+
+
                         <span className="text-xs font-medium text-green-600 dark:text-green-400">
                           چت‌بات
                         </span>
+
+                       
                       </div>
-                      <div className="mb-4">
+                      <div>
                         <h3 className="font-bold mb-2 text-gray-900 dark:text-white">
                           پاسخ:
                         </h3>
@@ -1074,6 +1098,13 @@ const Chat = () => {
                           className="text-gray-700 dark:text-white chat-message"
                           dangerouslySetInnerHTML={{ __html: item.answer }}
                         />
+                        <button onClick={handleCopy} className='mt-4 p-1 bg-neutral-100 rounded-lg hover:bg-neutral-200'>
+                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
+                       </svg>
+
+
+                        </button>
                       </div>
                       {item.sources && item.sources.length > 0 && (
                         <div>
