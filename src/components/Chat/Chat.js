@@ -587,7 +587,7 @@ const Chat = () => {
   const [error, setError] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const [currentWizards, setCurrentWizards] = useState([]);
-  const [rootWizards, setRootWizards] = useState([]); // New state to store root wizards
+  const [rootWizards, setRootWizards] = useState([]);
   const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const socketRef = useRef(null);
@@ -610,12 +610,12 @@ const Chat = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       const chatLinks = document.querySelectorAll(".chat-message a");
-      console.log("Found chat links:", chatLinks.length); // برای دیباگ
+      console.log("Found chat links:", chatLinks.length);
       chatLinks.forEach((link) => {
         link.setAttribute("target", "_blank");
         link.setAttribute("rel", "noopener noreferrer");
       });
-    }, 100); // تأخیر کوچک برای اطمینان از رندر DOM
+    }, 100);
     return () => clearTimeout(timer);
   }, [chatHistory]);
 
@@ -675,8 +675,8 @@ const Chat = () => {
         throw new Error("خطا در دریافت ویزاردها");
       }
       const data = await response.json();
-      setRootWizards(data); // Store root wizards
-      setCurrentWizards(data); // Set initial current wizards
+      setRootWizards(data);
+      setCurrentWizards(data);
     } catch (err) {
       setError(err.message);
     }
@@ -809,11 +809,9 @@ const Chat = () => {
       try {
         const data = JSON.parse(event.data);
         if (data.event) {
-          // This is a control message
           if (data.event === "finished") {
             setChatLoading(false);
             if (isInsideTable && bufferedTable) {
-              // Handle any buffered table data
               setChatHistory((prev) => {
                 const updated = [...prev];
                 const lastIndex = updated.length - 1;
