@@ -1,10 +1,11 @@
 import {
+  ArrowLeftEndOnRectangleIcon,
   Bars3Icon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  UserCircleIcon,
-  XMarkIcon,
+  UserIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -83,7 +84,7 @@ const Navbar = ({ onSidebarCollapse }) => {
 
   return (
     <>
-      {user && (
+      {/* {user && (
         <div className="flex items-center space-x-2">
           <div className="relative text-left">
             <button
@@ -95,24 +96,10 @@ const Navbar = ({ onSidebarCollapse }) => {
                 {`${user.first_name} ${user.last_name}` || user.email}
               </span>
             </button>
-            {userDropdownOpen && (
-              <div className="absolute left-0 mt-2 origin-top-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50">
-                <div className="py-3">
-                  <div className="p-3">
-                    {user.current_workspace?.name || ""}
-                  </div>
-                  <button
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={handleLogout}
-                  >
-                    خروج
-                  </button>
-                </div>
-              </div>
-            )}
+          
           </div>
         </div>
-      )}
+     )}  */}
 
       <div className="md:hidden fixed top-4 right-4 z-50">
         <button
@@ -154,10 +141,14 @@ const Navbar = ({ onSidebarCollapse }) => {
             desktopSidebarCollapsed ? "opacity-0 w-0" : "opacity-100 w-64"
           }`}
         >
-          <div className="p-4 border-b border-gray-700 whitespace-nowrap overflow-hidden">
+          <div className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
             <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
+          <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
+              <UserIcon className="text-white w-5 h-5"/>
+            </button>  
+        
           </div>
-          <div className="flex-1 px-4 py-6 space-y-2 overflow-hidden">
+          <div className="flex-1 p-2 space-y-2 overflow-hidden">
             <Link
               to="/chat"
               className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
@@ -231,15 +222,18 @@ const Navbar = ({ onSidebarCollapse }) => {
             </Link>
           </div>
           <div className="p-4 border-t border-gray-700 overflow-hidden">
-            <div className="flex items-center mb-4 whitespace-nowrap">
+            <div className="flex items-center mb-2 w-full justify-between">
               <span className="text-gray-300 text-sm">حالت نمایش</span>
               <ThemeToggle />
             </div>
             <button
               onClick={handleLogout}
-              className="w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+              className="w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-gray-600"
             >
-              خروج
+                          <p className="text-sm text-white">خروج</p>
+
+<ArrowLeftEndOnRectangleIcon  className="w-6 h-6 text-white"/>
+
             </button>
           </div>
         </div>
@@ -264,7 +258,14 @@ const Navbar = ({ onSidebarCollapse }) => {
         >
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-4 border-b border-gray-700">
-              <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
+              <div className="flex gap-2"> 
+              <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
+              <UserIcon className="text-white w-4 h-4"/>
+            </button>
+
+                 <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
+                 </div>
+            
               <button
                 onClick={closeSidebar}
                 className="text-gray-300 hover:text-white transition-colors duration-200"
@@ -272,7 +273,7 @@ const Navbar = ({ onSidebarCollapse }) => {
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
-            <div className="flex-1 px-4 py-6 space-y-2">
+            <div className="flex-1 py-2 space-y-2">
               <Link
                 to="/chat"
                 className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -353,15 +354,18 @@ const Navbar = ({ onSidebarCollapse }) => {
               </Link>
             </div>
             <div className="p-4 border-t border-gray-700">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-gray-300 text-sm">حالت نمایش</span>
                 <ThemeToggle />
               </div>
               <button
                 onClick={handleLogout}
-                className="w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                className="w-full flex items-center gap-2 bg-gray-600 justify-center text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
-                خروج
+                            <p className="text-sm text-white">خروج</p>
+
+<ArrowLeftEndOnRectangleIcon  className="w-6 h-6 text-white"/>
+
               </button>
             </div>
           </div>
