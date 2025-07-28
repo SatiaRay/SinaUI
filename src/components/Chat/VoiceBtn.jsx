@@ -1,32 +1,22 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { sockets } from "../../utils/sockets";
-import { DotLoader } from "react-spinners";
 
 const VoiceBtn = ({ onTranscribe }) => {
   const recorderRef = useRef(null);
   const socketRef = useRef(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   var chunks = [];
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!socketRef.current) {
-      socketRef.current = sockets.voice(handleTranscribeResponse);
-    }
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-    };
+    if (!socketRef.current)
+      socketRef.current = sockets.voice(handleTeranscribeResponse);
   }, []);
 
   const [state, dispatch] = useReducer(
     (state, action) => {
       switch (action.type) {
         case "START_RECORDING":
-          if (state.isRecording || action.recorder == null) {
-            return state;
-          }
+          if (state.isRecording || action.recorder == null) return state;
 
           if (action.recorder.state == "inactive") {
             action.recorder.start();
@@ -36,14 +26,12 @@ const VoiceBtn = ({ onTranscribe }) => {
           return { ...state, isRecording: true, recorder: action.recorder };
 
         case "STOP_RECORDING":
-          if (state.recorder == null) {
-            return state;
-          }
+          if (state.recorder == null) return state;
 
           if (state.recorder.state == "recording") {
             state.recorder.stop();
-            console.log("Recording stopped");
-            setIsProcessing(true);
+            console.log("Recording stoped");
+            setIsLoading(true);
           }
 
           return { ...state, isRecording: false, recorder: null };
@@ -58,8 +46,7 @@ const VoiceBtn = ({ onTranscribe }) => {
     }
   );
 
-  const handleTranscribeResponse = (event) => {
-    setIsProcessing(false);
+  const handleTeranscribeResponse = (event) => {
     const data = event.data;
 
     try {
@@ -67,12 +54,13 @@ const VoiceBtn = ({ onTranscribe }) => {
       console.log(event.data);
     } catch (e) {
       onTranscribe(data);
+    } finally {
+      setIsLoading(false);
     }
   };
-
   const sendAudioData = () => {
     if (chunks.length === 0) {
-      setIsProcessing(false);
+      setIsLoading(false);
       return;
     }
 
@@ -81,21 +69,25 @@ const VoiceBtn = ({ onTranscribe }) => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
+
       if (
         socketRef.current &&
         socketRef.current.readyState === WebSocket.OPEN
       ) {
-        socketRef.current.send(reader.result);
-        console.log("Audio data sent to server");
+             setTimeout(() => {
+                  socketRef.current.send(reader.result);
+                  console.log("MP3 audio data sent to server");
+                }, 2000);
+
+
+
       } else {
         console.error("WebSocket is not open. Cannot send audio data.");
-        setIsProcessing(false);
+        setIsLoading(false);
       }
     };
-
     reader.onerror = () => {
-      console.error("Failed to read audio blob.");
-      setIsProcessing(false);
+      setIsLoading(false);
     };
 
     reader.readAsArrayBuffer(blob);
@@ -104,13 +96,16 @@ const VoiceBtn = ({ onTranscribe }) => {
   const handleVoiceClick = async () => {
     if (state.isRecording) {
       dispatch({ type: "STOP_RECORDING" });
+      setIsLoading(true)
     } else {
       if (!checkMicSupport()) return;
 
       const stream = await getStream();
+
       if (!stream) return;
 
       recorderRef.current = recorderFactory(stream);
+setIsLoading(false)
       dispatch({ type: "START_RECORDING", recorder: recorderRef.current });
     }
   };
@@ -119,19 +114,24 @@ const VoiceBtn = ({ onTranscribe }) => {
     const recorder = new MediaRecorder(stream);
 
     recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
-      }
+      pushChunk(event);
     };
 
     recorder.onstop = () => {
       sendAudioData();
+
     };
 
     return recorder;
   };
 
-  const checkMicSupport = () => {
+  const pushChunk = (event) => {
+    if (event.data.size > 0) {
+      chunks.push(event.data);
+    }
+  };
+
+  const checkMicSupport = async () => {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       return true;
     } else {
@@ -141,25 +141,52 @@ const VoiceBtn = ({ onTranscribe }) => {
   };
 
   const getStream = async () => {
-    try {
-      return await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (err) {
-      alert("Microphone permission is required to use voice input.");
-      console.error(`getUserMedia error: ${err}`);
-      return false;
-    }
+    return navigator.mediaDevices
+      .getUserMedia({
+        audio: true,
+      })
+
+      .then((stream) => {
+        return stream;
+       setIsLoading(true)
+      })
+
+      .catch((err) => {
+        alert("Microphone permission is required to use voice input.");
+
+        console.error(`The following getUserMedia error occurred: ${err}`);
+
+        return false;
+      });
   };
 
   return (
     <button
-      className={`chat-submit-button w-full flex items-center justify-center ${
-        isProcessing && "rgba(59, 131, 246, 0.58)"
-      }`}
+      className="chat-submit-button w-full flex items-center justify-center"
       onClick={handleVoiceClick}
-      disabled={isProcessing || state.isRecording}
+      disabled={isLoading}
     >
-      {isProcessing ? (
-        <DotLoader color="#0068a8" size={22} />
+      {isLoading ? (
+        <svg
+          className="animate-spin h-5 w-5 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-50"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.272A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
       ) : state.isRecording ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
