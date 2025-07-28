@@ -645,7 +645,7 @@ const Chat = ({item}) => {
   const fetchRootWizards = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/hierarchy/roots`,
+        `${process.env.REACT_APP_CHAT_API_URL}/wizards/hierarchy/roots`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -669,7 +669,7 @@ const Chat = ({item}) => {
     setHistoryLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_PYTHON_APP_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`,
+        `${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

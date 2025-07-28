@@ -6,7 +6,7 @@ import { getWebSocketUrl } from '../../utils/websocket';
 
 const JobDetailsModal = ({ job, onClose, setActiveJobs }) => {
     const socketRef = useRef(null);
-    const API_BASE_URL = process.env.REACT_APP_PYTHON_APP_API_URL || 'https://khan2.satia.co:1011';
+    const API_BASE_URL = process.env.REACT_APP_CHAT_API_URL || 'https://khan2.satia.co:1011';
 
     const connectToJobSocket = (jobId) => {
         const wsUrl = getWebSocketUrl(`/jobs/ws/${jobId}`);

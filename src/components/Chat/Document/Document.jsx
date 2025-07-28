@@ -75,7 +75,7 @@ const DocumentIndex = () => {
         setDomainsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/domains`, {
+            const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/domains`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -98,7 +98,7 @@ const DocumentIndex = () => {
         setError(null);
         try {
             const response = await fetch(
-                `${process.env.REACT_APP_PYTHON_APP_API_URL}/documents?domain_id=${domain.id}`,
+                `${process.env.REACT_APP_CHAT_API_URL}/documents?domain_id=${domain.id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -123,7 +123,7 @@ const DocumentIndex = () => {
         setFileContentLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${file.id}`, {
+            const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/documents/${file.id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -147,7 +147,7 @@ const DocumentIndex = () => {
         setError(null);
         try {
             const response = await fetch(
-                `${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/manual?limit=${pagination.limit}&offset=${pagination.offset}`,
+                `${process.env.REACT_APP_CHAT_API_URL}/documents/manual?limit=${pagination.limit}&offset=${pagination.offset}`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,

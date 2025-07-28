@@ -20,7 +20,7 @@ const CreateDocument = ({ onClose }) => {
         setError(null);
 
         try {
-            // const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/add_manually_knowledge`, {
+            // const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/add_manually_knowledge`, {
             //     method: 'POST',
             //     headers: {
             //         'Content-Type': 'application/json',

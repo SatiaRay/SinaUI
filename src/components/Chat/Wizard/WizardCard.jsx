@@ -10,7 +10,7 @@ const WizardCard = ({ wizard, onClickWizard, onDeleteWizard, selectedWizardForUp
         setUpdatingStatus(prev => ({ ...prev, [wizardId]: true }));
         try {
             const endpoint = currentStatus ? 'disable' : 'enable';
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizardId}/${endpoint}`, {
+            const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}/${endpoint}`, {
                 method: 'POST',
             });
 
@@ -28,7 +28,7 @@ const WizardCard = ({ wizard, onClickWizard, onDeleteWizard, selectedWizardForUp
 
     const submitDelete = () => {
         if (window.confirm('آیا از حذف این ویزارد مطمئن هستید ؟')) {
-            fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizard.id}`, {
+            fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizard.id}`, {
                 method: 'DELETE',
             })
                 .then(response => {
