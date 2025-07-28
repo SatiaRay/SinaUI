@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
-import { askQuestion } from "../../services/api";
-import { WizardButtons, WizardButton } from "./Wizard/";
-import ReactQuill from "react-quill";
+import React, { useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import { v4 as uuidv4 } from "uuid";
+import { askQuestion } from "../../services/api";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
-import { DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import { copyToClipboard } from "../../utils/copytext";
+import { WizardButtons } from "./Wizard/";
+
 
 // استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
@@ -555,28 +553,6 @@ const globalStyles = `
 }
 
 
-
-
-
-/* کانتینر برای رشد به بالا */
-
-
-.chat-textarea-wrapper {
-
-
-  display: flex;
-
-
-  flex-direction: column;
-
-
-  flex: 1;
-
-
-  position: relative;
-
-
-}
 `;
 
 const Chat = ({item}) => {
@@ -594,6 +570,9 @@ const Chat = ({item}) => {
   const chatEndRef = useRef(null);
   const socketRef = useRef(null);
   const initialMessageAddedRef = useRef(false);
+  const textRef = useRef(null)
+  const [copyText , setCopyText] = useState(false)
+  const [copiedMessageId, setCopiedMessageId] = useState(null);
   
   let inCompatibleMessage = "";
   let bufferedTable = "";
@@ -1012,24 +991,23 @@ const Chat = ({item}) => {
       hour: "2-digit",
       minute: "2-digit",
     });
+  }
+
+  const handleCopyAnswer = (textToCopy, messageIndex) => {
+    const temp = document.createElement('div');
+    temp.innerHTML = textToCopy;
+    const plainText = temp.textContent || temp.innerText || '';
+    
+    navigator.clipboard.writeText(plainText)
+      .then(() => {
+        setCopiedMessageId(messageIndex);
+        setTimeout(() => setCopiedMessageId(null), 4000); // Reset after 2 seconds
+      })
+      .catch(err => {
+        console.error('Failed to copy:', err);
+      });
   };
-   const handleCopy = async () => {
-     if (!item || !item.answer) {
-       console.warn("Item or answer is missing");
-       return;
-     }
 
-     const tempEl = document.createElement('div');
-     tempEl.innerHTML = item.answer;
-     const plainText = tempEl.textContent || tempEl.innerText || '';
-
-     const success = await copyToClipboard(plainText);
-     if (success) {
-       alert('متن کپی شد ✅');
-     } else {
-       alert('کپی کردن انجام نشد ❌');
-     }
-   };
 
 
   return (
@@ -1095,16 +1073,25 @@ const Chat = ({item}) => {
                           پاسخ:
                         </h3>
                         <div
+                       ref={textRef}
                           className="text-gray-700 dark:text-white chat-message"
                           dangerouslySetInnerHTML={{ __html: item.answer }}
                         />
-                        <button onClick={handleCopy} className='mt-4 p-1 bg-neutral-100 rounded-lg hover:bg-neutral-200'>
-                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
-                       </svg>
-
-
-                        </button>
+<button 
+  onClick={() => handleCopyAnswer(item.answer, index)} 
+  className="mt-4 flex items-center justify-center w-7 bg-neutral-100 h-7 rounded-lg hover:bg-neutral-200"
+  style={{ color: copiedMessageId === index ? '#3dc909' : '#444' }}
+>
+  {copiedMessageId === index ? (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
+    </svg>
+  )}
+</button>
                       </div>
                       {item.sources && item.sources.length > 0 && (
                         <div>
@@ -1151,7 +1138,7 @@ const Chat = ({item}) => {
           wizards={currentWizards}
         />
         <div className="chat-input-container">
-          <div className="chat-textarea-wrapper">
+          <div className="w-full flex items-center justify-center">
             <textarea
               value={question}
               onChange={(e) => {
@@ -1179,11 +1166,11 @@ const Chat = ({item}) => {
                 }
               }}
               placeholder="سوال خود را بپرسید..."
-              className="chat-textarea"
+              className="chat-textarea h-full"
               disabled={chatLoading}
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <VoiceBtn onTranscribe={setQuestion} />
             <button
               onClick={realtimeHandleSubmit}
