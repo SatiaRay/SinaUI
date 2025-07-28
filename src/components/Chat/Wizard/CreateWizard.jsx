@@ -18,7 +18,7 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards`, {
+            const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

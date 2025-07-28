@@ -1,7 +1,7 @@
 import axios from '../contexts/axios';
 
 // API Base URL
-const BASE_URL = process.env.REACT_APP_PYTHON_APP_API_URL;
+const BASE_URL = process.env.REACT_APP_CHAT_API_URL;
 
 // Workflow Endpoints
 export const workflowEndpoints = {
