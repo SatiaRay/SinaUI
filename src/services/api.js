@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // تنظیم baseURL برای APIهای مختلف
 const API_URL = process.env.REACT_APP_API_URL;
-const PYTHON_APP_URL = process.env.REACT_APP_PYTHON_APP_URL || process.env.REACT_APP_PYTHON_APP_API_URL;
+const PYTHON_APP_URL = process.env.REACT_APP_CHAT_API_URL
 
 // ایجاد نمونه axios با تنظیمات پیش‌فرض
 const axiosInstance = axios.create({

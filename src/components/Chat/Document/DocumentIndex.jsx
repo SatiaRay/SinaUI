@@ -51,7 +51,7 @@ const DocumentIndex = () => {
         setDocumentContentLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/documents/${document.id}`, {
+            const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/documents/${document.id}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },

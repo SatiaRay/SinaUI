@@ -84,8 +84,8 @@ const Login = () => {
       const decodedToken = jwtDecode(credential);
       console.log('Decoded User Info:', decodedToken);
 
-      console.log('Sending request to:', `${process.env.REACT_APP_PYTHON_APP_API_URL}/auth/google`);
-      const backendResponse = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/auth/google`, {
+      console.log('Sending request to:', `${process.env.REACT_APP_CHAT_API_URL}/auth/google`);
+      const backendResponse = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: credential }),

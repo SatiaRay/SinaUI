@@ -25,7 +25,7 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizard.id}`, {
+            const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizard.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

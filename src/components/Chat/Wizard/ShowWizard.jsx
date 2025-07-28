@@ -18,7 +18,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
             setError(null);
 
             try {
-                const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizard.id}`);
+                const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizard.id}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch wizard data');
                 }
@@ -68,7 +68,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
 
     const handleDeleteWizard = (wizardId) => {
         if (window.confirm('آیا از حذف این ویزارد مطمئن هستید ؟')) {
-            fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizardId}`, {
+            fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}`, {
                 method: 'DELETE',
             })
                 .then(response => {
@@ -92,7 +92,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
         setUpdatingStatus(prev => ({ ...prev, [wizardId]: true }));
         try {
             const endpoint = currentStatus ? 'disable' : 'enable';
-            const response = await fetch(`${process.env.REACT_APP_PYTHON_APP_API_URL}/wizards/${wizardId}/${endpoint}`, {
+            const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}/${endpoint}`, {
                 method: 'POST',
             });
 
