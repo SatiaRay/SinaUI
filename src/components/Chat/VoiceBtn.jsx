@@ -2,170 +2,212 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { sockets } from "../../utils/sockets";
 
 const VoiceBtn = ({ onTranscribe }) => {
-    const recorderRef = useRef(null);
-    const socketRef = useRef(null);
-    var chunks = [];
+  const recorderRef = useRef(null);
+  const socketRef = useRef(null);
+  var chunks = [];
+  const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        // Initialize WebSocket connection if needed    
-        if (!socketRef.current)
-            socketRef.current = sockets.voice(handleTeranscribeResponse);
+  useEffect(() => {
+    if (!socketRef.current)
+      socketRef.current = sockets.voice(handleTeranscribeResponse);
+  }, []);
 
-    }, []);
+  const [state, dispatch] = useReducer(
+    (state, action) => {
+      switch (action.type) {
+        case "START_RECORDING":
+          if (state.isRecording || action.recorder == null) return state;
 
-    // Reducer to manage recording state
-    const [state, dispatch] = useReducer((state, action) => {
-        switch (action.type) {
-            case 'START_RECORDING':
+          if (action.recorder.state == "inactive") {
+            action.recorder.start();
+            console.log("Recording started");
+          }
 
-                if (state.isRecording || action.recorder == null)
-                    return state;
+          return { ...state, isRecording: true, recorder: action.recorder };
 
-                if (action.recorder.state == "inactive") {
-                    action.recorder.start();
-                    console.log("Recording started");
-                }
+        case "STOP_RECORDING":
+          if (state.recorder == null) return state;
 
-                return { ...state, isRecording: true, recorder: action.recorder };
+          if (state.recorder.state == "recording") {
+            state.recorder.stop();
+            console.log("Recording stoped");
+            setIsLoading(true);
+          }
 
-            case 'STOP_RECORDING':
+          return { ...state, isRecording: false, recorder: null };
 
-                if (state.recorder == null)
-                    return state
+        default:
+          return state;
+      }
+    },
+    {
+      isRecording: false,
+      recorder: null,
+    }
+  );
 
-                if (state.recorder.state == "recording") {
-                    state.recorder.stop();
-                    console.log("Recording stoped");
-                }
+  const handleTeranscribeResponse = (event) => {
+    const data = event.data;
 
-                return { ...state, isRecording: false, recorder: null };
-
-            default:
-                return state;
-        }
-    }, {
-        isRecording: false,
-        recorder: null
-    });
-
-    const handleTeranscribeResponse = (event) => {
-
-        const data = event.data
-
-        try {
-            const parsed = JSON.parse(data);
-            console.log(event.data);
-        } catch (e) {
-            onTranscribe(data)
-        }
+    try {
+      const parsed = JSON.parse(data);
+      console.log(event.data);
+    } catch (e) {
+      onTranscribe(data);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const sendAudioData = () => {
+    if (chunks.length === 0) {
+      setIsLoading(false);
+      return;
     }
 
-    // Send the audio data to the server socketRef
-    const sendAudioData = () => {
-        if (chunks.length === 0) return;
+    const blob = new Blob(chunks, { type: "audio/webm" });
+    chunks = [];
 
-        const blob = new Blob(chunks, { type: 'audio/webm' }); // MP3 format
-        chunks = []; // Clear chunks after creating the blob
+    const reader = new FileReader();
+    reader.onloadend = () => {
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-                socketRef.current.send(reader.result);
-                console.log("MP3 audio data sent to server");
-            } else {
-                console.error("WebSocket is not open. Cannot send audio data.");
-            }
-        };
+      if (
+        socketRef.current &&
+        socketRef.current.readyState === WebSocket.OPEN
+      ) {
+             setTimeout(() => {
+                  socketRef.current.send(reader.result);
+                  console.log("MP3 audio data sent to server");
+                }, 3000);
 
-        reader.readAsArrayBuffer(blob);
+
+
+      } else {
+        console.error("WebSocket is not open. Cannot send audio data.");
+        setIsLoading(false);
+      }
     };
-    // Voice button click handler
-    const handleVoiceClick = async () => {
-        if (state.isRecording) {
-            dispatch({ type: 'STOP_RECORDING' });
-        } else {
-            if (!checkMicSupport())
-                return
+    reader.onerror = () => {
+      setIsLoading(false);
+    };
 
-            const stream = await getStream()
+    reader.readAsArrayBuffer(blob);
+  };
 
-            if (!stream)
-                return;
+  const handleVoiceClick = async () => {
+    if (state.isRecording) {
+      dispatch({ type: "STOP_RECORDING" });
+      setIsLoading(true)
+    } else {
+      if (!checkMicSupport()) return;
 
-            recorderRef.current = recorderFactory(stream);
+      const stream = await getStream();
 
-            dispatch({ type: 'START_RECORDING', recorder: recorderRef.current });
-        }
+      if (!stream) return;
+
+      recorderRef.current = recorderFactory(stream);
+setIsLoading(false)
+      dispatch({ type: "START_RECORDING", recorder: recorderRef.current });
     }
+  };
 
-    // Create a MediaRecorder instance
-    const recorderFactory = (stream) => {
-        const recorder = new MediaRecorder(stream);
+  const recorderFactory = (stream) => {
+    const recorder = new MediaRecorder(stream);
 
-        recorder.ondataavailable = (event) => { pushChunk(event) };
+    recorder.ondataavailable = (event) => {
+      pushChunk(event);
+    };
 
-        recorder.onstop = () => {
-            sendAudioData();
-        }
+    recorder.onstop = () => {
+      sendAudioData();
 
-        return recorder;
+    };
+
+    return recorder;
+  };
+
+  const pushChunk = (event) => {
+    if (event.data.size > 0) {
+      chunks.push(event.data);
     }
+  };
 
-    // Push the audio data to the chunks array handler
-    const pushChunk = (event) => {
-        if (event.data.size > 0) {
-            chunks.push(event.data);
-        }
+  const checkMicSupport = async () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      return true;
+    } else {
+      console.log("getUserMedia not supported on your browser!");
+      return false;
     }
+  };
 
-    // Check if the browser supports microphone access
-    const checkMicSupport = async () => {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            return true
-        } else {
-            console.log("getUserMedia not supported on your browser!");
-            return false;
-        }
-    }
+  const getStream = async () => {
+    return navigator.mediaDevices
+      .getUserMedia({
+        audio: true,
+      })
 
-    // get user borwser microphone stream
-    const getStream = async () => {
-        return navigator.mediaDevices
-            .getUserMedia(
-                // constraints - only audio needed for this app
-                {
-                    audio: true,
-                },
-            )
+      .then((stream) => {
+        return stream;
+       setIsLoading(true)
+      })
 
-            // Success callback
-            .then((stream) => {
-                return stream;
-            })
+      .catch((err) => {
+        alert("Microphone permission is required to use voice input.");
 
-            // Error callback
-            .catch((err) => {
-                alert("Microphone permission is required to use voice input.");
+        console.error(`The following getUserMedia error occurred: ${err}`);
 
-                console.error(`The following getUserMedia error occurred: ${err}`);
+        return false;
+      });
+  };
 
-                return false
-            });
-    }
-
-    return (
-        <button className="chat-submit-button w-full flex items-center justify-center" onClick={handleVoiceClick}>
-            {state.isRecording ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="8" />
-                </svg>
-            ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-100" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 14a3.996 3.996 0 0 0 4-4V5a4 4 0 0 0-8 0v5a3.996 3.996 0 0 0 4 4zm5-4a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-4.08A7 7 0 0 0 19 10h-2z" />
-                </svg>
-            )}
-        </button>
-    )
-}
+  return (
+    <button
+      className="chat-submit-button w-full flex items-center justify-center"
+      onClick={handleVoiceClick}
+      disabled={isLoading}
+    >
+      {isLoading ? (
+        <svg
+          className="animate-spin h-6 w-6 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-50"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.272A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      ) : state.isRecording ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-6 h-6 text-red-600"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="12" r="8" />
+        </svg>
+      ) : (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-6 h-6 text-gray-100"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 14a3.996 3.996 0 0 0 4-4V5a4 4 0 0 0-8 0v5a3.996 3.996 0 0 0 4 4zm5-4a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-4.08A7 7 0 0 0 19 10h-2z" />
+        </svg>
+      )}
+    </button>
+  );
+};
 
 export default VoiceBtn;
