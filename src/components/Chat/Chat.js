@@ -572,6 +572,7 @@ const Chat = ({ item }) => {
   const textRef = useRef(null);
   const [copyText, setCopyText] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
+  const [voiceLoading, setVoiceLoading] = useState(false);
 
   let inCompatibleMessage = "";
   let bufferedTable = "";
@@ -1191,7 +1192,8 @@ const Chat = ({ item }) => {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <VoiceBtn onTranscribe={setQuestion} />
+
+            <VoiceBtn onTranscribe={setQuestion}/>
             <button
               onClick={realtimeHandleSubmit}
               disabled={chatLoading || !question.trim()}

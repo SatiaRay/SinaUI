@@ -77,7 +77,7 @@ const VoiceBtn = ({ onTranscribe }) => {
              setTimeout(() => {
                   socketRef.current.send(reader.result);
                   console.log("MP3 audio data sent to server");
-                }, 2000);
+                }, 3000);
 
 
 
@@ -168,7 +168,7 @@ setIsLoading(false)
     >
       {isLoading ? (
         <svg
-          className="animate-spin h-5 w-5 text-white"
+          className="animate-spin h-6 w-6 text-white"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
