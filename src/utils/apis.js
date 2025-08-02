@@ -50,9 +50,9 @@ export const workflowEndpoints = {
   },
 
   // List all workflows
-  listWorkflows: async () => {
+  listWorkflows: async (agentType = null) => {
     try {
-      const response = await axios.get(`${BASE_URL}/workflows`);
+      const response = await axios.get(`${BASE_URL}/workflows?agent_type=${agentType}`);
       return response.data;
     } catch (error) {
       console.error('Error listing workflows:', error);
