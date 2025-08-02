@@ -26,6 +26,7 @@ import Status1 from "./components/Chat/Status";
 import InstructionIndex from "./components/Chat/Instruction/InstructionIndex";
 import CreateInstruction from "./components/Chat/Instruction/CreateInstruction";
 import EditInstruction from "./components/Chat/Instruction/EditInstruction";
+import VoiceAgentConversation from "./pages/VoiceAgentConversation";
 
 function App() {
   return (
@@ -86,12 +87,25 @@ function privateRoutes() {
     <Routes>
       <Route path="/" element={<Navigate to="/chat" replace />} />
       <Route>
+        /** CHAT */
         <Route path="/chat">
           <Route
             path=""
             element={
               <PrivateRoute>
                 <Chat />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+
+        /** VOICE AGENT CONVERSATION */
+        <Route path="/voice-agent">
+          <Route
+            path=""
+            element={
+              <PrivateRoute>
+                <VoiceAgentConversation />
               </PrivateRoute>
             }
           />

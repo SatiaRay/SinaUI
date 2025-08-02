@@ -155,6 +155,12 @@ const Navbar = ({ onSidebarCollapse }) => {
             >
               چت
             </Link>
+            <Link
+              to="/voice-agent"
+              className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+            >
+              گفتگوی صوتی
+            </Link>
             <div>
               <button
                 onClick={toggleDocumentsDropdown}
