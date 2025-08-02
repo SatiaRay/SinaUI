@@ -258,7 +258,14 @@ export const documentEndpoints = {
   },
 }
 
-// You can add more endpoint categories here
-// For example:
-// export const userEndpoints = { ... }
-// export const authEndpoints = { ... }
+export const voiceAgentEndpoints = {
+  getVoiceAgentInstruction: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/voice_agent/instruction`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting voice agent instuction:', error);
+      throw error;
+    }
+  },
+}
