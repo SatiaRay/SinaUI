@@ -118,9 +118,9 @@ export const instructionEndpoints = {
   },
 
   // List all instructions
-  listInstructions: async (page = 1) => {
+  listInstructions: async (agentType = null, page = 1) => {
     try {
-      const response = await axios.get(`${BASE_URL}/instructions/?page=${page}`);
+      const response = await axios.get(`${BASE_URL}/instructions/?page=${page}&agent_type=${agentType}`);
       return response.data;
     } catch (error) {
       console.error('Error listing instructions:', error);
