@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { getDocuments, getDomainDocuments } from "../../../services/api";
+import { documentEndpoints } from "../../../utils/apis";
 
 const DocumentIndex = () => {
   const [documentContentLoading, setDocumentContentLoading] = useState(false);
@@ -96,6 +97,21 @@ const DocumentIndex = () => {
     fetchDocuments();
   };
 
+  const handleDelete = async (documentId) => {
+    if (window.confirm("آیا مطمئن هستید که می‌خواهید این سند را حذف کنید؟")) {
+      try{
+        documentEndpoints.deleteDocument(documentId);
+        setDocuments((prevDocuments) =>
+          prevDocuments.filter((doc) => doc.id !== documentId)
+        );
+        alert("سند با موفقیت حذف شد.");
+      } catch (err) {
+        console.error("Error deleting document:", err);
+        alert("خطا در حذف سند: " + (err.message || "خطای ناشناخته"));
+        setError("خطا در حذف سند: " + (err.message || "خطای ناشناخته"));
+      }
+    }
+  }
   const handleStatusChange = async (documentId, newVectorId) => {
     try {
       // به‌روزرسانی موقت در کلاینت
@@ -154,6 +170,7 @@ const DocumentIndex = () => {
               document={document}
               onStatusChange={handleStatusChange}
               onClick={() => handleDocumentCardClick(document)}
+              handleDelete={handleDelete}
             />
           ))}
         </div>

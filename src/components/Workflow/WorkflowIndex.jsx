@@ -40,6 +40,19 @@ const WorkflowIndex = () => {
     navigate(`/workflow/${workflowId}`);
   };
 
+  const handleDelete = async (workflowId) => {
+    if (
+      window.confirm("آیا مطمئن هستید که می‌خواهید این گردش کار را حذف کنید؟")
+    )
+      try {
+        await workflowEndpoints.deleteWorkflow(workflowId);
+        fetchWorkflows();
+      } catch (e) {
+        console.error(e);
+        setError("خطا در حذف گردش کار");
+      }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -122,9 +135,15 @@ const WorkflowIndex = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     <button
                       onClick={() => handleEdit(workflow.id)}
-                      className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                      className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mx-4"
                     >
                       ویرایش
+                    </button>
+                    <button
+                      onClick={() => handleDelete(workflow.id)}
+                      className="text-blue-600 text-red-500 dark:hover:text-blue-300"
+                    >
+                      حذف
                     </button>
                   </td>
                 </tr>
