@@ -314,4 +314,15 @@ export const voiceAgentEndpoints = {
       throw error;
     }
   },
+  getClientSecretKey: async (model) => {
+  try {
+    const URL = `${BASE_URL}/voice_agent/client_key?model=${model}`;
+    const response = await axios.get(URL);
+    return response.data;
+  } catch (error) {
+    alert("Error fetching client secret key. Please try again later.");
+    console.error("Error fetching client secret key:", error);
+    throw error;
+  }
+}
 }

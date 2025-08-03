@@ -27,13 +27,18 @@ import InstructionIndex from "./components/Chat/Instruction/InstructionIndex";
 import CreateInstruction from "./components/Chat/Instruction/CreateInstruction";
 import EditInstruction from "./components/Chat/Instruction/EditInstruction";
 import VoiceAgentConversation from "./pages/VoiceAgentConversation";
+import { VoiceAgentProvider } from "./contexts/VoiceAgentContext";
 
 function App() {
   return (
     <AuthProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AppContent />
-      </Router>
+      <VoiceAgentProvider>
+        <Router
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
+          <AppContent />
+        </Router>
+      </VoiceAgentProvider>
     </AuthProvider>
   );
 }
@@ -98,7 +103,6 @@ function privateRoutes() {
             }
           />
         </Route>
-
         /** VOICE AGENT CONVERSATION */
         <Route path="/voice-agent">
           <Route
