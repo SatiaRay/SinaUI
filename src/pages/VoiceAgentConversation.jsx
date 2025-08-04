@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { voiceAgentEndpoints } from "../utils/apis";
+import { aiFunctionsEndpoints, voiceAgentEndpoints } from "../utils/apis";
 import { useVoiceAgent } from "../contexts/VoiceAgentContext";
 import { Button } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
 import { Mic } from "lucide-react";
 import MicVisualizer from "../components/MicVisualizer";
+import { tool } from "@openai/agents/realtime";
+import { z } from "zod";
 
 const VoiceAgentConversation = () => {
   const [instruction, setInstruction] = useState(null);
@@ -14,19 +16,67 @@ const VoiceAgentConversation = () => {
 
   const { createSession, isConnected, error, connect, session, disconnect } =
     useVoiceAgent();
-
   const audioPlayerRef = useRef(null);
   const analyserRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioContextRef = useRef(null);
 
+  const createToolsFromFunctions = (functions) => {
+    return functions.map((func) => {
+      const params = {};
+      for (const [paramName, paramDef] of Object.entries(
+        func.parameters.properties
+      )) {
+        switch (paramDef.type) {
+          case "string":
+            params[paramName] = z.string().describe(paramDef.description || "");
+            break;
+          case "integer":
+            params[paramName] = z
+              .number()
+              .int()
+              .describe(paramDef.description || "");
+            break;
+          case "float":
+            params[paramName] = z.number().describe(paramDef.description || "");
+            break;
+          default:
+            params[paramName] = z.string().describe(paramDef.description || "");
+        }
+      }
+
+      return tool({
+        name: func.name,
+        description: func.description,
+        parameters: z.object(params),
+        async execute(args) {
+          console.log(`Executing ${func.name} with:`, args);
+          return `Executed ${func.name} with parameters: ${JSON.stringify(
+            args
+          )}`;
+        },
+      });
+    });
+  };
+
   useEffect(() => {
-    const fetchInstruction = async () => {
-      const res = await voiceAgentEndpoints.getVoiceAgentInstruction();
-      setInstruction(res.instruction);
-      createSession(res.instruction);
+    const initializeAgent = async () => {
+      try {
+        const { functions } = await aiFunctionsEndpoints.getFunctionsMap();
+        console.log("Available functions:", functions);
+
+        const tools = createToolsFromFunctions(functions);
+
+        const res = await voiceAgentEndpoints.getVoiceAgentInstruction();
+        setInstruction(res.instruction);
+
+        createSession(res.instruction, tools);
+      } catch (err) {
+        console.error("Initialization error:", err);
+      }
     };
-    fetchInstruction();
+
+    initializeAgent();
   }, []);
 
   useEffect(() => {
@@ -131,7 +181,6 @@ const VoiceAgentConversation = () => {
         "gpt-4o-realtime-preview-2025-06-03"
       );
       await connect(data.value);
-
       startRecording();
     } catch (err) {
       console.error("Error connecting to voice agent:", err);
@@ -154,7 +203,6 @@ const VoiceAgentConversation = () => {
     }
 
     disconnect();
-
     setMode("ready");
     setAudioBlob(null);
   };
