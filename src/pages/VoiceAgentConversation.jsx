@@ -5,7 +5,7 @@ import { Button } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
 import { Mic } from "lucide-react";
 import MicVisualizer from "../components/MicVisualizer";
-import { tool } from "@openai/agents/realtime";
+import { tool } from "@openai/agents-realtime";
 import { z } from "zod";
 
 const VoiceAgentConversation = () => {
@@ -13,7 +13,6 @@ const VoiceAgentConversation = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("ready");
   const [audioBlob, setAudioBlob] = useState(null);
-
   const { createSession, isConnected, error, connect, session, disconnect } =
     useVoiceAgent();
   const audioPlayerRef = useRef(null);
