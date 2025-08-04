@@ -9,7 +9,7 @@ import MicVisualizer from "../components/MicVisualizer";
 const VoiceAgentConversation = () => {
   const [instruction, setInstruction] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("ready"); // "ready", "recording", "playing", "processing"
+  const [mode, setMode] = useState("ready");
   const [audioBlob, setAudioBlob] = useState(null);
 
   const { createSession, isConnected, error, connect, session, disconnect } =
@@ -59,7 +59,6 @@ const VoiceAgentConversation = () => {
 
       mediaRecorderRef.current.ondataavailable = async (event) => {
         if (event.data.size > 0) {
-          // Send audio buffer to session if possible
           const arrayBuffer = await event.data.arrayBuffer();
           try {
             await session?.sendAudio(arrayBuffer);
@@ -77,7 +76,6 @@ const VoiceAgentConversation = () => {
     }
   };
 
-  // Listen for audio coming from the session and play it
   useEffect(() => {
     if (!session) return;
 
@@ -94,7 +92,6 @@ const VoiceAgentConversation = () => {
     };
   }, [session]);
 
-  // Play audioBlob and setup analyser to animate MicVisualizer
   useEffect(() => {
     if (mode !== "playing" || !audioBlob) return;
 
@@ -135,7 +132,6 @@ const VoiceAgentConversation = () => {
       );
       await connect(data.value);
 
-      // After connection, start recording automatically
       startRecording();
     } catch (err) {
       console.error("Error connecting to voice agent:", err);
@@ -145,7 +141,6 @@ const VoiceAgentConversation = () => {
   };
 
   const handleDisconnect = () => {
-    // Stop recording if active
     if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream
@@ -153,16 +148,13 @@ const VoiceAgentConversation = () => {
         .forEach((track) => track.stop());
     }
 
-    // Stop audio playback if any
     if (audioPlayerRef.current) {
       audioPlayerRef.current.pause();
       audioPlayerRef.current = null;
     }
 
-    // Use context disconnect to close session and update state
     disconnect();
 
-    // Reset local UI states
     setMode("ready");
     setAudioBlob(null);
   };
@@ -170,12 +162,14 @@ const VoiceAgentConversation = () => {
   if (!isConnected) {
     return (
       <div dir="ltr" className="p-5">
-        <h1>Voice Agent Conversation Page ✌️✌️🙌🙌</h1>
+        <h1 className="dark:text-white">
+          Voice Agent Conversation Page ✌️✌️🙌🙌
+        </h1>
 
-        <h3>Instruction</h3>
+        <h3 className="dark:text-white">Instruction</h3>
 
         <Button
-          className="bg-blue-600 text-white my-5 mx-0"
+          className="bg-blue-600 text-white my-5 h-10 flex items-center justify-center w-28"
           onClick={handleConnect}
           disabled={isConnected || loading}
         >
@@ -188,8 +182,11 @@ const VoiceAgentConversation = () => {
           )}
         </Button>
         <br />
-
-        <pre dir="ltr">{instruction}</pre>
+        <div className="w-full overflow-x-hidden">
+          <pre className="dark:text-white" dir="ltr">
+            {instruction}
+          </pre>
+        </div>
       </div>
     );
   }
@@ -200,7 +197,11 @@ const VoiceAgentConversation = () => {
         <Mic size={24} color={mode === "recording" ? "red" : "gray"} />
       </MicVisualizer>
 
-      <Button variant="danger" onClick={handleDisconnect} className="mt-4">
+      <Button
+        variant="danger"
+        onClick={handleDisconnect}
+        className="mt-4 dark:text-white"
+      >
         Disconnect
       </Button>
     </div>
