@@ -8,17 +8,17 @@ export function VoiceAgentProvider({ children }) {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
 
-
   const createSession = (instruction = null) => {
     const agent = new RealtimeAgent({
       name: "Voice Assistant",
       instructions:
-        instruction ?? "Your task is to assist users with their queries using voice commands. Respond in a friendly and helpful manner.",
+        instruction ??
+        "Your task is to assist users with their queries using voice commands. Respond in a friendly and helpful manner.",
     });
 
     const newSession = new RealtimeSession(agent);
     setSession(newSession);
-  }
+  };
 
   // Connect to OpenAI
   const connect = async (apiKey) => {
@@ -39,7 +39,7 @@ export function VoiceAgentProvider({ children }) {
     createSession,
     connect,
     disconnect: () => {
-      session?.disconnect();
+      session?.close();
       setIsConnected(false);
     },
   };
