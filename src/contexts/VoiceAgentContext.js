@@ -20,7 +20,6 @@ export function VoiceAgentProvider({ children }) {
     setSession(newSession);
   };
 
-  // Connect to OpenAI
   const connect = async (apiKey) => {
     try {
       if (!session) throw new Error("Session not initialized");
