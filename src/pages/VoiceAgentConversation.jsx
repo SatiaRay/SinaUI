@@ -2,9 +2,11 @@ import { useContext, useEffect, useState } from "react";
 import { voiceAgentEndpoints } from "../utils/apis";
 import { useVoiceAgent } from "../contexts/VoiceAgentContext";
 import { Button } from "react-bootstrap";
+import { ClipLoader } from "react-spinners";
 
 const VoiceAgentConversation = () => {
   const [instruction, setInstruction] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const { createSession, session, isConnected, error, connect, disconnect } =
     useVoiceAgent();
@@ -30,12 +32,18 @@ const VoiceAgentConversation = () => {
   }, [error]);
 
   const handleConnect = async () => {
-    const data = await voiceAgentEndpoints.getClientSecretKey(
-      "gpt-4o-realtime-preview-2025-06-03"
-    );
+    setLoading(true);
 
-    if (data.value) {
+    try {
+      const data = await voiceAgentEndpoints.getClientSecretKey(
+        "gpt-4o-realtime-preview-2025-06-03"
+      );
+
       connect(data.value);
+    } catch (err) {
+      console.error("Error connecting to voice agent:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,9 +58,14 @@ const VoiceAgentConversation = () => {
         onClick={handleConnect}
         disabled={isConnected}
       >
-        {isConnected ? "Disconnect" : "Connect"}
+        {!isConnected && loading ? (
+          <ClipLoader color="white" size={15} />
+        ) : isConnected ? (
+          "Disconnect"
+        ) : (
+          "Connect"
+        )}
       </Button>
-
       <br />
 
       <pre dir="ltr">{instruction}</pre>
