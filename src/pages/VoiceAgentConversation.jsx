@@ -1,11 +1,15 @@
 import { useContext, useEffect, useState } from "react";
-import { voiceAgentEndpoints } from "../utils/apis";
+import { aiFunctionsEndpoints, voiceAgentEndpoints } from "../utils/apis";
 import { useVoiceAgent } from "../contexts/VoiceAgentContext";
 import { Button } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
+import { submitRequest, neshanSearch } from "../services/ai_tools_function";
+import { tool } from "@openai/agents/realtime";
+import { z } from "zod";
 
 const VoiceAgentConversation = () => {
   const [instruction, setInstruction] = useState(null);
+  const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const { createSession, session, isConnected, error, connect, disconnect } =
@@ -16,12 +20,71 @@ const VoiceAgentConversation = () => {
       const res = await voiceAgentEndpoints.getVoiceAgentInstruction();
 
       setInstruction(res.instruction);
+    };
 
-      createSession(res.instruction);
+    const fetchToolFunctions = async () => {
+      const res = await aiFunctionsEndpoints.getFunctionsMap();
+
+      const tools = [submitRequest, neshanSearch];
+
+      // res.functions.map((functionObject) => {
+      //   let parameters = Object.keys(functionObject.parameters.properties);
+
+      //   parameters = parameters.reduce((acc, key) => {
+      //     acc[key] = undefined; // or set a default value (e.g., null, "")
+      //     return acc;
+      //   }, {});
+
+      //   let paramShape = {};
+      //   Object.entries(functionObject.parameters.properties).forEach(
+      //     ([key, value]) => {
+      //       if (typeof z[value.type] === "function") {
+      //         paramShape[key] = z[value.type]();
+      //       } else {
+      //         // fallback to z.any() if type is not recognized
+      //         paramShape[key] = z.any();
+      //       }
+      //     }
+      //   );
+
+      //   paramShape = z.object(paramShape);
+
+      //   tools.push(
+      //     tool({
+      //       name: functionObject.name,
+      //       description: functionObject.description,
+      //       parameters: paramShape,
+      //       async execute(parameters) {
+      //         console.log(`Calling function: ${functionObject.name}`);
+
+      //         console.log(parameters);
+
+      //         return await aiFunctionsEndpoints.callFunction(
+      //           functionObject.name,
+      //           parameters
+      //         );
+      //       },
+      //     })
+      //   );
+      // });
+
+      setTools(tools);
     };
 
     fetchInstruction();
+
+    fetchToolFunctions();
   }, []);
+
+  useEffect(() => {
+    if ((tools, instruction)) {
+      console.log("SESSION CREATED");
+
+      console.log(tools[4]);
+
+      createSession(instruction, tools);
+    }
+  }, [instruction, tools]);
 
   useEffect(() => {
     if (error) {
@@ -36,7 +99,7 @@ const VoiceAgentConversation = () => {
 
     try {
       const data = await voiceAgentEndpoints.getClientSecretKey(
-        "gpt-4o-realtime-preview-2025-06-03"
+        "gpt-4o-realtime-preview-2024-12-17"
       );
 
       connect(data.value);

@@ -9,11 +9,12 @@ export function VoiceAgentProvider({ children }) {
   const [error, setError] = useState(null);
 
 
-  const createSession = (instruction = null) => {
+  const createSession = (instruction = null, tools = []) => {
     const agent = new RealtimeAgent({
       name: "Voice Assistant",
       instructions:
         instruction ?? "Your task is to assist users with their queries using voice commands. Respond in a friendly and helpful manner.",
+      tools: tools,
     });
 
     const newSession = new RealtimeSession(agent);

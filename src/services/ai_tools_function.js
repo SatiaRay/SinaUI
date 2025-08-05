@@ -46,27 +46,30 @@ export const neshanSearch = tool({
   },
 });
 
-// Endpoints
 export const aiToolsEndpoints = {
   submitRequest: async ({ mobile, address, lat, long, subject_id }) => {
-    try {
-      const plainAxios = axios.create({
-        headers: {
-          common: {
-            "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.SERVICE_137_API_KEY}`,
-          }
-        },
-      });
+    const plainAxios = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.REACT_APP_SERVICE_137_API_KEY}`,
+      },
+    });
 
+    try {
       const res = await plainAxios.post(
-        "https://137.iranlms.ir/api/v1/requests",
+        "https://arak.satia.co/api/submit/request",
         {
           mobile,
           address,
           lat,
           long,
           subject_id,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.REACT_APP_SERVICE_137_API_KEY}`,
+          },
         }
       );
       return res.data;
@@ -79,23 +82,18 @@ export const aiToolsEndpoints = {
     }
   },
   neshanSearch: async ({ term, lat = null, lng = null }) => {
-    lat = lat ?? process.env.CITY_LAT;
-    lng = lng ?? process.env.CITY_LON;
+    lat = lat ?? process.env.REACT_APP_CITY_LAT;
+    lng = lng ?? process.env.REACT_APP_CITY_LON;
 
     try {
-      const plainAxios = axios.create({
-        headers: {
-          common: {
-            "Api-Key": process.env.NESHAN_API_KEY,
-          }
-        },
-      });
-
-      const res = await plainAxios.get(`https://api.neshan.org/v1/search`, {
+      const res = await axios.get("https://api.neshan.org/v1/search", {
         params: {
           term,
           lat,
           lng,
+        },
+        headers: {
+          "Api-Key": process.env.REACT_APP_NESHAN_API_KEY,
         },
       });
       return res.data;
