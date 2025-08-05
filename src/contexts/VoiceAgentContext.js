@@ -14,7 +14,7 @@ export function VoiceAgentProvider({ children }) {
       instructions:
         instruction ??
         "Your task is to assist users with their queries using voice commands. Respond in a friendly and helpful manner.",
-      tools,
+      tools: tools ?? [],
     });
 
     const newSession = new RealtimeSession(agent);
