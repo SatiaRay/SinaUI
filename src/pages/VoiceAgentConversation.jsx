@@ -76,15 +76,20 @@ const VoiceAgentConversation = () => {
     fetchToolFunctions();
   }, []);
 
+  // Track if session has already been created to avoid endless loop
+  const [sessionCreated, setSessionCreated] = useState(false);
+
   useEffect(() => {
-    if ((tools, instruction)) {
+    // Only create session if instruction is not null and tools is an array (can be empty)
+    if (!sessionCreated && instruction && Array.isArray(tools)) {
       console.log("SESSION CREATED");
-
-      console.log(tools[4]);
-
+      if (tools[4]) {
+        console.log(tools[4]);
+      }
       createSession(instruction, tools);
+      setSessionCreated(true);
     }
-  }, [instruction, tools]);
+  }, [instruction, tools, sessionCreated, createSession]);
 
   useEffect(() => {
     if (error) {
