@@ -28,6 +28,7 @@ import CreateInstruction from "./components/Chat/Instruction/CreateInstruction";
 import EditInstruction from "./components/Chat/Instruction/EditInstruction";
 import VoiceAgentConversation from "./pages/VoiceAgentConversation";
 import { VoiceAgentProvider } from "./contexts/VoiceAgentContext";
+import AiToolsFunctionTester from "./pages/AiToolsFunctionTester";
 
 function App() {
   return (
@@ -110,6 +111,17 @@ function privateRoutes() {
             element={
               <PrivateRoute>
                 <VoiceAgentConversation />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+
+        <Route path="/ai-tools">
+          <Route
+            path=""
+            element={
+              <PrivateRoute>
+                <AiToolsFunctionTester />
               </PrivateRoute>
             }
           />
