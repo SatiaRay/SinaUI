@@ -57,7 +57,9 @@ export const workflowEndpoints = {
   // List all workflows
   listWorkflows: async (agentType = null) => {
     try {
-      const response = await axios.get(`${BASE_URL}/workflows?agent_type=${agentType}`);
+      const response = await axios.get(
+        `${BASE_URL}/workflows?agent_type=${agentType}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error listing workflows:", error);
@@ -135,7 +137,9 @@ export const instructionEndpoints = {
   // List all instructions
   listInstructions: async (agentType = null, page = 1) => {
     try {
-      const response = await axios.get(`${BASE_URL}/instructions/?page=${page}&agent_type=${agentType}`);
+      const response = await axios.get(
+        `${BASE_URL}/instructions/?page=${page}&agent_type=${agentType}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error listing instructions:", error);
@@ -151,6 +155,19 @@ export const aiFunctionsEndpoints = {
       return response.data;
     } catch (error) {
       console.error("Error fetching AI functions:", error);
+      throw error;
+    }
+  },
+
+  callFunction: async (function_name, args) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/ai-functions/call`, {
+        function_name,
+        args,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error calling AI function:", error);
       throw error;
     }
   },
@@ -310,19 +327,20 @@ export const voiceAgentEndpoints = {
       const response = await axios.get(`${BASE_URL}/voice_agent/instruction`);
       return response.data;
     } catch (error) {
-      console.error('Error getting voice agent instuction:', error);
+      console.error("Error getting voice agent instuction:", error);
       throw error;
     }
   },
   getClientSecretKey: async (model) => {
-  try {
-    const URL = `${BASE_URL}/voice_agent/client_key?model=${model}`;
-    const response = await axios.get(URL);
-    return response.data;
-  } catch (error) {
-    alert("Error fetching client secret key. Please try again later.");
-    console.error("Error fetching client secret key:", error);
-    throw error;
-  }
-}
-}
+    try {
+      const URL = `${BASE_URL}/voice_agent/client_key?model=${model}`;
+      const response = await axios.get(URL);
+      return response.data;
+    } catch (error) {
+      alert("Error fetching client secret key. Please try again later.");
+      console.error("Error fetching client secret key:", error);
+      throw error;
+    }
+  },
+  
+};
