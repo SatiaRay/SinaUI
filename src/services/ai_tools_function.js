@@ -22,7 +22,7 @@ export const submitRequest = tool({
       subject_id,
     });
 
-    return await aiToolsEndpoints.submitRequest({
+    return await aiToolsEndpoints.submitMayoralRequest({
       mobile,
       address,
       lat,
@@ -31,6 +31,8 @@ export const submitRequest = tool({
     });
   },
 });
+
+
 
 // Neshan Search API
 export const neshanSearch = tool({
@@ -47,7 +49,7 @@ export const neshanSearch = tool({
 });
 
 export const aiToolsEndpoints = {
-  submitRequest: async ({ mobile, address, lat, long, subject_id }) => {
+  submitMayoralRequest: async ({ mobile, address, lat, long, subject_id }) => {
     const plainAxios = axios.create({
       headers: {
         "Content-Type": "application/json",
