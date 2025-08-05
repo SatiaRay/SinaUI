@@ -82,10 +82,6 @@ const VoiceAgentConversation = () => {
   useEffect(() => {
     // Only create session if instruction is not null and tools is an array (can be empty)
     if (!sessionCreated && instruction && Array.isArray(tools)) {
-      console.log("SESSION CREATED");
-      if (tools[4]) {
-        console.log(tools[4]);
-      }
       createSession(instruction, tools);
       setSessionCreated(true);
     }
