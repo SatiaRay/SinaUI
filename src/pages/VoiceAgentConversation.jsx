@@ -3,7 +3,7 @@ import { aiFunctionsEndpoints, voiceAgentEndpoints } from "../utils/apis";
 import { useVoiceAgent } from "../contexts/VoiceAgentContext";
 import { Button } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
-import { submitRequest, neshanSearch } from "../services/ai_tools_function";
+import { submitRequest, neshanSearch, searchSubject } from "../services/ai_tools_function";
 import { tool } from "@openai/agents/realtime";
 import { z } from "zod";
 
@@ -25,7 +25,7 @@ const VoiceAgentConversation = () => {
     const fetchToolFunctions = async () => {
       const res = await aiFunctionsEndpoints.getFunctionsMap();
 
-      const tools = [submitRequest, neshanSearch];
+      const tools = [submitRequest, neshanSearch, searchSubject];
 
       // res.functions.map((functionObject) => {
       //   let parameters = Object.keys(functionObject.parameters.properties);
