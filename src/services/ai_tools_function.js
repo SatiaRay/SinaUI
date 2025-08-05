@@ -14,13 +14,6 @@ export const submitRequest = tool({
     subject_id: z.number(),
   }),
   async execute({ mobile, address, lat, long, subject_id }) {
-    console.log("Executing submitRequest with parameters:", {
-      mobile,
-      address,
-      lat,
-      long,
-      subject_id,
-    });
 
     return await aiToolsEndpoints.submitMayoralRequest({
       mobile,
@@ -29,10 +22,9 @@ export const submitRequest = tool({
       long,
       subject_id,
     });
+
   },
 });
-
-
 
 // Neshan Search API
 export const neshanSearch = tool({
@@ -42,9 +34,21 @@ export const neshanSearch = tool({
     term: z.string(),
   }),
   async execute({ term }) {
-    console.log("Executing Neshan search with term:", term);
 
     return await aiToolsEndpoints.neshanSearch({ term });
+
+  },
+});
+
+// Serach subject in 137 mayoral application
+export const searchSubject = tool({
+  name: "Mayoral-searchSubject",
+  description: "جستجوی موضوع در سامانه شهرداری 137",
+  parameters: z.object({
+    term: z.string(),
+  }),
+  async execute({ term }){
+    return await aiToolsEndpoints.mayoralSearchSubject({ term });
   },
 });
 
@@ -77,6 +81,29 @@ export const aiToolsEndpoints = {
       return res.data;
     } catch (error) {
       console.error("Error submitting request:", error);
+      return {
+        success: false,
+        message: error,
+      };
+    }
+  },
+  mayoralSearchSubject: async ({ term }) => {
+    const plainAxios = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.REACT_APP_SERVICE_137_API_KEY}`,
+      },
+    });
+
+    try {
+      const res = await plainAxios.get("https://arak.satia.co/api/subject/search", {
+        params: {
+          q: term,
+        }
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Error in search:", error);
       return {
         success: false,
         message: error,
