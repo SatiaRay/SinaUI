@@ -1,5 +1,6 @@
-import { Mic } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { voiceAgentEndpoints } from "../utils/apis";
+import { useVoiceAgent } from "../contexts/VoiceAgentContext";
 import { Button } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
 import MicVisualizer from "../components/MicVisualizer";
@@ -9,6 +10,7 @@ import { z } from "zod";
 
 const VoiceAgentConversation = () => {
   const [instruction, setInstruction] = useState(null);
+  const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("ready");
   const [audioBlob, setAudioBlob] = useState(null);
@@ -48,7 +50,24 @@ const VoiceAgentConversation = () => {
     };
 
     initializeAgent();
+
+    fetchToolFunctions();
   }, []);
+
+  // Track if session has already been created to avoid endless loop
+  const [sessionCreated, setSessionCreated] = useState(false);
+
+  useEffect(() => {
+    // Only create session if instruction is not null and tools is an array (can be empty)
+    if (!sessionCreated && instruction && Array.isArray(tools)) {
+      console.log("SESSION CREATED");
+      if (tools[4]) {
+        console.log(tools[4]);
+      }
+      createSession(instruction, tools);
+      setSessionCreated(true);
+    }
+  }, [instruction, tools, sessionCreated, createSession]);
 
   useEffect(() => {
     if (error) {
@@ -149,7 +168,7 @@ const VoiceAgentConversation = () => {
     setLoading(true);
     try {
       const data = await voiceAgentEndpoints.getClientSecretKey(
-        "gpt-4o-realtime-preview-2025-06-03"
+        "gpt-4o-realtime-preview-2024-12-17"
       );
       await connect(data.value);
       startRecording();
