@@ -27,7 +27,8 @@ import WorkflowEditor from "./components/Workflow/editor/WorkflowEditor";
 import { AuthProvider } from "./contexts/AuthContext";
 import { VoiceAgentProvider } from "./contexts/VoiceAgentContext";
 import VoiceAgentConversation from "./pages/VoiceAgentConversation";
-import { VoiceAgentProvider } from "./contexts/VoiceAgentContext";
+import AiToolsFunctionTester from "./pages/AiToolsFunctionTester";
+import { getVersion } from "./utils/apis";
 
 function App() {
   return (
