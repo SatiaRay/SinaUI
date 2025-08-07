@@ -5,7 +5,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   UserIcon,
-  XMarkIcon
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -143,10 +143,9 @@ const Navbar = ({ onSidebarCollapse }) => {
         >
           <div className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
             <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
-          <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
-              <UserIcon className="text-white w-5 h-5"/>
-            </button>  
-        
+            <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
+              <UserIcon className="text-white w-5 h-5" />
+            </button>
           </div>
           <div className="flex-1 p-2 space-y-2 overflow-hidden">
             <Link
@@ -236,10 +235,9 @@ const Navbar = ({ onSidebarCollapse }) => {
               onClick={handleLogout}
               className="w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-gray-600"
             >
-                          <p className="text-sm text-white">خروج</p>
+              <p className="text-sm text-white">خروج</p>
 
-<ArrowLeftEndOnRectangleIcon  className="w-6 h-6 text-white"/>
-
+              <ArrowLeftEndOnRectangleIcon className="w-6 h-6 text-white" />
             </button>
           </div>
         </div>
@@ -264,14 +262,14 @@ const Navbar = ({ onSidebarCollapse }) => {
         >
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-4 border-b border-gray-700">
-              <div className="flex gap-2"> 
-              <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
-              <UserIcon className="text-white w-4 h-4"/>
-            </button>
+              <div className="flex gap-2">
+                <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
+                  <UserIcon className="text-white w-4 h-4" />
+                </button>
 
-                 <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
-                 </div>
-            
+                <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
+              </div>
+
               <button
                 onClick={closeSidebar}
                 className="text-gray-300 hover:text-white transition-colors duration-200"
@@ -286,6 +284,12 @@ const Navbar = ({ onSidebarCollapse }) => {
                 onClick={closeSidebar}
               >
                 چت
+              </Link>
+              <Link
+                to="/voice-agent"
+                className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+              >
+                گفتگوی صوتی
               </Link>
               <div>
                 <button
@@ -368,10 +372,9 @@ const Navbar = ({ onSidebarCollapse }) => {
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2 bg-gray-600 justify-center text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               >
-                            <p className="text-sm text-white">خروج</p>
+                <p className="text-sm text-white">خروج</p>
 
-<ArrowLeftEndOnRectangleIcon  className="w-6 h-6 text-white"/>
-
+                <ArrowLeftEndOnRectangleIcon className="w-6 h-6 text-white" />
               </button>
             </div>
           </div>
