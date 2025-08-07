@@ -21,6 +21,8 @@ const DocumentIndex = () => {
   const location = useLocation();
   const { domain_id } = useParams();
 
+  const [agentType, setAgentType] = useState("");
+
   const pageSizeOptions = [20, 50, 100];
   const minPageSize = Math.min(...pageSizeOptions);
 
@@ -28,7 +30,7 @@ const DocumentIndex = () => {
     try {
       const isManual = location.pathname.endsWith("/manuals");
       const response = isManual
-        ? await getDocuments(isManual, currentPage, pageSize)
+        ? await getDocuments(isManual, agentType, currentPage, pageSize)
         : await getDomainDocuments(domain_id, currentPage, pageSize);
       console.log("Get Documents Response:", response.data.items); // لاگ برای دیباگ
       if (response && response.data) {
@@ -44,7 +46,7 @@ const DocumentIndex = () => {
 
   useEffect(() => {
     fetchDocuments();
-  }, [location.pathname, currentPage, pageSize]);
+  }, [location.pathname, agentType, currentPage, pageSize]);
 
   const handleDocumentCardClick = (document) => {
     fetchDocument(document);
@@ -95,6 +97,21 @@ const DocumentIndex = () => {
     fetchDocuments();
   };
 
+  const handleDelete = async (documentId) => {
+    if (window.confirm("آیا مطمئن هستید که می‌خواهید این سند را حذف کنید؟")) {
+      try{
+        documentEndpoints.deleteDocument(documentId);
+        setDocuments((prevDocuments) =>
+          prevDocuments.filter((doc) => doc.id !== documentId)
+        );
+        alert("سند با موفقیت حذف شد.");
+      } catch (err) {
+        console.error("Error deleting document:", err);
+        alert("خطا در حذف سند: " + (err.message || "خطای ناشناخته"));
+        setError("خطا در حذف سند: " + (err.message || "خطای ناشناخته"));
+      }
+    }
+  }
   const handleStatusChange = async (documentId, newVectorId) => {
     try {
       // به‌روزرسانی موقت در کلاینت
@@ -109,16 +126,6 @@ const DocumentIndex = () => {
       console.error("Error refreshing documents:", err);
       setError(err.message || "Failed to refresh documents");
     }
-  };
-
-  const handleDelete = (documentId) => {
-    const deleteDoc = async () => {
-      await documentEndpoints.deleteDocument(documentId);
-
-      fetchDocuments();
-    };
-
-    deleteDoc();
   };
 
   const shouldShowPagination = totalItems > minPageSize;
@@ -139,9 +146,14 @@ const DocumentIndex = () => {
             onClick={handleAddKnowledge}
             className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
           >
-            ازودن دانش
+            افزودن دانش
           </button>
         )}
+        <select className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onChange={(e) => setAgentType(e.target.value)}>
+          <option value={''}>همه</option>
+          <option value="text_agent">ربات متنی</option>
+          <option value="voice_agent">ربات صوتی</option>
+        </select>
       </div>
 
       {documentContentLoading ? (
