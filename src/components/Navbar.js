@@ -19,6 +19,7 @@ const Navbar = ({ onSidebarCollapse }) => {
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
   const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -143,11 +144,28 @@ const Navbar = ({ onSidebarCollapse }) => {
         >
           <div className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
             <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
-            <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
+            <button
+              onClick={() => setUserInfo(!userInfo)}
+              className="flex gap-1 items-center p-1 hover:bg-blue-500 bg-gray-700 rounded-lg"
+            >
               <UserIcon className="text-white w-5 h-5" />
             </button>
           </div>
-          <div className="flex-1 p-2 space-y-2 overflow-hidden">
+          <div className="flex-1 w-full p-2 space-y-2 overflow-hidden relative">
+            {userInfo && (
+              <div className="flex gap-1 p-1 rounded-lg flex-col w-60 bg-gray-400 absolute z-10">
+                <p className="py-1 bg-gray-600 px-1 text-white text-sm text-center rounded-lg w-full text-red-6-00">
+                  {user.first_name}
+                </p>
+                <p className="py-1 bg-gray-600 px-1 text-white text-sm text-center rounded-lg w-full">
+                  {user.last_name}
+                </p>
+                <p className="py-1 bg-gray-600 px-1 text-white text-sm text-center rounded-lg w-full">
+                  {user.email}
+                </p>
+              </div>
+            )}
+
             <Link
               to="/chat"
               className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"

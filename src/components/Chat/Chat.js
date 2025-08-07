@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
+import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { askQuestion } from "../../services/api";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
-import { toast } from "react-toastify";
 
 // استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
@@ -571,9 +571,7 @@ const Chat = ({ item }) => {
   const socketRef = useRef(null);
   const initialMessageAddedRef = useRef(false);
   const textRef = useRef(null);
-  const [copyText, setCopyText] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
-  const [voiceLoading, setVoiceLoading] = useState(false);
 
   let inCompatibleMessage = "";
   let bufferedTable = "";
