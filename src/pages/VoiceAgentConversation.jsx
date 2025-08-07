@@ -3,7 +3,7 @@ import { useVoiceAgent } from "../contexts/VoiceAgentContext";
 import { Button } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
 import MicVisualizer from "../components/MicVisualizer";
-import { Mic, Volume2 } from "lucide-react";
+import { AudioLines, Bot, Mic, MicVocal, Volume2 } from "lucide-react";
 import {
   submitRequest,
   neshanSearch,
@@ -188,31 +188,26 @@ const VoiceAgentConversation = () => {
 
   if (!isConnected) {
     return (
-      <div dir="ltr" className="p-5">
-        <h1 className="dark:text-white">
-          Voice Agent Conversation Page ✌️✌️🙌🙌
-        </h1>
-
-        <h3 className="dark:text-white">Instruction</h3>
-
-        <Button
-          className="bg-blue-600 text-white my-5 h-10 flex items-center justify-center w-28"
-          onClick={handleConnect}
-          disabled={isConnected || loading}
-        >
-          {!isConnected && loading ? (
-            <ClipLoader color="white" size={15} />
-          ) : isConnected ? (
-            "Disconnect"
-          ) : (
-            "Connect"
-          )}
-        </Button>
-        <br />
-        <div className="w-full overflow-x-hidden">
-          <pre className="dark:text-white" dir="ltr">
-            {instruction}
-          </pre>
+      <div className="container items-center h-screen flex justify-center">
+        <div className="grid justify-center align-center gap-4">
+          <AudioLines className="mx-auto" size={200} color="#898989" />
+          <p className="text-gray-500">
+            با ربات هوش مصنوعی به صورت صوتی گفتگو کنید
+          </p>
+          <Button
+            className="bg-blue-600 text-white my-5 h-10 flex items-center justify-center w-auto justify-self-center"
+            onClick={handleConnect}
+            disabled={isConnected || loading}
+          >
+            {!isConnected && loading ? (
+              <ClipLoader color="white" size={15} />
+            ) : (
+              <>
+                <span className="mx-2">شروع گفتگو</span>
+                <MicVocal />
+              </>
+            )}
+          </Button>
         </div>
       </div>
     );
