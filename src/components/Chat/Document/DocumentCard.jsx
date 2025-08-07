@@ -103,6 +103,18 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
               }}
             />{" "}
           </div>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              نوع ربات:{" "}
+              {document.agent_type === "text_agent"
+                ? "ربات متنی"
+                : document.agent_type === "voice_agent"
+                ? "ربات صوتی"
+                : document.agent_type === "both"
+                ? "همه"
+                : "-"}
+            </span>
+          </div>
         </div>
       </Link>
     </>
