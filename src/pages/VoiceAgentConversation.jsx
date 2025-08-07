@@ -1,10 +1,9 @@
-import { useContext, useEffect, useState } from "react";
-import { voiceAgentEndpoints } from "../utils/apis";
+import { useContext, useEffect, useState, useRef } from "react";
 import { useVoiceAgent } from "../contexts/VoiceAgentContext";
 import { Button } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
 import MicVisualizer from "../components/MicVisualizer";
-import { useVoiceAgent } from "../contexts/VoiceAgentContext";
+import { Mic, Volume2 } from "lucide-react";
 import {
   submitRequest,
   neshanSearch,
@@ -158,7 +157,7 @@ const VoiceAgentConversation = () => {
     setLoading(true);
     try {
       const data = await voiceAgentEndpoints.getClientSecretKey(
-        "gpt-4o-realtime-preview-2024-12-17"
+        "gpt-4o-mini-realtime-preview-2024-12-17"
       );
       await connect(data.value);
       startRecording();
