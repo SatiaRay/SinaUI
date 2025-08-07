@@ -157,7 +157,7 @@ const VoiceAgentConversation = () => {
     setLoading(true);
     try {
       const data = await voiceAgentEndpoints.getClientSecretKey(
-        "gpt-4o-mini-realtime-preview-2024-12-17"
+        process.env.REACT_APP_VOICE_MODEL
       );
       await connect(data.value);
       startRecording();
