@@ -101,6 +101,9 @@ const WorkflowIndex = () => {
                 نام
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                نوع ربات
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 وضعیت
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -126,6 +129,15 @@ const WorkflowIndex = () => {
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {workflow.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {workflow.agent_type === "text_agent"
+                      ? "ربات متنی"
+                      : workflow.agent_type === "voice_agent"
+                      ? "ربات صوتی"
+                      : workflow.agent_type === "both"
+                      ? "همه"
+                      : "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">

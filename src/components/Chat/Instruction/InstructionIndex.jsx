@@ -87,6 +87,9 @@ const InstructionIndex = () => {
                 متن
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                نوع ربات
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 وضعیت
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -102,6 +105,15 @@ const InstructionIndex = () => {
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
                   {instruction.text}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                  {instruction.agent_type === "text_agent"
+                    ? "ربات متنی"
+                    : instruction.agent_type === "voice_agent"
+                    ? "ربات صوتی"
+                    : instruction.agent_type === "both"
+                    ? "همه"
+                    : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                   {instruction.status == 1 ? "فعال" : "غیرفعال"}

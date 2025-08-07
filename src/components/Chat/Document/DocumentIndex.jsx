@@ -99,7 +99,7 @@ const DocumentIndex = () => {
 
   const handleDelete = async (documentId) => {
     if (window.confirm("آیا مطمئن هستید که می‌خواهید این سند را حذف کنید؟")) {
-      try{
+      try {
         documentEndpoints.deleteDocument(documentId);
         setDocuments((prevDocuments) =>
           prevDocuments.filter((doc) => doc.id !== documentId)
@@ -111,7 +111,7 @@ const DocumentIndex = () => {
         setError("خطا در حذف سند: " + (err.message || "خطای ناشناخته"));
       }
     }
-  }
+  };
   const handleStatusChange = async (documentId, newVectorId) => {
     try {
       // به‌روزرسانی موقت در کلاینت
@@ -149,8 +149,11 @@ const DocumentIndex = () => {
             افزودن دانش
           </button>
         )}
-        <select className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onChange={(e) => setAgentType(e.target.value)}>
-          <option value={''}>همه</option>
+        <select
+          className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setAgentType(e.target.value)}
+        >
+          <option value={""}>همه</option>
           <option value="text_agent">ربات متنی</option>
           <option value="voice_agent">ربات صوتی</option>
         </select>
