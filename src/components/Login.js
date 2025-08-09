@@ -138,6 +138,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    if (!formData.email || !formData.password) {
+      setError('ایمیل و رمز عبور الزامی است');
+      return;
+    }
+  
     setLoading(true);
     setError("");
 
@@ -151,6 +157,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
