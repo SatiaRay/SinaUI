@@ -104,7 +104,7 @@ const Navbar = ({ onSidebarCollapse }) => {
 
   return (
     <div dir="rtl">
-      <div className="md:hidden fixed top-1 right-1 z-50">
+      <div className="md:hidden fixed top-2 right-2 z-50">
         <button
           onClick={toggleSidebar}
           className="text-gray-800 backdrop-blur-sm dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-md transition-all duration-300"
