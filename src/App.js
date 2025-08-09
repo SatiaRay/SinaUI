@@ -29,6 +29,7 @@ import { VoiceAgentProvider } from "./contexts/VoiceAgentContext";
 import VoiceAgentConversation from "./pages/VoiceAgentConversation";
 import AiToolsFunctionTester from "./pages/AiToolsFunctionTester";
 import { getVersion } from "./utils/apis";
+import Register from "./register";
 
 function App() {
   return (
@@ -249,6 +250,7 @@ function publicRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 }
