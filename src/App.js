@@ -81,7 +81,7 @@ function AppContent() {
 
       <div className="flex items-center justify-center">{publicRoutes()}</div>
 
-      <span className="text-sm fixed bottom-[2px] left-1">
+      <span className="text-xs fixed bottom-[2px] left-1">
         نسخه : {appVersion}
       </span>
     </div>
