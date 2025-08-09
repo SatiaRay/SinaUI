@@ -185,7 +185,7 @@ const Navbar = ({ onSidebarCollapse }) => {
       {sidebarOpen && (
         <div className="md:hidden fixed inset-0 z-50 transition-opacity duration-300 opacity-100">
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
+            className="fixed inset-0 backdrop-blur-sm transition-opacity duration-300"
             onClick={closeSidebar}
           />
           <div className="fixed right-0 top-0 bottom-0 w-64 bg-gray-800 dark:bg-gray-900 shadow-lg transform transition-transform duration-300 translate-x-0">
