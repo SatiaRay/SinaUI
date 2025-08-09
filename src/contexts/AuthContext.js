@@ -1,7 +1,9 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
-import { checkAuthorizationFetcher, login as loginApi } from "../services/api";
+import { checkAuthorizationFetcher, login as loginApi } from "../services/api"; // اضافه کردن registerApi
 import useSwr from 'swr'
+
+// import { checkAuthorizationFetcher, login as loginApi, register as registerApi } from
 
 export const AuthContext = createContext(null)
 
@@ -17,7 +19,6 @@ export const AuthProvider = ({ children }) => {
 
     console.log(axios.defaults.headers.common['Authorization'] ? 'check_authorization' : null);
     
-
     const {authorization_error} = useSwr(
         (token ? 'check_authorization' : null), 
         checkAuthorizationFetcher,{
@@ -34,14 +35,13 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         console.log(axios.defaults.headers.common['Authorization']);
         
-
         if(token)
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         else
             delete axios.defaults.headers.common['Authorization']
 
-        user ? localStorage.setItem('user', JSON.stringify(user)) : localStorage.clear('user')
-        token ? localStorage.setItem('token', token) : localStorage.clear('token')
+        user ? localStorage.setItem('user', JSON.stringify(user)) : localStorage.removeItem('user')
+        token ? localStorage.setItem('token', token) : localStorage.removeItem('token')
     }, [token, user])
 
     const check = () => {
@@ -57,6 +57,30 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    //for register
+    // const register = async (username, email, phoneNumber, password) => {
+    //     try {
+    //         const { user, access_token } = await registerApi(
+    //             username,
+    //             email,
+    //             phoneNumber,
+    //             password
+    //         );
+            
+    //         if (user && access_token) {
+    //             setUser(user);
+    //             setToken(access_token);
+    //             return { success: true };
+    //         }
+    //     } catch (error) {
+    //         console.error("Registration error:", error);
+    //         return { 
+    //             success: false, 
+    //             error: error.response?.data?.message || "ثبت نام با خطا مواجه شد" 
+    //         };
+    //     }
+    // }
+
     const logout = () => {
         setUser(null)
         setToken(null)
@@ -67,7 +91,15 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, token, check, login, logout, authorize }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            token, 
+            check, 
+            login, 
+            // register,
+            logout, 
+            authorize 
+        }}>
             {children}
         </AuthContext.Provider>
     )

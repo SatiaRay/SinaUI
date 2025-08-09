@@ -48,7 +48,6 @@ const Login = () => {
     };
   }, [googleScriptLoaded]);
 
-  // Initialize Google Sign-In
   const initializeGoogleSignIn = () => {
     if (!window.google?.accounts?.id) {
       console.error("Google Identity Services not available");
@@ -80,7 +79,6 @@ const Login = () => {
     }
   };
 
-  // Handle Google Sign-In response
   const handleGoogleSignIn = async (response) => {
     setLoading(true);
     setError("");
@@ -114,14 +112,11 @@ const Login = () => {
         throw new Error("No authentication token received");
       }
 
-      // Store token and user data
       localStorage.setItem("token", backendData.token);
       localStorage.setItem("user", JSON.stringify(backendData.user));
 
-      // Wait for auth state to update
       await authLogin({ token: backendData.token, user: backendData.user });
 
-      // Ensure user is set before navigating
       navigate("/chat", { replace: true });
     } catch (err) {
       console.error("Google Sign-In Error:", err);
@@ -149,7 +144,6 @@ const Login = () => {
 
     try {
       await authLogin(formData.email, formData.password);
-      // No need to navigate here - the useEffect will handle it when user changes
     } catch (error) {
       console.error("Login error:", error);
       setError(error.message || "Login failed");
@@ -157,12 +151,15 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
+
+  const handleRegister = () => {
+    navigate("/register");
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen w-full px-4 flex items-center justify-center relative overflow-hidden">
       <NetworkBackground3D />
-      <div className="relative z-10 max-w-md w-full space-y-8 bg-gray-900/80 dark:bg-gray-900/80 backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
+      <div className="relative max-w-md z-10 w-full space-y-8 backdrop-blur-lg px-4 py-7 md:p-8 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">
           ورود به سیستم
         </h2>
@@ -202,38 +199,53 @@ const Login = () => {
           </div>
 
           <div className="space-y-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              {loading ? (
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-50"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.272A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : (
-                "ورود"
-              )}
-            </button>
+            <div className="flex items-center justify-between w-full gap-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`group relative flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {loading ? (
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-50"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.272A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  "ورود"
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={handleRegister}
+                className="relative flex-1 flex justify-center py-2 px-4 border border-gray-600 rounded-md text-sm font-semibold text-white bg-transparent hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
+              >
+                ثبت نام
+              </button>
+            </div>
+
+            <div className="relative flex items-center">
+              <div className="flex-grow border-t border-gray-600"></div>
+              <span className="flex-shrink mx-4 text-gray-400 text-sm">یا</span>
+              <div className="flex-grow border-t border-gray-600"></div>
+            </div>
 
             <div className="flex justify-center">
               <div
@@ -243,6 +255,16 @@ const Login = () => {
             </div>
           </div>
         </form>
+
+        <div className="text-center text-sm text-gray-400">
+          حساب کاربری ندارید؟{' '}
+          <button 
+            onClick={handleRegister}
+            className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors duration-200"
+          >
+            همین حالا ثبت نام کنید
+          </button>
+        </div>
       </div>
     </div>
   );
