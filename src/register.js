@@ -67,7 +67,7 @@ const Register = () => {
   return (
     <div className="min-h-screen w-full px-4 flex items-center justify-center relative overflow-hidden">
       <NetworkBackground3D />
-      <div className="relative z-10 max-w-md w-full space-y-8 bg-gray-900/80 dark:bg-gray-900/80 backdrop-blur-lg md:p-8 py-8 px-4 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
+      <div className="relative z-10 max-w-md w-full space-y-8 backdrop-blur-lg md:p-8 py-8 px-4 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">
           ایجاد حساب کاربری
         </h2>
@@ -80,7 +80,7 @@ const Register = () => {
 
         <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <input
                 id="username"
                 name="username"

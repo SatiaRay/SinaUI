@@ -157,9 +157,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen w-full px-4 flex items-center justify-center relative overflow-hidden">
       <NetworkBackground3D />
-      <div className="relative z-10 max-w-md w-full space-y-8 bg-gray-900/80 dark:bg-gray-900/80 backdrop-blur-lg p-8 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
+      <div className="relative max-w-md z-10 w-full space-y-8 backdrop-blur-lg px-4 py-7 md:p-8 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">
           ورود به سیستم
         </h2>
