@@ -7,46 +7,15 @@ import NetworkBackground3D from "./NetworkBackground3D";
 const Login = () => {
   const { login: authLogin, user } = useAuth();
   const [formData, setFormData] = useState({
-    email: "admin@example.com",
-    password: "123456789",
+    email: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleScriptLoaded, setGoogleScriptLoaded] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      console.log("User is authenticated, redirecting to /chat");
-      navigate("/chat", { replace: true });
-    }
-  }, [user, navigate]);
 
-  useEffect(() => {
-    if (googleScriptLoaded || window.google?.accounts?.id) return;
-
-    console.log("Loading Google script...");
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      console.log("Google script loaded");
-      setGoogleScriptLoaded(true);
-      initializeGoogleSignIn();
-    };
-    script.onerror = () => {
-      console.error("Error loading Google Identity Services script");
-      setError("Failed to load Google sign-in script");
-    };
-    document.body.appendChild(script);
-
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
-  }, [googleScriptLoaded]);
 
   const initializeGoogleSignIn = () => {
     if (!window.google?.accounts?.id) {
@@ -68,9 +37,10 @@ const Login = () => {
         console.log("Rendering Google Sign-In button");
         window.google.accounts.id.renderButton(googleButtonDiv, {
           theme: "filled_blue",
-          size: "large",
+          size: "medium",
           width: "350",
-          text: "signin_with",
+          text: "continue_with",
+          shape: "rectangular",
         });
       }
     } catch (err) {
@@ -155,6 +125,39 @@ const Login = () => {
   const handleRegister = () => {
     navigate("/register");
   };
+  useEffect(() => {
+    if (user) {
+      console.log("User is authenticated, redirecting to /chat");
+      navigate("/chat", { replace: true });
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    initializeGoogleSignIn()
+    if (googleScriptLoaded || window.google?.accounts?.id) return;
+
+    console.log("Loading Google script...");
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      console.log("Google script loaded");
+      setGoogleScriptLoaded(true);
+      initializeGoogleSignIn();
+    };
+    script.onerror = () => {
+      console.error("Error loading Google Identity Services script");
+      setError("Failed to load Google sign-in script");
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, [googleScriptLoaded]);
 
   return (
     <div className="min-h-screen w-full px-4 flex items-center justify-center relative overflow-hidden">
@@ -170,7 +173,7 @@ const Login = () => {
           </div>
         )}
 
-        <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-6 space-y-6 w-full" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
               <input
@@ -198,7 +201,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 w-full">
             <div className="flex items-center justify-between w-full gap-2">
               <button
                 type="submit"
@@ -247,11 +250,11 @@ const Login = () => {
               <div className="flex-grow border-t border-gray-600"></div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex w-full py-1 justify-center bg-[#1b72e8] rounded-md overflow-hidden">
               <div
                 id="googleSignInButton"
                 className="w-full flex justify-center"
-              ></div>
+              />
             </div>
           </div>
         </form>
