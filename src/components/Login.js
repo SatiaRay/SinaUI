@@ -37,8 +37,8 @@ const Login = () => {
         console.log("Rendering Google Sign-In button");
         window.google.accounts.id.renderButton(googleButtonDiv, {
           theme: "filled_blue",
-          size: "large",
-          width: "380",
+          size: "medium",
+          width: "350",
           text: "continue_with",
           shape: "rectangular",
         });
@@ -250,7 +250,7 @@ const Login = () => {
               <div className="flex-grow border-t border-gray-600"></div>
             </div>
 
-            <div className="flex w-full justify-center">
+            <div className="flex w-full py-1 justify-center bg-[#1b72e8] rounded-md overflow-hidden">
               <div
                 id="googleSignInButton"
                 className="w-full flex justify-center"
