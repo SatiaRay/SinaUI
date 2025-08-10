@@ -8,50 +8,18 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import ThemeToggle from "../contexts/ThemeToggle";
 
 const Navbar = ({ onSidebarCollapse }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
   const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [userInfo, setUserInfo] = useState(false);
-
-  // Navigation items (avoids duplicate JSX)
-  const navItems = [
-    { path: "/chat", label: "چت" },
-    { path: "/voice-agent", label: "گفتگوی صوتی" },
-    { path: "/wizard", label: "پاسخ‌های ویزارد" },
-    { path: "/workflow", label: "گردش کار" },
-    { path: "/instructions", label: "دستور العمل های بات" },
-  ];
-
-  const documentItems = [
-    { path: "/document/manuals", label: "خزش دستی" },
-    { path: "/document", label: "خزیده شده‌ها" },
-    { path: "/crawl-url", label: "خزش URL" },
-    { path: "/processes", label: "پردازش" },
-  ];
-
-  // Navigation items (avoids duplicate JSX)
-  const navItems = [
-    { path: "/chat", label: "چت" },
-    { path: "/voice-agent", label: "گفتگوی صوتی" },
-    { path: "/wizard", label: "پاسخ‌های ویزارد" },
-    { path: "/workflow", label: "گردش کار" },
-    { path: "/instructions", label: "دستور العمل های بات" },
-  ];
-
-  const documentItems = [
-    { path: "/document/manuals", label: "خزش دستی" },
-    { path: "/document", label: "خزیده شده‌ها" },
-    { path: "/crawl-url", label: "خزش URL" },
-    { path: "/processes", label: "پردازش" },
-  ];
 
   const handleLogout = async () => {
     try {
@@ -67,7 +35,7 @@ const Navbar = ({ onSidebarCollapse }) => {
     setSidebarOpen(false);
     setDesktopSidebarCollapsed(false);
     setDocumentsDropdownOpen(false);
-    setUserDropdownOpen(false);
+    setUserInfo(false);
     onSidebarCollapse(false);
   };
 
@@ -103,7 +71,22 @@ const Navbar = ({ onSidebarCollapse }) => {
     return () => window.removeEventListener("message", handleMessage);
   }, [onSidebarCollapse]);
 
-  const renderNavItems = (items) => (
+  const navItems = [
+    { path: "/chat", label: "چت" },
+    { path: "/voice-agent", label: "گفتگوی صوتی" },
+    { path: "/wizard", label: "پاسخ‌های ویزارد" },
+    { path: "/workflow", label: "گردش کار" },
+    { path: "/instructions", label: "دستور العمل های بات" },
+  ];
+
+  const documentItems = [
+    { path: "/document/manuals", label: "خزش دستی" },
+    { path: "/document", label: "خزیده شده‌ها" },
+    { path: "/crawl-url", label: "خزش URL" },
+    { path: "/processes", label: "پردازش" },
+  ];
+
+  const renderNavItems = (items) =>
     items.map((item) => (
       <li key={item.path} className="text-right">
         <button
@@ -116,15 +99,15 @@ const Navbar = ({ onSidebarCollapse }) => {
           {item.label}
         </button>
       </li>
-    ))
-  );
+    ));
 
   return (
     <div dir="rtl">
-      <div className="md:hidden fixed top-2 right-2 z-50">
+      <div className="md:hidden fixed top-1 right-1 z-50">
         <button
           onClick={toggleSidebar}
-          className="text-gray-800 backdrop-blur-sm dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-md transition-all duration-300"
+          className="text-gray-800 backdrop-blur-sm dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-md transition-all duration-300"
+          aria-label="Toggle sidebar"
         >
           {sidebarOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
         </button>
@@ -136,6 +119,7 @@ const Navbar = ({ onSidebarCollapse }) => {
         style={{
           transform: desktopSidebarCollapsed ? "translateX(16rem)" : "translateX(0)",
         }}
+        aria-label="Toggle desktop sidebar"
       >
         {desktopSidebarCollapsed ? (
           <ChevronLeftIcon className="h-4 w-4" />
@@ -148,6 +132,7 @@ const Navbar = ({ onSidebarCollapse }) => {
         className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${
           desktopSidebarCollapsed ? "w-0" : "w-64"
         }`}
+        aria-expanded={!desktopSidebarCollapsed}
       >
         <div
           className={`flex flex-col h-full transition-all duration-300 ${
@@ -159,11 +144,14 @@ const Navbar = ({ onSidebarCollapse }) => {
             <button
               onClick={() => setUserInfo(!userInfo)}
               className="flex gap-1 items-center p-1 hover:bg-blue-500 bg-gray-700 rounded-lg"
+              aria-expanded={userInfo}
+              aria-label="User info toggle"
             >
               <UserIcon className="text-white w-5 h-5" />
             </button>
           </div>
-          <div className="flex-1 p-2 space-y-2 overflow-hidden">
+
+          <nav className="flex-1 p-2 space-y-2 overflow-hidden">
             <Link
               to="/chat"
               className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
@@ -176,10 +164,14 @@ const Navbar = ({ onSidebarCollapse }) => {
             >
               گفتگوی صوتی
             </Link>
+
+            {/* Documents dropdown */}
             <div>
               <button
                 onClick={toggleDocumentsDropdown}
                 className="flex items-center w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                aria-expanded={documentsDropdownOpen}
+                aria-controls="documents-dropdown"
               >
                 اسناد
                 <ChevronDownIcon
@@ -189,10 +181,9 @@ const Navbar = ({ onSidebarCollapse }) => {
                 />
               </button>
               <div
+                id="documents-dropdown"
                 className={`mr-4 overflow-hidden transition-all duration-200 ${
-                  documentsDropdownOpen
-                    ? "max-h-40 opacity-100"
-                    : "max-h-0 opacity-0"
+                  documentsDropdownOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
                 <Link
@@ -214,7 +205,6 @@ const Navbar = ({ onSidebarCollapse }) => {
                 >
                   خزش URL
                 </Link>
-
                 <Link
                   to="/processes"
                   className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
@@ -223,6 +213,7 @@ const Navbar = ({ onSidebarCollapse }) => {
                 </Link>
               </div>
             </div>
+
             <Link
               to="/wizard"
               className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
@@ -241,7 +232,8 @@ const Navbar = ({ onSidebarCollapse }) => {
             >
               دستور العمل های بات
             </Link>
-          </div>
+          </nav>
+
           <div className="p-4 border-t border-gray-700 overflow-hidden">
             <div className="flex items-center mb-2 w-full justify-between">
               <span className="text-gray-300 text-sm">حالت نمایش</span>
@@ -264,11 +256,11 @@ const Navbar = ({ onSidebarCollapse }) => {
             className="fixed inset-0 backdrop-blur-sm transition-opacity duration-300"
             onClick={closeSidebar}
           />
-          <div className="fixed right-0 top-0 bottom-0 w-64 bg-gray-800 dark:bg-gray-900 shadow-lg transform transition-transform duration-300 translate-x-0">
+          <aside className="fixed right-0 top-0 bottom-0 w-64 bg-gray-800 dark:bg-gray-900 shadow-lg transform transition-transform duration-300 translate-x-0" aria-label="Mobile sidebar">
             <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-4 border-b border-gray-700">
-                <div className="flex gap-2">
-                  <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
+              <header className="flex items-center justify-between p-4 border-b border-gray-700">
+                <div className="flex gap-2 items-center">
+                  <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg" aria-label="User info">
                     <UserIcon className="text-white w-4 h-4" />
                   </button>
                   <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
@@ -276,17 +268,21 @@ const Navbar = ({ onSidebarCollapse }) => {
                 <button
                   onClick={closeSidebar}
                   className="text-gray-300 hover:text-white transition-colors duration-200"
+                  aria-label="Close sidebar"
                 >
                   <XMarkIcon className="h-6 w-6" />
                 </button>
-              </div>
-              <div className="flex-1 py-2 space-y-2 overflow-y-auto">
+              </header>
+
+              <nav className="flex-1 py-2 space-y-2 overflow-y-auto">
                 <ul className="space-y-2">
                   {renderNavItems(navItems)}
                   <li>
                     <button
                       onClick={toggleDocumentsDropdown}
                       className="flex items-center w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                      aria-expanded={documentsDropdownOpen}
+                      aria-controls="mobile-documents-dropdown"
                     >
                       اسناد
                       <ChevronDownIcon
@@ -296,14 +292,15 @@ const Navbar = ({ onSidebarCollapse }) => {
                       />
                     </button>
                     {documentsDropdownOpen && (
-                      <ul className="mr-4 space-y-1">
+                      <ul id="mobile-documents-dropdown" className="mr-4 space-y-1">
                         {renderNavItems(documentItems)}
                       </ul>
                     )}
                   </li>
                 </ul>
-              </div>
-              <div className="p-4 border-t border-gray-700">
+              </nav>
+
+              <footer className="p-4 border-t border-gray-700">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-300 text-sm">حالت نمایش</span>
                   <ThemeToggle />
@@ -315,9 +312,9 @@ const Navbar = ({ onSidebarCollapse }) => {
                   <p className="text-sm text-white">خروج</p>
                   <ArrowLeftEndOnRectangleIcon className="w-6 h-6 text-white" />
                 </button>
-              </div>
+              </footer>
             </div>
-          </div>
+          </aside>
         </div>
       )}
     </div>
