@@ -22,10 +22,7 @@ const ThemeToggle = () => {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    toast.success(`تم به ${newTheme === 'light' ? 'روشن' : 'تاریک'} تغییر کرد`, {
-      position: 'top-right',
-      autoClose: 2000,
-    });
+
   };
 
   return (
