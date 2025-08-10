@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import NetworkBackground3D from "./NetworkBackground3D";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const { register } = useAuth();
@@ -38,7 +39,8 @@ const Register = () => {
   
     try {
       await register(formData);
-      navigate("/chat");
+      toast.success('ثبت نام انجام شد')
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     } finally {

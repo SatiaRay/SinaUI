@@ -7,8 +7,8 @@ import NetworkBackground3D from "./NetworkBackground3D";
 const Login = () => {
   const { login: authLogin, user } = useAuth();
   const [formData, setFormData] = useState({
-    email: "admin@example.com",
-    password: "123456789",
+    email: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
