@@ -8,12 +8,11 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    first_name: "Satia",
-    last_name: "Company",
-    email: "admin@example.com",
-    phone: "09991039399",
-    password: "123456789",
-    user_type: "admin"
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,13 +23,11 @@ const Register = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const togglePasswordVisibility = () => setShowPassword((show) => !show);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.email || !formData.password || !formData.first_name || !formData.last_name || !formData.phone) {
       setError("لطفا تمام فیلدهای ضروری را پر کنید");
       return;
@@ -40,17 +37,14 @@ const Register = () => {
     setError("");
 
     try {
-      await register(
-        formData.first_name,
-        formData.last_name,
-        formData.email,
-        formData.phone,
-        formData.password,
-        formData.user_type
-      );
-      navigate("/chat", { replace: true });
+      const result = await register(formData);
+      if (!result.success) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+      navigate("/chat");
     } catch (err) {
-      console.error("Registration error:", err);
       setError(err.message || "ثبت نام با خطا مواجه شد");
     } finally {
       setLoading(false);
@@ -58,7 +52,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen w-full px-4 flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen px-4 flex items-center justify-center relative overflow-hidden">
       <NetworkBackground3D />
       <div className="relative z-10 max-w-md w-full space-y-8 backdrop-blur-lg md:p-8 py-8 px-4 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">
@@ -66,9 +60,7 @@ const Register = () => {
         </h2>
 
         {error && (
-          <div className="text-red-400 text-sm text-center animate-pulse">
-            {error}
-          </div>
+          <div className="text-red-400 text-sm text-center animate-pulse">{error}</div>
         )}
 
         <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
@@ -95,33 +87,29 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
-            
-            <div>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                placeholder="ایمیل"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
 
-            <div>
-              <input
-                dir="rtl"
-                id="phone_number"
-                name="phone_number"
-                type="tel"
-                className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                placeholder="شماره تلفن"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
-            
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+              placeholder="ایمیل"
+              value={formData.email}
+              onChange={handleChange}
+            />
+
+            <input
+              dir="rtl"
+              id="phone"
+              name="phone"
+              type="text"
+              className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+              placeholder="شماره تلفن"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+
             <div className="relative">
               <input
                 id="password"
@@ -145,12 +133,6 @@ const Register = () => {
                 )}
               </button>
             </div>
-
-            <input 
-              type="hidden" 
-              name="user_type" 
-              value={formData.user_type} 
-            />
           </div>
 
           <div className="space-y-4">
@@ -188,8 +170,8 @@ const Register = () => {
             </button>
 
             <div className="text-center text-sm text-gray-400">
-              قبلاً ثبت نام کرده‌اید؟{' '}
-              <button 
+              قبلاً ثبت نام کرده‌اید؟{" "}
+              <button
                 type="button"
                 onClick={() => navigate("/login")}
                 className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors duration-200"

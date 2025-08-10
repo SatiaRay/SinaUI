@@ -111,7 +111,7 @@ export const askQuestion = async (question) => {
 // ارسال درخواست لاگین
 export const login = async (email, password) => {
   try {
-    const response = await axiosInstance.post("/auth/login", {
+    const response = await axiosInstance.post(`/auth/login`, {
       email,
       password,
     });
@@ -235,15 +235,14 @@ export const vectorizeDocument = async (document_id, document) => {
 };
 
 // Register
-export const register = async ({ first_name, last_name, email, password , phone, user_type = "admin" }) => {
+export const register = async ({ first_name, last_name, email, password, phone }) => {
   try {
-    const response = await axiosInstance.post("/auth/register", {
+    const response = await axiosInstance.post(`/auth/register`, {
       first_name,
       last_name,
       email,
       password,
       phone,
-      user_type
     });
     
     console.log("Registration successful:", response.data);
