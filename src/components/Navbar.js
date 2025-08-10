@@ -19,6 +19,23 @@ const Navbar = ({ onSidebarCollapse }) => {
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
   const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState(false);
+
+  // Navigation items (avoids duplicate JSX)
+  const navItems = [
+    { path: "/chat", label: "چت" },
+    { path: "/voice-agent", label: "گفتگوی صوتی" },
+    { path: "/wizard", label: "پاسخ‌های ویزارد" },
+    { path: "/workflow", label: "گردش کار" },
+    { path: "/instructions", label: "دستور العمل های بات" },
+  ];
+
+  const documentItems = [
+    { path: "/document/manuals", label: "خزش دستی" },
+    { path: "/document", label: "خزیده شده‌ها" },
+    { path: "/crawl-url", label: "خزش URL" },
+    { path: "/processes", label: "پردازش" },
+  ];
 
   // Navigation items (avoids duplicate JSX)
   const navItems = [
@@ -139,32 +156,91 @@ const Navbar = ({ onSidebarCollapse }) => {
         >
           <div className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
             <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
-            <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg">
+            <button
+              onClick={() => setUserInfo(!userInfo)}
+              className="flex gap-1 items-center p-1 hover:bg-blue-500 bg-gray-700 rounded-lg"
+            >
               <UserIcon className="text-white w-5 h-5" />
             </button>
           </div>
           <div className="flex-1 p-2 space-y-2 overflow-hidden">
-            <ul className="space-y-2">
-              {renderNavItems(navItems)}
-              <li>
-                <button
-                  onClick={toggleDocumentsDropdown}
-                  className="flex items-center w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+            <Link
+              to="/chat"
+              className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+            >
+              چت
+            </Link>
+            <Link
+              to="/voice-agent"
+              className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+            >
+              گفتگوی صوتی
+            </Link>
+            <div>
+              <button
+                onClick={toggleDocumentsDropdown}
+                className="flex items-center w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+              >
+                اسناد
+                <ChevronDownIcon
+                  className={`h-4 w-4 mr-2 transition-transform duration-200 ${
+                    documentsDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <div
+                className={`mr-4 overflow-hidden transition-all duration-200 ${
+                  documentsDropdownOpen
+                    ? "max-h-40 opacity-100"
+                    : "max-h-0 opacity-0"
+                }`}
+              >
+                <Link
+                  to="/document/manuals"
+                  className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                 >
-                  اسناد
-                  <ChevronDownIcon
-                    className={`h-4 w-4 mr-2 transition-transform duration-200 ${
-                      documentsDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {documentsDropdownOpen && (
-                  <ul className="mr-4 space-y-1">
-                    {renderNavItems(documentItems)}
-                  </ul>
-                )}
-              </li>
-            </ul>
+                  خزش دستی
+                </Link>
+                <Link
+                  to="/document"
+                  className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  خزیده شده‌ها
+                </Link>
+                <Link
+                  to="/crawl-url"
+                  className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                  onClick={closeSidebar}
+                >
+                  خزش URL
+                </Link>
+
+                <Link
+                  to="/processes"
+                  className="block text-gray-400 hover:bg-gray-600 hover:text-white px-8 py-1 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                >
+                  پردازش
+                </Link>
+              </div>
+            </div>
+            <Link
+              to="/wizard"
+              className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+            >
+              پاسخ‌های ویزارد
+            </Link>
+            <Link
+              to="/workflow"
+              className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+            >
+              گردش کار
+            </Link>
+            <Link
+              to="/instructions"
+              className="block text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+            >
+              دستور العمل های بات
+            </Link>
           </div>
           <div className="p-4 border-t border-gray-700 overflow-hidden">
             <div className="flex items-center mb-2 w-full justify-between">
