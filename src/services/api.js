@@ -233,3 +233,53 @@ export const vectorizeDocument = async (document_id, document) => {
     throw err;
   }
 };
+
+// Register
+export const register = async ({ first_name, last_name, email, password , phone_number, user_type = "admin" }) => {
+  try {
+    const response = await axiosInstance.post("/auth/register", {
+      first_name,
+      last_name,
+      email,
+      password,
+      phone_number,
+      user_type
+    });
+    
+    console.log("Registration successful:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Registration error details:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+      },
+    });
+
+    if (error.response) {
+      if (error.response.status === 400) {
+        throw new Error(
+          error.response.data?.message || "اطلاعات وارد شده معتبر نیست"
+        );
+      } else if (error.response.status === 409) {
+        throw new Error(
+          error.response.data?.message || "این ایمیل قبلاً ثبت شده است"
+        );
+      } else {
+        throw new Error(
+          `خطا در ثبت نام (کد خطا: ${error.response.status})`
+        );
+      }
+    } else if (error.request) {
+      throw new Error(
+        "سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید."
+      );
+    } else {
+      throw new Error("خطا در ارسال درخواست به سرور");
+    }
+  }
+};

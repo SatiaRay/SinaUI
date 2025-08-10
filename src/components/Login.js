@@ -69,8 +69,9 @@ const Login = () => {
         window.google.accounts.id.renderButton(googleButtonDiv, {
           theme: "filled_blue",
           size: "large",
-          width: "350",
-          text: "signin_with",
+          width: "380",
+          text: "continue_with",
+          shape: "rectangular",
         });
       }
     } catch (err) {
@@ -170,7 +171,7 @@ const Login = () => {
           </div>
         )}
 
-        <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-6 space-y-6 w-full" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
               <input
@@ -198,7 +199,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 w-full">
             <div className="flex items-center justify-between w-full gap-2">
               <button
                 type="submit"
@@ -247,11 +248,11 @@ const Login = () => {
               <div className="flex-grow border-t border-gray-600"></div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex w-full justify-center">
               <div
                 id="googleSignInButton"
                 className="w-full flex justify-center"
-              ></div>
+              />
             </div>
           </div>
         </form>

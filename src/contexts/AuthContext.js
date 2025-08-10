@@ -1,9 +1,7 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
-import { checkAuthorizationFetcher, login as loginApi } from "../services/api"; // اضافه کردن registerApi
+import { checkAuthorizationFetcher, login as loginApi, register as registerApi } from "../services/api";
 import useSwr from 'swr'
-
-// import { checkAuthorizationFetcher, login as loginApi, register as registerApi } from
 
 export const AuthContext = createContext(null)
 
@@ -57,29 +55,29 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-    //for register
-    // const register = async (username, email, phoneNumber, password) => {
-    //     try {
-    //         const { user, access_token } = await registerApi(
-    //             username,
-    //             email,
-    //             phoneNumber,
-    //             password
-    //         );
-            
-    //         if (user && access_token) {
-    //             setUser(user);
-    //             setToken(access_token);
-    //             return { success: true };
-    //         }
-    //     } catch (error) {
-    //         console.error("Registration error:", error);
-    //         return { 
-    //             success: false, 
-    //             error: error.response?.data?.message || "ثبت نام با خطا مواجه شد" 
-    //         };
-    //     }
-    // }
+    const register = async (first_name, last_name, email, password, user_type = "admin") => {
+        try {
+            const { user, access_token } = await registerApi({
+                first_name,
+                last_name,
+                email,
+                password,
+                user_type
+            });
+
+            if (user && access_token) {
+                setUser(user);
+                setToken(access_token);
+                return { success: true };
+            }
+        } catch (error) {
+            console.error("Registration error:", error);
+            return { 
+                success: false, 
+                error: error.response?.data?.message || "Registration failed" 
+            };
+        }
+    }
 
     const logout = () => {
         setUser(null)
@@ -96,7 +94,7 @@ export const AuthProvider = ({ children }) => {
             token, 
             check, 
             login, 
-            // register,
+            register,
             logout, 
             authorize 
         }}>

@@ -1,23 +1,23 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext";
-import NetworkBackground3D from "./components/NetworkBackground3D";
+import { useAuth } from "../contexts/AuthContext";
+import NetworkBackground3D from "./NetworkBackground3D";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
-    confirmPassword: "",
+    first_name: "Satia",
+    last_name: "Company",
+    email: "admin@example.com",
+    phone_number: "09991039399",
+    password: "123456789",
+    user_type: "admin"
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,20 +28,11 @@ const Register = () => {
     setShowPassword(!showPassword);
   };
 
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
-      setError("رمز عبور و تکرار آن مطابقت ندارند");
-      return;
-    }
-
-    if (!formData.username || !formData.email || !formData.password) {
-      setError("فیلدهای ضروری را پر کنید");
+    if (!formData.email || !formData.password || !formData.first_name || !formData.last_name) {
+      setError("لطفا تمام فیلدهای ضروری را پر کنید");
       return;
     }
 
@@ -50,10 +41,12 @@ const Register = () => {
 
     try {
       await register(
-        formData.username,
+        formData.first_name,
+        formData.last_name,
         formData.email,
-        formData.phoneNumber,
-        formData.password
+        formData.phone_number,
+        formData.password,
+        formData.user_type
       );
       navigate("/chat", { replace: true });
     } catch (err) {
@@ -69,7 +62,7 @@ const Register = () => {
       <NetworkBackground3D />
       <div className="relative z-10 max-w-md w-full space-y-8 backdrop-blur-lg md:p-8 py-8 px-4 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">
-          ایجاد حساب کاربری
+          ایجاد حساب کاربری ادمین
         </h2>
 
         {error && (
@@ -82,15 +75,28 @@ const Register = () => {
           <div className="space-y-4">
             <div className="flex gap-3">
               <input
-                id="username"
-                name="username"
+                id="first_name"
+                name="first_name"
                 type="text"
                 required
                 className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                placeholder="نام کاربری"
-                value={formData.username}
+                placeholder="نام"
+                value={formData.first_name}
                 onChange={handleChange}
               />
+              <input
+                id="last_name"
+                name="last_name"
+                type="text"
+                required
+                className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
+                placeholder="نام خانوادگی"
+                value={formData.last_name}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div>
               <input
                 id="email"
                 name="email"
@@ -102,21 +108,20 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
-       
+
             <div>
               <input
                 dir="rtl"
-                id="phoneNumber"
-                name="phoneNumber"
+                id="phone_number"
+                name="phone_number"
                 type="tel"
                 className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
                 placeholder="شماره تلفن"
-                value={formData.phoneNumber}
+                value={formData.phone_number}
                 onChange={handleChange}
               />
             </div>
             
-            {/* Password Field with Eye Icon */}
             <div className="relative">
               <input
                 id="password"
@@ -140,31 +145,12 @@ const Register = () => {
                 )}
               </button>
             </div>
-            
-            {/* Confirm Password Field with Eye Icon */}
-            <div className="relative">
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                required
-                className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300 pr-10"
-                placeholder="تکرار رمز عبور"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={toggleConfirmPasswordVisibility}
-              >
-                {showConfirmPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <EyeIcon className="h-5 w-5 text-gray-400" />
-                )}
-              </button>
-            </div>
+
+            <input 
+              type="hidden" 
+              name="user_type" 
+              value={formData.user_type} 
+            />
           </div>
 
           <div className="space-y-4">
@@ -201,31 +187,18 @@ const Register = () => {
               )}
             </button>
 
-            <div className="relative flex items-center">
-              <div className="flex-grow border-t border-gray-600"></div>
-              <span className="flex-shrink mx-4 text-gray-400 text-sm">یا</span>
-              <div className="flex-grow border-t border-gray-600"></div>
+            <div className="text-center text-sm text-gray-400">
+              قبلاً ثبت نام کرده‌اید؟{' '}
+              <button 
+                type="button"
+                onClick={() => navigate("/login")}
+                className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors duration-200"
+              >
+                وارد شوید
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="relative w-full flex justify-center py-2 px-4 border border-gray-600 rounded-md text-sm font-semibold text-white bg-transparent hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
-            >
-              ورود به حساب کاربری
-            </button>
           </div>
         </form>
-
-        <div className="text-center text-sm text-gray-400">
-          قبلاً حساب کاربری دارید؟{' '}
-          <button 
-            onClick={() => navigate("/login")}
-            className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors duration-200"
-          >
-            وارد شوید
-          </button>
-        </div>
       </div>
     </div>
   );
