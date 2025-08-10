@@ -27,29 +27,25 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!formData.email || !formData.password || !formData.first_name || !formData.last_name || !formData.phone) {
       setError("لطفا تمام فیلدهای ضروری را پر کنید");
       return;
     }
-
+  
     setLoading(true);
     setError("");
-
+  
     try {
-      const result = await register(formData);
-      if (!result.success) {
-        setError(result.error);
-        setLoading(false);
-        return;
-      }
+      await register(formData);
       navigate("/chat");
     } catch (err) {
-      setError(err.message || "ثبت نام با خطا مواجه شد");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen px-4 flex items-center justify-center relative overflow-hidden">
