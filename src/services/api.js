@@ -235,14 +235,14 @@ export const vectorizeDocument = async (document_id, document) => {
 };
 
 // Register
-export const register = async ({ first_name, last_name, email, password , phone_number, user_type = "admin" }) => {
+export const register = async ({ first_name, last_name, email, password , phone, user_type = "admin" }) => {
   try {
     const response = await axiosInstance.post("/auth/register", {
       first_name,
       last_name,
       email,
       password,
-      phone_number,
+      phone,
       user_type
     });
     

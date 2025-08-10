@@ -55,13 +55,14 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-    const register = async (first_name, last_name, email, password, user_type = "admin") => {
+    const register = async (first_name, last_name,phone, email, password, user_type = "admin") => {
         try {
             const { user, access_token } = await registerApi({
                 first_name,
                 last_name,
                 email,
                 password,
+                phone,
                 user_type
             });
 

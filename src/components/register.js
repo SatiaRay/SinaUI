@@ -11,7 +11,7 @@ const Register = () => {
     first_name: "Satia",
     last_name: "Company",
     email: "admin@example.com",
-    phone_number: "09991039399",
+    phone: "09991039399",
     password: "123456789",
     user_type: "admin"
   });
@@ -31,7 +31,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.email || !formData.password || !formData.first_name || !formData.last_name) {
+    if (!formData.email || !formData.password || !formData.first_name || !formData.last_name || !formData.phone) {
       setError("لطفا تمام فیلدهای ضروری را پر کنید");
       return;
     }
@@ -44,7 +44,7 @@ const Register = () => {
         formData.first_name,
         formData.last_name,
         formData.email,
-        formData.phone_number,
+        formData.phone,
         formData.password,
         formData.user_type
       );
@@ -117,7 +117,7 @@ const Register = () => {
                 type="tel"
                 className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
                 placeholder="شماره تلفن"
-                value={formData.phone_number}
+                value={formData.phone}
                 onChange={handleChange}
               />
             </div>

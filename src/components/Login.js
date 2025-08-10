@@ -15,38 +15,7 @@ const Login = () => {
   const [googleScriptLoaded, setGoogleScriptLoaded] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      console.log("User is authenticated, redirecting to /chat");
-      navigate("/chat", { replace: true });
-    }
-  }, [user, navigate]);
 
-  useEffect(() => {
-    if (googleScriptLoaded || window.google?.accounts?.id) return;
-
-    console.log("Loading Google script...");
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      console.log("Google script loaded");
-      setGoogleScriptLoaded(true);
-      initializeGoogleSignIn();
-    };
-    script.onerror = () => {
-      console.error("Error loading Google Identity Services script");
-      setError("Failed to load Google sign-in script");
-    };
-    document.body.appendChild(script);
-
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
-  }, [googleScriptLoaded]);
 
   const initializeGoogleSignIn = () => {
     if (!window.google?.accounts?.id) {
@@ -156,6 +125,39 @@ const Login = () => {
   const handleRegister = () => {
     navigate("/register");
   };
+  useEffect(() => {
+    if (user) {
+      console.log("User is authenticated, redirecting to /chat");
+      navigate("/chat", { replace: true });
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    initializeGoogleSignIn()
+    if (googleScriptLoaded || window.google?.accounts?.id) return;
+
+    console.log("Loading Google script...");
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      console.log("Google script loaded");
+      setGoogleScriptLoaded(true);
+      initializeGoogleSignIn();
+    };
+    script.onerror = () => {
+      console.error("Error loading Google Identity Services script");
+      setError("Failed to load Google sign-in script");
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, [googleScriptLoaded]);
 
   return (
     <div className="min-h-screen w-full px-4 flex items-center justify-center relative overflow-hidden">
