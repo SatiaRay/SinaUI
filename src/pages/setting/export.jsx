@@ -52,15 +52,15 @@ export const Export = () => {
         </div>
       </div>
 
-      <div
+     {statusType &&  <div
         className={`rounded-lg w-full p-2 flex font-bold items-center justify-center
           ${statusType === "success" ? "bg-green-600 text-white" : ""}
           ${statusType === "error" ? "bg-red-400 text-white" : ""}
-          ${!statusType ? "bg-white border-gray-300 text-black" : ""}
+        
         `}
       >
         {statusMessage || "هنوز دانلودی انجام نشده"}
-      </div>
+      </div>}
     </div>
   );
 };
