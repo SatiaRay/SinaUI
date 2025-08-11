@@ -53,6 +53,45 @@ const handleAxiosError = (error, defaultMsg) => {
 
 // =================== API FUNCTIONS ===================
 
+
+
+export const downloadSystemExport = async () => {
+  try {
+    const res = await chatAxiosInstance.get("/system/export", {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "system_export.zip");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    return true;
+  } catch (err) {
+    handleAxiosError(err, "خطا در دریافت فایل پشتیبان");
+  }}
+
+
+  export const uploadSystemImport = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    const response = await axios.post(`${API_URL}/system/import`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  
+    return response.data;
+  };
+
+
+
+
+
 // Register new user
 export const register = async ({ first_name, last_name, email, password, phone }) => {
   try {
