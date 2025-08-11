@@ -30,6 +30,7 @@ import VoiceAgentConversation from "./pages/VoiceAgentConversation";
 import AiToolsFunctionTester from "./pages/AiToolsFunctionTester";
 import { getVersion } from "./utils/apis";
 import Register from "./components/register";
+import Setting from "./pages/setting";
 
 function App() {
   return (
@@ -122,6 +123,16 @@ function privateRoutes() {
             element={
               <PrivateRoute>
                 <AiToolsFunctionTester />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+        <Route path="/setting">
+          <Route
+            path=""
+            element={
+              <PrivateRoute>
+                <Setting />
               </PrivateRoute>
             }
           />
@@ -251,7 +262,6 @@ function publicRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
     </Routes>
   );
 }
