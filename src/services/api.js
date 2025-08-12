@@ -53,34 +53,37 @@ const handleAxiosError = (error, defaultMsg) => {
 
 // =================== API FUNCTIONS ===================
 
-
-
-// api.js
-export const downloadSystemExport = async () => {
+export const exportWorkflow = async (workflow_id) => {
   try {
-    const res = await chatAxiosInstance.get("/system/export", {
+    const res = await axiosInstance.get(`/workflows/${workflow_id}/export`, {
       responseType: "blob",
     });
-    return res.data; 
+    return res.data;
   } catch (err) {
-    handleAxiosError(err, "خطا در دریافت فایل پشتیبان");
+    handleAxiosError(err, "خطا در دریافت خروجی");
   }
 };
 
 
+export const importWorkflow = async (file) => {
+  if (!file) throw new Error("فایل الزامی است");
 
-  export const uploadSystemImport = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-  
-    const response = await axios.post(`${API_URL}/system/import`, formData, {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await axios.post(`${PYTHON_APP_URL}/workflows/import`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // اگر نیاز دارید
       },
     });
-  
-    return response.data;
-  };
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err, "خطا در بارگذاری گردش کار");
+  }
+};
+
 
 
 

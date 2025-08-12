@@ -10,7 +10,7 @@ const DomainIndex = () => {
             try {
                 const domains = await getDomains();
 
-                setDomains(domains.data)
+                setDomains(domains)
             } catch (err) {
 
             }
