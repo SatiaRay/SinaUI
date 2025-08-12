@@ -55,24 +55,18 @@ const handleAxiosError = (error, defaultMsg) => {
 
 
 
+// api.js
 export const downloadSystemExport = async () => {
   try {
     const res = await chatAxiosInstance.get("/system/export", {
       responseType: "blob",
     });
-
-    const url = window.URL.createObjectURL(new Blob([res.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "system_export.zip");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    return true;
+    return res.data; 
   } catch (err) {
     handleAxiosError(err, "خطا در دریافت فایل پشتیبان");
-  }}
+  }
+};
+
 
 
   export const uploadSystemImport = async (file) => {

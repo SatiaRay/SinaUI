@@ -5,17 +5,31 @@ export const Export = () => {
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState("");
 
-  const handleDownload = async () => {
-    try {
-      await downloadSystemExport();
-      setStatusMessage("دانلود با موفقیت انجام شد");
-      setStatusType("success");
-    } catch (error) {
-      console.error("Download failed:", error);
-      setStatusMessage("دانلود ناموفق بود");
-      setStatusType("error");
-    }
-  };
+// در کامپوننت React
+const handleDownload = async () => {
+  try {
+    const blob = await downloadSystemExport();
+    if (!blob) throw new Error("فایل دریافت نشد");
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "system_export.zip");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    setStatusMessage("دانلود با موفقیت انجام شد");
+    setStatusType("success");
+  } catch (error) {
+    console.error("Download failed:", error);
+    setStatusMessage("دانلود ناموفق بود");
+    setStatusType("error");
+  }
+};
+
+  
 
   return (
     <div className="space-y-4 md:w-1/3 w-full text-white p-6 pt-8 shadow-lg relative flex items-center justify-center flex-col overflow-hidden rounded-xl bg-gray-800 shadow-[rgba(1,1,1,0.5)]">
