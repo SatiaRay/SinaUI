@@ -7,7 +7,7 @@ const CreateInstruction = () => {
   const [formData, setFormData] = useState({
     label: "",
     text: "",
-    agent_type: "",
+    agent_type: "text_agent",
     status: 1,
   });
   const [error, setError] = useState(null);
@@ -35,6 +35,7 @@ const CreateInstruction = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="p-4">
@@ -70,6 +71,7 @@ const CreateInstruction = () => {
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={handleChange}
               onSelect={handleChange}
+              defaultValue={'both'}
               name="agent_type"
               required
             >
