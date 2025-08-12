@@ -53,6 +53,42 @@ const handleAxiosError = (error, defaultMsg) => {
 
 // =================== API FUNCTIONS ===================
 
+export const exportWorkflow = async (workflow_id) => {
+  try {
+    const res = await axiosInstance.get(`/workflows/${workflow_id}/export`, {
+      responseType: "blob",
+    });
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err, "خطا در دریافت خروجی");
+  }
+};
+
+
+export const importWorkflow = async (file) => {
+  if (!file) throw new Error("فایل الزامی است");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await axios.post(`${PYTHON_APP_URL}/workflows/import`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // اگر نیاز دارید
+      },
+    });
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err, "خطا در بارگذاری گردش کار");
+  }
+};
+
+
+
+
+
+
 // Register new user
 export const register = async ({ first_name, last_name, email, password, phone }) => {
   try {
