@@ -1,3 +1,8 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import ThemeToggle from "../contexts/ThemeToggle";
+
 import {
   ArrowLeftEndOnRectangleIcon,
   Bars3Icon,
@@ -7,22 +12,21 @@ import {
   UserIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import ThemeToggle from "../contexts/ThemeToggle";
 
-const NavList = ({ items, onNavigate, className = "", closeSidebar }) => (
-  <ul className='flex flex-col gap-2'>
-    {items.map(({ path, label }) => (
+import { FaRobot, FaMicrophone, FaMagic, FaProjectDiagram, FaBook, FaCog } from "react-icons/fa";
+
+const NavList = ({ items, onNavigate, closeSidebar }) => (
+  <ul className="flex flex-col gap-2">
+    {items.map(({ path, label, icon: Icon }) => (
       <li key={path} className="text-right">
         <button
           onClick={() => {
             onNavigate(path);
             closeSidebar?.();
           }}
-          className="block w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+          className="flex items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
         >
+          {Icon && <Icon className="w-4 h-4 text-gray-300 group-hover:text-white" />}
           {label}
         </button>
       </li>
@@ -40,19 +44,19 @@ const Navbar = ({ onSidebarCollapse }) => {
   const [userInfo, setUserInfo] = useState(false);
 
   const navItems = [
-    { path: "/chat", label: "چت" },
-    { path: "/voice-agent", label: "گفتگوی صوتی" },
-    { path: "/wizard", label: "پاسخ‌های ویزارد" },
-    { path: "/workflow", label: "گردش کار" },
-    { path: "/instructions", label: "دستور العمل های بات" },
-    { path: "/setting", label: "تنظیمات" },
+    { path: "/chat", label: "چت", icon: FaRobot },
+    { path: "/voice-agent", label: "گفتگوی صوتی", icon: FaMicrophone },
+    { path: "/wizard", label: "پاسخ‌های ویزارد", icon: FaMagic },
+    { path: "/workflow", label: "گردش کار", icon: FaProjectDiagram },
+    { path: "/instructions", label: "دستور العمل های بات", icon: FaBook },
+    { path: "/setting", label: "تنظیمات", icon: FaCog },
   ];
 
   const documentItems = [
-    { path: "/document/manuals", label: "خزش دستی" },
-    { path: "/document", label: "خزیده شده‌ها" },
-    { path: "/crawl-url", label: "خزش URL" },
-    { path: "/processes", label: "پردازش" },
+    { path: "/document/manuals", label: "خزش دستی", icon: FaBook },
+    { path: "/document", label: "خزیده شده‌ها", icon: FaBook },
+    { path: "/crawl-url", label: "خزش URL", icon: FaBook },
+    { path: "/processes", label: "پردازش", icon: FaProjectDiagram },
   ];
 
   const handleLogout = async () => {
@@ -93,23 +97,17 @@ const Navbar = ({ onSidebarCollapse }) => {
         setSidebarOpen(false);
         setDesktopSidebarCollapsed(true);
         onSidebarCollapse(true);
-        const toggleButton = document.querySelector(".md\\:flex.fixed.right-64.top-4");
-        if (toggleButton) toggleButton.style.display = "none";
       } else if (event.data.type === "SHOW_NAVBAR") {
         setDesktopSidebarCollapsed(false);
         onSidebarCollapse(false);
-        const toggleButton = document.querySelector(".md\\:flex.fixed.right-64.top-4");
-        if (toggleButton) toggleButton.style.display = "block";
       }
     };
-
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
   }, [onSidebarCollapse]);
 
   return (
     <div dir="rtl">
-      {/* Mobile toggle button */}
       <div className="md:hidden fixed top-1 right-1 z-50">
         <button
           onClick={toggleSidebar}
@@ -120,7 +118,6 @@ const Navbar = ({ onSidebarCollapse }) => {
         </button>
       </div>
 
-      {/* Desktop sidebar toggle button */}
       <button
         onClick={toggleDesktopSidebar}
         className="hidden md:flex fixed right-64 top-4 z-50 items-center justify-center w-6 h-6 bg-gray-800 dark:bg-gray-900 text-gray-300 hover:text-white rounded-l-md border border-gray-700 border-r-0 transition-all duration-300 hover:bg-gray-700"
@@ -134,7 +131,6 @@ const Navbar = ({ onSidebarCollapse }) => {
         )}
       </button>
 
-      {/* Desktop Sidebar */}
       <aside
         className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${
           desktopSidebarCollapsed ? "w-0" : "w-64"
@@ -160,7 +156,6 @@ const Navbar = ({ onSidebarCollapse }) => {
 
           <nav className="flex-1 p-2 overflow-hidden">
             <NavList items={navItems} onNavigate={navigate} />
-            {/* Documents dropdown */}
             <div className="mt-2">
               <button
                 onClick={toggleDocumentsDropdown}
@@ -202,7 +197,6 @@ const Navbar = ({ onSidebarCollapse }) => {
         </div>
       </aside>
 
-      {/* Mobile Sidebar */}
       {sidebarOpen && (
         <div className="md:hidden fixed inset-0 z-50 transition-opacity duration-300 opacity-100">
           <div
