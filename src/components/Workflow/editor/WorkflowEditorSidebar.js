@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronUp, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -13,15 +13,18 @@ import {
 const WorkflowEditorSidebar = ({
   workflowName,
   setWorkflowName,
-  agentType,
+  agentType = "text_agent",
   setAgentType,
-  workflowId,
   saveWorkflow,
   addNode,
   setShowChatModal,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
-
+  useEffect(() => {
+    if (!agentType) {
+      setAgentType("text_agent");
+    }
+  }, [agentType, setAgentType]);
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -92,9 +95,8 @@ const WorkflowEditorSidebar = ({
           </label>
           <select
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={(e) => setAgentType(e.target.value)}
-            onSelect={(e) => setAgentType(e.target.value)}
             value={agentType}
+            onChange={(e) => setAgentType(e.target.value)}
           >
             <option value="both">همه</option>
             <option value="text_agent">ربات متنی</option>
@@ -102,13 +104,7 @@ const WorkflowEditorSidebar = ({
           </select>
         </div>
         <hr className="border-gray-200 dark:border-gray-700 my-1" />
-        <button
-          onClick={() => saveWorkflow()}
-          className={`${buttonStyles} bg-[var(--accent-green)] hover:bg-green-500 focus:ring-green-400`}
-        >
-          <CheckIcon className="h-4 w-4" /> {/* جایگزینی با CheckIcon */}
-          ذخیره
-        </button>
+    
         <button
           onClick={() => addNode("start")}
           className={`${buttonStyles} bg-[var(--accent-blue)] hover:bg-blue-600 focus:ring-blue-400`}
@@ -158,6 +154,13 @@ const WorkflowEditorSidebar = ({
         >
           <PlayIcon className="h-4 w-4" />
           اجرا
+        </button>
+        <button
+          onClick={() => saveWorkflow()}
+          className={`${buttonStyles} bg-[var(--accent-green)] hover:bg-green-500 focus:ring-green-400`}
+        >
+          <CheckIcon className="h-4 w-4" /> {/* جایگزینی با CheckIcon */}
+          ذخیره
         </button>
       </div>
     </div>

@@ -1,136 +1,126 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { documentEndpoints } from "../../../utils/apis";
 
+const AGENT_TYPES = [
+  { value: "voice_text", label: "ربات متن" },
+  { value: "voice_agent", label: "ربات صوتی" },
+  { value: "both", label: "هر دو" },
+];
+
 const CreateDocument = ({ onClose }) => {
-  const [manualSubmitting, setManualSubmitting] = useState(false);
-  const [manualTitle, setManualTitle] = useState("");
-  const [manualText, setManualText] = useState("");
-  const [agentType, setAgentType] = useState(null);
-  const [error, setError] = useState(null);
+  const [form, setForm] = useState({
+    title: "",
+    text: "",
+    agentType: "text_agent",
+  });
+  const [status, setStatus] = useState({
+    loading: false,
+    error: null,
+  });
 
-  const handleManualSubmit = async (e) => {
-    e.preventDefault();
-    if (!manualTitle.trim() || !manualText.trim()) {
-      setError("لطفا عنوان و متن را وارد کنید");
-      return;
-    }
+  const handleChange = useCallback((field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
-    setManualSubmitting(true);
-    setError(null);
-
-    try {
-      // const response = await fetch(`${process.env.REACT_APP_CHAT_API_URL}/add_manually_knowledge`, {
-      //     method: 'POST',
-      //     headers: {
-      //         'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify({
-      //         text: manualText,
-      //         metadata: {
-      //             source: 'manual',
-      //             title: manualTitle
-      //         }
-      //     })
-      // });
-
-      // if (!response.ok) {
-      //     throw new Error('خطا در ذخیره اطلاعات');
-      // }
-
-      const data = await documentEndpoints.addDocumentManually({
-        text: manualText,
-        agent_type: agentType,
-        metadata: {
-          source: "manual",
-          title: manualTitle,
-        },
-      });
-
-      if (data.status === "success") {
-        alert("اطلاعات با موفقیت ذخیره شد");
-        setManualTitle("");
-        setManualText("");
-        if (onClose) onClose();
-      } else {
-        throw new Error("خطا در ذخیره اطلاعات");
-      }
-    } catch (err) {
-      setError(err.message);
-      console.error("Error storing manual knowledge:", err);
-    } finally {
-      setManualSubmitting(false);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const handleSubmit = useCallback(
+    async (e) => {
       e.preventDefault();
-      handleManualSubmit(e);
-    }
-  };
+
+      if (!form.title.trim() || !form.text.trim()) {
+        setStatus({ loading: false, error: "لطفاً عنوان و متن را وارد کنید." });
+        return;
+      }
+
+      setStatus({ loading: true, error: null });
+
+      try {
+        const { status: apiStatus } = await documentEndpoints.addDocumentManually({
+          text: form.text,
+          agent_type: form.agentType,
+          metadata: { source: "manual", title: form.title },
+        });
+
+        if (apiStatus === "success") {
+          alert("اطلاعات با موفقیت ذخیره شد");
+          setForm({ title: "", text: "", agentType: "" });
+          onClose?.();
+        } else {
+          throw new Error("خطا در ذخیره اطلاعات");
+        }
+      } catch (err) {
+        setStatus({ loading: false, error: err.message });
+        console.error("خطا در ذخیره سند:", err);
+      } finally {
+        setStatus((prev) => ({ ...prev, loading: false }));
+      }
+    },
+    [form, onClose]
+  );
+
+  /** ثبت با Enter */
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit(e);
+      }
+    },
+    [handleSubmit]
+  );
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow w-full max-w-3xl mx-auto h-[90vh] flex flex-col">
       <div className="p-4 sm:p-6 flex-shrink-0">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
-            ایجاد سند جدید
-          </h2>
-        </div>
-        <form className="space-y-4">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-6">
+          ایجاد سند جدید
+        </h2>
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
+            <label htmlFor="title" className="block text-sm font-medium mb-1">
               عنوان
             </label>
             <input
               type="text"
               id="title"
-              value={manualTitle}
-              onChange={(e) => setManualTitle(e.target.value)}
+              value={form.title}
+              onChange={(e) => handleChange("title", e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm sm:text-base"
               placeholder="عنوان سند را وارد کنید"
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
               required
             />
           </div>
+
           <div>
-            <label
-              htmlFor="agent_type"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
+            <label htmlFor="agentType" className="block text-sm font-medium mb-1">
               نوع ربات
             </label>
             <select
-              id="agent_type"
-              value={agentType}
-              onChange={(e) => setAgentType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm sm:text-base"
+              id="agentType"
+              value={form.agentType}
+              onChange={(e) => handleChange("agentType", e.target.value)}
+              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600"
             >
-              <option value="voice_text">ربات متن</option>
-              <option value="voice_agent">ربات صوتی</option>
-              <option value="both">هر دو</option>
+              {AGENT_TYPES.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
           </div>
+
           <div className="flex-1">
-            <label
-              htmlFor="text"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
+            <label htmlFor="text" className="block text-sm font-medium mb-1">
               متن
             </label>
             <div className="min-h-[200px] max-h-[calc(90vh-200px)] overflow-y-auto">
               <CKEditor
                 editor={ClassicEditor}
-                data={manualText}
-                onChange={(event, editor) => {
-                  const data = editor.getData();
-                  setManualText(data);
-                }}
+                data={form.text}
+                onChange={(event, editor) => handleChange("text", editor.getData())}
                 config={{
                   language: "fa",
                   direction: "rtl",
@@ -169,30 +159,10 @@ const CreateDocument = ({ onClose }) => {
                   },
                   htmlSupport: {
                     allow: [
-                      {
-                        name: "table",
-                        attributes: true,
-                        classes: true,
-                        styles: true,
-                      },
-                      {
-                        name: "tr",
-                        attributes: true,
-                        classes: true,
-                        styles: true,
-                      },
-                      {
-                        name: "td",
-                        attributes: true,
-                        classes: true,
-                        styles: true,
-                      },
-                      {
-                        name: "th",
-                        attributes: true,
-                        classes: true,
-                        styles: true,
-                      },
+                      { name: "table", attributes: true, classes: true, styles: true },
+                      { name: "tr", attributes: true, classes: true, styles: true },
+                      { name: "td", attributes: true, classes: true, styles: true },
+                      { name: "th", attributes: true, classes: true, styles: true },
                     ],
                   },
                 }}
@@ -200,21 +170,25 @@ const CreateDocument = ({ onClose }) => {
               />
             </div>
           </div>
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
+
+          {/* پیام خطا */}
+          {status.error && (
+            <div className="text-red-500 text-sm text-center">{status.error}</div>
           )}
         </form>
       </div>
-      <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-600 flex-shrink-0">
+
+      {/* دکمه ثبت */}
+      <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 sm:p-6 border-t flex-shrink-0">
         <button
           type="button"
-          onClick={handleManualSubmit}
-          disabled={manualSubmitting}
-          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center justify-center"
+          onClick={handleSubmit}
+          disabled={status.loading}
+          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
         >
-          {manualSubmitting ? (
+          {status.loading ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
               در حال ذخیره...
             </>
           ) : (

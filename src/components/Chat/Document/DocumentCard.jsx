@@ -83,9 +83,12 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
         </div>
         <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-2 justify-between items-center py-1">
-            {document.domain_id && <span>آدرس: {document.uri} - </span>}
+            {document.domain_id && <div> 
+            <p>آدرس:</p>
+            <p className="w-full truncate max-w-36  ">{document.uri} -</p>
+             </div>}
             <span className="py-1">
-              آخرین بروزرسانی:{" "}
+              <p>  آخرین بروزرسانی:</p>
               {new Date(document.updated_at).toLocaleDateString("fa-IR")}
             </span>
             <FaTrash
