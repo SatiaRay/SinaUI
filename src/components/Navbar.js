@@ -244,13 +244,22 @@ const Navbar = ({ onSidebarCollapse }) => {
                 </div>
               </nav>
 
-              <footer className="p-4 border-t border-gray-700">
-              <div className="h-full w-full"></div>
-              <button
+              <footer className="p-4 border-t border-gray-700 flex items-center justify-center">
+              <div className="h-full w-full h-14 flex items-center gap-2">
+            <span className="w-12 items-center justify-center flex font-bold text-white h-10 rounded-[100%] bg-blue-500">
+              KH
+            </span>
+            <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
+            <p className="text-white text-sm">{user.email}</p>
+            <p className="text-white text-sm">{user.user_type}</p>
+            </div>
+         
+          </div>
+          <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 justify-center text-gray-300 hover:bg-gray-700 hover:text-white p-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
                 >
-                  <ArrowLeftEndOnRectangleIcon className="w-6 h-6 text-white" />
+                  <ArrowLeftEndOnRectangleIcon className="w-10 h-6 text-white" />
                 </button>
               </footer>
             </div>
