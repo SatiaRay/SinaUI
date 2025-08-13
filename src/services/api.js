@@ -53,6 +53,32 @@ const handleAxiosError = (error, defaultMsg) => {
 
 // =================== API FUNCTIONS ===================
 
+export const downloadSystemExport = async () => {
+  try {
+    const res = await chatAxiosInstance.get("/system/export", {
+      responseType: "blob",
+    });
+    return res.data; 
+  } catch (err) {
+    handleAxiosError(err, "خطا در دریافت فایل پشتیبان");
+  }
+};
+
+
+
+  export const uploadSystemImport = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    const response = await axios.post(`${API_URL}/system/import`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  
+    return response.data;
+  };
+
 export const exportWorkflow = async (workflow_id) => {
   try {
     const res = await axiosInstance.get(`/workflows/${workflow_id}/export`, {
