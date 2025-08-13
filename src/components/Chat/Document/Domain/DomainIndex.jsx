@@ -10,7 +10,7 @@ const DomainIndex = () => {
             try {
                 const domains = await getDomains();
 
-                setDomains(domains)
+                setDomains(domains.data)
             } catch (err) {
 
             }
@@ -41,7 +41,7 @@ const DomainIndex = () => {
                             <p>تاریخ ایجاد: {new Date(domain.created_at).toLocaleString('fa-IR')}</p>
                         </div>
                     </Link>
-                ))}
+                ))} 
             </div>
         </>
     )

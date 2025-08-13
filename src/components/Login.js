@@ -1,100 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { jwtDecode } from "jwt-decode";
 import NetworkBackground3D from "./NetworkBackground3D";
 
 const Login = () => {
   const { login: authLogin, user } = useAuth();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleScriptLoaded, setGoogleScriptLoaded] = useState(false);
   const navigate = useNavigate();
 
-
-
-  const initializeGoogleSignIn = () => {
-    if (!window.google?.accounts?.id) {
-      console.error("Google Identity Services not available");
-      return;
-    }
-
-    console.log("Initializing Google Sign-In");
-    try {
-      window.google.accounts.id.initialize({
-        client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-        callback: handleGoogleSignIn,
-        auto_select: false,
-        context: "signin",
-      });
-
-      const googleButtonDiv = document.getElementById("googleSignInButton");
-      if (googleButtonDiv && !googleButtonDiv.hasChildNodes()) {
-        console.log("Rendering Google Sign-In button");
-        window.google.accounts.id.renderButton(googleButtonDiv, {
-          theme: "filled_blue",
-          size: "medium",
-          width: "350",
-          text: "continue_with",
-          shape: "rectangular",
-        });
-      }
-    } catch (err) {
-      console.error("Error initializing Google Sign-In:", err);
-      setError("Failed to initialize Google sign-in");
-    }
-  };
-
-  const handleGoogleSignIn = async (response) => {
-    setLoading(true);
-    setError("");
-
-    try {
-      const credential = response.credential;
-      console.log("Google Credential:", credential);
-
-      const decodedToken = jwtDecode(credential);
-      console.log("Decoded User Info:", decodedToken);
-
-      const backendResponse = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/auth/google`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: credential }),
-        }
-      );
-
-      if (!backendResponse.ok) {
-        const errorData = await backendResponse.json();
-        console.error("Backend Response Error:", errorData);
-        throw new Error(errorData.detail || "Google login failed");
-      }
-
-      const backendData = await backendResponse.json();
-      console.log("Backend Response Data:", backendData);
-
-      if (!backendData.token) {
-        throw new Error("No authentication token received");
-      }
-
-      localStorage.setItem("token", backendData.token);
-      localStorage.setItem("user", JSON.stringify(backendData.user));
-
-      await authLogin({ token: backendData.token, user: backendData.user });
-
-      navigate("/chat", { replace: true });
-    } catch (err) {
-      console.error("Google Sign-In Error:", err);
-      setError(err.message || "Failed to sign in with Google");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    if (user) navigate("/chat", { replace: true });
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,61 +21,25 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     if (!formData.email || !formData.password) {
-      setError('ایمیل و رمز عبور الزامی است');
+      setError("ایمیل و رمز عبور الزامی است");
       return;
     }
-  
+
     setLoading(true);
     setError("");
-
     try {
       await authLogin(formData.email, formData.password);
-    } catch (error) {
-      console.error("Login error:", error);
-      setError(error.message || "Login failed");
+      navigate("/chat", { replace: true });
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.message || "ورود ناموفق بود");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRegister = () => {
-    navigate("/register");
-  };
-  useEffect(() => {
-    if (user) {
-      console.log("User is authenticated, redirecting to /chat");
-      navigate("/chat", { replace: true });
-    }
-  }, [user, navigate]);
-
-  useEffect(() => {
-    initializeGoogleSignIn()
-    if (googleScriptLoaded || window.google?.accounts?.id) return;
-
-    console.log("Loading Google script...");
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      console.log("Google script loaded");
-      setGoogleScriptLoaded(true);
-      initializeGoogleSignIn();
-    };
-    script.onerror = () => {
-      console.error("Error loading Google Identity Services script");
-      setError("Failed to load Google sign-in script");
-    };
-    document.body.appendChild(script);
-
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
-  }, [googleScriptLoaded]);
+  const handleRegister = () => navigate("/register");
 
   return (
     <div className="min-h-screen w-full px-4 flex items-center justify-center relative overflow-hidden">
@@ -175,30 +57,24 @@ const Login = () => {
 
         <form className="mt-6 space-y-6 w-full" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                placeholder="ایمیل"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
-                placeholder="رمز عبور"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
+            <input
+              name="email"
+              type="email"
+              placeholder="ایمیل"
+              required
+              className="appearance-none block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <input
+              name="password"
+              type="password"
+              placeholder="رمز عبور"
+              required
+              className="appearance-none block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
+              value={formData.password}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="space-y-4 w-full">
@@ -206,7 +82,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`group relative flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 ${
+                className={`flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 ${
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
@@ -238,30 +114,17 @@ const Login = () => {
               <button
                 type="button"
                 onClick={handleRegister}
-                className="relative flex-1 flex justify-center py-2 px-4 border border-gray-600 rounded-md text-sm font-semibold text-white bg-transparent hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
+                className="flex-1 flex justify-center py-2 px-4 border border-gray-600 rounded-md text-sm font-semibold text-white bg-transparent hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
               >
                 ثبت نام
               </button>
-            </div>
-
-            <div className="relative flex items-center">
-              <div className="flex-grow border-t border-gray-600"></div>
-              <span className="flex-shrink mx-4 text-gray-400 text-sm">یا</span>
-              <div className="flex-grow border-t border-gray-600"></div>
-            </div>
-
-            <div className="flex w-full py-1 justify-center bg-[#1b72e8] rounded-md overflow-hidden">
-              <div
-                id="googleSignInButton"
-                className="w-full flex justify-center"
-              />
             </div>
           </div>
         </form>
 
         <div className="text-center text-sm text-gray-400">
-          حساب کاربری ندارید؟{' '}
-          <button 
+          حساب کاربری ندارید؟{" "}
+          <button
             onClick={handleRegister}
             className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors duration-200"
           >
