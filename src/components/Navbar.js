@@ -9,7 +9,6 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  UserIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
@@ -35,13 +34,13 @@ const NavList = ({ items, onNavigate, closeSidebar }) => (
 );
 
 const Navbar = ({ onSidebarCollapse }) => {
-  const { logout } = useAuth();
+  const { logout , user } = useAuth();
+  console.log(user)
   const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
   const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
-  const [userInfo, setUserInfo] = useState(false);
 
   const navItems = [
     { path: "/chat", label: "چت", icon: FaRobot },
@@ -73,7 +72,6 @@ const Navbar = ({ onSidebarCollapse }) => {
     setSidebarOpen(false);
     setDesktopSidebarCollapsed(false);
     setDocumentsDropdownOpen(false);
-    setUserInfo(false);
     onSidebarCollapse(false);
   };
 
@@ -144,14 +142,7 @@ const Navbar = ({ onSidebarCollapse }) => {
         >
           <header className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
             <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
-            <button
-              onClick={() => setUserInfo((v) => !v)}
-              className="flex gap-1 items-center p-1 hover:bg-blue-500 bg-gray-700 rounded-lg"
-              aria-expanded={userInfo}
-              aria-label="User info toggle"
-            >
-              <UserIcon className="text-white w-5 h-5" />
-            </button>
+            <ThemeToggle />
           </header>
 
           <nav className="flex-1 p-2 overflow-hidden">
@@ -181,18 +172,23 @@ const Navbar = ({ onSidebarCollapse }) => {
             </div>
           </nav>
 
-          <footer className="p-4 border-t border-gray-700 overflow-hidden">
-            <div className="flex items-center mb-2 w-full justify-between">
-              <span className="text-gray-300 text-sm">حالت نمایش</span>
-              <ThemeToggle />
+          <footer className="p-2 flex border-t items-center justify-center border-gray-700  overflow-hidden">
+          <div className="h-full w-full h-14 flex items-center gap-2">
+            <span className="w-12 items-center justify-center flex font-bold text-white h-10 rounded-[100%] bg-blue-500">
+              KH
+            </span>
+            <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
+            <p className="text-white text-sm">{user.email}</p>
+            <p className="text-white text-sm">{user.user_type}</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2 bg-gray-600"
-            >
-              <p className="text-sm text-white">خروج</p>
-              <ArrowLeftEndOnRectangleIcon className="w-6 h-6 text-white" />
-            </button>
+         
+          </div>
+          <button
+                  onClick={handleLogout}
+                  className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  <ArrowLeftEndOnRectangleIcon className="w-10 h-6 text-white" />
+                </button>
           </footer>
         </div>
       </aside>
@@ -210,9 +206,8 @@ const Navbar = ({ onSidebarCollapse }) => {
             <div className="flex flex-col h-full">
               <header className="flex items-center justify-between p-4 border-b border-gray-700">
                 <div className="flex gap-2 items-center">
-                  <button className="flex gap-1 items-center p-1 bg-gray-700 rounded-lg" aria-label="User info">
-                    <UserIcon className="text-white w-4 h-4" />
-                  </button>
+                <ThemeToggle />
+
                   <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
                 </div>
                 <button
@@ -245,19 +240,16 @@ const Navbar = ({ onSidebarCollapse }) => {
                       <NavList items={documentItems} onNavigate={navigate} closeSidebar={closeSidebar} />
                     </ul>
                   )}
+               
                 </div>
               </nav>
 
               <footer className="p-4 border-t border-gray-700">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-300 text-sm">حالت نمایش</span>
-                  <ThemeToggle />
-                </div>
-                <button
+              <div className="h-full w-full"></div>
+              <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 bg-gray-600 justify-center text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  className="flex items-center gap-2 justify-center text-gray-300 hover:bg-gray-700 hover:text-white p-2 rounded-md text-sm font-medium transition-colors duration-200"
                 >
-                  <p className="text-sm text-white">خروج</p>
                   <ArrowLeftEndOnRectangleIcon className="w-6 h-6 text-white" />
                 </button>
               </footer>

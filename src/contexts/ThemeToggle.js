@@ -27,13 +27,13 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-1.5 rounded-lg border dark:hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="p-1 rounded-lg border dark:hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
       title={theme === 'light' ? 'تغییر به حالت تاریک' : 'تغییر به حالت روشن'}
       aria-label={theme === 'light' ? 'تغییر به حالت تاریک' : 'تغییر به حالت روشن'}
     >
       {theme === 'light' ? (
         <svg
-          className="w-6 h-6 dark:text-gray-800 text-gray-200"
+          className="w-4 h-4 dark:text-gray-800 text-gray-200"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -48,7 +48,7 @@ const ThemeToggle = () => {
         </svg>
       ) : (
         <svg
-          className="w-6 h-6 text-gray-800 dark:text-gray-200"
+          className="w-4 h-4 text-gray-800 dark:text-gray-200"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
