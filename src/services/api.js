@@ -1,9 +1,36 @@
 import axios from "axios";
 
+
+const handleAxiosError = (error, defaultMessage = "خطا رخ داده است") => {
+  console.error("Axios error:", {
+    message: error.message,
+    response: error.response?.data,
+    status: error.response?.status,
+    config: {
+      url: error.config?.url,
+      method: error.config?.method,
+      headers: error.config?.headers,
+    },
+  });
+
+  if (error.response) {
+    // Server responded but with an error code
+    throw new Error(`${defaultMessage} (کد خطا: ${error.response.status})`);
+  } else if (error.request) {
+    // Request was sent but no response received
+    throw new Error("سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.");
+  } else {
+    // Something went wrong before sending the request
+    throw new Error(defaultMessage);
+  }
+};
+
+
+// تنظیم baseURL برای APIهای مختلف
 const API_URL = process.env.REACT_APP_API_URL;
 const PYTHON_APP_URL = process.env.REACT_APP_CHAT_API_URL;
 
-// Axios instance for main API
+// ایجاد نمونه axios با تنظیمات پیش‌فرض
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
@@ -12,7 +39,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Axios instance for Python/Chat API
+// ایجاد نمونه axios برای چت
 const chatAxiosInstance = axios.create({
   baseURL: PYTHON_APP_URL,
   headers: {
@@ -21,7 +48,7 @@ const chatAxiosInstance = axios.create({
   },
 });
 
-// Add token to chat API requests
+// افزودن interceptor برای افزودن توکن به هدرها
 chatAxiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -33,25 +60,199 @@ chatAxiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Helper for handling errors
-const handleAxiosError = (error, defaultMsg) => {
-  console.error("API Error:", {
-    message: error.message,
-    response: error.response?.data,
-    status: error.response?.status,
-    config: error.config
-  });
+// دریافت لیست منابع داده
+export const getDataSources = async () => {
+  try {
+    console.log(
+      "Fetching data sources from:",
+      `${PYTHON_APP_URL}/data_sources/`
+    );
+    const response = await chatAxiosInstance.get("/data_sources/");
+    console.log("Data sources response structure:", {
+      isArray: Array.isArray(response.data),
+      hasResultsArray: response.data && Array.isArray(response.data.results),
+      hasDataArray: response.data && Array.isArray(response.data.data),
+      hasSourcesArray: response.data && Array.isArray(response.data.sources),
+      responseKeys: response.data ? Object.keys(response.data) : [],
+      fullResponse: response.data,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error details:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+      },
+    });
 
-  if (error.response) {
-    throw new Error(error.response.data?.message || `${defaultMsg} (کد خطا: ${error.response.status})`);
-  } else if (error.request) {
-    throw new Error("سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.");
-  } else {
-    throw new Error(defaultMsg);
+    if (error.response) {
+      throw new Error(
+        `خطا در دریافت منابع داده (کد خطا: ${error.response.status})`
+      );
+    } else if (error.request) {
+      throw new Error(
+        "سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید."
+      );
+    } else {
+      throw new Error("خطا در ارسال درخواست به سرور");
+    }
   }
 };
 
-// =================== API FUNCTIONS ===================
+// ارسال سوال به چت‌بات
+export const askQuestion = async (question) => {
+  try {
+    console.log("Sending question to:", `${PYTHON_APP_URL}/ask`);
+    const response = await chatAxiosInstance.post("/ask", { question });
+    console.log("Chat response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error details:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+      },
+    });
+
+    if (error.response) {
+      throw new Error(`خطا در دریافت پاسخ (کد خطا: ${error.response.status})`);
+    } else if (error.request) {
+      throw new Error(
+        "سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید."
+      );
+    } else {
+      throw new Error("خطا در ارسال درخواست به سرور");
+    }
+  }
+};
+
+export const checkAuthorizationFetcher = (args) =>
+  axios.get(`${PYTHON_APP_URL}/auth/me`).then((res) => res.data);
+
+export const getDomains = async () => {
+  try {
+    return await axios.get(`${PYTHON_APP_URL}/domains`);
+  } catch (err) {
+    console.error(err.message);
+    return null;
+  }
+};
+
+export const getDocuments = async (
+  manualType = false,
+  agentType = null,
+  page = 1,
+  size = 10
+) => {
+  const url = manualType
+    ? `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}&agent_type=${agentType}`
+    : `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
+
+  try {
+    return await axios.get(url);
+  } catch (err) {
+    console.error(err.message);
+    return null;
+  }
+};
+
+export const getDomainDocuments = async (domain_id, page = 1, size = 10) => {
+  const url = `${PYTHON_APP_URL}/documents/domain/${domain_id}?page=${page}&size=${size}`;
+  try {
+    return await axios.get(url);
+  } catch (err) {
+    console.error(err.message);
+    return null;
+  }
+};
+
+export const getDocument = async (document_id) => {
+  try {
+    return await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
+  } catch (err) {
+    console.error("Error fetching document:", err.message);
+    throw err;
+  }
+};
+
+export const toggleDocumentVectorStatus = async (document_id) => {
+  try {
+    return await axios.post(
+      `${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`
+    );
+  } catch (err) {
+    console.error("Error fetching document:", err.message);
+    throw err;
+  }
+};
+
+export const crawlUrl = async (
+  url,
+  recursive = false,
+  store_in_vector = false
+) => {
+  try {
+    return await axios.post(`${PYTHON_APP_URL}/crawl`, {
+      url: url,
+      recursive: recursive,
+      store_in_vector: store_in_vector,
+    });
+  } catch (err) {
+    console.error("Error fetching document:", err.message);
+    throw err;
+  }
+};
+
+export const vectorizeDocument = async (document_id, document) => {
+  try {
+    return await axios.post(
+      `${PYTHON_APP_URL}/documents/${document_id}/vectorize`,
+      document
+    );
+  } catch (err) {
+    console.error("Error vectorizing document:", err.message);
+    throw err;
+  }
+};
+
+
+
+
+
+
+export const downloadSystemExport = async () => {
+  try {
+    const res = await chatAxiosInstance.get("/system/export", {
+      responseType: "blob",
+    });
+    return res.data; 
+  } catch (err) {
+    handleAxiosError(err, "خطا در دریافت فایل پشتیبان");
+  }
+};
+
+
+
+  export const uploadSystemImport = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    const response = await axios.post(`${API_URL}/system/import`, formData, { 
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  
+    return response.data;
+  };
 
 export const exportWorkflow = async (workflow_id) => {
   try {
@@ -84,11 +285,6 @@ export const importWorkflow = async (file) => {
   }
 };
 
-
-
-
-
-
 // Register new user
 export const register = async ({ first_name, last_name, email, password, phone }) => {
   try {
@@ -99,8 +295,7 @@ export const register = async ({ first_name, last_name, email, password, phone }
       password,
       phoneNumber: phone
     });
-    console.log("Registration successful:", res.data);
-    return res.data; // ✅ return directly if success
+    return res.data;
   } catch (err) {
     handleAxiosError(err, "خطا در ثبت نام");
   }
@@ -110,111 +305,9 @@ export const register = async ({ first_name, last_name, email, password, phone }
 export const login = async (email, password) => {
   try {
     const res = await axiosInstance.post(`/auth/login`, { email, password });
-    console.log("Login successful:", res.data);
     return res.data;
   } catch (err) {
     handleAxiosError(err, "خطا در ورود به سیستم");
   }
 };
 
-// Get Data Sources
-export const getDataSources = async () => {
-  try {
-    const res = await chatAxiosInstance.get("/data_sources/");
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در دریافت منابع داده");
-  }
-};
-
-// Ask Question
-export const askQuestion = async (question) => {
-  try {
-    const res = await chatAxiosInstance.post("/ask", { question });
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در دریافت پاسخ");
-  }
-};
-
-// Check authorization
-export const checkAuthorizationFetcher = () =>
-  axios.get(`${PYTHON_APP_URL}/auth/me`).then((res) => res.data);
-
-// Get domains
-export const getDomains = async () => {
-  try {
-    const res = await axios.get(`${PYTHON_APP_URL}/domains`);
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در دریافت دامنه‌ها");
-  }
-};
-
-// Get documents
-export const getDocuments = async (manualType = false, agentType = null, page = 1, size = 10) => {
-  const url = manualType
-    ? `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}&agent_type=${agentType}`
-    : `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
-
-  try {
-    const res = await axios.get(url);
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در دریافت اسناد");
-  }
-};
-
-// Get documents by domain
-export const getDomainDocuments = async (domain_id, page = 1, size = 10) => {
-  try {
-    const res = await axios.get(`${PYTHON_APP_URL}/documents/domain/${domain_id}?page=${page}&size=${size}`);
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در دریافت اسناد دامنه");
-  }
-};
-
-// Get single document
-export const getDocument = async (document_id) => {
-  try {
-    const res = await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در دریافت سند");
-  }
-};
-
-// Toggle document vector status
-export const toggleDocumentVectorStatus = async (document_id) => {
-  try {
-    const res = await axios.post(`${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`);
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در تغییر وضعیت وکتور سند");
-  }
-};
-
-// Crawl a URL
-export const crawlUrl = async (url, recursive = false, store_in_vector = false) => {
-  try {
-    const res = await axios.post(`${PYTHON_APP_URL}/crawl`, {
-      url,
-      recursive,
-      store_in_vector,
-    });
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در خزیدن آدرس");
-  }
-};
-
-// Vectorize a document
-export const vectorizeDocument = async (document_id, document) => {
-  try {
-    const res = await axios.post(`${PYTHON_APP_URL}/documents/${document_id}/vectorize`, document);
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, "خطا در وکتورسازی سند");
-  }
-};
