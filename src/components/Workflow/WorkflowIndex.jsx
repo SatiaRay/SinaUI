@@ -125,7 +125,7 @@ const WorkflowIndex = () => {
   return (
     <div className="container mx-auto px-4 md:py-8 py-12 w-full">
       <div className="flex max-md:flex-col max-md:gap-4 justify-between items-center mb-4">
-        <h1 className="md:text-2xl text-xl max-md:w-full font-bold text-gray-800 dark:text-white">
+        <h1 className="md:text-2xl border-r-2 border-blue-500 pr-2  text-xl max-md:w-full font-bold text-gray-800 dark:text-white">
           گردش کارها
         </h1>
         <div className="flex items-center max-md:justify-between max-md:w-full md:gap-2 gap-1">

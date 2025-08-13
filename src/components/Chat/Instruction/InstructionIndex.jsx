@@ -64,7 +64,7 @@ const InstructionIndex = () => {
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div className="p-4">
+    <div className="p-4 pt-12 container mx-auto overflow-x-hidden">
       <div className="flex max-md:flex-col md:gap-0 gap-2 pt-6 md:pt-0 justify-between items-center mb-4">
         <h1 className="md:text-2xl dark:text-white mb-2 mt-1 md:mb-0 md:mt-0 border-r-2 pr-2 border-blue-500 text-xl font-bold max-md:w-full">
           دستورالعمل‌های بات

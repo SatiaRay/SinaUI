@@ -64,10 +64,10 @@ const WizardIndex = () => {
       selectedWizardForUpdate ?
       <UpdateWizard wizard={selectedWizardForUpdate} onClose={() => {setSelectedWizardForEdit(null)}} onWizardUpdated={freshWizard}/> :
       (
-        <div className="space-y-6">
+        <div className="space-y-6 container mx-auto">
 
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200" >پاسخ‌های ویزارد</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 border-r-2 border-blue-500 pr-2" >پاسخ‌های ویزارد</h2>
           <button
             onClick={() => {setShowCreateWizard(true)}}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
