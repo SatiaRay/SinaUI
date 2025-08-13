@@ -176,8 +176,8 @@ const Navbar = ({ onSidebarCollapse }) => {
               KH
             </span>
             <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-            <p className="text-white text-sm">{user.email}</p>
-            <p className="text-white text-sm">{user.user_type}</p>
+            <p className="text-white text-sm">{user.email ?? ''}</p>
+            <p className="text-white text-sm">{user.user_type ?? ''}</p>
             </div>
          
           </div>
@@ -248,8 +248,8 @@ const Navbar = ({ onSidebarCollapse }) => {
               KH
             </span>
             <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-            <p className="text-white text-sm">{user.email}</p>
-                  <p className="text-white text-sm">{user.user_type}</p>
+            <p className="text-white text-sm">{user.email ?? ''}</p>
+                  <p className="text-white text-sm">{user.user_type ?? ''}</p>
                  </div>
          
                  </div>
