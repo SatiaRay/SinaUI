@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 
 const ThemeToggle = () => {
   const [theme, setTheme] = useState(() => {
