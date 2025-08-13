@@ -1,6 +1,5 @@
 import axios from "axios";
 
-
 const handleAxiosError = (error, defaultMessage = "خطا رخ داده است") => {
   console.error("Axios error:", {
     message: error.message,
@@ -24,7 +23,6 @@ const handleAxiosError = (error, defaultMessage = "خطا رخ داده است")
     throw new Error(defaultMessage);
   }
 };
-
 
 // تنظیم baseURL برای APIهای مختلف
 const API_URL = process.env.REACT_APP_API_URL;
@@ -134,6 +132,8 @@ export const askQuestion = async (question) => {
   }
 };
 
+
+
 export const checkAuthorizationFetcher = (args) =>
   axios.get(`${PYTHON_APP_URL}/auth/me`).then((res) => res.data);
 
@@ -225,9 +225,6 @@ export const vectorizeDocument = async (document_id, document) => {
 
 
 
-
-
-
 export const downloadSystemExport = async () => {
   try {
     const res = await chatAxiosInstance.get("/system/export", {
@@ -295,7 +292,7 @@ export const register = async ({ first_name, last_name, email, password, phone }
       password,
       phoneNumber: phone
     });
-    return res.data;
+    return res.data; // ✅ return directly if success
   } catch (err) {
     handleAxiosError(err, "خطا در ثبت نام");
   }

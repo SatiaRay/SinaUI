@@ -195,7 +195,8 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-10 max-w-4xl mx-auto">
+        <section className='h-screen w-full flex items-center justify-center px-4 md:px-12'>
+             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-10">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">خزش وب‌سایت</h2>
                 <Link
@@ -227,12 +228,12 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                             {crawling ? (
                                 <>
                                     <ArrowPathIcon className="animate-spin h-5 w-5" />
-                                    در حال خزش...
+                                    <p className='md:flex hidden'> در حال خزش...</p>
                                 </>
                             ) : (
                                 <>
                                     <CloudArrowDownIcon className="h-5 w-5" />
-                                    شروع خزش
+                                   <p className='md:flex hidden'> شروع خزش</p>
                                 </>
                             )}
                         </button>
@@ -334,6 +335,8 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
                 )}
             </div>
         </div>
+        </section>
+       
     );
 };
 
