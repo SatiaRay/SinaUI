@@ -34,7 +34,8 @@ const NavList = ({ items, onNavigate, closeSidebar }) => (
 );
 
 const Navbar = ({ onSidebarCollapse }) => {
-  const { logout , user } = useAuth();  const navigate = useNavigate();
+  const { logout , user } = useAuth();
+  const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);

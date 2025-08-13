@@ -65,8 +65,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    setUser(null);
-    setToken(null);
+    setUser('');
+    setToken('');
   };
 
   const authorize = (userType) => user && user.user_type === userType;
