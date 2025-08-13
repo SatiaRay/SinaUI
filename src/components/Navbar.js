@@ -249,11 +249,11 @@ const Navbar = ({ onSidebarCollapse }) => {
             </span>
             <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
             <p className="text-white text-sm">{user.email}</p>
-            <p className="text-white text-sm">{user.user_type}</p>
-            </div>
+                  <p className="text-white text-sm">{user.user_type}</p>
+                 </div>
          
-          </div>
-          <button
+                 </div>
+               <button
                   onClick={handleLogout}
                   className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
                 >
