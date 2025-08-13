@@ -3,11 +3,9 @@ import React, { useState, useEffect } from "react";
 const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({});
 
-  // نگاشت کلیدها به فارسی
   const labels = {
     site_name: "نام سایت",
     text_agent_model: "مدل هوش مصنوعی"
-    // در صورت نیاز، بقیه کلیدها را اینجا اضافه کنید
   };
 
   useEffect(() => {

@@ -12,16 +12,11 @@ const Setting = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    /**
-     * دریافت اسکیما و تنظیمات فعلی از سرور
-     * این تابع به صورت همزمان (موازی) هر دو درخواست را ارسال می‌کند
-     */
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // ارسال درخواست‌های موازی با axios.all
         const [schemaResponse, settingsResponse] = await axios.all([
           axios.get('/system/settings-schema'),
           axios.get('/system/settings')
@@ -41,8 +36,7 @@ const Setting = () => {
   }, []);
 
   /**
-   * تابع ذخیره تنظیمات
-   * @param {object} data - داده‌های فرم تنظیمات
+   * @param {object} data 
    */
   const handleSubmit = async (data) => {
     try {
@@ -55,7 +49,6 @@ const Setting = () => {
       
       if (response.status === 200) {
         toast.success('تنظیمات با موفقیت ذخیره شد!');
-        // دریافت مجدد تنظیمات پس از ذخیره موفق
         const settingsResponse = await axios.get('/system/settings');
         setCurrentSettings(settingsResponse.data);
       }
@@ -69,7 +62,6 @@ const Setting = () => {
   return (
     <section className="flex px-4 py-12 gap-10 h-screen overflow-hidden items-center justify-center text-black dark:text-white">
       <main className="w-1/3 flex flex-col items-center justify-center p-4 rounded-lg border shadow-lg dark:bg-gray-800 dark:border-gray-700">
-        {/* بخش فرم تنظیمات */}
         <div className="w-full h-full">
           {loading ? (
             <div className="flex items-center justify-center h-full">
@@ -89,7 +81,6 @@ const Setting = () => {
           ) : null}
         </div>
 
-        {/* بخش عملیات (ایمپورت/اکسپورت) */}
         <div className="w-full flex items-center justify-center pt-4 border-t gap-4 border-gray-300 dark:border-gray-700">
           <Export />
           <Import />
