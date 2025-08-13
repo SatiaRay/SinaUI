@@ -34,7 +34,7 @@ const NavList = ({ items, onNavigate, closeSidebar }) => (
 );
 
 const Navbar = ({ onSidebarCollapse }) => {
-  const { logout , user } = useAuth();
+  const { logout  } = useAuth();
   const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -177,8 +177,8 @@ const Navbar = ({ onSidebarCollapse }) => {
               KH
             </span>
             <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-            <p className="text-white text-sm">{user.email ?? ''}</p>
-            <p className="text-white text-sm">{user.user_type ?? ''}</p>
+            <p className="text-white text-xs">نام و نام خانوادگی</p>
+                  <p className="text-white text-xs">ایمیل</p>
             </div>
          
           </div>
@@ -249,8 +249,8 @@ const Navbar = ({ onSidebarCollapse }) => {
               KH
             </span>
             <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-            <p className="text-white text-sm">{user.email ?? ''}</p>
-                  <p className="text-white text-sm">{user.user_type ?? ''}</p>
+            <p className="text-white text-xs">نام و نام خانوادگی</p>
+                  <p className="text-white text-xs">ایمیل</p>
                  </div>
          
                  </div>
