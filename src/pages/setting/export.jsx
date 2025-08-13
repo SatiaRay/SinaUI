@@ -29,7 +29,7 @@ export const Export = () => {
     <>
       <button
         onClick={handleDownload}
-        className="bg-blue-600 text-white h-10 w-1/2 rounded-lg hover:bg-blue-700"
+        className="bg-blue-600 text-sm font-bold text-white h-10 w-1/2 rounded-lg hover:bg-blue-700"
       >
         دانلود فایل پشتیبان
       </button>

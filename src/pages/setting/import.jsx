@@ -28,7 +28,7 @@ export const Import = () => {
     <>
       <button
         onClick={triggerFileInput}
-        className="bg-green-800 text-white w-1/2 h-10 rounded-lg hover:bg-green-700"
+        className="bg-green-800 text-sm font-bold text-white w-1/2 h-10 rounded-lg hover:bg-green-700"
       >
         آپلود فایل پشتیبان
       </button>

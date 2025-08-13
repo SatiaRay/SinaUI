@@ -21,6 +21,8 @@ const Setting = () => {
           axios.get('/system/settings-schema'),
           axios.get('/system/settings')
         ]);
+        console.log("Schema from backend:", schemaResponse.data);  // ✅ log schema
+        console.log("Current settings from backend:", settingsResponse.data);  
 
         setSettingsSchema(schemaResponse.data.schema);
         setCurrentSettings(settingsResponse.data);
@@ -35,16 +37,11 @@ const Setting = () => {
     fetchData();
   }, []);
 
-  /**
-   * @param {object} data 
-   */
   const handleSubmit = async (data) => {
     try {
       setLoading(true);
       const response = await axios.post('/system/settings', data, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
       
       if (response.status === 200) {
@@ -61,7 +58,7 @@ const Setting = () => {
 
   return (
     <section className="flex px-4 py-12 gap-10 h-screen overflow-hidden items-center justify-center text-black dark:text-white">
-      <main className="w-1/3 flex flex-col items-center justify-center p-4 rounded-lg border shadow-lg dark:bg-gray-800 dark:border-gray-700">
+      <main className="md:w-[40%] w-full flex flex-col items-center justify-center p-4 rounded-lg border shadow-lg dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full h-full">
           {loading ? (
             <div className="flex items-center justify-center h-full">

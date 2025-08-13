@@ -3,14 +3,13 @@ import React, { useState, useEffect } from "react";
 const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({});
 
-  const labels = {
-    site_name: "نام سایت",
-    text_agent_model: "مدل هوش مصنوعی"
-  };
-
   useEffect(() => {
-    setFormData(initialValues);
-  }, [initialValues]);
+    const defaults = {};
+    Object.entries(schema.properties).forEach(([key, property]) => {
+      defaults[key] = initialValues[key] ?? property.default ?? "";
+    });
+    setFormData(defaults);
+  }, [initialValues, schema]);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -18,6 +17,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
 
   const renderField = (key, property) => {
     const value = formData[key] ?? "";
+    const label = property.label || property.lable || key;
 
     if (property.enum) {
       return (
@@ -44,7 +44,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
             value={value}
             onChange={(e) => handleChange(key, e.target.value)}
             className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder={`${labels[key] || key} را وارد کنید`}
+            placeholder={`${label} را وارد کنید`}
           />
         );
 
@@ -57,7 +57,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
               onChange={(e) => handleChange(key, e.target.checked)}
               className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
-            <span className="dark:text-gray-300">{labels[key] || key}</span>
+            <span className="dark:text-gray-300">{label}</span>
           </label>
         );
 
@@ -68,7 +68,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
             value={value}
             onChange={(e) => handleChange(key, e.target.value)}
             className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder={`عدد ${labels[key] || key} را وارد کنید`}
+            placeholder={`عدد ${label} را وارد کنید`}
           />
         );
 
@@ -79,7 +79,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
             value={value}
             onChange={(e) => handleChange(key, e.target.value)}
             className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder={`${labels[key] || key} را وارد کنید`}
+            placeholder={`${label} را وارد کنید`}
           />
         );
     }
@@ -92,17 +92,22 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
-      {Object.entries(schema.properties).map(([key, property]) => (
-        <div key={key} className="flex flex-col">
-          {property.type !== "boolean" && (
-            <label className="mb-1 pr-1 dark:text-gray-300">
-              {labels[key] || key}{" "}
-              {schema.required?.includes(key) && <span className="text-red-500">*</span>}
-            </label>
-          )}
-          {renderField(key, property)}
-        </div>
-      ))}
+      {Object.entries(schema.properties).map(([key, property]) => {
+        const label = property.label || property.lable || key;
+        return (
+          <div key={key} className="flex flex-col">
+            {property.type !== "boolean" && (
+              <label className="mb-1 pr-1 dark:text-gray-300">
+                {label}{" "}
+                {schema.required?.includes(key) && (
+                  <span className="text-red-500">*</span>
+                )}
+              </label>
+            )}
+            {renderField(key, property)}
+          </div>
+        );
+      })}
 
       <button
         type="submit"
