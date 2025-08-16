@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import CrawlUrl from '../CrawlUrl';
 import CreateDocument from './CreateDocument';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 
 // استایل‌های سراسری برای جداول در Markdown و CKEditor
 const globalStyles = `
@@ -271,10 +271,6 @@ const DocumentIndex = () => {
                     )}
                 </div>
 
-                {/* تب‌ها */}
-
-
-                {/* نمایش خطا */}
                 {error && (
                     <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center mb-6">
                         <p className="text-red-500 dark:text-red-400">{error}</p>
@@ -289,8 +285,8 @@ const DocumentIndex = () => {
 
                 {/* نمایش لودینگ */}
                 {(domainsLoading || filesLoading || fileContentLoading) && (
-                    <div className="flex justify-center items-center p-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mr-3"></div>
+                    <div className="flex justify-center items-center p-8 gap-1">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-800 mr-3"/>
                         <p className="text-gray-600 dark:text-gray-300">در حال بارگذاری...</p>
                     </div>
                 )}
