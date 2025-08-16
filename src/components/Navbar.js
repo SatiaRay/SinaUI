@@ -13,6 +13,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { FaRobot, FaMicrophone, FaMagic, FaProjectDiagram, FaBook, FaCog } from "react-icons/fa";
+import { IoDocuments } from "react-icons/io5";
+
 
 const NavList = ({ items, onNavigate, closeSidebar }) => (
   <ul className="flex flex-col gap-2">
@@ -47,7 +49,6 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: "/wizard", label: "پاسخ‌های ویزارد", icon: FaMagic },
     { path: "/workflow", label: "گردش کار", icon: FaProjectDiagram },
     { path: "/instructions", label: "دستور العمل های بات", icon: FaBook },
-    { path: "/setting", label: "تنظیمات", icon: FaCog },
   ];
 
   const documentItems = [
@@ -149,11 +150,13 @@ const Navbar = ({ onSidebarCollapse }) => {
             <div className="mt-2">
               <button
                 onClick={toggleDocumentsDropdown}
-                className="flex items-center w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                className="flex items-center gap-2 w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                 aria-expanded={documentsDropdownOpen}
                 aria-controls="documents-dropdown"
               >
-                اسناد
+<IoDocuments className="w-4 h-4 text-gray-300 group-hover:text-white"/>
+
+                <p>اسناد</p>
                 <ChevronDownIcon
                   className={`h-4 w-4 mr-2 transition-transform duration-200 ${
                     documentsDropdownOpen ? "rotate-180" : ""
@@ -163,12 +166,18 @@ const Navbar = ({ onSidebarCollapse }) => {
               <div
                 id="documents-dropdown"
                 className={`mr-4 overflow-hidden transition-all duration-200 ${
-                  documentsDropdownOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                  documentsDropdownOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
                 <NavList items={documentItems} onNavigate={navigate} />
               </div>
             </div>
+            <button onClick={()=>navigate('/setting')} className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+>
+  <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white"/>
+  <p>تنظیمات</p>
+
+</button>
           </nav>
 
           <footer className="p-2 flex border-t items-center justify-center border-gray-700  overflow-hidden">
@@ -223,11 +232,13 @@ const Navbar = ({ onSidebarCollapse }) => {
                 <div className="mt-2">
                   <button
                     onClick={toggleDocumentsDropdown}
-                    className="flex items-center w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                    className="flex items-center gap-2 w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                     aria-expanded={documentsDropdownOpen}
                     aria-controls="mobile-documents-dropdown"
                   >
-                    اسناد
+                    <IoDocuments className="w-4 h-4 text-gray-300 group-hover:text-white"/>
+
+<p>اسناد</p>
                     <ChevronDownIcon
                       className={`h-4 w-4 mr-2 transition-transform duration-200 ${
                         documentsDropdownOpen ? "rotate-180" : ""
@@ -241,6 +252,12 @@ const Navbar = ({ onSidebarCollapse }) => {
                   )}
                
                 </div>
+                <button onClick={()=>navigate('/setting')} className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+>
+  <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white"/>
+  <p>تنظیمات</p>
+
+</button>
               </nav>
 
               <footer className="p-4 border-t border-gray-700 flex items-center justify-center">
