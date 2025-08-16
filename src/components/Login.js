@@ -11,7 +11,9 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) navigate("/chat", { replace: true });
+    if (user) {
+      navigate("/chat", { replace: true });
+    }
   }, [user, navigate]);
 
   const handleChange = (e) => {
@@ -21,6 +23,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (!formData.email || !formData.password) {
       setError("ایمیل و رمز عبور الزامی است");
       return;
@@ -28,12 +31,16 @@ const Login = () => {
 
     setLoading(true);
     setError("");
+    
     try {
-      await authLogin(formData.email, formData.password);
-      navigate("/chat", { replace: true });
+      const success = await authLogin(formData.email, formData.password);
+      
+      if (!success) {
+        setError("ورود ناموفق بود. لطفاً اطلاعات را بررسی کنید.");
+      }
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message || "ورود ناموفق بود");
+      setError(err.message || "خطایی در ورود به سیستم رخ داد");
     } finally {
       setLoading(false);
     }
