@@ -20,7 +20,6 @@ const VoiceAgentConversation = () => {
 
   // 📝 Conversation transcript
   const [conversation, setConversation] = useState([]);
-  console.log(conversation)
   const [showConversation, setShowConversation] = useState(false);
 
   // Audio & session refs
