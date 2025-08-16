@@ -1,63 +1,62 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useVoiceAgent } from "../contexts/VoiceAgentContext";
 import { Button } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
 import MicVisualizer from "../components/MicVisualizer";
-import { AudioLines, Bot, Mic, MicVocal, Volume2 } from "lucide-react";
+import { AudioLines, Mic, MicVocal } from "lucide-react";
 import {
   submitRequest,
   neshanSearch,
   searchSubject,
 } from "../services/ai_tools_function";
 import { aiFunctionsEndpoints, voiceAgentEndpoints } from "../utils/apis";
-import { z } from "zod";
 
 const VoiceAgentConversation = () => {
   const [instruction, setInstruction] = useState(null);
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("ready");
+  const [mode, setMode] = useState("ready"); // ready | recording | playing
   const [audioBlob, setAudioBlob] = useState(null);
 
+  // 📝 Conversation transcript
+  const [conversation, setConversation] = useState([]);
+  const [showConversation, setShowConversation] = useState(false);
+
+  // Audio & session refs
   const audioPlayerRef = useRef(null);
   const analyserRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioContextRef = useRef(null);
 
-  const { createSession, isConnected, error, connect, session, disconnect } =
+  const { createSession, isConnected, error, connect, session, disconnect  } =
     useVoiceAgent();
 
+  // Load instruction + tools
   useEffect(() => {
     const fetchInstruction = async () => {
       const res = await voiceAgentEndpoints.getVoiceAgentInstruction();
-
       setInstruction(res.instruction);
     };
 
     const fetchToolFunctions = async () => {
-      const res = await aiFunctionsEndpoints.getFunctionsMap();
-
-      const tools = [submitRequest, neshanSearch, searchSubject];
-
-      setTools(tools);
+      await aiFunctionsEndpoints.getFunctionsMap();
+      setTools([submitRequest, neshanSearch, searchSubject]);
     };
 
     fetchInstruction();
-
     fetchToolFunctions();
   }, []);
 
-  // Track if session has already been created to avoid endless loop
+  // Create session when ready
   const [sessionCreated, setSessionCreated] = useState(false);
-
   useEffect(() => {
-    // Only create session if instruction is not null and tools is an array (can be empty)
     if (!sessionCreated && instruction && Array.isArray(tools)) {
       createSession(instruction, tools);
       setSessionCreated(true);
     }
   }, [instruction, tools, sessionCreated, createSession]);
 
+  // Handle errors
   useEffect(() => {
     if (error) {
       console.error("VoiceAgentConversation error:", error);
@@ -65,6 +64,7 @@ const VoiceAgentConversation = () => {
     }
   }, [error]);
 
+  // 🎤 Start recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -99,12 +99,14 @@ const VoiceAgentConversation = () => {
 
       mediaRecorderRef.current.start(100);
       setMode("recording");
+      setShowConversation(false);
     } catch (err) {
       console.error("Error starting recording:", err);
       setMode("ready");
     }
   };
 
+  // 🎤 Handle audio & transcripts
   useEffect(() => {
     if (!session) return;
 
@@ -116,11 +118,48 @@ const VoiceAgentConversation = () => {
 
     session.on("audio", handleAudio);
 
+    session.on("input_transcript.delta", (e) => {
+      setConversation((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "user") {
+          return [
+            ...prev.slice(0, -1),
+            { ...last, text: last.text + e.delta },
+          ];
+        }
+        return [...prev, { role: "user", text: e.delta }];
+      });
+    });
+
+    session.on("response.output_text.delta", (e) => {
+      setConversation((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant") {
+          return [
+            ...prev.slice(0, -1),
+            { ...last, text: last.text + e.delta },
+          ];
+        }
+        return [...prev, { role: "assistant", text: e.delta }];
+      });
+    });
+
+    session.on("response.completed", (res) => {
+      setConversation((prev) => [
+        ...prev,
+        { role: "assistant", text: res.output_text },
+      ]);
+    });
+
     return () => {
       session.off("audio", handleAudio);
+      session.off("input_transcript.delta");
+      session.off("response.output_text.delta");
+      session.off("response.completed");
     };
   }, [session]);
 
+  // 🔊 Playback AI audio
   useEffect(() => {
     if (mode !== "playing" || !audioBlob) return;
 
@@ -134,9 +173,7 @@ const VoiceAgentConversation = () => {
     analyserRef.current.fftSize = 2048;
 
     audioPlayerRef.current = new Audio(URL.createObjectURL(audioBlob));
-    const source = audioContext.createMediaElementSource(
-      audioPlayerRef.current
-    );
+    const source = audioContext.createMediaElementSource(audioPlayerRef.current);
     source.connect(analyserRef.current);
     analyserRef.current.connect(audioContext.destination);
 
@@ -153,6 +190,7 @@ const VoiceAgentConversation = () => {
     };
   }, [mode, audioBlob]);
 
+  // 🔗 Connect
   const handleConnect = async () => {
     setLoading(true);
     try {
@@ -165,9 +203,30 @@ const VoiceAgentConversation = () => {
       console.error("Error connecting to voice agent:", err);
     } finally {
       setLoading(false);
+      setShowConversation(false);
     }
   };
 
+  // ⏹ Stop recording but keep conversation
+  const handleStopAndShowConversation = () => {
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
+    }
+
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.pause();
+      audioPlayerRef.current = null;
+    }
+
+    setMode("ready");
+    setAudioBlob(null);
+    setShowConversation(true);
+  };
+
+  // ❌ Disconnect fully
   const handleDisconnect = () => {
     if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.stop();
@@ -184,8 +243,11 @@ const VoiceAgentConversation = () => {
     disconnect();
     setMode("ready");
     setAudioBlob(null);
+    setShowConversation(false);
+    setConversation([]); // clear only on full disconnect
   };
 
+  // 🖼️ UI
   if (!isConnected) {
     return (
       <div className="container items-center h-screen flex justify-center">
@@ -219,13 +281,27 @@ const VoiceAgentConversation = () => {
         <Mic size={24} color={mode === "recording" ? "red" : "gray"} />
       </MicVisualizer>
 
-      <Button
-        variant="danger"
-        onClick={handleDisconnect}
-        className="mt-4 dark:text-white"
-      >
-        Disconnect
-      </Button>
+      <button className="text-gray-800 hover:text-blue-600" onClick={handleStopAndShowConversation}>
+          پایان ضبط و نمایش مکالمه
+        </button>
+        <div
+          className="bg-neutral-50 rounded-lg shadow-xl border p-4 w-full max-w-md h-64 overflow-y-auto text-right"
+          dir="rtl"
+        >
+          {conversation.map((line, i) => (
+            <p key={i} className="text-black">
+              <b>{line.role === "user" ? "کاربر" : "دستیار"}:</b> {line.text}
+            </p>
+          ))}
+        </div>
+    
+
+      <div className="flex gap-2 mt-4">
+        <button className="px-4 bg-gray-800 hover:bg-gray-800/90 text-white rounded-lg  h-10 text-sm" onClick={handleDisconnect}>
+          قطع ارتباط
+        </button>
+       
+      </div>
     </div>
   );
 };

@@ -1,5 +1,29 @@
 import axios from "axios";
 
+const handleAxiosError = (error, defaultMessage = "خطا رخ داده است") => {
+  console.error("Axios error:", {
+    message: error.message,
+    response: error.response?.data,
+    status: error.response?.status,
+    config: {
+      url: error.config?.url,
+      method: error.config?.method,
+      headers: error.config?.headers,
+    },
+  });
+
+  if (error.response) {
+    // Server responded but with an error code
+    throw new Error(`${defaultMessage} (کد خطا: ${error.response.status})`);
+  } else if (error.request) {
+    // Request was sent but no response received
+    throw new Error("سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.");
+  } else {
+    // Something went wrong before sending the request
+    throw new Error(defaultMessage);
+  }
+};
+
 // تنظیم baseURL برای APIهای مختلف
 const API_URL = process.env.REACT_APP_API_URL;
 const PYTHON_APP_URL = process.env.REACT_APP_CHAT_API_URL;
@@ -108,42 +132,7 @@ export const askQuestion = async (question) => {
   }
 };
 
-// ارسال درخواست لاگین
-export const login = async (email, password) => {
-  try {
-    const response = await axiosInstance.post("/auth/login", {
-      email,
-      password,
-    });
-    console.log(response);
 
-    console.log("Login response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Login error details:", {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        headers: error.config?.headers,
-      },
-    });
-
-    if (error.response) {
-      throw new Error(
-        `خطا در ورود به سیستم (کد خطا: ${error.response.status})`
-      );
-    } else if (error.request) {
-      throw new Error(
-        "سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید."
-      );
-    } else {
-      throw new Error("خطا در ارسال درخواست به سرور");
-    }
-  }
-};
 
 export const checkAuthorizationFetcher = (args) =>
   axios.get(`${PYTHON_APP_URL}/auth/me`).then((res) => res.data);
@@ -233,3 +222,89 @@ export const vectorizeDocument = async (document_id, document) => {
     throw err;
   }
 };
+
+
+
+export const downloadSystemExport = async () => {
+  try {
+    const res = await chatAxiosInstance.get("/system/export", {
+      responseType: "blob",
+    });
+    return res.data; 
+  } catch (err) {
+    handleAxiosError(err, "خطا در دریافت فایل پشتیبان");
+  }
+};
+
+
+
+  export const uploadSystemImport = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    const response = await axios.post(`${API_URL}/system/import`, formData, { 
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  
+    return response.data;
+  };
+
+export const exportWorkflow = async (workflow_id) => {
+  try {
+    const res = await axiosInstance.get(`/workflows/${workflow_id}/export`, {
+      responseType: "blob",
+    });
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err, "خطا در دریافت خروجی");
+  }
+};
+
+
+export const importWorkflow = async (file) => {
+  if (!file) throw new Error("فایل الزامی است");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await axios.post(`${PYTHON_APP_URL}/workflows/import`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // اگر نیاز دارید
+      },
+    });
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err, "خطا در بارگذاری گردش کار");
+  }
+};
+
+// Register new user
+export const register = async ({ first_name, last_name, email, password, phone }) => {
+  try {
+    const res = await axiosInstance.post(`/auth/register`, {
+      firstName: first_name,
+      lastName: last_name,
+      email,
+      password,
+      phoneNumber: phone
+    });
+    return res.data; // ✅ return directly if success
+  } catch (err) {
+    handleAxiosError(err, "خطا در ثبت نام");
+  }
+};
+
+// Login
+export const login = async (email, password) => {
+  try {
+    const res = await axiosInstance.post(`/auth/login`, { email, password });
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err, "خطا در ورود به سیستم");
+  }
+};
+
