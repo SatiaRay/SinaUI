@@ -29,6 +29,8 @@ import { VoiceAgentProvider } from "./contexts/VoiceAgentContext";
 import VoiceAgentConversation from "./pages/VoiceAgentConversation";
 import AiToolsFunctionTester from "./pages/AiToolsFunctionTester";
 import { getVersion } from "./utils/apis";
+import Register from "./components/register";
+import Setting from "./pages/setting";
 
 function App() {
   return (
@@ -81,7 +83,7 @@ function AppContent() {
 
       <div className="flex items-center justify-center">{publicRoutes()}</div>
 
-      <span className="text-xs fixed bottom-[2px] left-1">
+      <span className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1">
         نسخه : {appVersion}
       </span>
     </div>
@@ -121,6 +123,16 @@ function privateRoutes() {
             element={
               <PrivateRoute>
                 <AiToolsFunctionTester />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+        <Route path="/setting">
+          <Route
+            path=""
+            element={
+              <PrivateRoute>
+                <Setting />
               </PrivateRoute>
             }
           />
@@ -249,6 +261,7 @@ function publicRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 }

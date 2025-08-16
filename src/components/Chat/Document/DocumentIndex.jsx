@@ -1,139 +1,248 @@
 // DocumentIndex.js
-import DocumentCard from "./DocumentCard";
-import CreateDocument from "./CreateDocument";
-import { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import { Link, useLocation, useParams } from "react-router-dom";
-import { getDocuments, getDomainDocuments } from "../../../services/api";
-import { documentEndpoints } from "../../../utils/apis";
+import React, { useEffect, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { getDocuments, getDomainDocuments } from '../../../services/api';
+import { documentEndpoints } from '../../../utils/apis';
+import DocumentCard from './DocumentCard';
+import CreateDocument from './CreateDocument';
 
 const DocumentIndex = () => {
-  const [documentContentLoading, setDocumentContentLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [documentContent, setDocumentContent] = useState(null);
-  const [selectedDocument, setSelectedDocument] = useState(null);
-  const [documents, setDocuments] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [pageSize, setPageSize] = useState(20);
-  const [showAddKnowledge, setShowAddKnowledge] = useState(false);
+  const [state, setState] = useState({
+    isLoading: false,
+    documentContentLoading: false,
+    error: null,
+    documentContent: null,
+    selectedDocument: null,
+    documents: [],
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    pageSize: 20,
+    showAddKnowledge: false,
+    agentType: 'text_agent',
+  });
+
   const location = useLocation();
   const { domain_id } = useParams();
 
-  const [agentType, setAgentType] = useState("");
+  const PAGE_SIZE_OPTIONS = [20, 50, 100];
+  const isManualRoute = location.pathname.endsWith('/manuals');
 
-  const pageSizeOptions = [20, 50, 100];
-  const minPageSize = Math.min(...pageSizeOptions);
-
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     try {
-      const isManual = location.pathname.endsWith("/manuals");
-      const response = isManual
-        ? await getDocuments(isManual, agentType, currentPage, pageSize)
-        : await getDomainDocuments(domain_id, currentPage, pageSize);
-      console.log("Get Documents Response:", response.data.items); // لاگ برای دیباگ
-      if (response && response.data) {
-        setDocuments(response.data.items);
-        setTotalPages(response.data.pages);
-        setTotalItems(response.data.total);
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      const response = isManualRoute
+        ? await getDocuments(
+            true,
+            state.agentType === 'text_agent' ? 'text_agent' : state.agentType || null,
+            state.currentPage,
+            state.pageSize
+          )
+        : await getDomainDocuments(domain_id, state.currentPage, state.pageSize);
+
+      if (response?.data) {
+        setState(prev => ({
+          ...prev,
+          documents: response.data.items,
+          totalPages: response.data.pages,
+          totalItems: response.data.total,
+          isLoading: false,
+        }));
       }
     } catch (err) {
-      setError(err.message);
-      console.error("Error fetching documents:", err);
+      setState(prev => ({
+        ...prev,
+        error: err.message || 'دریافت اسناد با خطا مواجه شد',
+        isLoading: false,
+      }));
+      console.error('Document fetch error:', err);
     }
-  };
+  }, [isManualRoute, state.agentType, state.currentPage, state.pageSize, domain_id]);
 
   useEffect(() => {
     fetchDocuments();
-  }, [location.pathname, agentType, currentPage, pageSize]);
+  }, [fetchDocuments]);
 
-  const handleDocumentCardClick = (document) => {
-    fetchDocument(document);
-  };
-
-  const fetchDocument = async (document) => {
-    setDocumentContentLoading(true);
-    setError(null);
+  const fetchDocumentContent = async (document) => {
     try {
+      setState(prev => ({ 
+        ...prev, 
+        documentContentLoading: true, 
+        error: null, 
+        selectedDocument: document 
+      }));
+
       const response = await fetch(
         `${process.env.REACT_APP_CHAT_API_URL}/documents/${document.id}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("خطا در دریافت محتوای فایل");
-      }
+
+      if (!response.ok) throw new Error('دریافت محتوای سند ناموفق بود');
+
       const data = await response.json();
-      setDocumentContent(data);
-      setSelectedDocument(document);
+      setState(prev => ({ 
+        ...prev, 
+        documentContent: data,
+        documentContentLoading: false 
+      }));
     } catch (err) {
-      setError(err.message);
-      console.error("Error fetching document content:", err);
-    } finally {
-      setDocumentContentLoading(false);
+      setState(prev => ({ 
+        ...prev, 
+        error: err.message,
+        documentContentLoading: false 
+      }));
+      console.error('Document content fetch error:', err);
     }
   };
 
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+    setState(prev => ({ ...prev, currentPage: newPage }));
   };
 
-  const handlePageSizeChange = (event) => {
-    const newSize = parseInt(event.target.value);
-    setPageSize(newSize);
-    setCurrentPage(1);
-  };
-
-  const handleAddKnowledge = () => {
-    setShowAddKnowledge(true);
-  };
-
-  const handleCloseAddKnowledge = () => {
-    setShowAddKnowledge(false);
-    fetchDocuments();
+  const handlePageSizeChange = (e) => {
+    const newSize = parseInt(e.target.value);
+    setState(prev => ({
+      ...prev,
+      pageSize: newSize,
+      currentPage: 1,
+    }));
   };
 
   const handleDelete = async (documentId) => {
-    if (window.confirm("آیا مطمئن هستید که می‌خواهید این سند را حذف کنید؟")) {
-      try {
-        documentEndpoints.deleteDocument(documentId);
-        setDocuments((prevDocuments) =>
-          prevDocuments.filter((doc) => doc.id !== documentId)
-        );
-        alert("سند با موفقیت حذف شد.");
-      } catch (err) {
-        console.error("Error deleting document:", err);
-        alert("خطا در حذف سند: " + (err.message || "خطای ناشناخته"));
-        setError("خطا در حذف سند: " + (err.message || "خطای ناشناخته"));
-      }
+    if (!window.confirm('آیا مطمئن هستید که می‌خواهید این سند را حذف کنید؟')) return;
+
+    try {
+      await documentEndpoints.deleteDocument(documentId);
+      setState(prev => ({
+        ...prev,
+        documents: prev.documents.filter(doc => doc.id !== documentId),
+      }));
+    } catch (err) {
+      setState(prev => ({
+        ...prev,
+        error: `حذف ناموفق بود: ${err.message || 'خطای ناشناخته'}`,
+      }));
+      console.error('Document deletion error:', err);
     }
   };
+
   const handleStatusChange = async (documentId, newVectorId) => {
     try {
-      // به‌روزرسانی موقت در کلاینت
-      setDocuments((prevDocuments) =>
-        prevDocuments.map((doc) =>
+      setState(prev => ({
+        ...prev,
+        documents: prev.documents.map(doc =>
           doc.id === documentId ? { ...doc, vector_id: newVectorId } : doc
-        )
-      );
-      // رفرش لیست از سرور
+        ),
+      }));
       await fetchDocuments();
     } catch (err) {
-      console.error("Error refreshing documents:", err);
-      setError(err.message || "Failed to refresh documents");
+      setState(prev => ({ 
+        ...prev, 
+        error: err.message || 'به‌روزرسانی وضعیت ناموفق بود' 
+      }));
     }
   };
 
-  const shouldShowPagination = totalItems > minPageSize;
+  const handleAddKnowledge = () => {
+    setState(prev => ({ ...prev, showAddKnowledge: true }));
+  };
+
+  const handleCloseAddKnowledge = () => {
+    setState(prev => ({ ...prev, showAddKnowledge: false }));
+    fetchDocuments();
+  };
+
+  const renderContent = () => {
+    if (state.isLoading && !state.documents.length) {
+      return <div className="text-center">در حال بارگذاری اسناد...</div>;
+    }
+
+    if (state.error) {
+      return <div className="text-red-500 text-center">خطا: {state.error}</div>;
+    }
+
+    if (!state.documents.length) {
+      return <div className="text-center">هیچ سندی یافت نشد.</div>;
+    }
+
+    return (
+      <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
+        {state.documents.map(document => (
+          <DocumentCard
+            key={document.id}
+            document={document}
+            onStatusChange={handleStatusChange}
+            onClick={() => fetchDocumentContent(document)}
+            onDelete={handleDelete}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const renderPagination = () => {
+    if (state.totalItems <= Math.min(...PAGE_SIZE_OPTIONS)) return null;
+
+    return (
+      <div className="flex flex-col sm:flex-row justify-center items-center mt-6 gap-4">
+        <div className="flex items-center gap-2">
+          <label htmlFor="pageSize" className="text-sm text-gray-600">
+            تعداد آیتم در هر صفحه:
+          </label>
+          <select
+            id="pageSize"
+            value={state.pageSize}
+            onChange={handlePageSizeChange}
+            className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {PAGE_SIZE_OPTIONS.map(size => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handlePageChange(state.currentPage - 1)}
+            disabled={state.currentPage === 1}
+            className={`px-4 py-2 rounded-lg ${
+              state.currentPage === 1
+                ? 'bg-gray-200 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          >
+            قبلی
+          </button>
+          <span className="mx-4">
+            صفحه {state.currentPage} از {state.totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(state.currentPage + 1)}
+            disabled={state.currentPage === state.totalPages}
+            className={`px-4 py-2 rounded-lg ${
+              state.currentPage === state.totalPages
+                ? 'bg-gray-200 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          >
+            بعدی
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <>
+    <div className="document-index">
       <div className="flex justify-between mb-3">
-        {location.pathname.includes("/domain/") && (
+        {location.pathname.includes('/domain/') && (
           <Link
             to="/document/domains"
             className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300"
@@ -141,94 +250,33 @@ const DocumentIndex = () => {
             بازگشت
           </Link>
         )}
-        {location.pathname.endsWith("/manuals") && (
-          <button
-            onClick={handleAddKnowledge}
-            className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
-          >
-            افزودن دانش
-          </button>
+
+        {isManualRoute && (
+          <>
+            <button
+              onClick={handleAddKnowledge}
+              className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
+            >
+              افزودن دانش
+            </button>
+
+            <select
+              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => setState(prev => ({ ...prev, agentType: e.target.value }))}
+              value={state.agentType}
+            >
+              <option value="">همه</option>
+              <option value="text_agent">ربات متنی</option>
+              <option value="voice_agent">ربات صوتی</option>
+            </select>
+          </>
         )}
-        <select
-          className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onChange={(e) => setAgentType(e.target.value)}
-        >
-          <option value={""}>همه</option>
-          <option value="text_agent">ربات متنی</option>
-          <option value="voice_agent">ربات صوتی</option>
-        </select>
       </div>
 
-      {documentContentLoading ? (
-        <div className="text-center">Loading document content...</div>
-      ) : error ? (
-        <div className="text-red-500 text-center">Error: {error}</div>
-      ) : documents.length === 0 ? (
-        <div className="text-center">No documents found.</div>
-      ) : (
-        <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
-          {documents.map((document) => (
-            <DocumentCard
-              key={document.id}
-              document={document}
-              onStatusChange={handleStatusChange}
-              onClick={() => handleDocumentCardClick(document)}
-              handleDelete={handleDelete}
-            />
-          ))}
-        </div>
-      )}
+      {renderContent()}
+      {renderPagination()}
 
-      {shouldShowPagination && (
-        <div className="flex flex-col sm:flex-row justify-center items-center mt-6 gap-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor="pageSize" className="text-sm text-gray-600">
-              تعداد در هر صفحه:
-            </label>
-            <select
-              id="pageSize"
-              value={pageSize}
-              onChange={handlePageSizeChange}
-              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 rounded-lg ${
-                currentPage === 1
-                  ? "bg-gray-200 cursor-not-allowed"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
-              }`}
-            >
-              قبلی
-            </button>
-            <span className="mx-4">
-              صفحه {currentPage} از {totalPages}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 rounded-lg ${
-                currentPage === totalPages
-                  ? "bg-gray-200 cursor-not-allowed"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
-              }`}
-            >
-              بعدی
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showAddKnowledge && (
+      {state.showAddKnowledge && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-[999] flex justify-center items-center"
           onClick={handleCloseAddKnowledge}
@@ -241,16 +289,35 @@ const DocumentIndex = () => {
           </div>
         </div>
       )}
-    </>
+
+      {state.documentContentLoading && (
+        <div className="text-center">در حال بارگذاری محتوای سند...</div>
+      )}
+
+      {state.selectedDocument && state.documentContent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[999] flex justify-center items-center">
+          <div className="relative bg-white rounded-lg shadow-xl overflow-hidden max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setState(prev => ({ ...prev, selectedDocument: null, documentContent: null }))}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              &times;
+            </button>
+            <h3 className="text-xl font-bold mb-4">{state.selectedDocument.name}</h3>
+            <div className="prose max-w-none">
+              {typeof state.documentContent === 'object' ? (
+                <pre>{JSON.stringify(state.documentContent, null, 2)}</pre>
+              ) : (
+                <p>{state.documentContent}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-DocumentIndex.propTypes = {
-  documents: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    })
-  ),
-};
+DocumentIndex.propTypes = {};
 
 export default DocumentIndex;
