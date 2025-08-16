@@ -97,7 +97,7 @@ const ManualIndex = () => {
                     onClick={handleAddKnowledge}
                     className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
                 >
-                    افزودن دانش
+                    افزودن دانشksdbh
                 </button>
             </div>
 
@@ -108,7 +108,7 @@ const ManualIndex = () => {
             ) : documents.length === 0 ? (
                 <div className="text-center">No documents found.</div>
             ) : (
-                <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {documents.map((document) => (
                         <DocumentCard
                             key={document.id}
