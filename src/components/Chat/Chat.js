@@ -607,56 +607,45 @@ const Chat = ({ item }) => {
         onWizardSelect={handleWizardSelect}
         wizards={currentWizards}
       />
-      <div className="flex items-center w-full py-1 px-2 bg-gray-50 gap-2 dark:bg-gray-900 rounded-xl shadow border">
-      <button
-            onClick={realtimeHandleSubmit}
-            disabled={chatLoading || !question.trim()}
-            className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
-          >
-            {chatLoading ? (
-              <div className="flex items-center text-2xs">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"/>
-              </div>
-            ) : (
-              <svg className="w-6 h-6 bg-transparent" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-            )}
-          </button>
-          <textarea
-            value={question}
-            onChange={(e) => {
-              setQuestion(e.target.value);
-              e.target.style.height = "auto";
-              const newHeight = Math.min(e.target.scrollHeight, 240);
-              e.target.style.height = `${newHeight}px`;
-              e.target.scrollTop = e.target.scrollHeight;
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                if (!chatLoading && question.trim()) {
-                  realtimeHandleSubmit(e);
-                }
-              } else if (e.key === "Enter" && e.shiftKey) {
-                e.preventDefault();
-                setQuestion((prev) => prev + "\n");
-                setTimeout(() => {
-                  e.target.style.height = "auto";
-                  const newHeight = Math.min(e.target.scrollHeight, 240);
-                  e.target.style.height = `${newHeight}px`;
-                  e.target.scrollTop = e.target.scrollHeight;
-                }, 0);
-              }
-            }}
-            placeholder="سوال خود را بپرسید..."
-            className="w-full resize-none h-[3rem] max-h-[8rem] p-3 bg-gray-50 dark:bg-gray-900 text-right text-gray-800 dark:text-gray-100 transition-all duration-300 focus:outline-none focus:ring-none 
-            [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"            disabled={chatLoading}
-            style={{ direction: "rtl" }}
-          />
-          <VoiceBtn onTranscribe={setQuestion} />
-   
+<div className="flex items-center overflow-hidden w-full max-h-[200] h-14 py-1 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
+  <button
+    onClick={realtimeHandleSubmit}
+    disabled={chatLoading || !question.trim()}
+    className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+  >
+    {chatLoading ? (
+      <div className="flex items-center text-2xs">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2" />
       </div>
+    ) : (
+      <svg className="w-6 h-6 bg-transparent" fill="#2663eb" viewBox="0 0 24 24">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+      </svg>
+    )}
+  </button>
+  <textarea
+    value={question}
+    onChange={(e) => {
+      setQuestion(e.target.value);
+      e.target.style.height = "auto";
+    }}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        if (!chatLoading && question.trim()) realtimeHandleSubmit(e);
+      }
+    }}
+   
+    placeholder="سوال خود را بپرسید..."
+    disabled={chatLoading}
+    className="w-full flex items-center pt-[22px] justify-center text-center bg-gray-50 dark:bg-gray-900 text-right text-gray-800 dark:text-gray-100 overflow-y-auto rounded-lg focus:outline-none"
+    style={{ direction: "rtl" }}
+  />
+
+  {/* Voice Input */}
+  <VoiceBtn onTranscribe={setQuestion} />
+</div>
+
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
   );
