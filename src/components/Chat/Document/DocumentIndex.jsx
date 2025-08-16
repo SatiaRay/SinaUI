@@ -7,6 +7,7 @@ import { documentEndpoints } from '../../../utils/apis';
 import DocumentCard from './DocumentCard';
 import CreateDocument from './CreateDocument';
 
+
 const DocumentIndex = () => {
   const [state, setState] = useState({
     isLoading: false,
@@ -20,7 +21,7 @@ const DocumentIndex = () => {
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
-    agentType: 'text_agent',
+    agentType: 'both' || 'voice_agent' || 'text_agent'  ,
   });
 
   const location = useLocation();
@@ -36,7 +37,7 @@ const DocumentIndex = () => {
       const response = isManualRoute
         ? await getDocuments(
             true,
-            state.agentType === 'text_agent' ? 'text_agent' : state.agentType || null,
+            state.agentType === 'text_agent' ? 'text_agent' : state.agentType || 'both',
             state.currentPage,
             state.pageSize
           )
