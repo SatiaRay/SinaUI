@@ -34,7 +34,8 @@ const NavList = ({ items, onNavigate, closeSidebar }) => (
 );
 
 const Navbar = ({ onSidebarCollapse }) => {
-  const { logout , user } = useAuth();  const navigate = useNavigate();
+  const { logout  } = useAuth();
+  const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
@@ -176,8 +177,8 @@ const Navbar = ({ onSidebarCollapse }) => {
               KH
             </span>
             <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-            <p className="text-white text-sm">{user.email}</p>
-            <p className="text-white text-sm">{user.user_type}</p>
+            <p className="text-white text-xs">نام و نام خانوادگی</p>
+                  <p className="text-white text-xs">ایمیل</p>
             </div>
          
           </div>
@@ -248,12 +249,12 @@ const Navbar = ({ onSidebarCollapse }) => {
               KH
             </span>
             <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-            <p className="text-white text-sm">{user.email}</p>
-            <p className="text-white text-sm">{user.user_type}</p>
-            </div>
+            <p className="text-white text-xs">نام و نام خانوادگی</p>
+                  <p className="text-white text-xs">ایمیل</p>
+                 </div>
          
-          </div>
-          <button
+                 </div>
+               <button
                   onClick={handleLogout}
                   className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
                 >
