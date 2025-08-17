@@ -71,7 +71,7 @@ const CreateDocument = ({ onClose }) => {
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow w-full max-w-3xl mx-auto h-[90vh] flex flex-col">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow w-full mx-auto max-h-[90vh] flex flex-col">
       <div className="p-4 sm:p-6 flex-shrink-0">
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-6">
           ایجاد سند جدید
@@ -112,11 +112,11 @@ const CreateDocument = ({ onClose }) => {
             </select>
           </div>
 
-          <div className="flex-1">
+          <div className="flex flex-col ">
             <label htmlFor="text" className="block text-sm font-medium mb-1">
               متن
             </label>
-            <div className="min-h-[200px] max-h-[calc(90vh-200px)] overflow-y-auto">
+            <div className="min-h-[200px] max-h-[30vh] overflow-y-auto p-3 border rounded-lg">
               <CKEditor
                 editor={ClassicEditor}
                 data={form.text}
