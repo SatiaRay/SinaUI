@@ -6,6 +6,7 @@ import { getDocuments, getDomainDocuments } from '../../../services/api';
 import { documentEndpoints } from '../../../utils/apis';
 import DocumentCard from './DocumentCard';
 import CreateDocument from './CreateDocument';
+import CustomDropdown from '../../../ui/dropdown';
 
 
 const DocumentIndex = () => {
@@ -173,7 +174,7 @@ const DocumentIndex = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
         {state.documents.map(document => (
           <DocumentCard
             key={document.id}
@@ -261,15 +262,17 @@ const DocumentIndex = () => {
               افزودن دانش
             </button>
 
-            <select
-              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => setState(prev => ({ ...prev, agentType: e.target.value }))}
-              value={state.agentType}
-            >
-              <option value="">همه</option>
-              <option value="text_agent">ربات متنی</option>
-              <option value="voice_agent">ربات صوتی</option>
-            </select>
+            <CustomDropdown
+  options={[
+    { value: '', label: 'همه' },
+    { value: 'text_agent', label: 'ربات متنی' },
+    { value: 'voice_agent', label: 'ربات صوتی' },
+  ]}
+  value={state.agentType}
+  onChange={(val) => setState(prev => ({ ...prev, agentType: val }))}
+  placeholder="انتخاب نوع ربات"
+/>
+
           </>
         )}
       </div>

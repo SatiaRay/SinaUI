@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { instructionEndpoints } from "../../../utils/apis";
+import CustomDropdown from "../../../ui/dropdown";
 
 const InstructionIndex = () => {
   const navigate = useNavigate();
@@ -70,14 +71,17 @@ const InstructionIndex = () => {
           دستورالعمل‌های بات
         </h1>
         <div className="max-md:w-full w-1/3 flex justify-between items-center">
-          <select
-            className="border border-blue-500 w-1/2 dark:bg-gray-700 dark:border-gray-500 dark:text-white rounded-lg px-2 h-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-200"
-            onChange={(e) => setAgentType(e.target.value)}
-          >
-            <option value={""}>همه</option>
-            <option value="text_agent">ربات متنی</option>
-            <option value="voice_agent">ربات صوتی</option>
-          </select>
+        <CustomDropdown
+    options={[
+      { value: "", label: "همه" },
+      { value: "text_agent", label: "ربات متنی" },
+      { value: "voice_agent", label: "ربات صوتی" },
+    ]}
+    value={agentType}
+    onChange={(val) => setAgentType(val)}
+    placeholder="انتخاب نوع ربات"
+  />
+
           <button
             onClick={handleCreate}
             className="bg-blue-500 w-1/2 hover:bg-blue-600 text-white flex items-center justify-center h-10 rounded-md mr-2"

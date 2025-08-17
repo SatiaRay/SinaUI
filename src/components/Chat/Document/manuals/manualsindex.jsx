@@ -97,7 +97,7 @@ const ManualIndex = () => {
                     onClick={handleAddKnowledge}
                     className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
                 >
-                    افزودن دانشksdbh
+                    افزودن دانش
                 </button>
             </div>
 
