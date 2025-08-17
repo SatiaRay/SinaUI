@@ -1,9 +1,9 @@
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { notify } from "../ui/toast";
 import NetworkBackground3D from "./NetworkBackground3D";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { toast } from "react-toastify";
 
 const Register = () => {
   const { register } = useAuth();
@@ -28,27 +28,27 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!formData.email || !formData.password || !formData.first_name || !formData.last_name || !formData.phone) {
       setError("لطفا تمام فیلدهای ضروری را پر کنید");
       return;
     }
-  
+
     setLoading(true);
     setError("");
-  
+
     try {
       await register(formData);
-      toast.success('ثبت نام انجام شد')
+      notify.success('ثبت نام انجام شد')
       navigate("/login");
     } catch (err) {
       setError(err.message);
-      toast.error(err.message || "خطا در ثبت نام");
+      notify.error(err.message || "خطا در ثبت نام");
     } finally {
       setLoading(false);
     }
   };
-  
+
 
   return (
     <div className="min-h-screen px-4 flex items-center justify-center relative overflow-hidden">
@@ -57,6 +57,7 @@ const Register = () => {
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">
           ایجاد حساب کاربری ادمین
         </h2>
+
 
         {error && (
           <div className="text-red-400 text-sm text-center animate-pulse">{error}</div>
@@ -139,9 +140,8 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 ${loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               {loading ? (
                 <svg

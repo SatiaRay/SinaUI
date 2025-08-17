@@ -1,30 +1,31 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import ReactFlow, {
-  MiniMap,
-  Controls,
   Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  useReactFlow,
+  Controls,
+  MiniMap,
   ReactFlowProvider,
+  addEdge,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import StartNode from "./nodes/StartNode";
-import ProcessNode from "./nodes/ProcessNode";
+import { v4 as uuidv4 } from "uuid";
+import { notify } from "../../../ui/toast";
+import { aiFunctionsEndpoints, workflowEndpoints } from "../../../utils/apis";
+import ChatNoHistory from "../../Chat/ChatNoHistory";
+import NodeDetails from "./NodeDetails";
+import PageViewer from "./PageViewer";
+import WorkflowEditorSidebar from "./WorkflowEditorSidebar";
 import DecisionNode from "./nodes/DecisionNode";
 import EndNode from "./nodes/EndNode";
 import FunctionNode from "./nodes/FunctionNode";
+import ProcessNode from "./nodes/ProcessNode";
 import ResponseNode from "./nodes/ResponseNode";
-import NodeDetails from "./NodeDetails";
-import PageViewer from "./PageViewer";
-import { workflowEndpoints, aiFunctionsEndpoints } from "../../../utils/apis";
-import { v4 as uuidv4 } from "uuid";
-import ChatNoHistory from "../../Chat/ChatNoHistory";
-import WorkflowEditorSidebar from "./WorkflowEditorSidebar";
+import StartNode from "./nodes/StartNode";
 const nodeTypes = {
   start: StartNode,
   process: ProcessNode,
@@ -106,9 +107,9 @@ const WorkflowEditorContent = () => {
             conditionTargets:
               step.type === "decision"
                 ? (step.conditions || []).reduce((acc, c) => {
-                    acc[c.label] = c.next;
-                    return acc;
-                  }, {})
+                  acc[c.label] = c.next;
+                  return acc;
+                }, {})
                 : {},
             jsonConfig: null,
             pageConfig: {
@@ -194,9 +195,8 @@ const WorkflowEditorContent = () => {
         return addEdge(
           {
             ...params,
-            id: `${params.source}-${params.sourceHandle}-${
-              params.target
-            }-${Date.now()}`,
+            id: `${params.source}-${params.sourceHandle}-${params.target
+              }-${Date.now()}`,
             type: "step",
             animated: true,
             style: { stroke: "#f59e0b" },
@@ -281,7 +281,7 @@ const WorkflowEditorContent = () => {
       setAiFunctions(data.functions || []);
     } catch (err) {
       console.error("Error fetching AI functions:", err);
-      toast.error("خطا در دریافت لیست توابع");
+      notify.error("خطا در دریافت لیست توابع");
     }
   }, []);
 
@@ -311,14 +311,14 @@ const WorkflowEditorContent = () => {
           type === "start"
             ? "شروع"
             : type === "process"
-            ? "فرآیند"
-            : type === "decision"
-            ? "تصمیم"
-            : type === "function"
-            ? "تابع"
-            : type === "response"
-            ? "پاسخ"
-            : "پایان",
+              ? "فرآیند"
+              : type === "decision"
+                ? "تصمیم"
+                : type === "function"
+                  ? "تابع"
+                  : type === "response"
+                    ? "پاسخ"
+                    : "پایان",
         description: "",
         connections: [],
         conditions: type === "decision" ? ["شرط پیش‌فرض"] : [],
@@ -583,7 +583,7 @@ const WorkflowEditorContent = () => {
         setError(null);
 
         if (!workflowName.trim()) {
-          toast.error("لطفا نام گردش کار را وارد کنید");
+          notify.error("لطفا نام گردش کار را وارد کنید");
           setLoading(false);
           return;
         }
@@ -657,11 +657,11 @@ const WorkflowEditorContent = () => {
 
         if (workflowId) {
           await workflowEndpoints.updateWorkflow(workflowId, workflowData);
-          toast.success("گردش کار با موفقیت بروزرسانی شد");
+          notify.success("گردش کار با موفقیت بروزرسانی شد");
         } else {
           const { id } = await workflowEndpoints.createWorkflow(workflowData);
           navigate(`/workflow/${id}`);
-          toast.success("گردش کار با موفقیت ایجاد شد");
+          notify.success("گردش کار با موفقیت ایجاد شد");
         }
 
         // به‌روزرسانی state اصلی
@@ -669,7 +669,7 @@ const WorkflowEditorContent = () => {
       } catch (err) {
         console.error("Error saving workflow:", err);
         setError("خطا در ذخیره گردش کار");
-        toast.error("خطا در ذخیره گردش کار");
+        notify.error("خطا در ذخیره گردش کار");
         console.log(
           "Workflow Data Sent:",
           JSON.stringify(workflowData, null, 2)
@@ -812,14 +812,14 @@ const WorkflowEditorContent = () => {
               {selectedNode.type === "start"
                 ? "شروع"
                 : selectedNode.type === "process"
-                ? "فرآیند"
-                : selectedNode.type === "decision"
-                ? "تصمیم"
-                : selectedNode.type === "function"
-                ? "تابع"
-                : selectedNode.type === "response"
-                ? "پاسخ"
-                : "پایان"}{" "}
+                  ? "فرآیند"
+                  : selectedNode.type === "decision"
+                    ? "تصمیم"
+                    : selectedNode.type === "function"
+                      ? "تابع"
+                      : selectedNode.type === "response"
+                        ? "پاسخ"
+                        : "پایان"}{" "}
               اطمینان دارید؟
             </p>
             <div className="flex justify-end gap-2">

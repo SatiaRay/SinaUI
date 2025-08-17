@@ -20,6 +20,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
     const label = property.label || property.lable || key;
 
     if (property.enum) {
+      
       return (
         <select
           value={value}
