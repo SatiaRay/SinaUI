@@ -21,11 +21,11 @@ const DomainIndex = () => {
 
     return (
         <>
-
+             
             <div className="flex gap-2">
-                {domains.map((domain) => (
+                {domains.length === 0 ? <div> سندی یافت نشد ... </div> :    domains.map((domain , idx) => (
                     <Link
-                        key={domain.id}
+                        key={idx}
                         to={`/document/domain/${domain.id}`}
                         className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700"
                     >
@@ -41,7 +41,8 @@ const DomainIndex = () => {
                             <p>تاریخ ایجاد: {new Date(domain.created_at).toLocaleString('fa-IR')}</p>
                         </div>
                     </Link>
-                ))} 
+                ))}
+            
             </div>
         </>
     )
