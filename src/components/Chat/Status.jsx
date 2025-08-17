@@ -231,7 +231,8 @@ const Status = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-4 max-w-4xl mx-auto">
+       <section className='w-full h-screen flex items-center justify-center px-4 md:px-0' >
+         <div className="bg-white w-full dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-4 max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">پردازش‌ها</h2>
                 <Link
@@ -241,11 +242,11 @@ const Status = () => {
                     بازگشت
                 </Link>
             </div>
-            <div className="space-y-6">
-                <div className="flex gap-4">
+            <div className="space-y-6 w-full">
+                <div className="flex gap-2 w-full">
                     <button
                         onClick={() => setFilter('active')}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                        className={`px-4 py-2 max-md:w-1/2 rounded-lg font-medium transition-all duration-200 ${
                             filter === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-300 dark:bg-gray-700 dark:text-white hover:bg-gray-400 dark:hover:bg-gray-600'
                         }`}
                     >
@@ -253,7 +254,7 @@ const Status = () => {
                     </button>
                     <button
                         onClick={() => setFilter('finished')}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                        className={`px-4 py-2 max-md:w-1/2 rounded-lg font-medium transition-all duration-200 ${
                             filter === 'finished' ? 'bg-blue-500 text-white' : 'bg-gray-300 dark:bg-gray-700 dark:text-white hover:bg-gray-400 dark:hover:bg-gray-600'
                         }`}
                     >
@@ -310,6 +311,7 @@ const Status = () => {
                 )}
             </div>
         </div>
+       </section>
     );
 };
 
