@@ -36,7 +36,8 @@ const NavList = ({ items, onNavigate, closeSidebar }) => (
 );
 
 const Navbar = ({ onSidebarCollapse }) => {
-  const { logout  } = useAuth();
+  const { logout , user  } = useAuth();
+  console.log(user)
   const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -182,13 +183,21 @@ const Navbar = ({ onSidebarCollapse }) => {
 
           <footer className="p-2 flex border-t items-center justify-center border-gray-700  overflow-hidden">
           <div className="h-full w-full h-14 flex items-center gap-2">
-            <span className="w-12 items-center justify-center flex font-bold text-white h-10 rounded-[100%] bg-blue-500">
-              KH
-            </span>
-            <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-            <p className="text-white text-xs">نام و نام خانوادگی</p>
-                  <p className="text-white text-xs">ایمیل</p>
-            </div>
+          <span className="w-12 h-10 flex items-center justify-center font-bold text-white rounded-full bg-blue-500">
+  {user
+    ? user.last_name
+      ? user.last_name[0].toUpperCase()
+      : user.first_name
+      ? user.first_name[0].toUpperCase()
+      : "U"
+    : "U"}
+</span>
+<div className="h-full w-full h-14 flex justify-center flex-col gap-1">
+  <p className="text-white text-xs">
+    {user ? `${user.first_name} ${user.last_name}` : "Guest"}
+  </p>
+  <p className="text-white text-xs">{user?.email || "example@example.com"}</p>
+</div>
          
           </div>
           <button
@@ -262,13 +271,21 @@ const Navbar = ({ onSidebarCollapse }) => {
 
               <footer className="p-4 border-t border-gray-700 flex items-center justify-center">
               <div className="h-full w-full h-14 flex items-center gap-2">
-            <span className="w-12 items-center justify-center flex font-bold text-white h-10 rounded-[100%] bg-blue-500">
-              KH
-            </span>
-            <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-            <p className="text-white text-xs">نام و نام خانوادگی</p>
-                  <p className="text-white text-xs">ایمیل</p>
-                 </div>
+              <span className="w-12 h-10 flex items-center justify-center font-bold text-white rounded-full bg-blue-500">
+  {user
+    ? user.last_name
+      ? user.last_name[0].toUpperCase()
+      : user.first_name
+      ? user.first_name[0].toUpperCase()
+      : "U"
+    : "U"}
+</span>
+<div className="h-full w-full h-14 flex justify-center flex-col gap-1">
+  <p className="text-white text-xs">
+    {user ? `${user.first_name} ${user.last_name}` : "Guest"}
+  </p>
+  <p className="text-white text-xs">{user?.email || "example@example.com"}</p>
+</div>
          
                  </div>
                <button
