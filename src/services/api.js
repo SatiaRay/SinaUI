@@ -286,11 +286,11 @@ export const importWorkflow = async (file) => {
 export const register = async ({ first_name, last_name, email, password, phone }) => {
   try {
     const res = await axiosInstance.post(`/auth/register`, {
-      firstName: first_name,
-      lastName: last_name,
+      first_name,
+      last_name,
       email,
       password,
-      phoneNumber: phone
+      phone
     });
     return res.data; // ✅ return directly if success
   } catch (err) {

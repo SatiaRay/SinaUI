@@ -43,6 +43,7 @@ const Register = () => {
       navigate("/login");
     } catch (err) {
       setError(err.message);
+      toast.error(err.message || "خطا در ثبت نام");
     } finally {
       setLoading(false);
     }
@@ -101,6 +102,7 @@ const Register = () => {
               dir="rtl"
               id="phone"
               name="phone"
+              pattern="[0-9]{10,15}"
               type="text"
               className="appearance-none relative block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300"
               placeholder="شماره تلفن"
