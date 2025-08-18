@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { IoIosArrowDown } from "react-icons/io";
 
 
-const CustomDropdown = ({ options, value, onChange, placeholder }) => {
+const CustomDropdown = ({ options, value, onChange, placeholder, className, parentStyle }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();
 
@@ -26,10 +26,11 @@ const CustomDropdown = ({ options, value, onChange, placeholder }) => {
   const selectedOption = options.find(opt => opt.value === value);
 
   return (
-    <div ref={ref} className="relative w-48">
+    <div ref={ref} className={`relative w-48 ${parentStyle}`}>
       <button
+        type='button'
         onClick={() => setIsOpen(prev => !prev)}
-        className="w-full dark:text-white border rounded-lg px-3 py-2 text-sm flex justify-between items-center "
+        className={`w-full dark:text-white border rounded-lg px-3 py-2 text-sm flex justify-between items-center ${className}`}
       >
         {selectedOption ? selectedOption.label : placeholder}
         <span className={`ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import CustomDropdown from "../../ui/dropdown";
 
 const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({});
@@ -20,20 +21,20 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
     const label = property.label || property.lable || key;
 
     if (property.enum) {
-      
+      const options = property.enum.map(option => ({
+        value: option,
+        label: option
+      }));
+
       return (
-        <select
+        <CustomDropdown
+          options={options}
           value={value}
-          onChange={(e) => handleChange(key, e.target.value)}
-          className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        >
-          <option value="">انتخاب کنید...</option>
-          {property.enum.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+          onChange={(value) => handleChange(key, value)}
+          placeholder="انتخاب کنید..."
+          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          parentStyle="w-full"
+        />
       );
     }
 
@@ -44,7 +45,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
             type="text"
             value={value}
             onChange={(e) => handleChange(key, e.target.value)}
-            className="border p-2 rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="border p-2 rounded-lg w-full dark:bg-gray-700 bg-transparent dark:border-gray-600 dark:text-white"
             placeholder={`${label} را وارد کنید`}
           />
         );

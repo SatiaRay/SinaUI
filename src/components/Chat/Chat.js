@@ -490,7 +490,7 @@ const Chat = ({ item }) => {
                       شما
                     </span>
                   </div>
-                  <div
+                  <pre
                     className="text-gray-800 dark:text-white [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                     dangerouslySetInnerHTML={{ __html: item.text }}
                   />
@@ -638,7 +638,7 @@ const Chat = ({ item }) => {
 
           placeholder="سوال خود را بپرسید..."
           disabled={chatLoading}
-          className="w-full flex items-center pt-[22px] justify-center text-center bg-gray-50 dark:bg-gray-900 text-right text-gray-800 dark:text-gray-100 overflow-y-auto rounded-lg focus:outline-none"
+          className="w-full flex items-center justify-center h-full pt-2.5 text-center bg-gray-50 dark:bg-gray-900 text-right text-gray-800 dark:text-gray-100 overflow-y-auto rounded-lg focus:outline-none"
           style={{ direction: "rtl" }}
         />
 

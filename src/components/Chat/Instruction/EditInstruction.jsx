@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { instructionEndpoints } from "../../../utils/apis";
+import CustomDropdown from "../../../ui/dropdown";
 
 const EditInstruction = () => {
   const navigate = useNavigate();
@@ -35,8 +36,7 @@ const EditInstruction = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
       [name]: name === "status" ? Number(value) : value,
@@ -60,7 +60,7 @@ const EditInstruction = () => {
   if (loading) return <div className="p-4">در حال بارگذاری...</div>;
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-md:pt-10">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">ویرایش دستورالعمل</h1>
 
@@ -70,7 +70,8 @@ const EditInstruction = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* Label */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               برچسب
@@ -79,7 +80,7 @@ const EditInstruction = () => {
               type="text"
               name="label"
               value={formData.label}
-              onChange={handleChange}
+              onChange={(e) => handleChange("label", e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
@@ -92,46 +93,51 @@ const EditInstruction = () => {
             <textarea
               name="text"
               value={formData.text}
-              onChange={handleChange}
+              onChange={(e) => handleChange("text", e.target.value)}
               required
               rows="4"
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
+          <div className="w-full flex justify-center gap-2">
+            <div className="w-1/2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                نوع ربات
+              </label>
+              <CustomDropdown
+                options={[
+                  { value: "both", label: "همه" },
+                  { value: "text_agent", label: "ربات متنی" },
+                  { value: "voice_agent", label: "ربات صوتی" },
+                ]}
+                value={formData.agent_type}
+                onChange={(val) => handleChange("agent_type", val)}
+                placeholder="انتخاب کنید"
+                className={'w-full'}
+                parentStyle={'w-full'}
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              نوع ربات
-            </label>
-            <select
-              name="agent_type"
-              value={formData.agent_type}
-              onChange={handleChange}
-              required
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              <option value="both">همه</option>
-              <option value="text_agent">ربات متنی</option>
-              <option value="voice_agent">ربات صوتی</option>
-            </select>
+            <div className="w-1/2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                وضعیت
+              </label>
+              <CustomDropdown
+                options={[
+                  { value: 1, label: "فعال" },
+                  { value: 0, label: "غیرفعال" },
+                ]}
+                value={formData.status}
+                onChange={(val) => handleChange("status", val)}
+                placeholder="انتخاب وضعیت"
+                className={'w-full'}
+                parentStyle={'w-full'}
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              وضعیت
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              <option value={1}>فعال</option>
-              <option value={0}>غیرفعال</option>
-            </select>
-          </div>
 
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
               onClick={() => navigate("/instructions")}
