@@ -2,9 +2,10 @@ import React, { useState, useCallback } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { documentEndpoints } from "../../../utils/apis";
+import CustomDropdown from "../../../ui/dropdown";
 
 const AGENT_TYPES = [
-  { value: "voice_text", label: "ربات متن" },
+  { value: "text_agent", label: "ربات متن" },
   { value: "voice_agent", label: "ربات صوتی" },
   { value: "both", label: "هر دو" },
 ];
@@ -13,7 +14,7 @@ const CreateDocument = ({ onClose }) => {
   const [form, setForm] = useState({
     title: "",
     text: "",
-    agentType: "text_agent",
+    agentType: "text_agent", // Set default value to match one of the AGENT_TYPES values
   });
   const [status, setStatus] = useState({
     loading: false,
@@ -44,7 +45,7 @@ const CreateDocument = ({ onClose }) => {
 
         if (apiStatus === "success") {
           alert("اطلاعات با موفقیت ذخیره شد");
-          setForm({ title: "", text: "", agentType: "" });
+          setForm({ title: "", text: "", agentType: "text_agent" });
           onClose?.();
         } else {
           throw new Error("خطا در ذخیره اطلاعات");
@@ -78,45 +79,44 @@ const CreateDocument = ({ onClose }) => {
         </h2>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium mb-1">
-              عنوان
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={form.title}
-              onChange={(e) => handleChange("title", e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="عنوان سند را وارد کنید"
-              className="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-              required
-            />
+          <div className="w-full flex gap-2">
+            <div className="w-1/2 flex flex-col gap-1">
+              <label htmlFor="title" className="block dark:text-white text-sm font-medium mb-1">
+                عنوان
+              </label>
+              <input
+                type="text"
+                id="title"
+                value={form.title}
+                onChange={(e) => handleChange("title", e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="عنوان سند را وارد کنید"
+                className="w-full px-3 h-10 border rounded-lg shadow-sm bg-transparent dark:border-white"
+                required
+              />
+            </div>
+
+            <div className="w-1/2 flex flex-col gap-1">
+              <label htmlFor="agentType" className="block dark:text-white text-sm font-medium mb-1">
+                نوع ربات
+              </label>
+              <CustomDropdown
+                options={AGENT_TYPES}
+                value={form.agentType}
+                onChange={(value) => handleChange("agentType", value)}
+                placeholder="نوع ربات را انتخاب کنید"
+                className="h-10"
+                parentStyle="w-full"
+              />
+            </div>
           </div>
 
-          <div>
-            <label htmlFor="agentType" className="block text-sm font-medium mb-1">
-              نوع ربات
-            </label>
-            <select
-              id="agentType"
-              value={form.agentType}
-              onChange={(e) => handleChange("agentType", e.target.value)}
-              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600"
-            >
-              {AGENT_TYPES.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
 
-          <div className="flex flex-col ">
-            <label htmlFor="text" className="block text-sm font-medium mb-1">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="text" className="block dark:text-white text-sm font-medium mb-1">
               متن
             </label>
-            <div className="min-h-[200px] max-h-[30vh] overflow-y-auto p-3 border rounded-lg">
+            <div className="min-h-[200px] max-h-[30vh] overflow-auto p-3 border rounded-lg">
               <CKEditor
                 editor={ClassicEditor}
                 data={form.text}
@@ -169,6 +169,7 @@ const CreateDocument = ({ onClose }) => {
                 onKeyDown={handleKeyDown}
               />
             </div>
+
           </div>
 
           {/* پیام خطا */}
@@ -179,7 +180,7 @@ const CreateDocument = ({ onClose }) => {
       </div>
 
       {/* دکمه ثبت */}
-      <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 sm:p-6 border-t flex-shrink-0">
+      <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 sm:p-6 flex-shrink-0">
         <button
           type="button"
           onClick={handleSubmit}

@@ -6,6 +6,8 @@ import { getDocuments, getDomainDocuments } from '../../../services/api';
 import { documentEndpoints } from '../../../utils/apis';
 import DocumentCard from './DocumentCard';
 import CreateDocument from './CreateDocument';
+import CustomDropdown from '../../../ui/dropdown';
+import { notify } from '../../../ui/toast';
 
 
 const DocumentIndex = () => {
@@ -21,7 +23,7 @@ const DocumentIndex = () => {
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
-    agentType: 'both' || 'voice_agent' || 'text_agent'  ,
+    agentType: 'both' || 'voice_agent' || 'text_agent',
   });
 
   const location = useLocation();
@@ -36,11 +38,11 @@ const DocumentIndex = () => {
 
       const response = isManualRoute
         ? await getDocuments(
-            true,
-            state.agentType === 'text_agent' ? 'text_agent' : state.agentType || 'both',
-            state.currentPage,
-            state.pageSize
-          )
+          true,
+          state.agentType === 'text_agent' ? 'text_agent' : state.agentType || 'both',
+          state.currentPage,
+          state.pageSize
+        )
         : await getDomainDocuments(domain_id, state.currentPage, state.pageSize);
 
       if (response?.data) {
@@ -68,11 +70,11 @@ const DocumentIndex = () => {
 
   const fetchDocumentContent = async (document) => {
     try {
-      setState(prev => ({ 
-        ...prev, 
-        documentContentLoading: true, 
-        error: null, 
-        selectedDocument: document 
+      setState(prev => ({
+        ...prev,
+        documentContentLoading: true,
+        error: null,
+        selectedDocument: document
       }));
 
       const response = await fetch(
@@ -87,16 +89,16 @@ const DocumentIndex = () => {
       if (!response.ok) throw new Error('دریافت محتوای سند ناموفق بود');
 
       const data = await response.json();
-      setState(prev => ({ 
-        ...prev, 
+      setState(prev => ({
+        ...prev,
         documentContent: data,
-        documentContentLoading: false 
+        documentContentLoading: false
       }));
     } catch (err) {
-      setState(prev => ({ 
-        ...prev, 
+      setState(prev => ({
+        ...prev,
         error: err.message,
-        documentContentLoading: false 
+        documentContentLoading: false
       }));
       console.error('Document content fetch error:', err);
     }
@@ -143,9 +145,9 @@ const DocumentIndex = () => {
       }));
       await fetchDocuments();
     } catch (err) {
-      setState(prev => ({ 
-        ...prev, 
-        error: err.message || 'به‌روزرسانی وضعیت ناموفق بود' 
+      setState(prev => ({
+        ...prev,
+        error: err.message || 'به‌روزرسانی وضعیت ناموفق بود'
       }));
     }
   };
@@ -173,7 +175,7 @@ const DocumentIndex = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
         {state.documents.map(document => (
           <DocumentCard
             key={document.id}
@@ -213,11 +215,10 @@ const DocumentIndex = () => {
           <button
             onClick={() => handlePageChange(state.currentPage - 1)}
             disabled={state.currentPage === 1}
-            className={`px-4 py-2 rounded-lg ${
-              state.currentPage === 1
-                ? 'bg-gray-200 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
+            className={`px-4 py-2 rounded-lg ${state.currentPage === 1
+              ? 'bg-gray-200 cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
           >
             قبلی
           </button>
@@ -227,11 +228,10 @@ const DocumentIndex = () => {
           <button
             onClick={() => handlePageChange(state.currentPage + 1)}
             disabled={state.currentPage === state.totalPages}
-            className={`px-4 py-2 rounded-lg ${
-              state.currentPage === state.totalPages
-                ? 'bg-gray-200 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
-            }`}
+            className={`px-4 py-2 rounded-lg ${state.currentPage === state.totalPages
+              ? 'bg-gray-200 cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
           >
             بعدی
           </button>
@@ -241,7 +241,7 @@ const DocumentIndex = () => {
   };
 
   return (
-    <div className="document-index">
+    <div className="document-index pb-20">
       <div className="flex justify-between mb-3">
         {location.pathname.includes('/domain/') && (
           <Link
@@ -261,19 +261,20 @@ const DocumentIndex = () => {
               افزودن دانش
             </button>
 
-            <select
-              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => setState(prev => ({ ...prev, agentType: e.target.value }))}
+            <CustomDropdown
+              options={[
+                { value: '', label: 'همه' },
+                { value: 'text_agent', label: 'ربات متنی' },
+                { value: 'voice_agent', label: 'ربات صوتی' },
+              ]}
               value={state.agentType}
-            >
-              <option value="">همه</option>
-              <option value="text_agent">ربات متنی</option>
-              <option value="voice_agent">ربات صوتی</option>
-            </select>
+              onChange={(val) => setState(prev => ({ ...prev, agentType: val }))}
+              placeholder="انتخاب نوع ربات"
+            />
+
           </>
         )}
       </div>
-
       {renderContent()}
       {renderPagination()}
 

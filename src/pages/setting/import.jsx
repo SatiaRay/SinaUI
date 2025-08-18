@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { uploadSystemImport } from "../../services/api";
-import { toast } from "react-toastify";
+import { notify } from "../../ui/toast";
 
 export const Import = () => {
   const [statusType, setStatusType] = useState("");
@@ -12,10 +12,10 @@ export const Import = () => {
 
     try {
       await uploadSystemImport(file);
-      toast.success(" آپلود با موفقیت انجام شد");
+      notify.success(" آپلود با موفقیت انجام شد");
       setStatusType("success");
     } catch (error) {
-      toast.error(" آپلود ناموفق بود");
+      notify.error(" آپلود ناموفق بود");
       setStatusType("error");
     }
   };

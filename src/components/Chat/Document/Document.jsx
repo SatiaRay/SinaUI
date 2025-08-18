@@ -286,7 +286,7 @@ const DocumentIndex = () => {
                 {/* نمایش لودینگ */}
                 {(domainsLoading || filesLoading || fileContentLoading) && (
                     <div className="flex justify-center items-center p-8 gap-1">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-800 mr-3"/>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-800 mr-3" />
                         <p className="text-gray-600 dark:text-gray-300">در حال بارگذاری...</p>
                     </div>
                 )}

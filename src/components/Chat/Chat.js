@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
-import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import { askQuestion } from "../../services/api";
+import { notify } from "../../ui/toast";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
@@ -306,8 +306,8 @@ const Chat = ({ item }) => {
         setChatLoading(false);
         return;
       }
-    } catch (e) {}
-    
+    } catch (e) { }
+
     if (!initialMessageAddedRef.current) {
       const botMessage = {
         type: "answer",
@@ -445,7 +445,7 @@ const Chat = ({ item }) => {
       .writeText(plainText)
       .then(() => {
         setCopiedMessageId(messageIndex);
-        toast.success("متن کپی شد!", {
+        notify.success("متن کپی شد!", {
           autoClose: 1000,
           position: "top-left",
         });
@@ -472,7 +472,7 @@ const Chat = ({ item }) => {
             </p>
           </div>
         )}
-        
+
         {chatHistory.length === 0 && !historyLoading ? (
           <div className="text-center text-gray-500 dark:text-gray-400 p-4">
             سوال خود را بپرسید تا گفتگو شروع شود
@@ -490,7 +490,7 @@ const Chat = ({ item }) => {
                       شما
                     </span>
                   </div>
-                  <div
+                  <pre
                     className="text-gray-800 dark:text-white [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                     dangerouslySetInnerHTML={{ __html: item.text }}
                   />
@@ -607,44 +607,44 @@ const Chat = ({ item }) => {
         onWizardSelect={handleWizardSelect}
         wizards={currentWizards}
       />
-<div className="flex items-center overflow-hidden w-full max-h-[200] h-14 py-1 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
-  <button
-    onClick={realtimeHandleSubmit}
-    disabled={chatLoading || !question.trim()}
-    className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
-  >
-    {chatLoading ? (
-      <div className="flex items-center text-2xs">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2" />
-      </div>
-    ) : (
-      <svg className="w-6 h-6 bg-transparent" fill="#2663eb" viewBox="0 0 24 24">
-        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-      </svg>
-    )}
-  </button>
-  <textarea
-    value={question}
-    onChange={(e) => {
-      setQuestion(e.target.value);
-      e.target.style.height = "auto";
-    }}
-    onKeyDown={(e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        if (!chatLoading && question.trim()) realtimeHandleSubmit(e);
-      }
-    }}
-   
-    placeholder="سوال خود را بپرسید..."
-    disabled={chatLoading}
-    className="w-full flex items-center pt-[22px] justify-center text-center bg-gray-50 dark:bg-gray-900 text-right text-gray-800 dark:text-gray-100 overflow-y-auto rounded-lg focus:outline-none"
-    style={{ direction: "rtl" }}
-  />
+      <div className="flex items-center overflow-hidden w-full max-h-[200] h-14 py-1 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
+        <button
+          onClick={realtimeHandleSubmit}
+          disabled={chatLoading || !question.trim()}
+          className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+        >
+          {chatLoading ? (
+            <div className="flex items-center text-2xs">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2" />
+            </div>
+          ) : (
+            <svg className="w-6 h-6 bg-transparent" fill="#2663eb" viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          )}
+        </button>
+        <textarea
+          value={question}
+          onChange={(e) => {
+            setQuestion(e.target.value);
+            e.target.style.height = "auto";
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              if (!chatLoading && question.trim()) realtimeHandleSubmit(e);
+            }
+          }}
 
-  {/* Voice Input */}
-  <VoiceBtn onTranscribe={setQuestion} />
-</div>
+          placeholder="سوال خود را بپرسید..."
+          disabled={chatLoading}
+          className="w-full flex items-center justify-center h-full pt-2.5 text-center bg-gray-50 dark:bg-gray-900 text-right text-gray-800 dark:text-gray-100 overflow-y-auto rounded-lg focus:outline-none"
+          style={{ direction: "rtl" }}
+        />
+
+        {/* Voice Input */}
+        <VoiceBtn onTranscribe={setQuestion} />
+      </div>
 
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>

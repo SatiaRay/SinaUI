@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { downloadSystemExport } from "../../services/api";
-import { toast } from "react-toastify";
+import { notify } from "../../ui/toast";
 
 export const Export = () => {
   const [statusMessage, setStatusMessage] = useState("");
@@ -19,9 +19,9 @@ export const Export = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success(" دانلود با موفقیت انجام شد");
+      notify.success(" دانلود با موفقیت انجام شد");
     } catch (error) {
-      toast.error(" دانلود ناموفق بود");
+      notify.error(" دانلود ناموفق بود");
     }
   };
 

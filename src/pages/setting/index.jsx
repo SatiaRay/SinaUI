@@ -1,9 +1,9 @@
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { notify } from "../../ui/toast";
 import { Export } from "./export";
 import SettingsForm from "./form";
 import { Import } from "./import";
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from "react-toastify";
 
 const Setting = () => {
   const [settingsSchema, setSettingsSchema] = useState(null);
@@ -16,13 +16,13 @@ const Setting = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const [schemaResponse, settingsResponse] = await axios.all([
           axios.get('/system/settings-schema'),
           axios.get('/system/settings')
         ]);
         console.log("Schema from backend:", schemaResponse.data);  // ✅ log schema
-        console.log("Current settings from backend:", settingsResponse.data);  
+        console.log("Current settings from backend:", settingsResponse.data);
 
         setSettingsSchema(schemaResponse.data.schema);
         setCurrentSettings(settingsResponse.data);
@@ -43,14 +43,14 @@ const Setting = () => {
       const response = await axios.post('/system/settings', data, {
         headers: { 'Content-Type': 'application/json' },
       });
-      
+
       if (response.status === 200) {
-        toast.success('تنظیمات با موفقیت ذخیره شد!');
+        notify.success('تنظیمات با موفقیت ذخیره شد!');
         const settingsResponse = await axios.get('/system/settings');
         setCurrentSettings(settingsResponse.data);
       }
     } catch (error) {
-      toast.error(`خطا در ذخیره تنظیمات: ${error.response?.data?.message || error.message}`);
+      notify.error(`خطا در ذخیره تنظیمات: ${error.response?.data?.message || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ const Setting = () => {
             </div>
           ) : settingsSchema ? (
             <SettingsForm
-              schema={settingsSchema} 
+              schema={settingsSchema}
               initialValues={currentSettings}
               onSubmit={handleSubmit}
               isLoading={loading}

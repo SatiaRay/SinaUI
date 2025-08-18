@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { toast } from 'react-toastify';
+import { notify } from '../../../ui/toast';
 
 const NodeDetails = ({ node, onUpdate, onClose, onDelete, saveWorkflow, nodes }) => {
   const [details, setDetails] = useState({
@@ -27,27 +27,27 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete, saveWorkflow, nodes })
 
       // به‌روزرسانی nodes به‌صورت محلی
       const updatedNodes = nodes.map((n) =>
-          n.id === node.id
-              ? {
-                ...n,
-                data: {
-                  ...n.data,
-                  ...updatedData,
-                  conditions: updatedData.conditions,
-                },
-              }
-              : n
+        n.id === node.id
+          ? {
+            ...n,
+            data: {
+              ...n.data,
+              ...updatedData,
+              conditions: updatedData.conditions,
+            },
+          }
+          : n
       );
 
       console.log('Updated nodes before saving:', updatedNodes); // لاگ برای دیباگ
 
       // فراخوانی saveWorkflow با nodes به‌روز‌شده
       await saveWorkflow(updatedNodes);
-      toast.success('تغییرات با موفقیت ذخیره شد');
+      notify.success('تغییرات با موفقیت ذخیره شد');
       onClose();
     } catch (error) {
       console.error('Error saving workflow:', error);
-      toast.error('خطا در ذخیره تغییرات');
+      notify.error('خطا در ذخیره تغییرات');
     } finally {
       setIsSaving(false);
     }
@@ -76,163 +76,163 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete, saveWorkflow, nodes })
     setDetails((prev) => ({
       ...prev,
       conditions: prev.conditions.map((condition, i) =>
-          i === index ? value : condition
+        i === index ? value : condition
       ),
     }));
   };
 
   return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-            ویرایش{' '}
-            {node.type === 'start'
-                ? 'شروع'
-                : node.type === 'process'
-                    ? 'فرآیند'
-                    : node.type === 'decision'
-                        ? 'تصمیم'
-                        : node.type === 'function'
-                            ? 'تابع'
-                            : node.type === 'response'
-                                ? 'پاسخ'
-                                : 'پایان'}
-          </h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+          ویرایش{' '}
+          {node.type === 'start'
+            ? 'شروع'
+            : node.type === 'process'
+              ? 'فرآیند'
+              : node.type === 'decision'
+                ? 'تصمیم'
+                : node.type === 'function'
+                  ? 'تابع'
+                  : node.type === 'response'
+                    ? 'پاسخ'
+                    : 'پایان'}
+        </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              عنوان
+            </label>
+            <input
+              type="text"
+              value={details.label}
+              onChange={(e) => setDetails((prev) => ({ ...prev, label: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              disabled={isSaving}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              توضیحات
+            </label>
+            <textarea
+              value={details.description}
+              onChange={(e) =>
+                setDetails((prev) => ({ ...prev, description: e.target.value }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              rows="3"
+              disabled={isSaving}
+            />
+          </div>
+
+          {node.type === 'decision' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                عنوان
+                شرایط
               </label>
-              <input
-                  type="text"
-                  value={details.label}
-                  onChange={(e) => setDetails((prev) => ({ ...prev, label: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  disabled={isSaving}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                توضیحات
-              </label>
-              <textarea
-                  value={details.description}
-                  onChange={(e) =>
-                      setDetails((prev) => ({ ...prev, description: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  rows="3"
-                  disabled={isSaving}
-              />
-            </div>
-
-            {node.type === 'decision' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    شرایط
-                  </label>
-                  <div className="space-y-2">
-                    {details.conditions.map((condition, index) => (
-                        <div key={index} className="flex gap-2">
-                          <input
-                              type="text"
-                              value={condition}
-                              onChange={(e) => updateCondition(index, e.target.value)}
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                              placeholder="شرط تصمیم"
-                              disabled={isSaving}
-                          />
-                          <button
-                              type="button"
-                              onClick={() => removeCondition(index)}
-                              className="px-3 py-2 text-red-600 hover:text-red-700"
-                              disabled={isSaving}
-                          >
-                            حذف
-                          </button>
-                        </div>
-                    ))}
+              <div className="space-y-2">
+                {details.conditions.map((condition, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={condition}
+                      onChange={(e) => updateCondition(index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      placeholder="شرط تصمیم"
+                      disabled={isSaving}
+                    />
                     <button
-                        type="button"
-                        onClick={addCondition}
-                        className="text-blue-600 hover:text-blue-700 text-sm"
-                        disabled={isSaving}
+                      type="button"
+                      onClick={() => removeCondition(index)}
+                      className="px-3 py-2 text-red-600 hover:text-red-700"
+                      disabled={isSaving}
                     >
-                      + افزودن شرط
+                      حذف
                     </button>
                   </div>
-                </div>
-            )}
+                ))}
+                <button
+                  type="button"
+                  onClick={addCondition}
+                  className="text-blue-600 hover:text-blue-700 text-sm"
+                  disabled={isSaving}
+                >
+                  + افزودن شرط
+                </button>
+              </div>
+            </div>
+          )}
 
-            <div className="flex justify-end gap-2 mt-6">
+          <div className="flex justify-end gap-2 mt-6">
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
+              disabled={isSaving}
+            >
+              حذف
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              disabled={isSaving}
+            >
+              انصراف
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
+              disabled={isSaving}
+            >
+              {isSaving ? 'در حال ذخیره...' : 'ذخیره'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              تایید حذف
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              آیا از حذف این{' '}
+              {node.type === 'start'
+                ? 'شروع'
+                : node.type === 'process'
+                  ? 'فرآیند'
+                  : node.type === 'decision'
+                    ? 'تصمیم'
+                    : node.type === 'function'
+                      ? 'تابع'
+                      : node.type === 'response'
+                        ? 'پاسخ'
+                        : 'پایان'}{' '}
+              اطمینان دارید؟
+            </p>
+            <div className="flex justify-end gap-2">
               <button
-                  type="button"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
-                  disabled={isSaving}
-              >
-                حذف
-              </button>
-              <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                  disabled={isSaving}
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
               >
                 انصراف
               </button>
               <button
-                  type="submit"
-                  className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  disabled={isSaving}
+                onClick={handleDelete}
+                className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
               >
-                {isSaving ? 'در حال ذخیره...' : 'ذخیره'}
+                حذف
               </button>
             </div>
-          </form>
+          </div>
         </div>
-
-        {showDeleteConfirm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4">
-                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                  تایید حذف
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  آیا از حذف این{' '}
-                  {node.type === 'start'
-                      ? 'شروع'
-                      : node.type === 'process'
-                          ? 'فرآیند'
-                          : node.type === 'decision'
-                              ? 'تصمیم'
-                              : node.type === 'function'
-                                  ? 'تابع'
-                                  : node.type === 'response'
-                                      ? 'پاسخ'
-                                      : 'پایان'}{' '}
-                  اطمینان دارید؟
-                </p>
-                <div className="flex justify-end gap-2">
-                  <button
-                      onClick={() => setShowDeleteConfirm(false)}
-                      className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                  >
-                    انصراف
-                  </button>
-                  <button
-                      onClick={handleDelete}
-                      className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
-                  >
-                    حذف
-                  </button>
-                </div>
-              </div>
-            </div>
-        )}
-      </div>
+      )}
+    </div>
   );
 };
 

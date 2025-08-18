@@ -13,7 +13,17 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <App />
-    <ToastContainer position="bottom-left" rtl />
+    <ToastContainer position="bottom-center"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={true}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="light"
+    />
   </React.StrictMode>
 );
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { instructionEndpoints } from "../../../utils/apis";
+import CustomDropdown from "../../../ui/dropdown";
 
 const InstructionIndex = () => {
   const navigate = useNavigate();
@@ -64,30 +65,32 @@ const InstructionIndex = () => {
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div className="p-4 pt-12 container mx-auto overflow-x-hidden">
+    <div className="p-4 md:pt-12 container mx-auto overflow-x-hidden">
       <div className="flex max-md:flex-col md:gap-0 gap-2 pt-6 md:pt-0 justify-between items-center mb-4">
         <h1 className="md:text-2xl dark:text-white mb-2 mt-1 md:mb-0 md:mt-0 border-r-2 pr-2 border-blue-500 text-xl font-bold max-md:w-full">
           دستورالعمل‌های بات
         </h1>
-        <div className="max-md:w-full w-1/3 flex justify-between items-center">
-          <select
-            className="border border-blue-500 w-1/2 dark:bg-gray-700 dark:border-gray-500 dark:text-white rounded-lg px-2 h-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-200"
-            onChange={(e) => setAgentType(e.target.value)}
-          >
-            <option value={""}>همه</option>
-            <option value="text_agent">ربات متنی</option>
-            <option value="voice_agent">ربات صوتی</option>
-          </select>
+        <div className="max-md:w-full flex justify-between items-center">
+          <CustomDropdown
+            options={[
+              { value: "", label: "همه" },
+              { value: "text_agent", label: "ربات متنی" },
+              { value: "voice_agent", label: "ربات صوتی" },
+            ]}
+            value={agentType}
+            onChange={(val) => setAgentType(val)}
+            placeholder="انتخاب نوع ربات"
+          />
+
           <button
             onClick={handleCreate}
-            className="bg-blue-500 w-1/2 hover:bg-blue-600 text-white flex items-center justify-center h-10 rounded-md mr-2"
+            className="bg-blue-500 text-sm font-semibold w-1/2 hover:bg-blue-600 text-white flex items-center justify-center h-9 rounded-md mr-2"
           >
             دستور العمل جدید
           </button>
         </div>
       </div>
 
-      {/* Scrollable table container */}
       <div className="overflow-x-auto rounded-lg shadow-md">
         <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden border-b border-gray-200 dark:border-gray-700 rounded-lg">
@@ -95,8 +98,8 @@ const InstructionIndex = () => {
               <thead className="bg-neutral-200 dark:bg-gray-700">
                 <tr>
                   {['برچسب', 'متن', 'نوع ربات', 'وضعیت', 'عملیات'].map((item, idx) => (
-                    <th 
-                      key={idx} 
+                    <th
+                      key={idx}
                       className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
                     >
                       {item}
@@ -117,10 +120,10 @@ const InstructionIndex = () => {
                       {instruction.agent_type === "text_agent"
                         ? "ربات متنی"
                         : instruction.agent_type === "voice_agent"
-                        ? "ربات صوتی"
-                        : instruction.agent_type === "both"
-                        ? "همه"
-                        : "-"}
+                          ? "ربات صوتی"
+                          : instruction.agent_type === "both"
+                            ? "همه"
+                            : "-"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                       {instruction.status == 1 ? "فعال" : "غیرفعال"}
@@ -208,11 +211,10 @@ const InstructionIndex = () => {
                     <button
                       key={pageNumber}
                       onClick={() => handlePageChange(pageNumber)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                        pageNumber === pagination.page
-                          ? "z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-300"
-                          : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${pageNumber === pagination.page
+                        ? "z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-300"
+                        : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                        }`}
                     >
                       {pageNumber}
                     </button>

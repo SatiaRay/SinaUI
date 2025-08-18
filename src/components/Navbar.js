@@ -14,6 +14,7 @@ import {
 
 import { FaRobot, FaMicrophone, FaMagic, FaProjectDiagram, FaBook, FaCog } from "react-icons/fa";
 import { IoDocuments } from "react-icons/io5";
+import { toEnglishLetter } from "../utils/translate";
 
 
 const NavList = ({ items, onNavigate, closeSidebar }) => (
@@ -36,8 +37,7 @@ const NavList = ({ items, onNavigate, closeSidebar }) => (
 );
 
 const Navbar = ({ onSidebarCollapse }) => {
-  const { logout , user  } = useAuth();
-  console.log(user)
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -131,15 +131,13 @@ const Navbar = ({ onSidebarCollapse }) => {
       </button>
 
       <aside
-        className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${
-          desktopSidebarCollapsed ? "w-0" : "w-64"
-        }`}
+        className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${desktopSidebarCollapsed ? "w-0" : "w-64"
+          }`}
         aria-expanded={!desktopSidebarCollapsed}
       >
         <div
-          className={`flex flex-col h-full transition-all duration-300 ${
-            desktopSidebarCollapsed ? "opacity-0 w-0" : "opacity-100 w-64"
-          }`}
+          className={`flex flex-col h-full transition-all duration-300 ${desktopSidebarCollapsed ? "opacity-0 w-0" : "opacity-100 w-64"
+            }`}
         >
           <header className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
             <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
@@ -155,57 +153,50 @@ const Navbar = ({ onSidebarCollapse }) => {
                 aria-expanded={documentsDropdownOpen}
                 aria-controls="documents-dropdown"
               >
-<IoDocuments className="w-4 h-4 text-gray-300 group-hover:text-white"/>
+                <IoDocuments className="w-4 h-4 text-gray-300 group-hover:text-white" />
 
                 <p>اسناد</p>
                 <ChevronDownIcon
-                  className={`h-4 w-4 mr-2 transition-transform duration-200 ${
-                    documentsDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`h-4 w-4 mr-2 transition-transform duration-200 ${documentsDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <div
                 id="documents-dropdown"
-                className={`mr-4 overflow-hidden transition-all duration-200 ${
-                  documentsDropdownOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
-                }`}
+                className={`mr-4 overflow-hidden transition-all duration-200 ${documentsDropdownOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+                  }`}
               >
                 <NavList items={documentItems} onNavigate={navigate} />
               </div>
             </div>
-            <button onClick={()=>navigate('/setting')} className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
->
-  <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white"/>
-  <p>تنظیمات</p>
+            <button onClick={() => navigate('/setting')} className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+            >
+              <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white" />
+              <p>تنظیمات</p>
 
-</button>
+            </button>
           </nav>
 
           <footer className="p-2 flex border-t items-center justify-center border-gray-700  overflow-hidden">
-          <div className="h-full w-full h-14 flex items-center gap-2">
-          <span className="w-12 h-10 flex items-center justify-center font-bold text-white rounded-full bg-blue-500">
-  {user
-    ? user.last_name
-      ? user.last_name[0].toUpperCase()
-      : user.first_name
-      ? user.first_name[0].toUpperCase()
-      : "U"
-    : "U"}
-</span>
-<div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-  <p className="text-white text-xs">
-    {user ? `${user.first_name} ${user.last_name}` : "Guest"}
-  </p>
-  <p className="text-white text-xs">{user?.email || "example@example.com"}</p>
-</div>
-         
-          </div>
-          <button
-                  onClick={handleLogout}
-                  className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  <ArrowLeftEndOnRectangleIcon className="w-10 h-6 text-white" />
-                </button>
+            <div className="h-full w-full h-14 flex items-center gap-2">
+              <span className="w-12 h-10 flex items-center justify-center font-bold text-white rounded-full bg-blue-500">
+                {toEnglishLetter(user?.first_name[0]) || 'u'}
+                {toEnglishLetter(user?.last_name[0]) || 'u'}
+              </span>
+              <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
+                <p className="text-white text-xs">
+                  {user ? `${user.first_name} ${user.last_name}` : "Guest"}
+                </p>
+                <p className="text-white text-xs">{user?.email || "example@example.com"}</p>
+              </div>
+
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
+            >
+              <ArrowLeftEndOnRectangleIcon className="w-10 h-6 text-white" />
+            </button>
           </footer>
         </div>
       </aside>
@@ -223,7 +214,7 @@ const Navbar = ({ onSidebarCollapse }) => {
             <div className="flex flex-col h-full">
               <header className="flex items-center justify-between p-4 border-b border-gray-700">
                 <div className="flex gap-2 items-center">
-                <ThemeToggle />
+                  <ThemeToggle />
 
                   <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
                 </div>
@@ -245,13 +236,12 @@ const Navbar = ({ onSidebarCollapse }) => {
                     aria-expanded={documentsDropdownOpen}
                     aria-controls="mobile-documents-dropdown"
                   >
-                    <IoDocuments className="w-4 h-4 text-gray-300 group-hover:text-white"/>
+                    <IoDocuments className="w-4 h-4 text-gray-300 group-hover:text-white" />
 
-<p>اسناد</p>
+                    <p>اسناد</p>
                     <ChevronDownIcon
-                      className={`h-4 w-4 mr-2 transition-transform duration-200 ${
-                        documentsDropdownOpen ? "rotate-180" : ""
-                      }`}
+                      className={`h-4 w-4 mr-2 transition-transform duration-200 ${documentsDropdownOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
                   {documentsDropdownOpen && (
@@ -259,36 +249,31 @@ const Navbar = ({ onSidebarCollapse }) => {
                       <NavList items={documentItems} onNavigate={navigate} closeSidebar={closeSidebar} />
                     </ul>
                   )}
-               
-                </div>
-                <button onClick={()=>navigate('/setting')} className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
->
-  <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white"/>
-  <p>تنظیمات</p>
 
-</button>
+                </div>
+                <button onClick={() => navigate('/setting')} className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                >
+                  <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white" />
+                  <p>تنظیمات</p>
+
+                </button>
               </nav>
 
               <footer className="p-4 border-t border-gray-700 flex items-center justify-center">
-              <div className="h-full w-full h-14 flex items-center gap-2">
-              <span className="w-12 h-10 flex items-center justify-center font-bold text-white rounded-full bg-blue-500">
-  {user
-    ? user.last_name
-      ? user.last_name[0].toUpperCase()
-      : user.first_name
-      ? user.first_name[0].toUpperCase()
-      : "U"
-    : "U"}
-</span>
-<div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-  <p className="text-white text-xs">
-    {user ? `${user.first_name} ${user.last_name}` : "Guest"}
-  </p>
-  <p className="text-white text-xs">{user?.email || "example@example.com"}</p>
-</div>
-         
-                 </div>
-               <button
+                <div className="h-full w-full h-14 flex items-center gap-2">
+                  <span className="w-12 h-10 flex items-center justify-center font-bold text-white rounded-full bg-blue-500">
+                    {toEnglishLetter(user?.first_name[0]) || 'u'}
+                    {toEnglishLetter(user?.last_name[0]) || 'u'}
+                  </span>
+                  <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
+                    <p className="text-white text-xs">
+                      {user ? `${user.first_name} ${user.last_name}` : "Guest"}
+                    </p>
+                    <p className="text-white text-xs">{user?.email || "example@example.com"}</p>
+                  </div>
+
+                </div>
+                <button
                   onClick={handleLogout}
                   className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
                 >
