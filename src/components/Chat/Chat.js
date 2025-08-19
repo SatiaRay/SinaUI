@@ -6,6 +6,7 @@ import { notify } from "../../ui/toast";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
+import AutoResizeTextarea from "../../ui/textArea";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -602,7 +603,7 @@ const Chat = ({ item }) => {
         onWizardSelect={handleWizardSelect}
         wizards={currentWizards}
       />
-      <div className="flex items-center overflow-hidden w-full max-h-[200] h-14 py-1 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
+      <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] pb-4 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
         <button
           onClick={realtimeHandleSubmit}
           disabled={chatLoading || !question.trim()}
@@ -618,23 +619,12 @@ const Chat = ({ item }) => {
             </svg>
           )}
         </button>
-        <textarea
+        <AutoResizeTextarea
           value={question}
-          onChange={(e) => {
-            setQuestion(e.target.value);
-            e.target.style.height = "auto";
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              if (!chatLoading && question.trim()) realtimeHandleSubmit(e);
-            }
-          }}
-
-          placeholder="سوال خود را بپرسید..."
+          onChange={setQuestion}
+          onSubmit={realtimeHandleSubmit}
           disabled={chatLoading}
-          className="w-full flex items-center justify-center h-full pt-2.5 text-center bg-gray-50 dark:bg-gray-900 text-right text-gray-800 dark:text-gray-100 overflow-y-auto rounded-lg focus:outline-none"
-          style={{ direction: "rtl" }}
+          placeholder="سوال خود را بپرسید..."
         />
 
         <VoiceBtn onTranscribe={setQuestion} />

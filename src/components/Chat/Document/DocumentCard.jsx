@@ -43,7 +43,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
             }}
             className={`px-2 py-1 w-20 text-xs font-semibold rounded-full cursor-pointer flex items-center gap-1 justify-center ${isLoading
               ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-              : document.vector_id
+              : document.status === 'vectorized'
                 ? "bg-green-100 text-green-800 dark:bg-green-500 dark:text-white"
                 : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
               }`}
@@ -71,7 +71,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
                   ></path>
                 </svg>
               </>
-            ) : document.vector_id ? (
+            ) : document.status === 'vectorized' ? (
               "فعال"
             ) : (
               "غیر فعال"

@@ -74,10 +74,10 @@ const VoiceBtn = ({ onTranscribe }) => {
         socketRef.current &&
         socketRef.current.readyState === WebSocket.OPEN
       ) {
-             setTimeout(() => {
-                  socketRef.current.send(reader.result);
-                  console.log("MP3 audio data sent to server");
-                }, 3000);
+        setTimeout(() => {
+          socketRef.current.send(reader.result);
+          console.log("MP3 audio data sent to server");
+        }, 3000);
 
 
 
@@ -105,7 +105,7 @@ const VoiceBtn = ({ onTranscribe }) => {
       if (!stream) return;
 
       recorderRef.current = recorderFactory(stream);
-setIsLoading(false)
+      setIsLoading(false)
       dispatch({ type: "START_RECORDING", recorder: recorderRef.current });
     }
   };
@@ -148,7 +148,7 @@ setIsLoading(false)
 
       .then((stream) => {
         return stream;
-       setIsLoading(true)
+        setIsLoading(true)
       })
 
       .catch((err) => {
