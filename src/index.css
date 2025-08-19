@@ -9,6 +9,66 @@
   }
 }
 
+body {
+  margin: 0;
+  font-family: 'Iran Sans', Vazir, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 100, 100, 0.5) transparent;
+}
+
+
+.dark .ck.ck-editor__editable_inline {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+  border-color: #374151 !important;
+}
+
+.dark .ck.ck-toolbar {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+.dark .ck.ck-toolbar .ck.ck-button,
+.dark .ck.ck-toolbar .ck.ck-button__label,
+.dark .ck.ck-toolbar .ck.ck-icon {
+  color: white !important;
+}
+
+.dark .ck.ck-button:not(.ck-disabled):hover,
+.dark .ck.ck-button.ck-on {
+  background: #374151 !important;
+}
+
+.dark .ck.ck-dropdown__panel {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .ck.ck-dropdown__panel .ck.ck-button,
+.dark .ck.ck-dropdown__panel .ck.ck-button__label {
+  color: white !important;
+}
+
+.dark .ck.ck-input-text {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+  border-color: #374151 !important;
+}
+
+.dark .ck.ck-icon :not([fill="none"]) {
+  fill: white !important;
+}
+pre {
+  font-family: Vazir, Tahoma, sans-serif;
+}
+
 @layer components {
   .btn {
     @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;

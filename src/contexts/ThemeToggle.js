@@ -8,13 +8,13 @@ const ThemeToggle = () => {
   });
 
   useEffect(() => {
-    // Apply theme on initial render
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    // Update localStorage whenever theme changes
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+
+    const editorWrappers = document.querySelectorAll('.ckeditor-wrapper');
+    editorWrappers.forEach(wrapper => {
+      wrapper.classList.toggle('dark', theme === 'dark');
+    });
+
     localStorage.setItem('theme', theme);
   }, [theme]);
 

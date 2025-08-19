@@ -39,6 +39,8 @@ const Chat = ({ item }) => {
     ],
   };
 
+
+
   useEffect(() => {
     const timer = setTimeout(() => {
       const chatLinks = document.querySelectorAll(".chat-message a");
@@ -420,13 +422,6 @@ const Chat = ({ item }) => {
 
   const handleScroll = () => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
-
-    const { scrollTop } = chatContainerRef.current;
-    if (scrollTop === 0) {
-      const newOffset = historyOffset + 20;
-      setHistoryOffset(newOffset);
-      fetchChatHistory(newOffset);
-    }
   };
 
   const formatTimestamp = (timestamp) => {
@@ -481,7 +476,7 @@ const Chat = ({ item }) => {
           chatHistory.map((item, index) => (
             <div key={index} className="mb-4 transition-[height] duration-300 ease-in-out">
               {item.type === "question" ? (
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
+                <div className="bg-blue-50 ml-2  dark:bg-blue-900/20 p-3 rounded-lg text-right">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatTimestamp(item.timestamp)}
@@ -491,12 +486,12 @@ const Chat = ({ item }) => {
                     </span>
                   </div>
                   <pre
-                    className="text-gray-800 dark:text-white [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
+                    className="text-gray-800 pt-1 leading-5 dark:text-white [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                     dangerouslySetInnerHTML={{ __html: item.text }}
                   />
                 </div>
               ) : (
-                <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow">
+                <div className=" bg-white dark:bg-gray-800 px-4 py-2 ml-2 mr-4 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatTimestamp(item.timestamp)}
@@ -509,14 +504,14 @@ const Chat = ({ item }) => {
                     <h3 className="font-bold mb-2 text-gray-900 dark:text-white">
                       پاسخ:
                     </h3>
-                    <div
+                    <pre
                       ref={textRef}
-                      className="text-gray-700 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
+                      className="text-gray-800 px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                       dangerouslySetInnerHTML={{ __html: item.answer }}
                     />
                     <button
                       onClick={() => handleCopyAnswer(item.answer, index)}
-                      className="mt-4 flex items-center justify-center w-7 dark:bg-transparent bg-gray-100 h-7 rounded-lg hover:bg-gray-200"
+                      className="mt-4 flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                       style={{
                         color: copiedMessageId === index ? "#3dc909" : "#444",
                       }}
@@ -594,9 +589,9 @@ const Chat = ({ item }) => {
           ))
         )}
         {chatLoading && (
-          <div className="flex items-center justify-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg mb-4 animate-pulse">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
-            <p className="text-gray-600 dark:text-gray-300">
+          <div className="flex items-center justify-center p-4">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 dark:border-gray-200 mr-3"></div>
+            <p className="flex items-center justify-center p-4 text-blue-400 dark:text-gray-400 rounded-lg animate-pulse">
               در حال دریافت پاسخ...
             </p>
           </div>
@@ -642,7 +637,6 @@ const Chat = ({ item }) => {
           style={{ direction: "rtl" }}
         />
 
-        {/* Voice Input */}
         <VoiceBtn onTranscribe={setQuestion} />
       </div>
 
