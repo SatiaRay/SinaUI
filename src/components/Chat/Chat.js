@@ -476,7 +476,7 @@ const Chat = ({ item }) => {
           chatHistory.map((item, index) => (
             <div key={index} className="mb-4 transition-[height] duration-300 ease-in-out">
               {item.type === "question" ? (
-                <div className="bg-blue-50 ml-2  dark:bg-blue-900/20 p-3 rounded-lg text-right">
+                <div className="bg-blue-100/70 md:ml-4 dark:bg-blue-900/20 p-3 rounded-lg text-right">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatTimestamp(item.timestamp)}
@@ -491,7 +491,7 @@ const Chat = ({ item }) => {
                   />
                 </div>
               ) : (
-                <div className=" bg-white dark:bg-gray-800 px-4 py-2 flex flex-col text-wrap md:ml-2 md:mr-4 rounded-lg">
+                <div className=" bg-white dark:bg-gray-800 px-4 py-2 flex flex-col text-wrap md:ml-1 md:mr-4 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatTimestamp(item.timestamp)}
@@ -506,7 +506,7 @@ const Chat = ({ item }) => {
                     </h3>
                     <pre
                       ref={textRef}
-                      className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 md:leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
+                      className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                       dangerouslySetInnerHTML={{ __html: item.answer }}
                     />
                     <button

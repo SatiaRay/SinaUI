@@ -24,6 +24,7 @@ body {
 }
 
 
+
 .dark .ck.ck-editor__editable_inline {
   background: #1f2937 !important;
   color: #f9fafb !important;
@@ -169,3 +170,4 @@ code {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
