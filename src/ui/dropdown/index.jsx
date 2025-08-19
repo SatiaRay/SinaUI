@@ -48,7 +48,7 @@ const CustomDropdown = ({ options, value, onChange, placeholder, className, pare
             onClick={() => handleSelect(opt.value)}
             className={`
       px-3 py-2 cursor-pointer hover:bg-blue-200 text-sm rounded-lg
-      ${opt.value === value ? "bg-gray-800 text-white font-medium" : ""}
+      ${opt.value === value ? "bg-gray-800 text-white font-medium" : "text-black"}
       ${index !== options.length - 1 ? "border-b border-gray-200" : ""}
     `}
           >
