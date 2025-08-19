@@ -39,6 +39,8 @@ const Chat = ({ item }) => {
     ],
   };
 
+
+
   useEffect(() => {
     const timer = setTimeout(() => {
       const chatLinks = document.querySelectorAll(".chat-message a");
@@ -420,13 +422,6 @@ const Chat = ({ item }) => {
 
   const handleScroll = () => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
-
-    const { scrollTop } = chatContainerRef.current;
-    if (scrollTop === 0) {
-      const newOffset = historyOffset + 20;
-      setHistoryOffset(newOffset);
-      fetchChatHistory(newOffset);
-    }
   };
 
   const formatTimestamp = (timestamp) => {
