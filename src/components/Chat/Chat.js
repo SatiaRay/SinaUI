@@ -453,7 +453,7 @@ const Chat = ({ item }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-7xl mx-auto">
+    <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-7xl mx-auto">
       <div
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto mb-4 space-y-4"
@@ -491,7 +491,7 @@ const Chat = ({ item }) => {
                   />
                 </div>
               ) : (
-                <div className=" bg-white dark:bg-gray-800 px-4 py-2 ml-2 mr-4 rounded-lg">
+                <div className=" bg-white dark:bg-gray-800 px-4 py-2 flex flex-col text-wrap md:ml-2 md:mr-4 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatTimestamp(item.timestamp)}
@@ -506,7 +506,7 @@ const Chat = ({ item }) => {
                     </h3>
                     <pre
                       ref={textRef}
-                      className="text-gray-800 px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
+                      className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 md:leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                       dangerouslySetInnerHTML={{ __html: item.answer }}
                     />
                     <button
@@ -590,7 +590,7 @@ const Chat = ({ item }) => {
         )}
         {chatLoading && (
           <div className="flex items-center justify-center p-4">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 dark:border-gray-200 mr-3"></div>
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 dark:border-gray-200 md:mr-3"></div>
             <p className="flex items-center justify-center p-4 text-blue-400 dark:text-gray-400 rounded-lg animate-pulse">
               در حال دریافت پاسخ...
             </p>

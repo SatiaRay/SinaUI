@@ -179,7 +179,7 @@ const Navbar = ({ onSidebarCollapse }) => {
 
           <footer className="p-2 flex border-t items-center justify-center border-gray-700  overflow-hidden">
             <div className="h-full w-full h-14 flex items-center gap-2">
-              <span className="w-12 h-10 flex items-center justify-center font-bold text-white rounded-full bg-blue-500">
+              <span className="w-12 h-10 flex font-sans -mb-1 items-center justify-center font-bold text-white rounded-full bg-blue-500">
                 {toEnglishLetter(user?.first_name[0]) || 'u'}
                 {toEnglishLetter(user?.last_name[0]) || 'u'}
               </span>
@@ -261,7 +261,7 @@ const Navbar = ({ onSidebarCollapse }) => {
 
               <footer className="p-4 border-t border-gray-700 flex items-center justify-center">
                 <div className="h-full w-full h-14 flex items-center gap-2">
-                  <span className="w-12 h-10 flex items-center justify-center font-bold text-white rounded-full bg-blue-500">
+                  <span className="w-12 h-10 flex font-sans px-1 items-center justify-center font-bold text-white rounded-full bg-blue-500">
                     {toEnglishLetter(user?.first_name[0]) || 'u'}
                     {toEnglishLetter(user?.last_name[0]) || 'u'}
                   </span>
