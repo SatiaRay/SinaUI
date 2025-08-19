@@ -192,8 +192,8 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-[calc(100vh-12rem)] m-10">
-            <div className="flex-1 min-h-0 flex flex-col">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-screen">
+            <div className="flex-1 flex flex-col m-8">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-4">
                         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
@@ -251,7 +251,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                     </div>
 
                     <div className="mt-8 flex-1 min-h-0 flex flex-col">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">CKEditor:</h3>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">متن:</h3>
                         <div className="flex-1 min-h-0 overflow-auto">
                             <CKEditor
                                 editor={ClassicEditor}
