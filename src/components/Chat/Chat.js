@@ -6,6 +6,9 @@ import { notify } from "../../ui/toast";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
+import TextArea from "../../ui/textArea";
+import { FaRobot } from "react-icons/fa";
+import { BeatLoader } from "react-spinners";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -112,6 +115,8 @@ const Chat = ({ item }) => {
       setCurrentWizards(data);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setChatLoading(false)
     }
   };
 
@@ -160,41 +165,7 @@ const Chat = ({ item }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!question.trim()) return;
-
-    const currentQuestion = question;
-    setQuestion("");
-    setChatLoading(true);
-    setError(null);
-
-    setChatHistory((prev) => [
-      ...prev,
-      { type: "question", text: currentQuestion, timestamp: new Date() },
-    ]);
-
-    try {
-      const response = await askQuestion(currentQuestion);
-      setChatHistory((prev) => [
-        ...prev,
-        {
-          type: "answer",
-          answer: response.answer,
-          sources: response.sources || [],
-          timestamp: new Date(),
-        },
-      ]);
-    } catch (err) {
-      setError("خطا در دریافت پاسخ");
-      console.error("Error asking question:", err);
-    } finally {
-      setChatLoading(false);
-    }
-  };
-
   const realtimeHandleSubmit = async (e) => {
-    e.preventDefault();
     if (!question.trim()) return;
 
     const currentQuestion = question;
@@ -220,6 +191,7 @@ const Chat = ({ item }) => {
     const storedSessionId = localStorage.getItem("chat_session_id");
     if (!storedSessionId) {
       setError("خطا در شناسایی نشست");
+      setChatLoading(false)
       return;
     }
 
@@ -265,6 +237,7 @@ const Chat = ({ item }) => {
     };
 
     socketRef.current.onclose = () => {
+      setChatLoading(false);
       if (isInsideTable && bufferedTable) {
         setChatHistory((prev) => {
           const updated = [...prev];
@@ -588,25 +561,24 @@ const Chat = ({ item }) => {
             </div>
           ))
         )}
-        {chatLoading && (
-          <div className="flex items-center justify-center p-4">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 dark:border-gray-200 md:mr-3"></div>
-            <p className="flex items-center justify-center p-4 text-blue-400 dark:text-gray-400 rounded-lg animate-pulse">
-              در حال دریافت پاسخ...
-            </p>
-          </div>
-        )}
+        {chatLoading && <div className="flex items-center justify-end p-1 gap-1 text-white">
+          <BeatLoader size={9} color="#808080" />
+          <span className="p-1.5 rounded-full shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
+            <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
+          </span>
+        </div>}
         <div ref={chatEndRef} />
       </div>
       <WizardButtons
         onWizardSelect={handleWizardSelect}
         wizards={currentWizards}
       />
-      <div className="flex items-center overflow-hidden w-full max-h-[200] h-14 py-1 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
+      <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
         <button
           onClick={realtimeHandleSubmit}
+          onKeyDown={realtimeHandleSubmit}
           disabled={chatLoading || !question.trim()}
-          className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+          className="p-2 mb-3 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
         >
           {chatLoading ? (
             <div className="flex items-center text-2xs">
@@ -618,23 +590,12 @@ const Chat = ({ item }) => {
             </svg>
           )}
         </button>
-        <textarea
+        <TextArea
           value={question}
-          onChange={(e) => {
-            setQuestion(e.target.value);
-            e.target.style.height = "auto";
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              if (!chatLoading && question.trim()) realtimeHandleSubmit(e);
-            }
-          }}
-
-          placeholder="سوال خود را بپرسید..."
+          onChange={setQuestion}
+          onSubmit={realtimeHandleSubmit}
           disabled={chatLoading}
-          className="w-full flex items-center justify-center h-full pt-2.5 text-center bg-gray-50 dark:bg-gray-900 text-right text-gray-800 dark:text-gray-100 overflow-y-auto rounded-lg focus:outline-none"
-          style={{ direction: "rtl" }}
+          placeholder="سوال خود را بپرسید..."
         />
 
         <VoiceBtn onTranscribe={setQuestion} />
