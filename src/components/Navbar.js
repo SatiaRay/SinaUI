@@ -54,7 +54,7 @@ const Navbar = ({ onSidebarCollapse }) => {
 
 
   const documentItems = [
-    { path: "/document/manuals", label: "راهنما", icon: FaBook },
+    { path: "/document/manuals", label: "مستندات دستی ", icon: FaBook },
     { path: "/document", label: "مستندات", icon: FaFileAlt },
     { path: "/crawl-url", label: "جمع‌آوری URL", icon: FaLink },
     { path: "/processes", label: "فرایندها", icon: FaProjectDiagram },
