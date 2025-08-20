@@ -3,6 +3,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { documentEndpoints } from "../../../utils/apis";
 import CustomDropdown from "../../../ui/dropdown";
+import { notify } from "../../../ui/toast";
 
 const AGENT_TYPES = [
   { value: "text_agent", label: "ربات متن" },
@@ -44,9 +45,9 @@ const CreateDocument = ({ onClose }) => {
         });
 
         if (apiStatus === "success") {
-          alert("اطلاعات با موفقیت ذخیره شد");
+          notify.success("اطلاعات با موفقیت ذخیره شد");
           setForm({ title: "", text: "", agentType: "text_agent" });
-          onClose?.();
+          onClose();
         } else {
           throw new Error("خطا در ذخیره اطلاعات");
         }

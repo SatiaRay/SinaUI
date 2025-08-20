@@ -122,10 +122,8 @@ const DocumentIndex = () => {
 
     try {
       await documentEndpoints.deleteDocument(documentId);
-      setState(prev => ({
-        ...prev,
-        documents: prev.documents.filter(doc => doc.id !== documentId),
-      }));
+      notify.success('سند با موفقیت حذف شد')
+      fetchDocuments()
     } catch (err) {
       setState(prev => ({
         ...prev,
@@ -182,7 +180,7 @@ const DocumentIndex = () => {
             document={document}
             onStatusChange={handleStatusChange}
             onClick={() => fetchDocumentContent(document)}
-            onDelete={handleDelete}
+            handleDelete={handleDelete}
           />
         ))}
       </div>
