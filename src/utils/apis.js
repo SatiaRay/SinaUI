@@ -72,6 +72,7 @@ export const getVersion = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/version`);
     return response.data;
+
   } catch (error) {
     console.error("Error get version:", error);
     throw error;
@@ -342,5 +343,5 @@ export const voiceAgentEndpoints = {
       throw error;
     }
   },
-  
+
 };

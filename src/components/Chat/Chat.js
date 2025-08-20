@@ -115,6 +115,8 @@ const Chat = ({ item }) => {
       setCurrentWizards(data);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setChatLoading(false)
     }
   };
 
@@ -189,6 +191,7 @@ const Chat = ({ item }) => {
     const storedSessionId = localStorage.getItem("chat_session_id");
     if (!storedSessionId) {
       setError("خطا در شناسایی نشست");
+      setChatLoading(false)
       return;
     }
 
@@ -234,6 +237,7 @@ const Chat = ({ item }) => {
     };
 
     socketRef.current.onclose = () => {
+      setChatLoading(false);
       if (isInsideTable && bufferedTable) {
         setChatHistory((prev) => {
           const updated = [...prev];
@@ -558,9 +562,9 @@ const Chat = ({ item }) => {
           ))
         )}
         {chatLoading && <div className="flex items-center justify-end p-1 gap-1 text-white">
-          <BeatLoader size={8} color="#808080" />
+          <BeatLoader size={9} color="#808080" />
           <span className="p-1.5 rounded-full shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
-            <FaRobot className="w-5 mb-1 dark:text-gray-300 text-gray-800" />
+            <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
           </span>
         </div>}
         <div ref={chatEndRef} />

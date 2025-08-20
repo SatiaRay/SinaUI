@@ -51,7 +51,6 @@ function AppContent() {
   const showNavbar = location.pathname !== "/login";
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appVersion, setAppVersion] = useState(null);
-
   useEffect(() => {
     const fetchVersion = async () => {
       try {
@@ -83,7 +82,7 @@ function AppContent() {
       <div className="flex items-center justify-center">{publicRoutes()}</div>
 
       <span className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1">
-        نسخه : {appVersion}
+        {appVersion}
       </span>
     </div>
   );

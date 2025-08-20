@@ -75,10 +75,7 @@ const VoiceBtn = ({ onTranscribe }) => {
       ) {
         setTimeout(() => {
           socketRef.current.send(reader.result);
-          console.log("MP3 audio data sent to server");
         }, 4000);
-
-
 
       } else {
         console.error("WebSocket is not open. Cannot send audio data.");
