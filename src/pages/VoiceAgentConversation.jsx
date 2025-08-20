@@ -258,12 +258,12 @@ const VoiceAgentConversation = () => {
           <p className="text-gray-500">
             با ربات هوش مصنوعی به صورت صوتی گفتگو کنید
           </p>
-          <div className="flex my-5 w-full justify-between">
-            <button onClick={() => navigate('/chat')} className="bg-blue-600 text-white w-[48%] rounded-lg h-10 flex items-center justify-center w-auto justify-self-center">
+          <div dir="ltr" className="flex my-5 w-full justify-center items-center gap-2">
+            <button onClick={() => navigate('/chat')} className="text-blue-600 hover:bg-blue-600/90 border border-blue-600 hover:text-white w-[48%] px-4 rounded-lg h-10 flex items-center justify-center w-auto justify-self-center">
               بازگشت به چت
             </button>
             <Button
-              className="bg-blue-600 text-white w-[48%] h-10 flex items-center justify-center w-auto justify-self-center"
+              className="bg-blue-600 text-white w-[48%] h-10 flex hover:bg-blue-600/90 items-center justify-center w-auto justify-self-center"
               onClick={handleConnect}
               disabled={isConnected || loading}
             >
