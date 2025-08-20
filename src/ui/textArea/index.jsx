@@ -31,7 +31,7 @@ const TextArea = ({ value, onChange, onSubmit, disabled, placeholder }) => {
         bg-gray-50 dark:bg-gray-900
         text-gray-800 dark:text-gray-100
         flex
-        pt-4
+        pt-5
         rounded-xl
         resize-none
         overflow-hidden
@@ -40,6 +40,7 @@ const TextArea = ({ value, onChange, onSubmit, disabled, placeholder }) => {
         transition-all
       "
             style={{
+                minHeight: "20ox",
                 maxHeight: "200px",
                 lineHeight: "1.5rem",
                 direction: "rtl",

@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { sockets } from "../../utils/sockets";
+import { BounceLoader, ScaleLoader } from "react-spinners";
 
 const VoiceBtn = ({ onTranscribe }) => {
   const recorderRef = useRef(null);
@@ -20,7 +21,6 @@ const VoiceBtn = ({ onTranscribe }) => {
 
           if (action.recorder.state == "inactive") {
             action.recorder.start();
-            console.log("Recording started");
           }
 
           return { ...state, isRecording: true, recorder: action.recorder };
@@ -30,7 +30,6 @@ const VoiceBtn = ({ onTranscribe }) => {
 
           if (state.recorder.state == "recording") {
             state.recorder.stop();
-            console.log("Recording stoped");
             setIsLoading(true);
           }
 
@@ -77,7 +76,7 @@ const VoiceBtn = ({ onTranscribe }) => {
         setTimeout(() => {
           socketRef.current.send(reader.result);
           console.log("MP3 audio data sent to server");
-        }, 3000);
+        }, 4000);
 
 
 
@@ -148,7 +147,6 @@ const VoiceBtn = ({ onTranscribe }) => {
 
       .then((stream) => {
         return stream;
-        setIsLoading(true)
       })
 
       .catch((err) => {
@@ -162,39 +160,26 @@ const VoiceBtn = ({ onTranscribe }) => {
 
   return (
     <button
-      className="flex items-center justify-center"
+      className="flex items-center justify-center mb-5"
       onClick={handleVoiceClick}
       disabled={isLoading}
     >
       {isLoading ? (
-        <svg
-          className="animate-spin h-6 w-6 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-40"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
-          <path
-            fill="#2663eb"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.272A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
+        <ScaleLoader
+          barCount={3}
+          height={15}
+          radius={2}
+          speedMultiplier={1}
+          width={4}
+          color="#06c"
+          className="mb-1 ml-0.5"
+        />
       ) : state.isRecording ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6 text-red-600"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <circle cx="12" cy="12" r="8" />
-        </svg>
+        <BounceLoader
+          color="red"
+          size={18}
+          className="mb-1 ml-0.5"
+        />
       ) : (
         <svg
           xmlns="http://www.w3.org/2000/svg"
