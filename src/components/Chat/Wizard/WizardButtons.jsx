@@ -4,7 +4,7 @@ import WizardButton from './WizardButton';
 const WizardButtons = ({ wizards, onWizardSelect }) => {
 
     return (
-        <div className="flex flex-wrap gap-2 py-4">
+        <div className="flex flex-wrap gap-2 py-4 bg-red-100">
             {wizards.map((wizard) => (
                 <WizardButton key={wizard.id} wizard={wizard} onWizardClick={onWizardSelect} />
             ))}

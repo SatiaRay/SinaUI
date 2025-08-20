@@ -10,13 +10,15 @@ import {
   searchSubject,
 } from "../services/ai_tools_function";
 import { aiFunctionsEndpoints, voiceAgentEndpoints } from "../utils/apis";
+import { useNavigate } from "react-router-dom";
 
 const VoiceAgentConversation = () => {
   const [instruction, setInstruction] = useState(null);
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("ready"); // ready | recording | playing
+  const [mode, setMode] = useState("ready");
   const [audioBlob, setAudioBlob] = useState(null);
+  const navigate = useNavigate()
 
   // 📝 Conversation transcript
   const [conversation, setConversation] = useState([]);
@@ -28,7 +30,7 @@ const VoiceAgentConversation = () => {
   const mediaRecorderRef = useRef(null);
   const audioContextRef = useRef(null);
 
-  const { createSession, isConnected, error, connect, session, disconnect  } =
+  const { createSession, isConnected, error, connect, session, disconnect } =
     useVoiceAgent();
 
   // Load instruction + tools
@@ -186,7 +188,7 @@ const VoiceAgentConversation = () => {
 
     return () => {
       audioPlayerRef.current?.pause();
-      audioPlayerRef.current?.removeEventListener("ended", () => {});
+      audioPlayerRef.current?.removeEventListener("ended", () => { });
     };
   }, [mode, audioBlob]);
 
@@ -256,20 +258,26 @@ const VoiceAgentConversation = () => {
           <p className="text-gray-500">
             با ربات هوش مصنوعی به صورت صوتی گفتگو کنید
           </p>
-          <Button
-            className="bg-blue-600 text-white my-5 h-10 flex items-center justify-center w-auto justify-self-center"
-            onClick={handleConnect}
-            disabled={isConnected || loading}
-          >
-            {!isConnected && loading ? (
-              <ClipLoader color="white" size={15} />
-            ) : (
-              <>
-                <span className="mx-2">شروع گفتگو</span>
-                <MicVocal />
-              </>
-            )}
-          </Button>
+          <div className="flex my-5 w-full justify-between">
+            <button onClick={() => navigate('/chat')} className="bg-blue-600 text-white w-[48%] rounded-lg h-10 flex items-center justify-center w-auto justify-self-center">
+              بازگشت به چت
+            </button>
+            <Button
+              className="bg-blue-600 text-white w-[48%] h-10 flex items-center justify-center w-auto justify-self-center"
+              onClick={handleConnect}
+              disabled={isConnected || loading}
+            >
+              {!isConnected && loading ? (
+                <ClipLoader color="white" size={15} />
+              ) : (
+                <>
+                  <span className="mx-2 text-sm">شروع گفتگو</span>
+                  <MicVocal size={20} />
+                </>
+              )}
+            </Button>
+          </div>
+
         </div>
       </div>
     );
@@ -282,25 +290,25 @@ const VoiceAgentConversation = () => {
       </MicVisualizer>
 
       <button className="text-gray-800 hover:text-blue-600" onClick={handleStopAndShowConversation}>
-          پایان ضبط و نمایش مکالمه
-        </button>
-        <div
-          className="bg-neutral-50 rounded-lg shadow-xl border p-4 w-full max-w-md h-64 overflow-y-auto text-right"
-          dir="rtl"
-        >
-          {conversation.map((line, i) => (
-            <p key={i} className="text-black">
-              <b>{line.role === "user" ? "کاربر" : "دستیار"}:</b> {line.text}
-            </p>
-          ))}
-        </div>
-    
+        پایان ضبط و نمایش مکالمه
+      </button>
+      <div
+        className="bg-neutral-50 rounded-lg shadow-xl border p-4 w-full max-w-md h-64 overflow-y-auto text-right"
+        dir="rtl"
+      >
+        {conversation.map((line, i) => (
+          <p key={i} className="text-black">
+            <b>{line.role === "user" ? "کاربر" : "دستیار"}:</b> {line.text}
+          </p>
+        ))}
+      </div>
+
 
       <div className="flex gap-2 mt-4">
         <button className="px-4 bg-gray-800 hover:bg-gray-800/90 text-white rounded-lg  h-10 text-sm" onClick={handleDisconnect}>
           قطع ارتباط
         </button>
-       
+
       </div>
     </div>
   );

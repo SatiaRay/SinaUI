@@ -47,7 +47,6 @@ const Navbar = ({ onSidebarCollapse }) => {
 
   const navItems = [
     { path: "/chat", label: "چت", icon: FaRobot },
-    { path: "/voice-agent", label: "گفتگوی صوتی", icon: FaMicrophone },
     { path: "/wizard", label: "پاسخ‌های هوشمند", icon: FaMagic },
     { path: "/workflow", label: "گردش کار", icon: FaProjectDiagram },
     { path: "/instructions", label: "دستورالعمل‌ها", icon: FaBook },
