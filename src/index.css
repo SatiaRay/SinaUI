@@ -22,6 +22,15 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #6f6f6f transparent;
 }
+.scrollbar-hidden {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 
 
 

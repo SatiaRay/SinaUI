@@ -47,7 +47,6 @@ const Navbar = ({ onSidebarCollapse }) => {
 
   const navItems = [
     { path: "/chat", label: "چت", icon: FaRobot },
-    { path: "/voice-agent", label: "گفتگوی صوتی", icon: FaMicrophone },
     { path: "/wizard", label: "پاسخ‌های هوشمند", icon: FaMagic },
     { path: "/workflow", label: "گردش کار", icon: FaProjectDiagram },
     { path: "/instructions", label: "دستورالعمل‌ها", icon: FaBook },
@@ -55,7 +54,7 @@ const Navbar = ({ onSidebarCollapse }) => {
 
 
   const documentItems = [
-    { path: "/document/manuals", label: "راهنما", icon: FaBook },
+    { path: "/document/manuals", label: "مستندات دستی ", icon: FaBook },
     { path: "/document", label: "مستندات", icon: FaFileAlt },
     { path: "/crawl-url", label: "جمع‌آوری URL", icon: FaLink },
     { path: "/processes", label: "فرایندها", icon: FaProjectDiagram },

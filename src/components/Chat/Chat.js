@@ -7,8 +7,9 @@ import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
 import TextArea from "../../ui/textArea";
-import { FaRobot } from "react-icons/fa";
+import { FaMicrophone, FaRobot } from "react-icons/fa";
 import { BeatLoader } from "react-spinners";
+import { useNavigate } from "react-router-dom";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -17,6 +18,7 @@ const Chat = ({ item }) => {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
+  const navigate = useNavigate()
   const [error, setError] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const [currentWizards, setCurrentWizards] = useState([]);
@@ -569,10 +571,17 @@ const Chat = ({ item }) => {
         </div>}
         <div ref={chatEndRef} />
       </div>
-      <WizardButtons
-        onWizardSelect={handleWizardSelect}
-        wizards={currentWizards}
-      />
+      <div className="flex items-center py-2 justify-between w-full">
+        <WizardButtons
+          onWizardSelect={handleWizardSelect}
+          wizards={currentWizards}
+        />
+        <button onClick={() => navigate('/voice-agent')} className="px-4 flex items-center gap-1 hover:bg-gray-800/80 justify-center py-2 bg-gray-800 rounded-xl">
+          <FaMicrophone size={15} color="white" className="mb-1" />
+          <p className="text-xs text-white">گفتگوی صوتی</p>
+        </button>
+      </div>
+
       <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
         <button
           onClick={realtimeHandleSubmit}
