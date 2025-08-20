@@ -1,19 +1,19 @@
 // DocumentCard.js
 import { useState } from "react";
 import { FaTrash } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toggleDocumentVectorStatus } from "../../../services/api";
 
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate()
 
   const toggleVectorStatus = async () => {
     try {
       setIsLoading(true);
       const response = await toggleDocumentVectorStatus(document.id);
-      console.log("Toggle Response:", response); // لاگ برای دیباگ
       if (response.status === 200) {
-        onStatusChange(document.id, response.data.vector_id, true); // رفرش داده‌ها
+        onStatusChange(document.id, response.data.vector_id, true);
       }
     } catch (error) {
       console.error("Error toggling document status:", error);
@@ -22,11 +22,9 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
     }
   };
 
-  console.log("Document Vector ID:", document.vector_id); // لاگ برای دیباگ
-
   return (
-    <Link
-      to={`/document/edit/${document.id}`}
+    <div
+      onClick={() => navigate(`/document/edit/${document.id}`)}
       className="bg-white relative dark:bg-black/50 rounded-xl overflow-hidden dark:shadow-white/10 shadow-lg px-4 pt-9 pb-5  hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700"
     >
       <div className="flex items-center justify-between">
@@ -92,14 +90,11 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
           <FaTrash
             className="text-red-500 dark:text-red-700 pb-1 box-content  px-1"
             onClick={(e) => {
-              e.preventDefault();
-              const isConfirmed = window.confirm("آیا مطمئن هستید ؟");
-
-              if (isConfirmed) {
-                handleDelete(document.id);
-              }
+              e.stopPropagation();
+              handleDelete(document.id);
             }}
           />
+
         </div>
         <div className="flex items-center gap-2 py-1 rounded-bl-xl absolute top-0 right-0 px-4 dark:bg-neutral-100 bg-gray-800">
           <span className="text-xs text-neutral-50 dark:text-gray-800">
@@ -114,7 +109,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
           </span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
