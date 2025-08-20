@@ -157,7 +157,7 @@ const VoiceBtn = ({ onTranscribe }) => {
 
   return (
     <button
-      className="flex items-center justify-center mb-5"
+      className="flex items-center justify-center mb-4"
       onClick={handleVoiceClick}
       disabled={isLoading}
     >

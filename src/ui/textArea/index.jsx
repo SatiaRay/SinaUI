@@ -32,17 +32,14 @@ const TextArea = ({ value, onChange, onSubmit, disabled, placeholder }) => {
         text-gray-800 dark:text-gray-100
         flex
         pt-5
-        rounded-xl
-        resize-none
-        overflow-hidden
+        -mb-0.5
         focus:outline-none
         placeholder-gray-400 dark:placeholder-gray-500
         transition-all
       "
             style={{
-                minHeight: "20ox",
+                minHeight: "18px",
                 maxHeight: "200px",
-                lineHeight: "1.5rem",
                 direction: "rtl",
             }}
         />
