@@ -61,12 +61,6 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
         }
     };
 
-    const handleInput = (e) => {
-        const textContent = e.target.textContent;
-        onChange(textContent);
-        setIsEmpty(!textContent);
-    };
-
     return (
         <div className="relative w-full">
             <div
