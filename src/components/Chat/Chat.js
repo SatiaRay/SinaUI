@@ -451,7 +451,7 @@ const Chat = ({ item }) => {
           chatHistory.map((item, index) => (
             <div key={index} className="mb-4 transition-[height] duration-300 ease-in-out">
               {item.type === "question" ? (
-                <div className="bg-blue-100/70 md:ml-4 dark:bg-blue-900/20 p-3 rounded-lg text-right">
+                <div className="bg-blue-100/70 md:ml-16 dark:bg-blue-900/20 p-3 rounded-lg text-right">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatTimestamp(item.timestamp)}
@@ -466,7 +466,7 @@ const Chat = ({ item }) => {
                   />
                 </div>
               ) : (
-                <div className=" bg-white dark:bg-gray-800 px-4 py-2 flex flex-col text-wrap md:ml-1 md:mr-4 rounded-lg">
+                <div className=" bg-white dark:bg-gray-800 px-4 py-2 flex flex-col text-wrap md:ml-1 md:mr-8 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatTimestamp(item.timestamp)}

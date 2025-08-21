@@ -43,6 +43,7 @@ body {
 .dark .ck.ck-toolbar {
   background: #111827 !important;
   border-color: #374151 !important;
+  color: aliceblue;
 }
 
 .dark .ck.ck-toolbar .ck.ck-button,
