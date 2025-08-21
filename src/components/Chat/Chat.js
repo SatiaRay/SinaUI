@@ -428,7 +428,7 @@ const Chat = ({ item }) => {
   };
 
   return (
-    <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-7xl mx-auto">
+    <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[1220px] mx-auto">
       <div
         ref={chatContainerRef}
         className="flex-1 scrollbar-hidden overflow-y-auto mb-4 space-y-4"
