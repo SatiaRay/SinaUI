@@ -192,7 +192,6 @@ const VoiceAgentConversation = () => {
     };
   }, [mode, audioBlob]);
 
-  // 🔗 Connect
   const handleConnect = async () => {
     setLoading(true);
     try {
@@ -290,9 +289,9 @@ const VoiceAgentConversation = () => {
       </MicVisualizer>
 
       <button className="text-gray-800 hover:text-blue-600" onClick={handleStopAndShowConversation}>
-        پایان ضبط و نمایش مکالمه
+        پایان ضبط
       </button>
-      <div
+      {/* <div
         className="bg-neutral-50 rounded-lg shadow-xl border p-4 w-full max-w-md h-64 overflow-y-auto text-right"
         dir="rtl"
       >
@@ -301,7 +300,7 @@ const VoiceAgentConversation = () => {
             <b>{line.role === "user" ? "کاربر" : "دستیار"}:</b> {line.text}
           </p>
         ))}
-      </div>
+      </div> */}
 
 
       <div className="flex gap-2 mt-4">

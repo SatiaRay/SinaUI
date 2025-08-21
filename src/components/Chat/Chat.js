@@ -1,15 +1,15 @@
+import { LucideAudioLines } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { FaRobot } from "react-icons/fa";
 import "react-quill/dist/quill.snow.css";
+import { useNavigate } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
 import { v4 as uuidv4 } from "uuid";
-import { askQuestion } from "../../services/api";
 import { notify } from "../../ui/toast";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
-import TextArea from "../../ui/textArea";
-import { FaMicrophone, FaRobot } from "react-icons/fa";
-import { BeatLoader } from "react-spinners";
-import { useNavigate } from "react-router-dom";
+import TextInputWithBreaks from '../../ui/textArea'
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -77,7 +77,7 @@ const Chat = ({ item }) => {
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatHistory]);
+  }, [chatLoading]);
 
   useEffect(() => {
     const container = chatContainerRef.current;
@@ -565,51 +565,45 @@ const Chat = ({ item }) => {
         )}
         {chatLoading && <div className="flex items-center justify-end p-1 gap-1 text-white">
           <BeatLoader size={9} color="#808080" />
-          <span className="p-1.5 rounded-full shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
+          <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
             <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
           </span>
         </div>}
         <div ref={chatEndRef} />
       </div>
-      <div className="flex items-center py-2 justify-between w-full">
-        <WizardButtons
-          onWizardSelect={handleWizardSelect}
-          wizards={currentWizards}
-        />
-        <button onClick={() => navigate('/voice-agent')} className="px-4 flex items-center gap-1 hover:bg-gray-800/80 justify-center py-2 bg-gray-800 rounded-xl">
-          <FaMicrophone size={15} color="white" className="mb-1" />
-          <p className="text-xs text-white">گفتگوی صوتی</p>
-        </button>
-      </div>
 
-      <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-xl shadow border">
+      <WizardButtons
+        onWizardSelect={handleWizardSelect}
+        wizards={currentWizards}
+      />
+
+      <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
         <button
           onClick={realtimeHandleSubmit}
           onKeyDown={realtimeHandleSubmit}
           disabled={chatLoading || !question.trim()}
-          className="p-2 mb-3 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+          className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
         >
-          {chatLoading ? (
-            <div className="flex items-center text-2xs">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2" />
-            </div>
-          ) : (
-            <svg className="w-6 h-6 bg-transparent" fill="#2663eb" viewBox="0 0 24 24">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-          )}
+          <svg className="w-6 h-6 bg-transparent" fill="#2663eb" viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          </svg>
         </button>
-        <TextArea
+        <TextInputWithBreaks
           value={question}
           onChange={setQuestion}
           onSubmit={realtimeHandleSubmit}
           disabled={chatLoading}
           placeholder="سوال خود را بپرسید..."
         />
-
-        <VoiceBtn onTranscribe={setQuestion} />
+        {!question.trim() && (
+          <div className="max-w-60 flex items-center justify-center gap-2 mb-[9px]">
+            <VoiceBtn onTranscribe={setQuestion} />
+            <button onClick={() => navigate('/voice-agent')} className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full">
+              <LucideAudioLines size={22} />
+            </button>
+          </div>
+        )}
       </div>
-
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
   );

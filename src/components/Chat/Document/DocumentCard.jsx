@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toggleDocumentVectorStatus } from "../../../services/api";
+import { notify } from "../../../ui/toast";
 
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +17,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
         onStatusChange(document.id, response.data.vector_id, true);
       }
     } catch (error) {
-      console.error("Error toggling document status:", error);
+      notify.error("Error toggling document status:", error);
     } finally {
       setIsLoading(false);
     }
@@ -32,9 +33,9 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
           {document.title || document.uri}
         </h5>
         <div className="flex items-center gap-2">
-          <span
+          <button
             onClick={(e) => {
-              e.preventDefault();
+              e.stopPropagation();
               if (!isLoading) {
                 toggleVectorStatus();
               }
@@ -74,7 +75,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
             ) : (
               "غیر فعال"
             )}
-          </span>
+          </button>
         </div>
       </div>
       <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
