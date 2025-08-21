@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toggleDocumentVectorStatus } from "../../../services/api";
+import { notify } from "../../../ui/toast";
 
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +17,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
         onStatusChange(document.id, response.data.vector_id, true);
       }
     } catch (error) {
-      console.error("Error toggling document status:", error);
+      notify.error("Error toggling document status:", error);
     } finally {
       setIsLoading(false);
     }

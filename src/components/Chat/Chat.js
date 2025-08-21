@@ -604,7 +604,6 @@ const Chat = ({ item }) => {
           </div>
         )}
       </div>
-
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
   );
