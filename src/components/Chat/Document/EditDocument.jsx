@@ -192,19 +192,19 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col h-screen">
-            <div className="flex-1 flex flex-col m-8">
-                <div className="flex justify-between items-center mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-screen overflow-hidden">
+            <div className="flex-1 flex flex-col p-8 pt-10">
+                <div className="flex justify-between md:items-center mb-4 max-md:flex-col max-md:gap-2">
                     <div className="flex items-center gap-4">
-                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 border-r-2 border-blue-500 pr-2 max-md:my-2">
                             محتوای سند
                         </h2>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 max-md:justify-between">
                         <button
                             onClick={handleStoreVector}
                             disabled={storingVector}
-                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
+                            className="px-4 py-2 flex items-center justify-center max-md:w-2/3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
                         >
                             {storingVector ? (
                                 <>
@@ -217,7 +217,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                         </button>
                         <Link
                             to={document.domain_id ? `/document/domain/${document.domain_id}` : '/document/manuals'}
-                            className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300"
+                            className="px-6 py-3 max-md:w-1/3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300"
                         >
                             بازگشت
                         </Link>
@@ -250,9 +250,9 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                         )}
                     </div>
 
-                    <div className="mt-8 flex-1 min-h-0 flex flex-col">
+                    <div className="mt-8 h-1/2 flex flex-col overflow-y-scroll">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">متن:</h3>
-                        <div className="flex-1 min-h-0 overflow-auto">
+                        <div className="min-h-0 max-h-[900px] overflow-y-scroll">
                             <CKEditor
                                 editor={ClassicEditor}
                                 data={ckEditorContent}

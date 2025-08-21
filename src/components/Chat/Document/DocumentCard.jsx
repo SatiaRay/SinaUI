@@ -32,9 +32,9 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
           {document.title || document.uri}
         </h5>
         <div className="flex items-center gap-2">
-          <span
+          <button
             onClick={(e) => {
-              e.preventDefault();
+              e.stopPropagation();
               if (!isLoading) {
                 toggleVectorStatus();
               }
@@ -74,7 +74,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
             ) : (
               "غیر فعال"
             )}
-          </span>
+          </button>
         </div>
       </div>
       <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
