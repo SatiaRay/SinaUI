@@ -481,6 +481,10 @@ const Chat = ({ item }) => {
                     </h3>
                     <pre
                       ref={textRef}
+                      style={{
+                        unicodeBidi: 'plaintext',
+                        direction: 'rtl'
+                      }}
                       className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                       dangerouslySetInnerHTML={{ __html: item.answer }}
                     />
@@ -588,7 +592,7 @@ const Chat = ({ item }) => {
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
           </svg>
         </button>
-        <TextInputWithBreaks
+        < TextInputWithBreaks
           value={question}
           onChange={setQuestion}
           onSubmit={realtimeHandleSubmit}
