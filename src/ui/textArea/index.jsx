@@ -6,7 +6,10 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
 
     useEffect(() => {
         if (inputRef.current) {
-            inputRef.current.textContent = value;
+            // Only update if content is different to avoid cursor jumping
+            if (inputRef.current.textContent !== value) {
+                inputRef.current.textContent = value;
+            }
             setIsEmpty(!value);
         }
     }, [value]);
@@ -14,17 +17,12 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             if (e.shiftKey) {
-                // Allow the default behavior for Shift+Enter (line break)
-                // We'll handle the cursor position after the browser creates the line break
+                // Allow the default behavior for Shift+Enter
                 setTimeout(() => {
                     if (inputRef.current) {
-                        // Ensure the cursor stays at the end of the new line
-                        const selection = window.getSelection();
-                        const range = document.createRange();
-                        range.selectNodeContents(inputRef.current);
-                        range.collapse(false); // Move to the end
-                        selection.removeAllRanges();
-                        selection.addRange(range);
+                        // Set explicit RTL direction for Firefox compatibility
+                        inputRef.current.setAttribute('dir', 'rtl');
+                        placeCaretAtEnd(inputRef.current);
                     }
                 }, 0);
             } else {
@@ -34,10 +32,33 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
         }
     };
 
+    // Helper function to place caret at end of contenteditable
+    const placeCaretAtEnd = (el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    };
+
     const handleInput = (e) => {
         const textContent = e.target.textContent;
         onChange(textContent);
         setIsEmpty(!textContent);
+
+        // Ensure RTL direction is maintained in Firefox
+        if (inputRef.current) {
+            inputRef.current.setAttribute('dir', 'rtl');
+        }
+    };
+
+    const handleFocus = () => {
+        // Ensure RTL direction on focus for Firefox
+        if (inputRef.current) {
+            inputRef.current.setAttribute('dir', 'rtl');
+            placeCaretAtEnd(inputRef.current);
+        }
     };
 
     return (
@@ -62,10 +83,11 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
                     rounded-lg
                     focus:border-none
                 "
-                style={{ direction: "rtl" }}
+                dir="rtl"
                 contentEditable={!disabled}
                 onInput={handleInput}
                 onKeyDown={handleKeyDown}
+                onFocus={handleFocus}
                 suppressContentEditableWarning={true}
             />
             {isEmpty && (
