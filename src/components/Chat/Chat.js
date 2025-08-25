@@ -215,26 +215,31 @@ const Chat = ({ item }) => {
       try {
         const data = JSON.parse(event.data);
         if (data.event) {
-          if (data.event === "finished") {
-            setChatLoading(false);
-            if (isInsideTable && bufferedTable) {
-              setChatHistory((prev) => {
-                const updated = [...prev];
-                const lastIndex = updated.length - 1;
-                updated[lastIndex] = {
-                  ...updated[lastIndex],
-                  answer: inCompatibleMessage,
-                };
-                return updated;
-              });
-              bufferedTable = "";
-              isInsideTable = false;
-            }
+          switch (data.event) {
+            case "finished":
+              setChatLoading(false);
+              if (isInsideTable && bufferedTable) {
+                setChatHistory((prev) => {
+                  const updated = [...prev];
+                  const lastIndex = updated.length - 1;
+                  updated[lastIndex] = {
+                    ...updated[lastIndex],
+                    answer: inCompatibleMessage,
+                  };
+                  return updated;
+                });
+                bufferedTable = "";
+                isInsideTable = false;
+              }
+              break;
+
+            case "delta":
+              handleDeltaResponse(event);
+              break;
           }
-          return;
         }
       } catch (e) {
-        handleDeltaResponse(event);
+        console.log("Error on message event", e);
       }
     };
 
@@ -264,8 +269,9 @@ const Chat = ({ item }) => {
   };
 
   const handleDeltaResponse = (event) => {
+    const data = JSON.parse(event.data);
+
     try {
-      const data = JSON.parse(event.data);
       if (data.event === "finished") {
         if (isInsideTable && bufferedTable) {
           setChatHistory((prev) => {
@@ -283,7 +289,7 @@ const Chat = ({ item }) => {
         setChatLoading(false);
         return;
       }
-    } catch (e) { }
+    } catch (e) {}
 
     if (!initialMessageAddedRef.current) {
       const botMessage = {
@@ -297,7 +303,8 @@ const Chat = ({ item }) => {
       setChatLoading(true);
     }
 
-    let delta = event.data;
+    let delta = data.message;
+
     inCompatibleMessage += delta;
 
     if (inCompatibleMessage.includes("<table")) {
@@ -568,10 +575,10 @@ const Chat = ({ item }) => {
           ))
         )}
         {chatLoading && <div className="flex items-center justify-end p-1 gap-1 text-white">
-          <BeatLoader size={9} color="#808080" />
-          <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
-            <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
-          </span>
+            <BeatLoader size={9} color="#808080" />
+            <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
+              <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
+            </span>
         </div>}
         <div ref={chatEndRef} />
       </div>
