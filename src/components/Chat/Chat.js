@@ -215,26 +215,31 @@ const Chat = ({ item }) => {
       try {
         const data = JSON.parse(event.data);
         if (data.event) {
-          if (data.event === "finished") {
-            setChatLoading(false);
-            if (isInsideTable && bufferedTable) {
-              setChatHistory((prev) => {
-                const updated = [...prev];
-                const lastIndex = updated.length - 1;
-                updated[lastIndex] = {
-                  ...updated[lastIndex],
-                  answer: inCompatibleMessage,
-                };
-                return updated;
-              });
-              bufferedTable = "";
-              isInsideTable = false;
-            }
+          switch (data.event) {
+            case "finished":
+              setChatLoading(false);
+              if (isInsideTable && bufferedTable) {
+                setChatHistory((prev) => {
+                  const updated = [...prev];
+                  const lastIndex = updated.length - 1;
+                  updated[lastIndex] = {
+                    ...updated[lastIndex],
+                    answer: inCompatibleMessage,
+                  };
+                  return updated;
+                });
+                bufferedTable = "";
+                isInsideTable = false;
+              }
+              break;
+
+            case "delta":
+              handleDeltaResponse(event);
+              break;
           }
-          return;
         }
       } catch (e) {
-        handleDeltaResponse(event);
+        console.log("Error on message event", e);
       }
     };
 
@@ -264,8 +269,9 @@ const Chat = ({ item }) => {
   };
 
   const handleDeltaResponse = (event) => {
+    const data = JSON.parse(event.data);
+
     try {
-      const data = JSON.parse(event.data);
       if (data.event === "finished") {
         if (isInsideTable && bufferedTable) {
           setChatHistory((prev) => {
@@ -283,7 +289,7 @@ const Chat = ({ item }) => {
         setChatLoading(false);
         return;
       }
-    } catch (e) { }
+    } catch (e) {}
 
     if (!initialMessageAddedRef.current) {
       const botMessage = {
@@ -297,7 +303,8 @@ const Chat = ({ item }) => {
       setChatLoading(true);
     }
 
-    let delta = event.data;
+    let delta = data.message;
+
     inCompatibleMessage += delta;
 
     if (inCompatibleMessage.includes("<table")) {
@@ -481,6 +488,10 @@ const Chat = ({ item }) => {
                     </h3>
                     <pre
                       ref={textRef}
+                      style={{
+                        unicodeBidi: 'plaintext',
+                        direction: 'rtl'
+                      }}
                       className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                       dangerouslySetInnerHTML={{ __html: item.answer }}
                     />
@@ -564,10 +575,10 @@ const Chat = ({ item }) => {
           ))
         )}
         {chatLoading && <div className="flex items-center justify-end p-1 gap-1 text-white">
-          <BeatLoader size={9} color="#808080" />
-          <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
-            <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
-          </span>
+            <BeatLoader size={9} color="#808080" />
+            <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
+              <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
+            </span>
         </div>}
         <div ref={chatEndRef} />
       </div>
@@ -588,7 +599,7 @@ const Chat = ({ item }) => {
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
           </svg>
         </button>
-        <TextInputWithBreaks
+        < TextInputWithBreaks
           value={question}
           onChange={setQuestion}
           onSubmit={realtimeHandleSubmit}
