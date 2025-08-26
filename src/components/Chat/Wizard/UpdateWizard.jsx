@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import CustomDropdown from "../../../ui/dropdown";
 
 const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
     const [title, setTitle] = useState('');
     const [context, setContext] = useState('');
+    const [wizardType, setWizardType] = useState("answer");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -12,6 +14,7 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
         if (wizard) {
             setTitle(wizard.title || '');
             setContext(wizard.context || '');
+            setWizardType(wizard.wizard_type || '');
         }
     }, [wizard]);
 
@@ -33,7 +36,8 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
                 body: JSON.stringify({
                     title,
                     context,
-                    parent_id: wizard.parent_id
+                    parent_id: wizard.parent_id,
+                    wizard_type: wizardType
                 })
             });
 
@@ -74,6 +78,26 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
                         onChange={(e) => setTitle(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         required
+                    />
+                </div>
+
+                <div>
+                    <label
+                        htmlFor="wizard_type"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
+                        نوع ویزارد
+                    </label>
+                    <CustomDropdown
+                        options={[
+                        { value: "answer", label: "جواب" },
+                        { value: "question", label: "سوال" },
+                        ]}
+                        value={wizardType}
+                        onChange={(val) => setWizardType(val)}
+                        placeholder="انتخاب نوع ویزارد"
+                        className={"w-full"}
+                        parentStyle={"w-full"}
                     />
                 </div>
 
