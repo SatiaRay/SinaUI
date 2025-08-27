@@ -124,7 +124,9 @@ const Chat = ({ item }) => {
     }
   };
 
-
+  /**
+   * Load root wizards to display wizard buttons to user
+   */
   const loadRootWizards = async () => {
     try {
       const response = await fetch(
@@ -148,6 +150,9 @@ const Chat = ({ item }) => {
     }
   };
 
+  /**
+   * Load the chat history
+   */
   const loadHistory = async (sessionId, offset = 0, limit = 20) => {
     setHistoryLoading(true);
     try {
@@ -191,7 +196,12 @@ const Chat = ({ item }) => {
     }
   };
 
-  const sendMessage = async (e) => {
+  /**
+   * Send new message
+   * 
+   * @returns sent message object
+   */
+  const sendMessage = async () => {
     if (!question.trim()) return;
 
     const currentQuestion = question;
@@ -409,6 +419,9 @@ const Chat = ({ item }) => {
     }
   };
 
+  /**
+   * @param {object} wizardData selected wizard data
+   */
   const handleWizardSelect = (wizardData) => {
     setHistory((prev) => [
       ...prev,
