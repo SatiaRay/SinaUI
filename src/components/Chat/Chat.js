@@ -57,14 +57,7 @@ const Chat = ({ item }) => {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const chatLinks = document.querySelectorAll(".chat-message a");
-      chatLinks.forEach((link) => {
-        link.setAttribute("target", "_blank");
-        link.setAttribute("rel", "noopener noreferrer");
-      });
-    }, 100);
-    return () => clearTimeout(timer);
+    return renderMessageLinks()
   }, [history]);
 
   useEffect(() => {
@@ -90,6 +83,22 @@ const Chat = ({ item }) => {
       setTimeout(scrollToBottom, 100);
     }
   }, [historyLoading, history.length]);
+
+  /**
+   * render chat messages links
+   * 
+   * @returns function
+   */
+  const renderMessageLinks = () => {
+    const timer = setTimeout(() => {
+      const chatLinks = document.querySelectorAll(".chat-message a");
+      chatLinks.forEach((link) => {
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+      });
+    }, 100);
+    return () => clearTimeout(timer);
+  }
 
   /**
    * Get chat session id which stored in local storage
