@@ -9,18 +9,17 @@ import { notify } from "../../ui/toast";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
-import TextInputWithBreaks from '../../ui/textArea'
+import TextInputWithBreaks from "../../ui/textArea";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
-  const [chatHistory, setChatHistory] = useState([]);
+  const [history, setHistory] = useState([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [error, setError] = useState(null);
-  const [sessionId, setSessionId] = useState(null);
   const [currentWizards, setCurrentWizards] = useState([]);
   const [rootWizards, setRootWizards] = useState([]);
   const chatContainerRef = useRef(null);
@@ -44,7 +43,18 @@ const Chat = ({ item }) => {
     ],
   };
 
+  /**
+   * OnMount
+   */
+  useEffect(() => {
+    const sessionId = getSessionId();
 
+    // load chat history
+    loadHistory(sessionId);
+
+    // load root wizards
+    loadRootWizards()
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -55,25 +65,7 @@ const Chat = ({ item }) => {
       });
     }, 100);
     return () => clearTimeout(timer);
-  }, [chatHistory]);
-
-  useEffect(() => {
-    const storedSessionId = localStorage.getItem("chat_session_id");
-    if (storedSessionId) {
-      setSessionId(storedSessionId);
-    } else {
-      const newSessionId = `uuid_${uuidv4()}`;
-      localStorage.setItem("chat_session_id", newSessionId);
-      setSessionId(newSessionId);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (sessionId) {
-      fetchChatHistory(0);
-      fetchRootWizards();
-    }
-  }, [sessionId]);
+  }, [history]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -88,7 +80,7 @@ const Chat = ({ item }) => {
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
   useEffect(() => {
-    if (!historyLoading && chatHistory.length > 0) {
+    if (!historyLoading && history.length > 0) {
       const scrollToBottom = () => {
         if (chatEndRef.current) {
           chatEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -97,9 +89,27 @@ const Chat = ({ item }) => {
       scrollToBottom();
       setTimeout(scrollToBottom, 100);
     }
-  }, [historyLoading, chatHistory.length]);
+  }, [historyLoading, history.length]);
 
-  const fetchRootWizards = async () => {
+  /**
+   * Get chat session id which stored in local storage
+   *
+   * Creates new if not exists in local storage
+   */
+  const getSessionId = () => {
+    let sessionId = localStorage.getItem("chat_session_id"); // try fetch the session id from local storage
+
+    // create new if not exists in local storage
+    if (!sessionId) {
+      sessionId = `uuid_${uuidv4()}`;
+      localStorage.setItem("chat_session_id", sessionId);
+    }
+
+    return sessionId;
+  };
+
+
+  const loadRootWizards = async () => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_CHAT_API_URL}/wizards/hierarchy/roots`,
@@ -118,13 +128,11 @@ const Chat = ({ item }) => {
     } catch (err) {
       setError(err.message);
     } finally {
-      setChatLoading(false)
+      setChatLoading(false);
     }
   };
 
-  const fetchChatHistory = async (offset = 0, limit = 20) => {
-    if (!sessionId) return;
-
+  const loadHistory = async (sessionId, offset = 0, limit = 20) => {
     setHistoryLoading(true);
     try {
       const response = await fetch(
@@ -153,9 +161,9 @@ const Chat = ({ item }) => {
         const reversedMessages = [...transformedMessages].reverse();
 
         if (offset === 0) {
-          setChatHistory(reversedMessages);
+          setHistory(reversedMessages);
         } else {
-          setChatHistory((prev) => [...reversedMessages, ...prev]);
+          setHistory((prev) => [...reversedMessages, ...prev]);
         }
         setHasMoreHistory(messages.length === limit);
       }
@@ -167,7 +175,7 @@ const Chat = ({ item }) => {
     }
   };
 
-  const realtimeHandleSubmit = async (e) => {
+  const sendMessage = async (e) => {
     if (!question.trim()) return;
 
     const currentQuestion = question;
@@ -179,7 +187,7 @@ const Chat = ({ item }) => {
       text: currentQuestion,
       timestamp: new Date(),
     };
-    setChatHistory((prev) => [...prev, userMessage]);
+    setHistory((prev) => [...prev, userMessage]);
 
     if (socketRef.current) {
       socketRef.current.close();
@@ -193,7 +201,7 @@ const Chat = ({ item }) => {
     const storedSessionId = localStorage.getItem("chat_session_id");
     if (!storedSessionId) {
       setError("خطا در شناسایی نشست");
-      setChatLoading(false)
+      setChatLoading(false);
       return;
     }
 
@@ -219,7 +227,7 @@ const Chat = ({ item }) => {
             case "finished":
               setChatLoading(false);
               if (isInsideTable && bufferedTable) {
-                setChatHistory((prev) => {
+                setHistory((prev) => {
                   const updated = [...prev];
                   const lastIndex = updated.length - 1;
                   updated[lastIndex] = {
@@ -246,7 +254,7 @@ const Chat = ({ item }) => {
     socketRef.current.onclose = () => {
       setChatLoading(false);
       if (isInsideTable && bufferedTable) {
-        setChatHistory((prev) => {
+        setHistory((prev) => {
           const updated = [...prev];
           const lastIndex = updated.length - 1;
           updated[lastIndex] = {
@@ -274,7 +282,7 @@ const Chat = ({ item }) => {
     try {
       if (data.event === "finished") {
         if (isInsideTable && bufferedTable) {
-          setChatHistory((prev) => {
+          setHistory((prev) => {
             const updated = [...prev];
             const lastIndex = updated.length - 1;
             updated[lastIndex] = {
@@ -298,7 +306,7 @@ const Chat = ({ item }) => {
         sources: [],
         timestamp: new Date(),
       };
-      setChatHistory((prev) => [...prev, botMessage]);
+      setHistory((prev) => [...prev, botMessage]);
       initialMessageAddedRef.current = true;
       setChatLoading(true);
     }
@@ -313,7 +321,7 @@ const Chat = ({ item }) => {
     } else if (isInsideTable) {
       bufferedTable += delta;
     } else {
-      setChatHistory((prev) => {
+      setHistory((prev) => {
         const updated = [...prev];
         const lastIndex = updated.length - 1;
         updated[lastIndex] = {
@@ -330,7 +338,7 @@ const Chat = ({ item }) => {
       const closeTableTags = (bufferedTable.match(/<\/table>/g) || []).length;
 
       if (openTableTags === closeTableTags && openTableTags > 0) {
-        setChatHistory((prev) => {
+        setHistory((prev) => {
           const updated = [...prev];
           const lastIndex = updated.length - 1;
           updated[lastIndex] = {
@@ -349,7 +357,7 @@ const Chat = ({ item }) => {
           const lastOpenTrIndex = bufferedTable.lastIndexOf("<tr>");
           if (lastOpenTrIndex !== -1) {
             const partialMessage = bufferedTable.substring(0, lastOpenTrIndex);
-            setChatHistory((prev) => {
+            setHistory((prev) => {
               const updated = [...prev];
               const lastIndex = updated.length - 1;
               updated[lastIndex] = {
@@ -371,7 +379,7 @@ const Chat = ({ item }) => {
             0,
             lastCompleteRowIndex + 5
           );
-          setChatHistory((prev) => {
+          setHistory((prev) => {
             const updated = [...prev];
             const lastIndex = updated.length - 1;
             updated[lastIndex] = {
@@ -386,7 +394,7 @@ const Chat = ({ item }) => {
   };
 
   const handleWizardSelect = (wizardData) => {
-    setChatHistory((prev) => [
+    setHistory((prev) => [
       ...prev,
       {
         type: "answer",
@@ -450,13 +458,16 @@ const Chat = ({ item }) => {
           </div>
         )}
 
-        {chatHistory.length === 0 && !historyLoading ? (
+        {history.length === 0 && !historyLoading ? (
           <div className="text-center text-gray-500 dark:text-gray-400 p-4">
             سوال خود را بپرسید تا گفتگو شروع شود
           </div>
         ) : (
-          chatHistory.map((item, index) => (
-            <div key={index} className="mb-4 transition-[height] duration-300 ease-in-out">
+          history.map((item, index) => (
+            <div
+              key={index}
+              className="mb-4 transition-[height] duration-300 ease-in-out"
+            >
               {item.type === "question" ? (
                 <div className="bg-blue-100/70 md:ml-16 dark:bg-blue-900/20 p-3 rounded-lg text-right">
                   <div className="flex justify-between items-center mb-1">
@@ -489,8 +500,8 @@ const Chat = ({ item }) => {
                     <pre
                       ref={textRef}
                       style={{
-                        unicodeBidi: 'plaintext',
-                        direction: 'rtl'
+                        unicodeBidi: "plaintext",
+                        direction: "rtl",
                       }}
                       className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                       dangerouslySetInnerHTML={{ __html: item.answer }}
@@ -574,12 +585,14 @@ const Chat = ({ item }) => {
             </div>
           ))
         )}
-        {chatLoading && <div className="flex items-center justify-end p-1 gap-1 text-white">
+        {chatLoading && (
+          <div className="flex items-center justify-end p-1 gap-1 text-white">
             <BeatLoader size={9} color="#808080" />
             <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
               <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
             </span>
-        </div>}
+          </div>
+        )}
         <div ref={chatEndRef} />
       </div>
 
@@ -590,26 +603,33 @@ const Chat = ({ item }) => {
 
       <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
         <button
-          onClick={realtimeHandleSubmit}
-          onKeyDown={realtimeHandleSubmit}
+          onClick={sendMessage}
+          onKeyDown={sendMessage}
           disabled={chatLoading || !question.trim()}
           className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
         >
-          <svg className="w-6 h-6 bg-transparent" fill="#2663eb" viewBox="0 0 24 24">
+          <svg
+            className="w-6 h-6 bg-transparent"
+            fill="#2663eb"
+            viewBox="0 0 24 24"
+          >
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
           </svg>
         </button>
-        < TextInputWithBreaks
+        <TextInputWithBreaks
           value={question}
           onChange={setQuestion}
-          onSubmit={realtimeHandleSubmit}
+          onSubmit={sendMessage}
           disabled={chatLoading}
           placeholder="سوال خود را بپرسید..."
         />
         {!question.trim() && (
           <div className="max-w-60 flex items-center justify-center gap-2 mb-[9px]">
             <VoiceBtn onTranscribe={setQuestion} />
-            <button onClick={() => navigate('/voice-agent')} className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full">
+            <button
+              onClick={() => navigate("/voice-agent")}
+              className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+            >
               <LucideAudioLines size={22} />
             </button>
           </div>
