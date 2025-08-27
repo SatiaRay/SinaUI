@@ -72,14 +72,12 @@ const Chat = ({ item }) => {
     }
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
+  /**
+   * Trigger scroll to button fuction on history loading or change history length
+   */
   useEffect(() => {
     if (!historyLoading && history.length > 0) {
-      const scrollToBottom = () => {
-        if (chatEndRef.current) {
-          chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-      };
-      scrollToBottom();
+      
       setTimeout(scrollToBottom, 100);
     }
   }, [historyLoading, history.length]);
@@ -115,6 +113,15 @@ const Chat = ({ item }) => {
     }
 
     return sessionId;
+  };
+
+  /**
+   * Scroll chat history to bottom to display end message
+   */
+  const scrollToBottom = () => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
 
