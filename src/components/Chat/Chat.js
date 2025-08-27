@@ -9,18 +9,18 @@ import { notify } from "../../ui/toast";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
-import TextInputWithBreaks from '../../ui/textArea'
+import TextInputWithBreaks from "../../ui/textArea";
+import { copyToClipboard, formatTimestamp } from "../../utils/helpers";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
-  const [chatHistory, setChatHistory] = useState([]);
+  const [history, setHistory] = useState([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [error, setError] = useState(null);
-  const [sessionId, setSessionId] = useState(null);
   const [currentWizards, setCurrentWizards] = useState([]);
   const [rootWizards, setRootWizards] = useState([]);
   const chatContainerRef = useRef(null);
@@ -44,36 +44,25 @@ const Chat = ({ item }) => {
     ],
   };
 
-
-
+  /**
+   * OnMount
+   */
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const chatLinks = document.querySelectorAll(".chat-message a");
-      chatLinks.forEach((link) => {
-        link.setAttribute("target", "_blank");
-        link.setAttribute("rel", "noopener noreferrer");
-      });
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [chatHistory]);
+    const sessionId = getSessionId();
 
-  useEffect(() => {
-    const storedSessionId = localStorage.getItem("chat_session_id");
-    if (storedSessionId) {
-      setSessionId(storedSessionId);
-    } else {
-      const newSessionId = `uuid_${uuidv4()}`;
-      localStorage.setItem("chat_session_id", newSessionId);
-      setSessionId(newSessionId);
-    }
+    // load chat history
+    loadHistory(sessionId);
+
+    // load root wizards
+    loadRootWizards();
+
+    // init socket connection
+    connectSocket(sessionId);
   }, []);
 
   useEffect(() => {
-    if (sessionId) {
-      fetchChatHistory(0);
-      fetchRootWizards();
-    }
-  }, [sessionId]);
+    return renderMessageLinks();
+  }, [history]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,19 +76,61 @@ const Chat = ({ item }) => {
     }
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
+  /**
+   * Trigger scroll to button fuction on history loading or change history length
+   */
   useEffect(() => {
-    if (!historyLoading && chatHistory.length > 0) {
-      const scrollToBottom = () => {
-        if (chatEndRef.current) {
-          chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-      };
-      scrollToBottom();
+    if (!historyLoading && history.length > 0) {
       setTimeout(scrollToBottom, 100);
     }
-  }, [historyLoading, chatHistory.length]);
+  }, [historyLoading, history.length]);
 
-  const fetchRootWizards = async () => {
+  /**
+   * render chat messages links
+   *
+   * @returns function
+   */
+  const renderMessageLinks = () => {
+    const timer = setTimeout(() => {
+      const chatLinks = document.querySelectorAll(".chat-message a");
+      chatLinks.forEach((link) => {
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+      });
+    }, 100);
+    return () => clearTimeout(timer);
+  };
+
+  /**
+   * Get chat session id which stored in local storage
+   *
+   * Creates new if not exists in local storage
+   */
+  const getSessionId = () => {
+    let sessionId = localStorage.getItem("chat_session_id"); // try fetch the session id from local storage
+
+    // create new if not exists in local storage
+    if (!sessionId) {
+      sessionId = `uuid_${uuidv4()}`;
+      localStorage.setItem("chat_session_id", sessionId);
+    }
+
+    return sessionId;
+  };
+
+  /**
+   * Scroll chat history to bottom to display end message
+   */
+  const scrollToBottom = () => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  /**
+   * Load root wizards to display wizard buttons to user
+   */
+  const loadRootWizards = async () => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_CHAT_API_URL}/wizards/hierarchy/roots`,
@@ -118,13 +149,14 @@ const Chat = ({ item }) => {
     } catch (err) {
       setError(err.message);
     } finally {
-      setChatLoading(false)
+      setChatLoading(false);
     }
   };
 
-  const fetchChatHistory = async (offset = 0, limit = 20) => {
-    if (!sessionId) return;
-
+  /**
+   * Load the chat history
+   */
+  const loadHistory = async (sessionId, offset = 0, limit = 20) => {
     setHistoryLoading(true);
     try {
       const response = await fetch(
@@ -153,9 +185,9 @@ const Chat = ({ item }) => {
         const reversedMessages = [...transformedMessages].reverse();
 
         if (offset === 0) {
-          setChatHistory(reversedMessages);
+          setHistory(reversedMessages);
         } else {
-          setChatHistory((prev) => [...reversedMessages, ...prev]);
+          setHistory((prev) => [...reversedMessages, ...prev]);
         }
         setHasMoreHistory(messages.length === limit);
       }
@@ -167,7 +199,107 @@ const Chat = ({ item }) => {
     }
   };
 
-  const realtimeHandleSubmit = async (e) => {
+  /**
+   * Open chat socket connection
+   * @param {string} sessionId
+   */
+  const connectSocket = (sessionId) => {
+    const socket = new WebSocket(
+      getWebSocketUrl(`/ws/ask?session_id=${sessionId}`)
+    );
+
+    socket.onopen = socketOnOpenHandler;
+
+    socket.onmessage = socketOnMessageHandler;
+
+    socket.onclose = socketOnCloseHandler;
+
+    socket.onerror = socketOnErrorHandler;
+
+    socketRef.current = socket;
+  };
+
+  /**
+   * socket on open event handler
+   */
+  const socketOnOpenHandler = () => {
+    //
+  };
+
+  /**
+   * socket on open event handler
+   *
+   * @param {object} event
+   */
+  const socketOnMessageHandler = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.event) {
+        switch (data.event) {
+          case "finished":
+            setChatLoading(false);
+            if (isInsideTable && bufferedTable) {
+              setHistory((prev) => {
+                const updated = [...prev];
+                const lastIndex = updated.length - 1;
+                updated[lastIndex] = {
+                  ...updated[lastIndex],
+                  answer: inCompatibleMessage,
+                };
+                return updated;
+              });
+              bufferedTable = "";
+              isInsideTable = false;
+            }
+
+            inCompatibleMessage = "";
+            break;
+
+          case "delta":
+            handleDeltaResponse(event);
+            break;
+        }
+      }
+    } catch (e) {
+      console.log("Error on message event", e);
+    }
+  };
+
+  /**
+   * socket on close event handler
+   *
+   * @param {object} event
+   */
+  const socketOnCloseHandler = (event) => {
+    setChatLoading(false);
+    if (isInsideTable && bufferedTable) {
+      setHistory((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          answer: inCompatibleMessage,
+        };
+        return updated;
+      });
+      bufferedTable = "";
+      isInsideTable = false;
+    }
+    setChatLoading(false);
+  };
+
+  const socketOnErrorHandler = (event) => {
+    console.error("WebSocket error:", error);
+    setError("خطا در ارتباط با سرور");
+    setChatLoading(false);
+  };
+
+  /**
+   * Send new message
+   *
+   * @returns sent message object
+   */
+  const sendMessage = async () => {
     if (!question.trim()) return;
 
     const currentQuestion = question;
@@ -179,93 +311,19 @@ const Chat = ({ item }) => {
       text: currentQuestion,
       timestamp: new Date(),
     };
-    setChatHistory((prev) => [...prev, userMessage]);
-
-    if (socketRef.current) {
-      socketRef.current.close();
-    }
+    setHistory((prev) => [...prev, userMessage]);
 
     initialMessageAddedRef.current = false;
     inCompatibleMessage = "";
     bufferedTable = "";
     isInsideTable = false;
 
-    const storedSessionId = localStorage.getItem("chat_session_id");
-    if (!storedSessionId) {
-      setError("خطا در شناسایی نشست");
-      setChatLoading(false)
-      return;
-    }
-
-    socketRef.current = new WebSocket(
-      getWebSocketUrl(`/ws/ask?session_id=${storedSessionId}`)
+    socketRef.current.send(
+      JSON.stringify({
+        question: currentQuestion,
+      })
     );
-
-    socketRef.current.onopen = () => {
-      socketRef.current.send(
-        JSON.stringify({
-          question: currentQuestion,
-          session_id: storedSessionId,
-        })
-      );
-      setChatLoading(true);
-    };
-
-    socketRef.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.event) {
-          switch (data.event) {
-            case "finished":
-              setChatLoading(false);
-              if (isInsideTable && bufferedTable) {
-                setChatHistory((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  updated[lastIndex] = {
-                    ...updated[lastIndex],
-                    answer: inCompatibleMessage,
-                  };
-                  return updated;
-                });
-                bufferedTable = "";
-                isInsideTable = false;
-              }
-              break;
-
-            case "delta":
-              handleDeltaResponse(event);
-              break;
-          }
-        }
-      } catch (e) {
-        console.log("Error on message event", e);
-      }
-    };
-
-    socketRef.current.onclose = () => {
-      setChatLoading(false);
-      if (isInsideTable && bufferedTable) {
-        setChatHistory((prev) => {
-          const updated = [...prev];
-          const lastIndex = updated.length - 1;
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            answer: inCompatibleMessage,
-          };
-          return updated;
-        });
-        bufferedTable = "";
-        isInsideTable = false;
-      }
-      setChatLoading(false);
-    };
-
-    socketRef.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      setError("خطا در ارتباط با سرور");
-      setChatLoading(false);
-    };
+    setChatLoading(true);
   };
 
   const handleDeltaResponse = (event) => {
@@ -274,7 +332,7 @@ const Chat = ({ item }) => {
     try {
       if (data.event === "finished") {
         if (isInsideTable && bufferedTable) {
-          setChatHistory((prev) => {
+          setHistory((prev) => {
             const updated = [...prev];
             const lastIndex = updated.length - 1;
             updated[lastIndex] = {
@@ -287,6 +345,8 @@ const Chat = ({ item }) => {
           isInsideTable = false;
         }
         setChatLoading(false);
+
+        inCompatibleMessage = "";
         return;
       }
     } catch (e) {}
@@ -298,7 +358,7 @@ const Chat = ({ item }) => {
         sources: [],
         timestamp: new Date(),
       };
-      setChatHistory((prev) => [...prev, botMessage]);
+      setHistory((prev) => [...prev, botMessage]);
       initialMessageAddedRef.current = true;
       setChatLoading(true);
     }
@@ -313,7 +373,7 @@ const Chat = ({ item }) => {
     } else if (isInsideTable) {
       bufferedTable += delta;
     } else {
-      setChatHistory((prev) => {
+      setHistory((prev) => {
         const updated = [...prev];
         const lastIndex = updated.length - 1;
         updated[lastIndex] = {
@@ -330,7 +390,7 @@ const Chat = ({ item }) => {
       const closeTableTags = (bufferedTable.match(/<\/table>/g) || []).length;
 
       if (openTableTags === closeTableTags && openTableTags > 0) {
-        setChatHistory((prev) => {
+        setHistory((prev) => {
           const updated = [...prev];
           const lastIndex = updated.length - 1;
           updated[lastIndex] = {
@@ -349,7 +409,7 @@ const Chat = ({ item }) => {
           const lastOpenTrIndex = bufferedTable.lastIndexOf("<tr>");
           if (lastOpenTrIndex !== -1) {
             const partialMessage = bufferedTable.substring(0, lastOpenTrIndex);
-            setChatHistory((prev) => {
+            setHistory((prev) => {
               const updated = [...prev];
               const lastIndex = updated.length - 1;
               updated[lastIndex] = {
@@ -371,7 +431,7 @@ const Chat = ({ item }) => {
             0,
             lastCompleteRowIndex + 5
           );
-          setChatHistory((prev) => {
+          setHistory((prev) => {
             const updated = [...prev];
             const lastIndex = updated.length - 1;
             updated[lastIndex] = {
@@ -385,8 +445,11 @@ const Chat = ({ item }) => {
     }
   };
 
+  /**
+   * @param {object} wizardData selected wizard data
+   */
   const handleWizardSelect = (wizardData) => {
-    setChatHistory((prev) => [
+    setHistory((prev) => [
       ...prev,
       {
         type: "answer",
@@ -406,20 +469,18 @@ const Chat = ({ item }) => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
   };
 
-  const formatTimestamp = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString("fa-IR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
+  /**
+   * Copy answer message text to device clipboard
+   *
+   * @param {string} textToCopy
+   * @param {int} messageIndex
+   */
   const handleCopyAnswer = (textToCopy, messageIndex) => {
     const temp = document.createElement("div");
     temp.innerHTML = textToCopy;
     const plainText = temp.textContent || temp.innerText || "";
 
-    navigator.clipboard
-      .writeText(plainText)
+    copyToClipboard(plainText)
       .then(() => {
         setCopiedMessageId(messageIndex);
         notify.success("متن کپی شد!", {
@@ -450,13 +511,16 @@ const Chat = ({ item }) => {
           </div>
         )}
 
-        {chatHistory.length === 0 && !historyLoading ? (
+        {history.length === 0 && !historyLoading ? (
           <div className="text-center text-gray-500 dark:text-gray-400 p-4">
             سوال خود را بپرسید تا گفتگو شروع شود
           </div>
         ) : (
-          chatHistory.map((item, index) => (
-            <div key={index} className="mb-4 transition-[height] duration-300 ease-in-out">
+          history.map((item, index) => (
+            <div
+              key={index}
+              className="mb-4 transition-[height] duration-300 ease-in-out"
+            >
               {item.type === "question" ? (
                 <div className="bg-blue-100/70 md:ml-16 dark:bg-blue-900/20 p-3 rounded-lg text-right">
                   <div className="flex justify-between items-center mb-1">
@@ -489,8 +553,8 @@ const Chat = ({ item }) => {
                     <pre
                       ref={textRef}
                       style={{
-                        unicodeBidi: 'plaintext',
-                        direction: 'rtl'
+                        unicodeBidi: "plaintext",
+                        direction: "rtl",
                       }}
                       className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
                       dangerouslySetInnerHTML={{ __html: item.answer }}
@@ -574,12 +638,14 @@ const Chat = ({ item }) => {
             </div>
           ))
         )}
-        {chatLoading && <div className="flex items-center justify-end p-1 gap-1 text-white">
+        {chatLoading && (
+          <div className="flex items-center justify-end p-1 gap-1 text-white">
             <BeatLoader size={9} color="#808080" />
             <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
               <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
             </span>
-        </div>}
+          </div>
+        )}
         <div ref={chatEndRef} />
       </div>
 
@@ -590,30 +656,40 @@ const Chat = ({ item }) => {
 
       <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
         <button
-          onClick={realtimeHandleSubmit}
-          onKeyDown={realtimeHandleSubmit}
+          onClick={sendMessage}
+          onKeyDown={sendMessage}
           disabled={chatLoading || !question.trim()}
           className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
         >
-          <svg className="w-6 h-6 bg-transparent" fill="#2663eb" viewBox="0 0 24 24">
+          <svg
+            className="w-6 h-6 bg-transparent"
+            fill="#2663eb"
+            viewBox="0 0 24 24"
+          >
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
           </svg>
         </button>
-        < TextInputWithBreaks
+        <TextInputWithBreaks
           value={question}
           onChange={setQuestion}
-          onSubmit={realtimeHandleSubmit}
+          onSubmit={sendMessage}
           disabled={chatLoading}
           placeholder="سوال خود را بپرسید..."
         />
-        {!question.trim() && (
-          <div className="max-w-60 flex items-center justify-center gap-2 mb-[9px]">
-            <VoiceBtn onTranscribe={setQuestion} />
-            <button onClick={() => navigate('/voice-agent')} className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full">
-              <LucideAudioLines size={22} />
-            </button>
-          </div>
-        )}
+        <div
+          className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
+            question.trim() ? "hidden" : ""
+          }`}
+        >
+          <VoiceBtn onTranscribe={setQuestion} />
+          <button
+            onClick={() => navigate("/voice-agent")}
+            className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+          >
+            <LucideAudioLines size={22} />
+          </button>
+        </div>
+        )
       </div>
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
