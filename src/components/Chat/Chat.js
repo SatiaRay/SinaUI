@@ -10,7 +10,7 @@ import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
 import TextInputWithBreaks from "../../ui/textArea";
-import { formatTimestamp } from "../../utils/helpers";
+import { copyToClipboard, formatTimestamp } from "../../utils/helpers";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -443,25 +443,31 @@ const Chat = ({ item }) => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
   };
 
+
+  /**
+   * Copy answer message text to device clipboard
+   * 
+   * @param {string} textToCopy 
+   * @param {int} messageIndex 
+   */
   const handleCopyAnswer = (textToCopy, messageIndex) => {
     const temp = document.createElement("div");
     temp.innerHTML = textToCopy;
     const plainText = temp.textContent || temp.innerText || "";
 
-    navigator.clipboard
-      .writeText(plainText)
-      .then(() => {
-        setCopiedMessageId(messageIndex);
-        notify.success("متن کپی شد!", {
-          autoClose: 1000,
-          position: "top-left",
-        });
-
-        setTimeout(() => setCopiedMessageId(null), 4000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy:", err);
+    copyToClipboard(plainText)
+    .then(() => {
+      setCopiedMessageId(messageIndex);
+      notify.success("متن کپی شد!", {
+        autoClose: 1000,
+        position: "top-left",
       });
+
+      setTimeout(() => setCopiedMessageId(null), 4000);
+    })
+    .catch((err) => {
+      console.error("Failed to copy:", err);
+    });
   };
 
   return (

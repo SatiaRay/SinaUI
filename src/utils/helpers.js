@@ -7,3 +7,7 @@ export const formatTimestamp = (
 ) => {
   return new Date(timestamp).toLocaleTimeString("fa-IR", format);
 };
+
+export const copyToClipboard = (text) => {
+  return navigator.clipboard.writeText(text);
+};
