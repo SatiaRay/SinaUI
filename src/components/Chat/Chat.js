@@ -10,6 +10,7 @@ import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
 import TextInputWithBreaks from "../../ui/textArea";
+import { formatTimestamp } from "../../utils/helpers";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -53,11 +54,11 @@ const Chat = ({ item }) => {
     loadHistory(sessionId);
 
     // load root wizards
-    loadRootWizards()
+    loadRootWizards();
   }, []);
 
   useEffect(() => {
-    return renderMessageLinks()
+    return renderMessageLinks();
   }, [history]);
 
   useEffect(() => {
@@ -77,14 +78,13 @@ const Chat = ({ item }) => {
    */
   useEffect(() => {
     if (!historyLoading && history.length > 0) {
-      
       setTimeout(scrollToBottom, 100);
     }
   }, [historyLoading, history.length]);
 
   /**
    * render chat messages links
-   * 
+   *
    * @returns function
    */
   const renderMessageLinks = () => {
@@ -96,7 +96,7 @@ const Chat = ({ item }) => {
       });
     }, 100);
     return () => clearTimeout(timer);
-  }
+  };
 
   /**
    * Get chat session id which stored in local storage
@@ -198,7 +198,7 @@ const Chat = ({ item }) => {
 
   /**
    * Send new message
-   * 
+   *
    * @returns sent message object
    */
   const sendMessage = async () => {
@@ -441,13 +441,6 @@ const Chat = ({ item }) => {
 
   const handleScroll = () => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
-  };
-
-  const formatTimestamp = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString("fa-IR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const handleCopyAnswer = (textToCopy, messageIndex) => {
