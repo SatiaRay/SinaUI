@@ -55,6 +55,9 @@ const Chat = ({ item }) => {
 
     // load root wizards
     loadRootWizards();
+
+    // init socket connection
+    connectSocket(sessionId)
   }, []);
 
   useEffect(() => {
@@ -197,6 +200,99 @@ const Chat = ({ item }) => {
   };
 
   /**
+   * Open chat socket connection
+   * @param {string} sessionId
+   */
+  const connectSocket = (sessionId) => {
+    const socket = new WebSocket(
+      getWebSocketUrl(`/ws/ask?session_id=${sessionId}`)
+    );
+
+    socket.onopen = socketOnOpenHandler;
+
+    socket.onmessage = socketOnMessageHandler;
+
+    socket.onclose = socketOnCloseHandler;
+
+    socket.onerror = socketOnErrorHandler
+
+    socketRef.current = socket
+  };
+
+  /**
+   * socket on open event handler
+   */
+  const socketOnOpenHandler = () => {
+    //
+  };
+
+  /**
+   * socket on open event handler
+   *
+   * @param {object} event
+   */
+  const socketOnMessageHandler = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.event) {
+        switch (data.event) {
+          case "finished":
+            setChatLoading(false);
+            if (isInsideTable && bufferedTable) {
+              setHistory((prev) => {
+                const updated = [...prev];
+                const lastIndex = updated.length - 1;
+                updated[lastIndex] = {
+                  ...updated[lastIndex],
+                  answer: inCompatibleMessage,
+                };
+                return updated;
+              });
+              bufferedTable = "";
+              isInsideTable = false;
+            }
+            break;
+
+          case "delta":
+            handleDeltaResponse(event);
+            break;
+        }
+      }
+    } catch (e) {
+      console.log("Error on message event", e);
+    }
+  };
+
+  /**
+   * socket on close event handler
+   *
+   * @param {object} event
+   */
+  const socketOnCloseHandler = (event) => {
+    setChatLoading(false);
+    if (isInsideTable && bufferedTable) {
+      setHistory((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          answer: inCompatibleMessage,
+        };
+        return updated;
+      });
+      bufferedTable = "";
+      isInsideTable = false;
+    }
+    setChatLoading(false);
+  };
+
+  const socketOnErrorHandler = (event) => {
+    console.error("WebSocket error:", error);
+    setError("خطا در ارتباط با سرور");
+    setChatLoading(false);
+  };
+
+  /**
    * Send new message
    *
    * @returns sent message object
@@ -215,91 +311,17 @@ const Chat = ({ item }) => {
     };
     setHistory((prev) => [...prev, userMessage]);
 
-    if (socketRef.current) {
-      socketRef.current.close();
-    }
-
     initialMessageAddedRef.current = false;
     inCompatibleMessage = "";
     bufferedTable = "";
     isInsideTable = false;
 
-    const storedSessionId = localStorage.getItem("chat_session_id");
-    if (!storedSessionId) {
-      setError("خطا در شناسایی نشست");
-      setChatLoading(false);
-      return;
-    }
-
-    socketRef.current = new WebSocket(
-      getWebSocketUrl(`/ws/ask?session_id=${storedSessionId}`)
+    socketRef.current.send(
+      JSON.stringify({
+        question: currentQuestion
+      })
     );
-
-    socketRef.current.onopen = () => {
-      socketRef.current.send(
-        JSON.stringify({
-          question: currentQuestion,
-          session_id: storedSessionId,
-        })
-      );
-      setChatLoading(true);
-    };
-
-    socketRef.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.event) {
-          switch (data.event) {
-            case "finished":
-              setChatLoading(false);
-              if (isInsideTable && bufferedTable) {
-                setHistory((prev) => {
-                  const updated = [...prev];
-                  const lastIndex = updated.length - 1;
-                  updated[lastIndex] = {
-                    ...updated[lastIndex],
-                    answer: inCompatibleMessage,
-                  };
-                  return updated;
-                });
-                bufferedTable = "";
-                isInsideTable = false;
-              }
-              break;
-
-            case "delta":
-              handleDeltaResponse(event);
-              break;
-          }
-        }
-      } catch (e) {
-        console.log("Error on message event", e);
-      }
-    };
-
-    socketRef.current.onclose = () => {
-      setChatLoading(false);
-      if (isInsideTable && bufferedTable) {
-        setHistory((prev) => {
-          const updated = [...prev];
-          const lastIndex = updated.length - 1;
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            answer: inCompatibleMessage,
-          };
-          return updated;
-        });
-        bufferedTable = "";
-        isInsideTable = false;
-      }
-      setChatLoading(false);
-    };
-
-    socketRef.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      setError("خطا در ارتباط با سرور");
-      setChatLoading(false);
-    };
+    setChatLoading(true);
   };
 
   const handleDeltaResponse = (event) => {
@@ -443,12 +465,11 @@ const Chat = ({ item }) => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
   };
 
-
   /**
    * Copy answer message text to device clipboard
-   * 
-   * @param {string} textToCopy 
-   * @param {int} messageIndex 
+   *
+   * @param {string} textToCopy
+   * @param {int} messageIndex
    */
   const handleCopyAnswer = (textToCopy, messageIndex) => {
     const temp = document.createElement("div");
@@ -456,18 +477,18 @@ const Chat = ({ item }) => {
     const plainText = temp.textContent || temp.innerText || "";
 
     copyToClipboard(plainText)
-    .then(() => {
-      setCopiedMessageId(messageIndex);
-      notify.success("متن کپی شد!", {
-        autoClose: 1000,
-        position: "top-left",
-      });
+      .then(() => {
+        setCopiedMessageId(messageIndex);
+        notify.success("متن کپی شد!", {
+          autoClose: 1000,
+          position: "top-left",
+        });
 
-      setTimeout(() => setCopiedMessageId(null), 4000);
-    })
-    .catch((err) => {
-      console.error("Failed to copy:", err);
-    });
+        setTimeout(() => setCopiedMessageId(null), 4000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+      });
   };
 
   return (
