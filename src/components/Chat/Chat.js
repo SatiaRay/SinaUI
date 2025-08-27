@@ -251,6 +251,8 @@ const Chat = ({ item }) => {
               bufferedTable = "";
               isInsideTable = false;
             }
+
+            inCompatibleMessage = "";
             break;
 
           case "delta":
@@ -343,6 +345,8 @@ const Chat = ({ item }) => {
           isInsideTable = false;
         }
         setChatLoading(false);
+
+        inCompatibleMessage = "";
         return;
       }
     } catch (e) {}
