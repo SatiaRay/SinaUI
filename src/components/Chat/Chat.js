@@ -10,7 +10,7 @@ import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
 import TextInputWithBreaks from "../../ui/textArea";
-import { copyToClipboard, formatTimestamp } from "../../utils/helpers";
+import { copyToClipboard, formatTimestamp, stripHtmlTags } from "../../utils/helpers";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -288,6 +288,11 @@ const Chat = ({ item }) => {
     setChatLoading(false);
   };
 
+  /**
+   * socket on error event handler
+   *
+   * @param {object} event
+   */
   const socketOnErrorHandler = (event) => {
     console.error("WebSocket error:", error);
     setError("خطا در ارتباط با سرور");
@@ -299,10 +304,10 @@ const Chat = ({ item }) => {
    *
    * @returns sent message object
    */
-  const sendMessage = async () => {
-    if (!question.trim()) return;
+  const sendMessage = async (text) => {
 
-    const currentQuestion = question;
+    const currentQuestion = text;
+
     setQuestion("");
     setError(null);
 
@@ -449,6 +454,12 @@ const Chat = ({ item }) => {
    * @param {object} wizardData selected wizard data
    */
   const handleWizardSelect = (wizardData) => {
+    if(wizardData.wizard_type == 'question'){
+      sendMessage(stripHtmlTags(wizardData.context));
+
+      return
+    }
+
     setHistory((prev) => [
       ...prev,
       {
@@ -656,8 +667,8 @@ const Chat = ({ item }) => {
 
       <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
         <button
-          onClick={sendMessage}
-          onKeyDown={sendMessage}
+          onClick={() => sendMessage(question)}
+          onKeyDown={() => sendMessage(question)}
           disabled={chatLoading || !question.trim()}
           className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
         >
@@ -672,7 +683,7 @@ const Chat = ({ item }) => {
         <TextInputWithBreaks
           value={question}
           onChange={setQuestion}
-          onSubmit={sendMessage}
+          onSubmit={() => sendMessage(question)}
           disabled={chatLoading}
           placeholder="سوال خود را بپرسید..."
         />
