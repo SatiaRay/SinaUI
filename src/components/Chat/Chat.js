@@ -57,7 +57,7 @@ const Chat = ({ item }) => {
     loadRootWizards();
 
     // init socket connection
-    connectSocket(sessionId)
+    connectSocket(sessionId);
   }, []);
 
   useEffect(() => {
@@ -214,9 +214,9 @@ const Chat = ({ item }) => {
 
     socket.onclose = socketOnCloseHandler;
 
-    socket.onerror = socketOnErrorHandler
+    socket.onerror = socketOnErrorHandler;
 
-    socketRef.current = socket
+    socketRef.current = socket;
   };
 
   /**
@@ -318,7 +318,7 @@ const Chat = ({ item }) => {
 
     socketRef.current.send(
       JSON.stringify({
-        question: currentQuestion
+        question: currentQuestion,
       })
     );
     setChatLoading(true);
@@ -672,17 +672,20 @@ const Chat = ({ item }) => {
           disabled={chatLoading}
           placeholder="سوال خود را بپرسید..."
         />
-        {!question.trim() && (
-          <div className="max-w-60 flex items-center justify-center gap-2 mb-[9px]">
-            <VoiceBtn onTranscribe={setQuestion} />
-            <button
-              onClick={() => navigate("/voice-agent")}
-              className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
-            >
-              <LucideAudioLines size={22} />
-            </button>
-          </div>
-        )}
+        <div
+          className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
+            question.trim() ? "hidden" : ""
+          }`}
+        >
+          <VoiceBtn onTranscribe={setQuestion} />
+          <button
+            onClick={() => navigate("/voice-agent")}
+            className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+          >
+            <LucideAudioLines size={22} />
+          </button>
+        </div>
+        )
       </div>
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
