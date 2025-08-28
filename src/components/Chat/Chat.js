@@ -630,30 +630,6 @@ const Chat = ({ item }) => {
                       )}
                     </button>
                   </div>
-                  {item.sources && item.sources.length > 0 && (
-                    <div>
-                      <h3 className="font-bold mb-2 text-sm text-gray-900 dark:text-white">
-                        منابع:
-                      </h3>
-                      <ul className="list-disc pr-4">
-                        {item.sources.map((source, sourceIndex) => (
-                          <li key={sourceIndex} className="mb-2">
-                            <p className="text-sm text-gray-700 dark:text-white">
-                              {source.text}
-                            </p>
-                            <a
-                              href={source.metadata?.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                            >
-                              منبع: {source.metadata?.source || "نامشخص"}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
