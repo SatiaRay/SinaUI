@@ -10,7 +10,11 @@ import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
 import TextInputWithBreaks from "../../ui/textArea";
-import { copyToClipboard, formatTimestamp, stripHtmlTags } from "../../utils/helpers";
+import {
+  copyToClipboard,
+  formatTimestamp,
+  stripHtmlTags,
+} from "../../utils/helpers";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -200,6 +204,28 @@ const Chat = ({ item }) => {
   };
 
   /**
+   * Handle message finished event
+   */
+  const finishMessageHandler = () => {
+    setChatLoading(false);
+    if (isInsideTable && bufferedTable) {
+      setHistory((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          answer: inCompatibleMessage,
+        };
+        return updated;
+      });
+      bufferedTable = "";
+      isInsideTable = false;
+    }
+
+    inCompatibleMessage = "";
+  };
+
+  /**
    * Open chat socket connection
    * @param {string} sessionId
    */
@@ -236,27 +262,12 @@ const Chat = ({ item }) => {
       const data = JSON.parse(event.data);
       if (data.event) {
         switch (data.event) {
-          case "finished":
-            setChatLoading(false);
-            if (isInsideTable && bufferedTable) {
-              setHistory((prev) => {
-                const updated = [...prev];
-                const lastIndex = updated.length - 1;
-                updated[lastIndex] = {
-                  ...updated[lastIndex],
-                  answer: inCompatibleMessage,
-                };
-                return updated;
-              });
-              bufferedTable = "";
-              isInsideTable = false;
-            }
-
-            inCompatibleMessage = "";
-            break;
-
           case "delta":
             handleDeltaResponse(event);
+            break;
+
+          case "finished":
+            finishMessageHandler();
             break;
         }
       }
@@ -305,7 +316,6 @@ const Chat = ({ item }) => {
    * @returns sent message object
    */
   const sendMessage = async (text) => {
-
     const currentQuestion = text;
 
     setQuestion("");
@@ -454,10 +464,10 @@ const Chat = ({ item }) => {
    * @param {object} wizardData selected wizard data
    */
   const handleWizardSelect = (wizardData) => {
-    if(wizardData.wizard_type == 'question'){
+    if (wizardData.wizard_type == "question") {
       sendMessage(stripHtmlTags(wizardData.context));
 
-      return
+      return;
     }
 
     setHistory((prev) => [
