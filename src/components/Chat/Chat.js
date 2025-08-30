@@ -1,21 +1,21 @@
 import { LucideAudioLines } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaRobot } from "react-icons/fa";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import { BeatLoader } from "react-spinners";
 import { v4 as uuidv4 } from "uuid";
-import { notify } from "../../ui/toast";
 import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
 import TextInputWithBreaks from "../../ui/textArea";
-import Message from "../ui/chat/Message";
+import Message from "../ui/chat/message/Message";
 import {
   copyToClipboard,
   formatTimestamp,
   stripHtmlTags,
 } from "../../utils/helpers";
+import { logDOM } from "@testing-library/react";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
@@ -54,8 +54,22 @@ const Chat = ({ item }) => {
   useEffect(() => {
     const sessionId = getSessionId();
 
-    // load chat history
-    loadHistory(sessionId);
+    const test = async () => {
+      // load chat history
+      await loadHistory(sessionId);
+
+      addNewMessage({
+        type: "option",
+        metadata: {
+          event: "trigger",
+          option: "upload",
+          upload_type: "image",
+          caption: "لطفا تصویر خودرو خود را بارگزاری کنید.",
+        },
+      });
+    };
+
+    test();
 
     // load root wizards
     loadRootWizards();
@@ -226,6 +240,19 @@ const Chat = ({ item }) => {
   };
 
   /**
+   * Handle tirgger option event
+   */
+  const triggerOptionHandler = (optionInfo) => {
+    const optionMessage = {
+      type: "option",
+      metadata: optionInfo,
+      timestamp: new Date(),
+    };
+
+    addNewMessage(optionMessage);
+  };
+
+  /**
    * Open chat socket connection
    * @param {string} sessionId
    */
@@ -264,6 +291,8 @@ const Chat = ({ item }) => {
         switch (data.event) {
           // handle trigger option event
           case "trigger":
+            triggerOptionHandler(data);
+            break;
 
           case "delta":
             handleDeltaResponse(event);
@@ -464,6 +493,15 @@ const Chat = ({ item }) => {
   };
 
   /**
+   * Adds new message to the chat history
+   *
+   * @param {object} messageData
+   */
+  const addNewMessage = (messageData) => {
+    setHistory((prev) => [...prev, messageData]);
+  };
+
+  /**
    * @param {object} wizardData selected wizard data
    */
   const handleWizardSelect = (wizardData) => {
@@ -493,32 +531,6 @@ const Chat = ({ item }) => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
   };
 
-  /**
-   * Copy answer message text to device clipboard
-   *
-   * @param {string} textToCopy
-   * @param {int} messageIndex
-   */
-  const handleCopyAnswer = (textToCopy, messageIndex) => {
-    const temp = document.createElement("div");
-    temp.innerHTML = textToCopy;
-    const plainText = temp.textContent || temp.innerText || "";
-
-    copyToClipboard(plainText)
-      .then(() => {
-        setCopiedMessageId(messageIndex);
-        notify.success("متن کپی شد!", {
-          autoClose: 1000,
-          position: "top-left",
-        });
-
-        setTimeout(() => setCopiedMessageId(null), 4000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy:", err);
-      });
-  };
-
   return (
     <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[1220px] mx-auto">
       <div
@@ -545,7 +557,7 @@ const Chat = ({ item }) => {
               key={index}
               className="mb-4 transition-[height] duration-300 ease-in-out"
             >
-              <Message messageIndex={index} data={item} copyAnswer={handleCopyAnswer}/>
+              <Message messageIndex={index} data={item} />
             </div>
           ))
         )}
