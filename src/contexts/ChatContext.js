@@ -327,6 +327,16 @@ export const ChatProvider = ({ children }) => {
   };
 
   /**
+   * Remove message from the history
+   * @param {number} id 
+   */
+  const removeMessage = (id) => {
+    const filtered = Object.values(history.entities).filter(message => message.id !=id )
+
+    setHistory(dataNormalizer(filtered))
+  }
+
+  /**
    * Handles wizard selection
    *
    * @param {object} wizardData selected wizard data
@@ -386,6 +396,7 @@ export const ChatProvider = ({ children }) => {
     handleWizardSelect,
     addNewMessage,
     updateMessage,
+    removeMessage,
     registerSocketOnOpenHandler,
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
