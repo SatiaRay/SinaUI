@@ -4,79 +4,56 @@ import { FaRobot } from "react-icons/fa";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import { BeatLoader } from "react-spinners";
-import { v4 as uuidv4 } from "uuid";
-import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
 import TextInputWithBreaks from "../../ui/textArea";
 import Message from "../ui/chat/message/Message";
-import {
-  copyToClipboard,
-  formatTimestamp,
-  stripHtmlTags,
-} from "../../utils/helpers";
-import { logDOM } from "@testing-library/react";
+import { useChat } from "../../contexts/ChatContext";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
-  const [history, setHistory] = useState([]);
-  const [chatLoading, setChatLoading] = useState(false);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [hasMoreHistory, setHasMoreHistory] = useState(true);
-  const [historyOffset, setHistoryOffset] = useState(0);
-  const navigate = useNavigate();
-  const [error, setError] = useState(null);
-  const [currentWizards, setCurrentWizards] = useState([]);
-  const [rootWizards, setRootWizards] = useState([]);
-  const chatContainerRef = useRef(null);
-  const chatEndRef = useRef(null);
-  const socketRef = useRef(null);
-  const initialMessageAddedRef = useRef(false);
-  const [copiedMessageId, setCopiedMessageId] = useState(null);
 
-  let inCompatibleMessage = "";
-  let bufferedTable = "";
-  let isInsideTable = false;
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      [{ align: [] }],
-      ["link", "image"],
-      ["clean"],
-    ],
-  };
+  const navigate = useNavigate();
+
+  const {
+    addNewMessage,
+    setError,
+    chatLoading,
+    historyLoading,
+    setChatLoading,
+    hasMoreHistory,
+    historyOffset,
+    error,
+    currentWizards,
+    optionMessageTriggered,
+    setOptionMessageTriggered,
+    history,
+    setHistory,
+    chatContainerRef,
+    chatEndRef,
+    sendMessage,
+    handleWizardSelect,
+    registerSocketOnOpenHandler,
+    registerSocketOnCloseHandler,
+    registerSocketOnErrorHandler,
+    registerSocketOnMessageHandler
+  } = useChat();
+
+  const initialMessageAddedRef = useRef(false);
 
   /**
-   * OnMount
+   * Register custom chat socket event handlers
    */
   useEffect(() => {
-    const sessionId = getSessionId();
+    // On CLOSE
+    registerSocketOnCloseHandler(socketOnCloseHandler)
 
-    const test = async () => {
-      // load chat history
-      await loadHistory(sessionId);
+    // on MESSAGE
+    registerSocketOnMessageHandler(socketOnMessageHandler)
 
-      addNewMessage({
-        type: "option",
-        metadata: {
-          event: "trigger",
-          option: "upload",
-          upload_type: "image",
-          caption: "لطفا تصویر خودرو خود را بارگزاری کنید.",
-        },
-      });
-    };
-
-    test();
-
-    // load root wizards
-    loadRootWizards();
-
-    // init socket connection
-    connectSocket(sessionId);
-  }, []);
+    // on ERROR
+    registerSocketOnErrorHandler(socketOnErrorHandler)
+  }, [])
 
   useEffect(() => {
     return renderMessageLinks();
@@ -120,127 +97,7 @@ const Chat = ({ item }) => {
   };
 
   /**
-   * Get chat session id which stored in local storage
-   *
-   * Creates new if not exists in local storage
-   */
-  const getSessionId = () => {
-    let sessionId = localStorage.getItem("chat_session_id"); // try fetch the session id from local storage
-
-    // create new if not exists in local storage
-    if (!sessionId) {
-      sessionId = `uuid_${uuidv4()}`;
-      localStorage.setItem("chat_session_id", sessionId);
-    }
-
-    return sessionId;
-  };
-
-  /**
-   * Scroll chat history to bottom to display end message
-   */
-  const scrollToBottom = () => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  /**
-   * Load root wizards to display wizard buttons to user
-   */
-  const loadRootWizards = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/hierarchy/roots`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error("خطا در دریافت ویزاردها");
-      }
-      const data = await response.json();
-      setRootWizards(data);
-      setCurrentWizards(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setChatLoading(false);
-    }
-  };
-
-  /**
-   * Load the chat history
-   */
-  const loadHistory = async (sessionId, offset = 0, limit = 20) => {
-    setHistoryLoading(true);
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (response.status !== 200) {
-        return;
-      }
-
-      const messages = await response.json();
-
-      if (Array.isArray(messages)) {
-        const transformedMessages = messages.map((msg) => ({
-          type: msg.role === "user" ? "question" : "answer",
-          text: msg.role === "user" ? msg.body : undefined,
-          answer: msg.role === "assistant" ? msg.body : undefined,
-          timestamp: new Date(msg.created_at),
-        }));
-
-        const reversedMessages = [...transformedMessages].reverse();
-
-        if (offset === 0) {
-          setHistory(reversedMessages);
-        } else {
-          setHistory((prev) => [...reversedMessages, ...prev]);
-        }
-        setHasMoreHistory(messages.length === limit);
-      }
-    } catch (err) {
-      setError(err.message);
-      console.error("Error fetching chat history:", err);
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-
-  /**
-   * Handle message finished event
-   */
-  const finishMessageHandler = () => {
-    setChatLoading(false);
-    if (isInsideTable && bufferedTable) {
-      setHistory((prev) => {
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
-        updated[lastIndex] = {
-          ...updated[lastIndex],
-          answer: inCompatibleMessage,
-        };
-        return updated;
-      });
-      bufferedTable = "";
-      isInsideTable = false;
-    }
-
-    inCompatibleMessage = "";
-  };
-
-  /**
-   * Handle tirgger option event
+   * Handle trigger option event
    */
   const triggerOptionHandler = (optionInfo) => {
     const optionMessage = {
@@ -248,40 +105,12 @@ const Chat = ({ item }) => {
       metadata: optionInfo,
       timestamp: new Date(),
     };
-
     addNewMessage(optionMessage);
+    setOptionMessageTriggered(true);
   };
 
   /**
-   * Open chat socket connection
-   * @param {string} sessionId
-   */
-  const connectSocket = (sessionId) => {
-    const socket = new WebSocket(
-      getWebSocketUrl(`/ws/ask?session_id=${sessionId}`)
-    );
-
-    socket.onopen = socketOnOpenHandler;
-
-    socket.onmessage = socketOnMessageHandler;
-
-    socket.onclose = socketOnCloseHandler;
-
-    socket.onerror = socketOnErrorHandler;
-
-    socketRef.current = socket;
-  };
-
-  /**
-   * socket on open event handler
-   */
-  const socketOnOpenHandler = () => {
-    //
-  };
-
-  /**
-   * socket on open event handler
-   *
+   * socket on message event handler
    * @param {object} event
    */
   const socketOnMessageHandler = (event) => {
@@ -289,28 +118,27 @@ const Chat = ({ item }) => {
       const data = JSON.parse(event.data);
       if (data.event) {
         switch (data.event) {
-          // handle trigger option event
           case "trigger":
             triggerOptionHandler(data);
             break;
-
           case "delta":
             handleDeltaResponse(event);
             break;
-
           case "finished":
             finishMessageHandler();
+            break;
+          default:
             break;
         }
       }
     } catch (e) {
+      // eslint-disable-next-line
       console.log("Error on message event", e);
     }
   };
 
   /**
    * socket on close event handler
-   *
    * @param {object} event
    */
   const socketOnCloseHandler = (event) => {
@@ -333,49 +161,64 @@ const Chat = ({ item }) => {
 
   /**
    * socket on error event handler
-   *
    * @param {object} event
    */
   const socketOnErrorHandler = (event) => {
+    // eslint-disable-next-line
     console.error("WebSocket error:", error);
     setError("خطا در ارتباط با سرور");
     setChatLoading(false);
   };
 
   /**
-   * Send new message
-   *
-   * @returns sent message object
+   * Send message to the socket channel
+   * 
+   * @param {String} text 
    */
-  const sendMessage = async (text) => {
-    const currentQuestion = text;
+  const sendMessageDecorator = async (text) => {
+
+    await sendMessage(text)
 
     setQuestion("");
     setError(null);
-
     const userMessage = {
       type: "question",
-      text: currentQuestion,
+      text,
       timestamp: new Date(),
     };
     setHistory((prev) => [...prev, userMessage]);
-
     initialMessageAddedRef.current = false;
     inCompatibleMessage = "";
     bufferedTable = "";
     isInsideTable = false;
+  }
 
-    socketRef.current.send(
-      JSON.stringify({
-        question: currentQuestion,
-      })
-    );
-    setChatLoading(true);
+  // Internal variables (not stateful)
+  let inCompatibleMessage = "";
+  let bufferedTable = "";
+  let isInsideTable = false;
+
+  /**
+   * Scroll chat history to bottom to display end message
+   */
+  const scrollToBottom = () => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
+  const handleScroll = () => {
+    if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
+  };
+
+  /**
+   * Handles delta response buffers
+   *
+   * @param {object} event
+   * @returns null|object
+   */
   const handleDeltaResponse = (event) => {
     const data = JSON.parse(event.data);
-
     try {
       if (data.event === "finished") {
         if (isInsideTable && bufferedTable) {
@@ -392,12 +235,10 @@ const Chat = ({ item }) => {
           isInsideTable = false;
         }
         setChatLoading(false);
-
         inCompatibleMessage = "";
         return;
       }
     } catch (e) {}
-
     if (!initialMessageAddedRef.current) {
       const botMessage = {
         type: "answer",
@@ -409,11 +250,8 @@ const Chat = ({ item }) => {
       initialMessageAddedRef.current = true;
       setChatLoading(true);
     }
-
     let delta = data.message;
-
     inCompatibleMessage += delta;
-
     if (inCompatibleMessage.includes("<table")) {
       isInsideTable = true;
       bufferedTable += delta;
@@ -431,11 +269,9 @@ const Chat = ({ item }) => {
       });
       return;
     }
-
     if (isInsideTable) {
       const openTableTags = (bufferedTable.match(/<table/g) || []).length;
       const closeTableTags = (bufferedTable.match(/<\/table>/g) || []).length;
-
       if (openTableTags === closeTableTags && openTableTags > 0) {
         setHistory((prev) => {
           const updated = [...prev];
@@ -451,7 +287,6 @@ const Chat = ({ item }) => {
       } else {
         const openTrTags = (bufferedTable.match(/<tr>/g) || []).length;
         const closeTrTags = (bufferedTable.match(/<\/tr>/g) || []).length;
-
         if (openTrTags > closeTrTags) {
           const lastOpenTrIndex = bufferedTable.lastIndexOf("<tr>");
           if (lastOpenTrIndex !== -1) {
@@ -471,7 +306,6 @@ const Chat = ({ item }) => {
           }
           return;
         }
-
         const lastCompleteRowIndex = bufferedTable.lastIndexOf("</tr>");
         if (lastCompleteRowIndex !== -1) {
           const partialTable = bufferedTable.substring(
@@ -493,43 +327,26 @@ const Chat = ({ item }) => {
   };
 
   /**
-   * Adds new message to the chat history
-   *
-   * @param {object} messageData
+   * Handle message finished event
    */
-  const addNewMessage = (messageData) => {
-    setHistory((prev) => [...prev, messageData]);
-  };
-
-  /**
-   * @param {object} wizardData selected wizard data
-   */
-  const handleWizardSelect = (wizardData) => {
-    if (wizardData.wizard_type == "question") {
-      sendMessage(stripHtmlTags(wizardData.context));
-
-      return;
+  const finishMessageHandler = () => {
+    setChatLoading(false);
+    if (isInsideTable && bufferedTable) {
+      setHistory((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          answer: inCompatibleMessage,
+        };
+        return updated;
+      });
+      bufferedTable = "";
+      isInsideTable = false;
     }
-
-    setHistory((prev) => [
-      ...prev,
-      {
-        type: "answer",
-        answer: wizardData.context,
-        timestamp: new Date(),
-      },
-    ]);
-
-    if (wizardData.children && wizardData.children.length > 0) {
-      setCurrentWizards(wizardData.children);
-    } else {
-      setCurrentWizards(rootWizards);
-    }
+    inCompatibleMessage = "";
   };
 
-  const handleScroll = () => {
-    if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
-  };
 
   return (
     <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[1220px] mx-auto">
@@ -577,43 +394,45 @@ const Chat = ({ item }) => {
         wizards={currentWizards}
       />
 
-      <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
-        <button
-          onClick={() => sendMessage(question)}
-          onKeyDown={() => sendMessage(question)}
-          disabled={chatLoading || !question.trim()}
-          className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
-        >
-          <svg
-            className="w-6 h-6 bg-transparent"
-            fill="#2663eb"
-            viewBox="0 0 24 24"
-          >
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-          </svg>
-        </button>
-        <TextInputWithBreaks
-          value={question}
-          onChange={setQuestion}
-          onSubmit={() => sendMessage(question)}
-          disabled={chatLoading}
-          placeholder="سوال خود را بپرسید..."
-        />
-        <div
-          className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-            question.trim() ? "hidden" : ""
-          }`}
-        >
-          <VoiceBtn onTranscribe={setQuestion} />
+      {!optionMessageTriggered && (
+        <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
           <button
-            onClick={() => navigate("/voice-agent")}
-            className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+            onClick={() => sendMessageDecorator(question)}
+            onKeyDown={() => sendMessageDecorator(question)}
+            disabled={chatLoading || !question.trim()}
+            className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
           >
-            <LucideAudioLines size={22} />
+            <svg
+              className="w-6 h-6 bg-transparent"
+              fill="#2663eb"
+              viewBox="0 0 24 24"
+            >
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
           </button>
+          <TextInputWithBreaks
+            value={question}
+            onChange={setQuestion}
+            onSubmit={() => sendMessageDecorator(question)}
+            disabled={chatLoading}
+            placeholder="سوال خود را بپرسید..."
+          />
+          <div
+            className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
+              question.trim() ? "hidden" : ""
+            }`}
+          >
+            <VoiceBtn onTranscribe={setQuestion} />
+            <button
+              onClick={() => navigate("/voice-agent")}
+              className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+            >
+              <LucideAudioLines size={22} />
+            </button>
+          </div>
+          )
         </div>
-        )
-      </div>
+      )}
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
   );
