@@ -315,12 +315,12 @@ const Chat = ({ item }) => {
             سوال خود را بپرسید تا گفتگو شروع شود
           </div>
         ) : (
-          history.ids.map((id, index) => (
+          history.ids.map((id) => (
             <div
               key={id}
               className="mb-4 transition-[height] duration-300 ease-in-out"
             >
-              <Message messageIndex={index} data={history.entities[id]} />
+              <Message messageId={id} data={history.entities[id]} />
             </div>
           ))
         )}

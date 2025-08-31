@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import MetaMessage from "./MetaMessage";
 import { notify } from "../../../../ui/toast";
 
-const Message = ({ messageIndex, data }) => {
+const Message = ({ messageId, data }) => {
   const textRef = useRef(null);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
 
@@ -15,16 +15,16 @@ const Message = ({ messageIndex, data }) => {
    * Copy answer message text to device clipboard
    *
    * @param {string} textToCopy
-   * @param {int} messageIndex
+   * @param {int} messageId
    */
-  const handleCopyAnswer = (textToCopy, messageIndex) => {
+  const handleCopyAnswer = (textToCopy, messageId) => {
     const temp = document.createElement("div");
     temp.innerHTML = textToCopy;
     const plainText = temp.textContent || temp.innerText || "";
 
     copyToClipboard(plainText)
       .then(() => {
-        setCopiedMessageId(messageIndex);
+        setCopiedMessageId(messageId);
         notify.success("متن کپی شد!", {
           autoClose: 1000,
           position: "top-left",
@@ -83,14 +83,14 @@ const Message = ({ messageIndex, data }) => {
                     dangerouslySetInnerHTML={{ __html: data.answer }}
                   />
                   <button
-                    onClick={() => handleCopyAnswer(data.answer, messageIndex)}
+                    onClick={() => handleCopyAnswer(data.answer, messageId)}
                     className="mt-4 flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                     style={{
                       color:
-                        copiedMessageId === messageIndex ? "#3dc909" : "#444",
+                        copiedMessageId === messageId ? "#3dc909" : "#444",
                     }}
                   >
-                    {copiedMessageId === messageIndex ? (
+                    {copiedMessageId === messageId ? (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
