@@ -1,7 +1,11 @@
 import { createContext, useContext, useRef, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { getWebSocketUrl } from "../utils/websocket";
-import { stripHtmlTags } from "../utils/helpers";
+import {
+  dataNormalizer,
+  mergeNormalized,
+  stripHtmlTags,
+} from "../utils/helpers";
 
 const ChatContext = createContext();
 
@@ -16,7 +20,7 @@ export const ChatProvider = ({ children }) => {
   const [rootWizards, setRootWizards] = useState([]);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const [optionMessageTriggered, setOptionMessageTriggered] = useState(false);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState({ ids: [], entities: {} });
 
   // custom socket handlers
   const [handlers, setHandlers] = useState({});
@@ -160,18 +164,24 @@ export const ChatProvider = ({ children }) => {
         return;
       }
       const messages = await response.json();
+
       if (Array.isArray(messages)) {
         const transformedMessages = messages.map((msg) => ({
+          id: uuidv4(),
           type: msg.role === "user" ? "question" : "answer",
           text: msg.role === "user" ? msg.body : undefined,
           answer: msg.role === "assistant" ? msg.body : undefined,
           timestamp: new Date(msg.created_at),
         }));
-        const reversedMessages = [...transformedMessages].reverse();
+
+        const reversedMessages = dataNormalizer(
+          [...transformedMessages].reverse()
+        );
+
         if (offset === 0) {
           setHistory(reversedMessages);
         } else {
-          setHistory((prev) => [...reversedMessages, ...prev]);
+          setHistory((prev) => mergeNormalized(prev, reversedMessages));
         }
         setHasMoreHistory(messages.length === limit);
       }
@@ -218,8 +228,6 @@ export const ChatProvider = ({ children }) => {
    * @returns sent message object
    */
   const sendMessage = async (text) => {
-    console.log(socketRef.current);
-
     if (socketRef.current) {
       socketRef.current.send(
         JSON.stringify({
@@ -260,7 +268,41 @@ export const ChatProvider = ({ children }) => {
    * @param {object} messageData
    */
   const addNewMessage = (messageData) => {
-    setHistory((prev) => [...prev, messageData]);
+    messageData.id = uuidv4();
+
+    setHistory((prev) => ({
+      ids: [...prev.ids, messageData.id],
+      entities: { ...prev.entities, [messageData.id]: messageData },
+    }));
+
+    return messageData.id
+  };
+
+  /**
+   * Update message context by id
+   * 
+   * @param {number} id 
+   * @param {String} context 
+   */
+  const updateMessage = (id, data) => {
+
+    setHistory((prev) => {
+      if (!prev.entities[id]) return prev; // no such message
+
+      console.log(prev.entities[id].answer);
+      
+
+      return {
+        ids: [...prev.ids],
+        entities: {
+          ...prev.entities,
+          [id]: {
+            ...prev.entities[id],
+            ...data, // merge new data into the message
+          },
+        },
+      };
+    });
   };
 
   /**
@@ -321,6 +363,7 @@ export const ChatProvider = ({ children }) => {
     sendImage,
     handleWizardSelect,
     addNewMessage,
+    updateMessage,
     registerSocketOnOpenHandler,
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
