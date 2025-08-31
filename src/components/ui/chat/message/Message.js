@@ -151,7 +151,7 @@ const Message = ({ messageId, data }) => {
                     پاسخ:
                   </h3>
                   <div>
-                    <MetaMessage metadata={data.metadata} />
+                    <MetaMessage messageId={messageId} metadata={data.metadata} />
                   </div>
                 </div>
               </div>

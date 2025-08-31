@@ -2,8 +2,8 @@ import { useCallback } from "react";
 import UploadImage from "./meta/UploadImage";
 import { useChat } from "../../../../contexts/ChatContext";
 
-const MetaMessage = ({ metadata }) => {
-  const {sendData} = useChat()
+const MetaMessage = ({ messageId, metadata }) => {
+  const {sendData, removeMessage} = useChat()
 
   /**
    * Get memoized message component
@@ -30,7 +30,12 @@ const MetaMessage = ({ metadata }) => {
    * Cacnel send meta message
    */
   const cancel = () => {
-    
+    sendData({
+      event: 'cancel',
+      desc: `Client canceled sending ${metadata.option} message`
+    })
+
+    removeMessage(messageId)
   }
 
   return (
