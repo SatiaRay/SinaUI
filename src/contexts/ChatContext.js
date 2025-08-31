@@ -44,15 +44,15 @@ export const ChatProvider = ({ children }) => {
         // load chat history
         await loadHistory(sessionId);
 
-        // addNewMessage({
-        //   type: "option",
-        //   metadata: {
-        //     event: "trigger",
-        //     option: "upload",
-        //     upload_type: "image",
-        //     caption: "لطفا تصویر خودرو خود را بارگزاری کنید.",
-        //   },
-        // });
+        addNewMessage({
+          type: "option",
+          metadata: {
+            event: "trigger",
+            option: "upload",
+            upload_type: "image",
+            caption: "لطفا تصویر خودرو خود را بارگزاری کنید.",
+          },
+        });
 
         // setOptionMessageTriggered(true);
       };
@@ -229,6 +229,14 @@ export const ChatProvider = ({ children }) => {
    */
   const sendMessage = async (text) => {
     if (socketRef.current) {
+      const userMessage = {
+        type: "question",
+        text,
+        timestamp: new Date(),
+      };
+
+      addNewMessage(userMessage);
+
       socketRef.current.send(
         JSON.stringify({
           event: "message",
@@ -245,13 +253,15 @@ export const ChatProvider = ({ children }) => {
    * @param {Array} images
    */
   const sendImage = async (images) => {
-    const userMessage = {
-      type: "image",
-      images: images,
-      timestamp: new Date(),
-    };
-    addNewMessage(userMessage);
     if (socketRef.current) {
+      const userMessage = {
+        type: "image",
+        images: images,
+        timestamp: new Date(),
+      };
+
+      addNewMessage(userMessage);
+
       socketRef.current.send(
         JSON.stringify({
           event: "upload",
@@ -259,6 +269,17 @@ export const ChatProvider = ({ children }) => {
         })
       );
       setChatLoading(true);
+    }
+  };
+
+  /**
+   * Send custom data to the socket channel
+   *
+   * @param {object} data
+   */
+  const sendData = async (data) => {
+    if (socketRef.current) {
+      socketRef.current.send(JSON.stringify(data));
     }
   };
 
@@ -361,6 +382,7 @@ export const ChatProvider = ({ children }) => {
     connectSocket,
     sendMessage,
     sendImage,
+    sendData,
     handleWizardSelect,
     addNewMessage,
     updateMessage,

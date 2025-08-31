@@ -9,14 +9,17 @@ import { WizardButtons } from "./Wizard/";
 import TextInputWithBreaks from "../../ui/textArea";
 import Message from "../ui/chat/message/Message";
 import { useChat } from "../../contexts/ChatContext";
+import { logDOM } from "@testing-library/react";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
+  const processingMessageId = useRef(null)
 
   const navigate = useNavigate();
 
   const {
     addNewMessage,
+    updateMessage,
     setError,
     chatLoading,
     historyLoading,
@@ -36,7 +39,7 @@ const Chat = ({ item }) => {
     registerSocketOnOpenHandler,
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
-    registerSocketOnMessageHandler
+    registerSocketOnMessageHandler,
   } = useChat();
 
   const initialMessageAddedRef = useRef(false);
@@ -46,14 +49,14 @@ const Chat = ({ item }) => {
    */
   useEffect(() => {
     // On CLOSE
-    registerSocketOnCloseHandler(socketOnCloseHandler)
+    registerSocketOnCloseHandler(socketOnCloseHandler);
 
     // on MESSAGE
-    registerSocketOnMessageHandler(socketOnMessageHandler)
+    registerSocketOnMessageHandler(socketOnMessageHandler);
 
     // on ERROR
-    registerSocketOnErrorHandler(socketOnErrorHandler)
-  }, [])
+    registerSocketOnErrorHandler(socketOnErrorHandler);
+  }, []);
 
   useEffect(() => {
     return renderMessageLinks();
@@ -75,10 +78,10 @@ const Chat = ({ item }) => {
    * Trigger scroll to button fuction on history loading or change history length
    */
   useEffect(() => {
-    if (!historyLoading && history.length > 0) {
+    if (!historyLoading && history.ids.length > 0) {
       setTimeout(scrollToBottom, 100);
     }
-  }, [historyLoading, history.length]);
+  }, [historyLoading, history.ids.length]);
 
   /**
    * render chat messages links
@@ -172,26 +175,19 @@ const Chat = ({ item }) => {
 
   /**
    * Send message to the socket channel
-   * 
-   * @param {String} text 
+   *
+   * @param {String} text
    */
   const sendMessageDecorator = async (text) => {
-
-    await sendMessage(text)
-
+    await sendMessage(text);
     setQuestion("");
     setError(null);
-    const userMessage = {
-      type: "question",
-      text,
-      timestamp: new Date(),
-    };
-    setHistory((prev) => [...prev, userMessage]);
+
     initialMessageAddedRef.current = false;
     inCompatibleMessage = "";
     bufferedTable = "";
     isInsideTable = false;
-  }
+  };
 
   // Internal variables (not stateful)
   let inCompatibleMessage = "";
@@ -219,37 +215,23 @@ const Chat = ({ item }) => {
    */
   const handleDeltaResponse = (event) => {
     const data = JSON.parse(event.data);
-    try {
-      if (data.event === "finished") {
-        if (isInsideTable && bufferedTable) {
-          setHistory((prev) => {
-            const updated = [...prev];
-            const lastIndex = updated.length - 1;
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-              answer: inCompatibleMessage,
-            };
-            return updated;
-          });
-          bufferedTable = "";
-          isInsideTable = false;
-        }
-        setChatLoading(false);
-        inCompatibleMessage = "";
-        return;
-      }
-    } catch (e) {}
-    if (!initialMessageAddedRef.current) {
-      const botMessage = {
+
+    console.log("processing message is :", processingMessageId.current);
+    
+
+    if (!processingMessageId.current) {
+      const messageId = addNewMessage({
         type: "answer",
         answer: "",
         sources: [],
         timestamp: new Date(),
-      };
-      setHistory((prev) => [...prev, botMessage]);
-      initialMessageAddedRef.current = true;
+      });
+
+      processingMessageId.current = messageId
       setChatLoading(true);
     }
+
+
     let delta = data.message;
     inCompatibleMessage += delta;
     if (inCompatibleMessage.includes("<table")) {
@@ -258,30 +240,14 @@ const Chat = ({ item }) => {
     } else if (isInsideTable) {
       bufferedTable += delta;
     } else {
-      setHistory((prev) => {
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
-        updated[lastIndex] = {
-          ...updated[lastIndex],
-          answer: inCompatibleMessage,
-        };
-        return updated;
-      });
+      updateMessage(processingMessageId.current, { answer: inCompatibleMessage });
       return;
     }
     if (isInsideTable) {
       const openTableTags = (bufferedTable.match(/<table/g) || []).length;
       const closeTableTags = (bufferedTable.match(/<\/table>/g) || []).length;
       if (openTableTags === closeTableTags && openTableTags > 0) {
-        setHistory((prev) => {
-          const updated = [...prev];
-          const lastIndex = updated.length - 1;
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            answer: inCompatibleMessage,
-          };
-          return updated;
-        });
+        updateMessage(processingMessageId.current, { answer: inCompatibleMessage });
         bufferedTable = "";
         isInsideTable = false;
       } else {
@@ -291,17 +257,11 @@ const Chat = ({ item }) => {
           const lastOpenTrIndex = bufferedTable.lastIndexOf("<tr>");
           if (lastOpenTrIndex !== -1) {
             const partialMessage = bufferedTable.substring(0, lastOpenTrIndex);
-            setHistory((prev) => {
-              const updated = [...prev];
-              const lastIndex = updated.length - 1;
-              updated[lastIndex] = {
-                ...updated[lastIndex],
-                answer: inCompatibleMessage.replace(
-                  bufferedTable,
-                  partialMessage
-                ),
-              };
-              return updated;
+            updateMessage(processingMessageId.current, {
+              answer: inCompatibleMessage.replace(
+                bufferedTable,
+                partialMessage
+              ),
             });
           }
           return;
@@ -312,14 +272,8 @@ const Chat = ({ item }) => {
             0,
             lastCompleteRowIndex + 5
           );
-          setHistory((prev) => {
-            const updated = [...prev];
-            const lastIndex = updated.length - 1;
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-              answer: inCompatibleMessage.replace(bufferedTable, partialTable),
-            };
-            return updated;
+          updateMessage(processingMessageId.current, {
+            answer: inCompatibleMessage.replace(bufferedTable, partialTable),
           });
         }
       }
@@ -330,23 +284,15 @@ const Chat = ({ item }) => {
    * Handle message finished event
    */
   const finishMessageHandler = () => {
+    processingMessageId.current = null
     setChatLoading(false);
     if (isInsideTable && bufferedTable) {
-      setHistory((prev) => {
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
-        updated[lastIndex] = {
-          ...updated[lastIndex],
-          answer: inCompatibleMessage,
-        };
-        return updated;
-      });
+      updateMessage(item.id, { answer: inCompatibleMessage });
       bufferedTable = "";
       isInsideTable = false;
     }
     inCompatibleMessage = "";
   };
-
 
   return (
     <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[1220px] mx-auto">
@@ -364,17 +310,17 @@ const Chat = ({ item }) => {
           </div>
         )}
 
-        {history.length === 0 && !historyLoading ? (
+        {history.ids.length === 0 && !historyLoading ? (
           <div className="text-center text-gray-500 dark:text-gray-400 p-4">
             سوال خود را بپرسید تا گفتگو شروع شود
           </div>
         ) : (
-          history.map((item, index) => (
+          history.ids.map((id, index) => (
             <div
-              key={index}
+              key={id}
               className="mb-4 transition-[height] duration-300 ease-in-out"
             >
-              <Message messageIndex={index} data={item} />
+              <Message messageIndex={index} data={history.entities[id]} />
             </div>
           ))
         )}
