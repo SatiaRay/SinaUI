@@ -33,7 +33,7 @@ const img = {
   height: "100%",
 };
 
-const Dropzone = (props) => {
+const Dropzone = ({onChange}) => {
   const [files, setFiles] = useState([]);
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -44,9 +44,11 @@ const Dropzone = (props) => {
     },
   });
 
-  const addFile = (file) => {
-    console.log(file);
+  useEffect(() => {
+    onChange(files);
+  }, [files])
 
+  const addFile = (file) => {
     Object.assign(file, {
       preview: URL.createObjectURL(file),
     });

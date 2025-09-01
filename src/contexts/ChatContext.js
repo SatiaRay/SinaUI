@@ -4,6 +4,7 @@ import { getWebSocketUrl } from "../utils/websocket";
 import {
   dataNormalizer,
   mergeNormalized,
+  packFile,
   stripHtmlTags,
 } from "../utils/helpers";
 
@@ -248,7 +249,7 @@ export const ChatProvider = ({ children }) => {
    *
    * @param {Array} images
    */
-  const sendImage = async (images) => {
+  const sendUploadedImage = async (images) => {
     if (socketRef.current) {
       const userMessage = {
         type: "image",
@@ -261,7 +262,7 @@ export const ChatProvider = ({ children }) => {
       socketRef.current.send(
         JSON.stringify({
           event: "upload",
-          files: images,
+          files: images
         })
       );
     }
@@ -384,7 +385,7 @@ export const ChatProvider = ({ children }) => {
     loadHistory,
     connectSocket,
     sendMessage,
-    sendImage,
+    sendUploadedImage,
     sendData,
     handleWizardSelect,
     addNewMessage,

@@ -1,9 +1,11 @@
-import { useCallback } from "react";
 import UploadImage from "./meta/UploadImage";
 import { useChat } from "../../../../contexts/ChatContext";
+import React, { useEffect, useState, useCallback } from "react";
+import { fileEndpoints } from "../../../../utils/apis";
 
 const MetaMessage = ({ messageId, metadata }) => {
-  const {sendData, removeMessage} = useChat()
+  const { sendData, removeMessage,  sendUploadedImage} = useChat();
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
    * Get memoized message component
@@ -15,7 +17,13 @@ const MetaMessage = ({ messageId, metadata }) => {
           return (() => {
             switch (metadata.upload_type) {
               case "image":
-                return <UploadImage />;
+                return (
+                  <UploadImage
+                    onCacnel={cancel}
+                    onUpload={upload}
+                    isLoading={isLoading}
+                  />
+                );
             }
           })();
         }
@@ -23,41 +31,41 @@ const MetaMessage = ({ messageId, metadata }) => {
           return null;
       }
     },
-    [metadata]
+    [metadata, isLoading]
   );
 
   /**
    * Cacnel send meta message
    */
   const cancel = () => {
+    if (!window.confirm("آیا مطمئن هستید ؟")) return;
+
     sendData({
-      event: 'cancel',
-      desc: `Client canceled sending ${metadata.option} message`
-    })
+      event: "cancel",
+      desc: `Client canceled sending ${metadata.option} message`,
+    });
+
+    removeMessage(messageId);
+  };
+
+  /**
+   * Upload file to chat websocket channel
+   */
+  const upload = async (files) => {
+    if (!window.confirm("آیا مطمئن هستید ؟")) return;
+
+    setIsLoading(true);
+
+    const data = await fileEndpoints.uploadFiles(files)
+
+    setIsLoading(false)
+
+    sendUploadedImage(data)
 
     removeMessage(messageId)
-  }
+  };
 
-  return (
-    <>
-      {getMessageComponent(metadata)}
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          ارسال
-        </button>
-        <button
-          type="button"
-          className="px-3 py-2 text-xs font-medium text-center text-white bg-yellow-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-yellow-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          onClick={cancel}
-        >
-          انصراف
-        </button>
-      </div>
-    </>
-  );
+  return <>{getMessageComponent(metadata)}</>;
 };
 
 export default MetaMessage;
