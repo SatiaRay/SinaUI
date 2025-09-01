@@ -13,6 +13,7 @@ import { logDOM } from "@testing-library/react";
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
   const processingMessageId = useRef(null)
 
   const navigate = useNavigate();
@@ -21,9 +22,7 @@ const Chat = ({ item }) => {
     addNewMessage,
     updateMessage,
     setError,
-    chatLoading,
     historyLoading,
-    setChatLoading,
     hasMoreHistory,
     historyOffset,
     error,
@@ -121,6 +120,9 @@ const Chat = ({ item }) => {
       const data = JSON.parse(event.data);
       if (data.event) {
         switch (data.event) {
+          case "loading":
+            setChatLoading(true);
+            break;
           case "trigger":
             triggerOptionHandler(data);
             break;
@@ -159,7 +161,6 @@ const Chat = ({ item }) => {
       bufferedTable = "";
       isInsideTable = false;
     }
-    setChatLoading(false);
   };
 
   /**
@@ -216,9 +217,6 @@ const Chat = ({ item }) => {
   const handleDeltaResponse = (event) => {
     const data = JSON.parse(event.data);
 
-    console.log("processing message is :", processingMessageId.current);
-    
-
     if (!processingMessageId.current) {
       const messageId = addNewMessage({
         type: "answer",
@@ -228,7 +226,6 @@ const Chat = ({ item }) => {
       });
 
       processingMessageId.current = messageId
-      setChatLoading(true);
     }
 
 

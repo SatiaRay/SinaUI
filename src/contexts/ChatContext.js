@@ -11,7 +11,6 @@ const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
   // State
-  const [chatLoading, setChatLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
@@ -138,8 +137,6 @@ export const ChatProvider = ({ children }) => {
       setCurrentWizards(data);
     } catch (err) {
       setError(err.message);
-    } finally {
-      setChatLoading(false);
     }
   };
 
@@ -243,7 +240,6 @@ export const ChatProvider = ({ children }) => {
           text: text,
         })
       );
-      setChatLoading(true);
     }
   };
 
@@ -268,7 +264,6 @@ export const ChatProvider = ({ children }) => {
           files: images,
         })
       );
-      setChatLoading(true);
     }
   };
 
@@ -296,22 +291,20 @@ export const ChatProvider = ({ children }) => {
       entities: { ...prev.entities, [messageData.id]: messageData },
     }));
 
-    return messageData.id
+    return messageData.id;
   };
 
   /**
    * Update message context by id
-   * 
-   * @param {number} id 
-   * @param {String} context 
+   *
+   * @param {number} id
+   * @param {String} context
    */
   const updateMessage = (id, data) => {
-
     setHistory((prev) => {
       if (!prev.entities[id]) return prev; // no such message
 
       console.log(prev.entities[id].answer);
-      
 
       return {
         ids: [...prev.ids],
@@ -328,13 +321,15 @@ export const ChatProvider = ({ children }) => {
 
   /**
    * Remove message from the history
-   * @param {number} id 
+   * @param {number} id
    */
   const removeMessage = (id) => {
-    const filtered = Object.values(history.entities).filter(message => message.id !=id )
+    const filtered = Object.values(history.entities).filter(
+      (message) => message.id != id
+    );
 
-    setHistory(dataNormalizer(filtered))
-  }
+    setHistory(dataNormalizer(filtered));
+  };
 
   /**
    * Handles wizard selection
@@ -363,8 +358,6 @@ export const ChatProvider = ({ children }) => {
 
   // Context value
   const value = {
-    chatLoading,
-    setChatLoading,
     historyLoading,
     setHistoryLoading,
     hasMoreHistory,
