@@ -1,20 +1,25 @@
-import { copyToClipboard } from "../../../../utils/helpers";
-import React, { useState } from "react";
-import { notify } from "../../../../ui/toast";
-import AnswerMessage from "./AnswerMessage";
-import QuestionMessage from "./QuestionMessage";
-import OptionMessage from "./OptionMessage";
-import ImageMessage from "./ImageMessage";
+import React from "react";
+import OptionMessage from "./components/OptionMessage";
+import ImageMessage from "./components/ImageMessage";
+import TextMessage from "./components/TextMessage";
+import SentMessage from "./SentMessage";
+import ReceivedMessage from "./ReceivedMessage";
 
 const Message = ({ messageId, data }) => {
-  return (
+  const messageWrapper = (msgCompo) => {
+    return data.role == "user" ? (
+      <SentMessage timestamp={data.created_at}>{msgCompo}</SentMessage>
+    ) : (
+      <ReceivedMessage timestamp={data.created_at}>{msgCompo}</ReceivedMessage>
+    );
+  };
+
+  const msgCompo = (
     <>
       {(() => {
         switch (data.type) {
-          case "question":
-            return <QuestionMessage data={data} messageId={messageId} />;
-          case "answer":
-            return <AnswerMessage data={data} messageId={messageId} />;
+          case "text":
+            return <TextMessage data={data} messageId={messageId} />;
           case "option":
             return <OptionMessage data={data} messageId={messageId} />;
           case "image":
@@ -25,6 +30,8 @@ const Message = ({ messageId, data }) => {
       })()}
     </>
   );
+
+  return messageWrapper(msgCompo);
 };
 
 export default React.memo(Message);

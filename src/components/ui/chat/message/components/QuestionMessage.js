@@ -1,6 +1,6 @@
-import { formatTimestamp } from "../../../../utils/helpers";
+import { formatTimestamp } from "../../../../../utils/helpers";
 
-const QuestionMessage = ({data, messageId}) => {
+const QuestionMessage = ({ data, messageId }) => {
   return (
     <div className="bg-blue-100/70 md:ml-16 dark:bg-blue-900/20 p-3 rounded-lg text-right">
       <div className="flex justify-between items-center mb-1">

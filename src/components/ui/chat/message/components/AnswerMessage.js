@@ -1,5 +1,5 @@
-import { formatTimestamp, copyToClipboard } from "../../../../utils/helpers";
-import { notify } from "../../../../ui/toast";
+import { formatTimestamp, copyToClipboard } from "../../../../../utils/helpers";
+import { notify } from "../../../../../ui/toast";
 import React, { useRef, useState } from "react";
 
 const AnswerMessage = ({ data, messageId }) => {

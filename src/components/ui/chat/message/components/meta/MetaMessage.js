@@ -1,10 +1,10 @@
 import UploadImage from "./UploadImage";
-import { useChat } from "../../../../../contexts/ChatContext";
+import { useChat } from "../../../../../../contexts/ChatContext";
 import React, { useEffect, useState, useCallback } from "react";
-import { fileEndpoints } from "../../../../../utils/apis";
+import { fileEndpoints } from "../../../../../../utils/apis";
 
 const MetaMessage = ({ messageId, metadata }) => {
-  const { sendData, removeMessage,  sendUploadedImage} = useChat();
+  const { sendData, removeMessage, sendUploadedImage } = useChat();
   const [isLoading, setIsLoading] = useState(false);
 
   /**
@@ -56,13 +56,13 @@ const MetaMessage = ({ messageId, metadata }) => {
 
     setIsLoading(true);
 
-    const data = await fileEndpoints.uploadFiles(files)
+    const data = await fileEndpoints.uploadFiles(files);
 
-    setIsLoading(false)
+    setIsLoading(false);
 
-    sendUploadedImage(data['files'])
+    sendUploadedImage(data["files"]);
 
-    removeMessage(messageId)
+    removeMessage(messageId);
   };
 
   return <>{getMessageComponent(metadata)}</>;

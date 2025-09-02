@@ -54,6 +54,45 @@ export const ChatProvider = ({ children }) => {
           },
         });
 
+        // addNewMessage({
+        //   type: "image",
+        //   images: [
+        //     // {
+        //     //   filename: "4K-Minimalist-Best-Wallpaper-82737.jpg",
+        //     //   storage_path:
+        //     //     "D:\\projects\\ai-chatbot\\storage/uploads\\5d53aa8c995945789afa7a8e3235f3f2.jpg",
+        //     //   url: "http://127.0.0.1:8090/files/5d53aa8c995945789afa7a8e3235f3f2.jpg",
+        //     // },
+        //     // {
+        //     //   filename:
+        //     //     "dark-gaming-3840-x-2160-wallpaper-9dy7kwu8sgqtx7vv.jpg",
+        //     //   storage_path:
+        //     //     "D:\\projects\\ai-chatbot\\storage/uploads\\cc318f3c9e074a9499c4edf38939d713.jpg",
+        //     //   url: "http://127.0.0.1:8090/files/cc318f3c9e074a9499c4edf38939d713.jpg",
+        //     // },
+        //     {
+        //       filename:
+        //         "digital-digital-art-artwork-night-city-hd-wallpaper-preview.jpg",
+        //       storage_path:
+        //         "D:\\projects\\ai-chatbot\\storage/uploads\\f1dd1381ebc54451a7ba0944f567055e.jpg",
+        //       url: "http://127.0.0.1:8090/files/f1dd1381ebc54451a7ba0944f567055e.jpg",
+        //     },
+        //     // {
+        //     //   filename: "photo_2025-06-11_21-17-02.jpg",
+        //     //   storage_path:
+        //     //     "D:\\projects\\ai-chatbot\\storage/uploads\\d11be1659d3046e58175d6dacbfdb134.jpg",
+        //     //   url: "http://127.0.0.1:8090/files/d11be1659d3046e58175d6dacbfdb134.jpg",
+        //     // },
+        //     // {
+        //     //   filename: "wp6076938.jpg",
+        //     //   storage_path:
+        //     //     "D:\\projects\\ai-chatbot\\storage/uploads\\04bc2d0ba7c04c86a451256fb8767ec8.jpg",
+        //     //   url: "http://127.0.0.1:8090/files/04bc2d0ba7c04c86a451256fb8767ec8.jpg",
+        //     // },
+        //   ],
+        //   timestamp: new Date(),
+        // });
+
         // setOptionMessageTriggered(true);
       };
 
@@ -164,17 +203,7 @@ export const ChatProvider = ({ children }) => {
       const messages = await response.json();
 
       if (Array.isArray(messages)) {
-        const transformedMessages = messages.map((msg) => ({
-          id: uuidv4(),
-          type: msg.role === "user" ? "question" : "answer",
-          text: msg.role === "user" ? msg.body : undefined,
-          answer: msg.role === "assistant" ? msg.body : undefined,
-          timestamp: new Date(msg.created_at),
-        }));
-
-        const reversedMessages = dataNormalizer(
-          [...transformedMessages].reverse()
-        );
+        const reversedMessages = dataNormalizer([...messages].reverse());
 
         if (offset === 0) {
           setHistory(reversedMessages);
@@ -228,8 +257,9 @@ export const ChatProvider = ({ children }) => {
   const sendMessage = async (text) => {
     if (socketRef.current) {
       const userMessage = {
-        type: "question",
-        text,
+        type: "text",
+        body: text,
+        role: "user",
         timestamp: new Date(),
       };
 
@@ -237,8 +267,8 @@ export const ChatProvider = ({ children }) => {
 
       socketRef.current.send(
         JSON.stringify({
-          event: "message",
-          text: text,
+          event: "text",
+          text,
         })
       );
     }
@@ -253,16 +283,19 @@ export const ChatProvider = ({ children }) => {
     if (socketRef.current) {
       const userMessage = {
         type: "image",
-        images: images,
+        body: JSON.stringify(images),
+        role: "user",
         timestamp: new Date(),
       };
 
-      addNewMessage(userMessage);
+      setTimeout(() => {
+        addNewMessage(userMessage);
+      }, 50);
 
       socketRef.current.send(
         JSON.stringify({
-          event: "upload",
-          files: images
+          event: "image",
+          files: images,
         })
       );
     }
@@ -287,6 +320,8 @@ export const ChatProvider = ({ children }) => {
   const addNewMessage = (messageData) => {
     messageData.id = uuidv4();
 
+    console.log(messageData);
+
     setHistory((prev) => ({
       ids: [...prev.ids, messageData.id],
       entities: { ...prev.entities, [messageData.id]: messageData },
@@ -304,8 +339,6 @@ export const ChatProvider = ({ children }) => {
   const updateMessage = (id, data) => {
     setHistory((prev) => {
       if (!prev.entities[id]) return prev; // no such message
-
-      console.log(prev.entities[id].answer);
 
       return {
         ids: [...prev.ids],

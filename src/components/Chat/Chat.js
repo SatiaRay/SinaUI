@@ -14,7 +14,7 @@ import { logDOM } from "@testing-library/react";
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const processingMessageId = useRef(null)
+  const processingMessageId = useRef(null);
 
   const navigate = useNavigate();
 
@@ -104,6 +104,7 @@ const Chat = ({ item }) => {
   const triggerOptionHandler = (optionInfo) => {
     const optionMessage = {
       type: "option",
+      role: "assistance",
       metadata: optionInfo,
       timestamp: new Date(),
     };
@@ -154,7 +155,7 @@ const Chat = ({ item }) => {
         const lastIndex = updated.length - 1;
         updated[lastIndex] = {
           ...updated[lastIndex],
-          answer: inCompatibleMessage,
+          body: inCompatibleMessage,
         };
         return updated;
       });
@@ -219,15 +220,14 @@ const Chat = ({ item }) => {
 
     if (!processingMessageId.current) {
       const messageId = addNewMessage({
-        type: "answer",
-        answer: "",
-        sources: [],
+        type: "text",
+        body: "",
+        role: "assistance",
         timestamp: new Date(),
       });
 
-      processingMessageId.current = messageId
+      processingMessageId.current = messageId;
     }
-
 
     let delta = data.message;
     inCompatibleMessage += delta;
@@ -237,14 +237,18 @@ const Chat = ({ item }) => {
     } else if (isInsideTable) {
       bufferedTable += delta;
     } else {
-      updateMessage(processingMessageId.current, { answer: inCompatibleMessage });
+      updateMessage(processingMessageId.current, {
+        body: inCompatibleMessage,
+      });
       return;
     }
     if (isInsideTable) {
       const openTableTags = (bufferedTable.match(/<table/g) || []).length;
       const closeTableTags = (bufferedTable.match(/<\/table>/g) || []).length;
       if (openTableTags === closeTableTags && openTableTags > 0) {
-        updateMessage(processingMessageId.current, { answer: inCompatibleMessage });
+        updateMessage(processingMessageId.current, {
+          body: inCompatibleMessage,
+        });
         bufferedTable = "";
         isInsideTable = false;
       } else {
@@ -255,10 +259,7 @@ const Chat = ({ item }) => {
           if (lastOpenTrIndex !== -1) {
             const partialMessage = bufferedTable.substring(0, lastOpenTrIndex);
             updateMessage(processingMessageId.current, {
-              answer: inCompatibleMessage.replace(
-                bufferedTable,
-                partialMessage
-              ),
+              body: inCompatibleMessage.replace(bufferedTable, partialMessage),
             });
           }
           return;
@@ -270,7 +271,7 @@ const Chat = ({ item }) => {
             lastCompleteRowIndex + 5
           );
           updateMessage(processingMessageId.current, {
-            answer: inCompatibleMessage.replace(bufferedTable, partialTable),
+            body: inCompatibleMessage.replace(bufferedTable, partialTable),
           });
         }
       }
@@ -281,10 +282,10 @@ const Chat = ({ item }) => {
    * Handle message finished event
    */
   const finishMessageHandler = () => {
-    processingMessageId.current = null
+    processingMessageId.current = null;
     setChatLoading(false);
     if (isInsideTable && bufferedTable) {
-      updateMessage(item.id, { answer: inCompatibleMessage });
+      updateMessage(item.id, { body: inCompatibleMessage });
       bufferedTable = "";
       isInsideTable = false;
     }
@@ -315,7 +316,7 @@ const Chat = ({ item }) => {
           history.ids.map((id) => (
             <div
               key={id}
-              className="mb-4 transition-[height] duration-300 ease-in-out"
+              className="mb-4 transition-[height] duration-300 ease-in-out grid"
             >
               <Message messageId={id} data={history.entities[id]} />
             </div>

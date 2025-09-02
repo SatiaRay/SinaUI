@@ -1,4 +1,4 @@
-import Dropzone from "../../../../../ui/Dropzone";
+import Dropzone from "../../../../../../ui/Dropzone";
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 
