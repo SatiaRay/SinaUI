@@ -60,7 +60,7 @@ const MetaMessage = ({ messageId, metadata }) => {
 
     setIsLoading(false)
 
-    sendUploadedImage(data)
+    sendUploadedImage(data['files'])
 
     removeMessage(messageId)
   };
