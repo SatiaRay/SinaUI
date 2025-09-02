@@ -7,34 +7,6 @@ import OptionMessage from "./OptionMessage";
 import ImageMessage from "./ImageMessage";
 
 const Message = ({ messageId, data }) => {
-  const [copiedMessageId, setCopiedMessageId] = useState(null);
-
-  /**
-   * Copy answer message text to device clipboard
-   *
-   * @param {string} textToCopy
-   * @param {int} messageId
-   */
-  const handleCopyAnswer = (textToCopy, messageId) => {
-    const temp = document.createElement("div");
-    temp.innerHTML = textToCopy;
-    const plainText = temp.textContent || temp.innerText || "";
-
-    copyToClipboard(plainText)
-      .then(() => {
-        setCopiedMessageId(messageId);
-        notify.success("متن کپی شد!", {
-          autoClose: 1000,
-          position: "top-left",
-        });
-
-        setTimeout(() => setCopiedMessageId(null), 4000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy:", err);
-      });
-  };
-
   return (
     <>
       {(() => {
