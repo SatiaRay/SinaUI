@@ -23,7 +23,7 @@ const ImageMessage = ({ data }) => {
       {imageCount === 1 && (
         <div className="rounded-lg overflow-hidden">
           <img
-            src={images[0].url}
+            src={`${process.env.REACT_APP_CHAT_API_URL}${images[0].url}`}
             alt={images[0].filename}
             className="w-full h-auto object-cover"
           />
@@ -35,7 +35,7 @@ const ImageMessage = ({ data }) => {
           {images.map((img, idx) => (
             <img
               key={idx}
-              src={img.url}
+              src={`${process.env.REACT_APP_CHAT_API_URL}${img.url}`}
               alt={img.filename}
               className="w-full h-full object-cover"
             />
@@ -50,7 +50,7 @@ const ImageMessage = ({ data }) => {
             {images.slice(0, 2).map((img, idx) => (
               <img
                 key={idx}
-                src={img.url}
+                src={`${process.env.REACT_APP_CHAT_API_URL}${img.url}`}
                 alt={img.filename}
                 className="w-full h-full object-cover"
               />
@@ -59,7 +59,7 @@ const ImageMessage = ({ data }) => {
           {/* Bottom row - 1 image full width */}
           <div>
             <img
-              src={images[2].url}
+              src={`${process.env.REACT_APP_CHAT_API_URL}${images[2].url}`}
               alt={images[2].filename}
               className="w-full h-full object-cover"
             />
@@ -72,7 +72,7 @@ const ImageMessage = ({ data }) => {
           {displayedImages.map((img, idx) => (
             <div key={idx} className="relative">
               <img
-                src={img.url}
+                src={`${process.env.REACT_APP_CHAT_API_URL}${img.url}`}
                 alt={img.filename}
                 className="w-full h-full object-cover"
               />
