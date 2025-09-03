@@ -29,10 +29,20 @@ const Chat = ({ item }) => {
   const initialMessageAddedRef = useRef(false);
   const textRef = useRef(null);
   const [copiedMessageId, setCopiedMessageId] = useState(null);
+  const chatLoadingRef = useRef(chatLoading);
+  const timeoutRef = useRef(null); // old timeout, for compatibility
+  const initialResponseTimeoutRef = useRef(null); // 1-minute timeout for initial bot response
+  const deltaTimeoutRef = useRef(null); // 10-second timeout between deltas
 
   let inCompatibleMessage = "";
   let bufferedTable = "";
   let isInsideTable = false;
+
+  // Update chatLoadingRef whenever chatLoading changes
+  useEffect(() => {
+      chatLoadingRef.current = chatLoading;
+  }, [chatLoading]);
+
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -43,6 +53,38 @@ const Chat = ({ item }) => {
       ["clean"],
     ],
   };
+
+    /** Reset chat state to initial state */
+    const resetChatState = () => {
+        setChatLoading(false);
+
+        if (isInsideTable && bufferedTable) {
+            setHistory((prev) => {
+                const updated = [...prev];
+                const lastIndex = updated.length - 1;
+                updated[lastIndex] = {...updated[lastIndex], answer: inCompatibleMessage};
+                return updated;
+            });
+            bufferedTable = "";
+            isInsideTable = false;
+        }
+
+        inCompatibleMessage = "";
+        initialMessageAddedRef.current = false;
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+        if (initialResponseTimeoutRef.current) {
+            clearTimeout(initialResponseTimeoutRef.current);
+            initialResponseTimeoutRef.current = null;
+        }
+        if (deltaTimeoutRef.current) {
+            clearTimeout(deltaTimeoutRef.current);
+            deltaTimeoutRef.current = null;
+        }
+    };
 
   /**
    * OnMount
@@ -58,11 +100,15 @@ const Chat = ({ item }) => {
 
     // init socket connection
     connectSocket(sessionId);
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (initialResponseTimeoutRef.current) clearTimeout(initialResponseTimeoutRef.current);
+      if (deltaTimeoutRef.current) clearTimeout(deltaTimeoutRef.current);
+    };
   }, []);
 
-  useEffect(() => {
-    return renderMessageLinks();
-  }, [history]);
+
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -76,14 +122,10 @@ const Chat = ({ item }) => {
     }
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
-  /**
-   * Trigger scroll to button fuction on history loading or change history length
-   */
-  useEffect(() => {
-    if (!historyLoading && history.length > 0) {
-      setTimeout(scrollToBottom, 100);
-    }
-  }, [historyLoading, history.length]);
+    /** Render links in chat messages safely */
+    useEffect(() => {
+        return renderMessageLinks();
+    }, [history]);
 
   /**
    * render chat messages links
@@ -237,25 +279,9 @@ const Chat = ({ item }) => {
       if (data.event) {
         switch (data.event) {
           case "finished":
-            setChatLoading(false);
-            if (isInsideTable && bufferedTable) {
-              setHistory((prev) => {
-                const updated = [...prev];
-                const lastIndex = updated.length - 1;
-                updated[lastIndex] = {
-                  ...updated[lastIndex],
-                  answer: inCompatibleMessage,
-                };
-                return updated;
-              });
-              bufferedTable = "";
-              isInsideTable = false;
-            }
-
-            inCompatibleMessage = "";
+          resetChatState();
             break;
-
-          case "delta":
+            case "delta":
             handleDeltaResponse(event);
             break;
         }
@@ -271,21 +297,7 @@ const Chat = ({ item }) => {
    * @param {object} event
    */
   const socketOnCloseHandler = (event) => {
-    setChatLoading(false);
-    if (isInsideTable && bufferedTable) {
-      setHistory((prev) => {
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
-        updated[lastIndex] = {
-          ...updated[lastIndex],
-          answer: inCompatibleMessage,
-        };
-        return updated;
-      });
-      bufferedTable = "";
-      isInsideTable = false;
-    }
-    setChatLoading(false);
+      resetChatState();
   };
 
   /**
@@ -296,7 +308,7 @@ const Chat = ({ item }) => {
   const socketOnErrorHandler = (event) => {
     console.error("WebSocket error:", error);
     setError("خطا در ارتباط با سرور");
-    setChatLoading(false);
+    resetChatState();
   };
 
   /**
@@ -305,7 +317,7 @@ const Chat = ({ item }) => {
    * @returns sent message object
    */
   const sendMessage = async (text) => {
-
+        if (!text.trim()) return;
     const currentQuestion = text;
 
     setQuestion("");
@@ -329,34 +341,31 @@ const Chat = ({ item }) => {
       })
     );
     setChatLoading(true);
+      // 1-minute timeout: If bot does not respond at all
+    if (initialResponseTimeoutRef.current) clearTimeout(initialResponseTimeoutRef.current);
+    initialResponseTimeoutRef.current = setTimeout(() => {
+        notify.error("مشکلی پیش امده لطفا بعدا تلاش نمایید.", {
+            autoClose: 4000, position: "top-left",
+        });
+        resetChatState();
+    }, 60000);
+
+    // Clear delta timeout if any
+    if (deltaTimeoutRef.current) {
+        clearTimeout(deltaTimeoutRef.current);
+        deltaTimeoutRef.current = null;
+    }
+    
   };
+
 
   const handleDeltaResponse = (event) => {
     const data = JSON.parse(event.data);
-
-    try {
-      if (data.event === "finished") {
-        if (isInsideTable && bufferedTable) {
-          setHistory((prev) => {
-            const updated = [...prev];
-            const lastIndex = updated.length - 1;
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-              answer: inCompatibleMessage,
-            };
-            return updated;
-          });
-          bufferedTable = "";
-          isInsideTable = false;
-        }
-        setChatLoading(false);
-
-        inCompatibleMessage = "";
-        return;
-      }
-    } catch (e) {}
-
     if (!initialMessageAddedRef.current) {
+         if (initialResponseTimeoutRef.current) {
+          clearTimeout(initialResponseTimeoutRef.current);
+          initialResponseTimeoutRef.current = null;
+      }
       const botMessage = {
         type: "answer",
         answer: "",
@@ -367,6 +376,12 @@ const Chat = ({ item }) => {
       initialMessageAddedRef.current = true;
       setChatLoading(true);
     }
+
+        // Reset 10-second delta timeout on each delta
+    if (deltaTimeoutRef.current) clearTimeout(deltaTimeoutRef.current);
+    deltaTimeoutRef.current = setTimeout(() => {
+        resetChatState(); // 10-second timeout between deltas
+    }, 10000);
 
     let delta = data.message;
 
@@ -700,7 +715,6 @@ const Chat = ({ item }) => {
             <LucideAudioLines size={22} />
           </button>
         </div>
-        )
       </div>
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
