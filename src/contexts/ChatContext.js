@@ -40,65 +40,8 @@ export const ChatProvider = ({ children }) => {
     if (!socketRef.current) {
       const sessionId = getSessionId();
 
-      const test = async () => {
-        // load chat history
-        await loadHistory(sessionId);
+      loadHistory(sessionId);
 
-        addNewMessage({
-          type: "option",
-          metadata: {
-            event: "trigger",
-            option: "upload",
-            upload_type: "image",
-            caption: "لطفا تصویر خودرو خود را بارگزاری کنید.",
-          },
-        });
-
-        // addNewMessage({
-        //   type: "image",
-        //   images: [
-        //     // {
-        //     //   filename: "4K-Minimalist-Best-Wallpaper-82737.jpg",
-        //     //   storage_path:
-        //     //     "D:\\projects\\ai-chatbot\\storage/uploads\\5d53aa8c995945789afa7a8e3235f3f2.jpg",
-        //     //   url: "http://127.0.0.1:8090/files/5d53aa8c995945789afa7a8e3235f3f2.jpg",
-        //     // },
-        //     // {
-        //     //   filename:
-        //     //     "dark-gaming-3840-x-2160-wallpaper-9dy7kwu8sgqtx7vv.jpg",
-        //     //   storage_path:
-        //     //     "D:\\projects\\ai-chatbot\\storage/uploads\\cc318f3c9e074a9499c4edf38939d713.jpg",
-        //     //   url: "http://127.0.0.1:8090/files/cc318f3c9e074a9499c4edf38939d713.jpg",
-        //     // },
-        //     {
-        //       filename:
-        //         "digital-digital-art-artwork-night-city-hd-wallpaper-preview.jpg",
-        //       storage_path:
-        //         "D:\\projects\\ai-chatbot\\storage/uploads\\f1dd1381ebc54451a7ba0944f567055e.jpg",
-        //       url: "http://127.0.0.1:8090/files/f1dd1381ebc54451a7ba0944f567055e.jpg",
-        //     },
-        //     // {
-        //     //   filename: "photo_2025-06-11_21-17-02.jpg",
-        //     //   storage_path:
-        //     //     "D:\\projects\\ai-chatbot\\storage/uploads\\d11be1659d3046e58175d6dacbfdb134.jpg",
-        //     //   url: "http://127.0.0.1:8090/files/d11be1659d3046e58175d6dacbfdb134.jpg",
-        //     // },
-        //     // {
-        //     //   filename: "wp6076938.jpg",
-        //     //   storage_path:
-        //     //     "D:\\projects\\ai-chatbot\\storage/uploads\\04bc2d0ba7c04c86a451256fb8767ec8.jpg",
-        //     //   url: "http://127.0.0.1:8090/files/04bc2d0ba7c04c86a451256fb8767ec8.jpg",
-        //     // },
-        //   ],
-        //   timestamp: new Date(),
-        // });
-
-        // setOptionMessageTriggered(true);
-      };
-
-      test();
-
-      // load root wizards
       loadRootWizards();
 
       // init socket connection
