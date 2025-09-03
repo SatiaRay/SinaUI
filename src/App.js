@@ -13,24 +13,24 @@ import {
   DocumentIndex,
   DomainIndex,
   EditDocument,
-} from './components/Chat/Document';
-import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
-import EditInstruction from './components/Chat/Instruction/EditInstruction';
-import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
-import Status1 from './components/Chat/Status';
-import Wizard from './components/Chat/Wizard';
-import Login from './components/Login';
-import Navbar from './components/Navbar';
-import PrivateRoute from './components/PrivateRoute';
-import Workflow from './components/Workflow/WorkflowIndex';
-import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
-import { AuthProvider } from './contexts/AuthContext';
-import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
-import VoiceAgentConversation from './pages/VoiceAgentConversation';
-import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
-import { getVersion } from './utils/apis';
-import Register from './components/register';
-import Setting from './pages/setting';
+} from "./components/Chat/Document";
+import CreateInstruction from "./components/Chat/Instruction/CreateInstruction";
+import EditInstruction from "./components/Chat/Instruction/EditInstruction";
+import InstructionIndex from "./components/Chat/Instruction/InstructionIndex";
+import Status1 from "./components/Chat/Status";
+import Wizard from "./components/Chat/Wizard";
+import Login from "./components/Login";
+import Navbar from "./components/Navbar";
+import PrivateRoute from "./components/PrivateRoute";
+import Workflow from "./components/Workflow/WorkflowIndex";
+import WorkflowEditor from "./components/Workflow/editor/WorkflowEditor";
+import { AuthProvider } from "./contexts/AuthContext";
+import { VoiceAgentProvider } from "./contexts/VoiceAgentContext";
+import VoiceAgentConversation from "./pages/VoiceAgentConversation";
+import AiToolsFunctionTester from "./pages/AiToolsFunctionTester";
+import { getVersion } from "./utils/apis";
+import Register from "./components/register";
+import Setting from "./pages/setting";
 
 function App() {
   return (
@@ -69,13 +69,12 @@ function AppContent() {
       {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
       <div
-        className={`transition-all duration-300 ${
-          showNavbar
-            ? sidebarCollapsed
-              ? 'md:mr-0'
-              : 'md:mr-64'
-            : 'flex items-center justify-center'
-        }`}
+        className={`transition-all duration-300 ${showNavbar
+          ? sidebarCollapsed
+            ? "md:mr-0"
+            : "md:mr-64"
+          : "flex items-center justify-center"
+          }`}
       >
         {privateRoutes()}
       </div>
@@ -103,7 +102,9 @@ function privateRoutes() {
             path=""
             element={
               <PrivateRoute>
-                <Chat />
+                <ChatProvider>
+                  <Chat />
+                </ChatProvider>
               </PrivateRoute>
             }
           />
