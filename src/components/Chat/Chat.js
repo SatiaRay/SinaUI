@@ -106,7 +106,7 @@ const Chat = ({ item }) => {
       type: "option",
       role: "assistance",
       metadata: optionInfo,
-      timestamp: new Date(),
+      created_at: (new Date()).toISOString().slice(0, 19),
     };
     addNewMessage(optionMessage);
     setOptionMessageTriggered(true);
@@ -223,7 +223,7 @@ const Chat = ({ item }) => {
         type: "text",
         body: "",
         role: "assistance",
-        timestamp: new Date(),
+        created_at: (new Date()).toISOString().slice(0, 19),
       });
 
       processingMessageId.current = messageId;
