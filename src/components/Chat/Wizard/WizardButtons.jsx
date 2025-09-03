@@ -1,5 +1,5 @@
-import React from "react";
-import WizardButton from "./WizardButton";
+import React from 'react';
+import WizardButton from './WizardButton';
 
 const WizardButtons = ({ wizards, onWizardSelect }) => {
   return (

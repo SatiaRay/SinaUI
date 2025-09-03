@@ -1,11 +1,11 @@
 export const formatTimestamp = (
   timestamp,
   format = {
-    hour: "2-digit",
-    minute: "2-digit",
+    hour: '2-digit',
+    minute: '2-digit',
   }
 ) => {
-  return new Date(timestamp).toLocaleTimeString("fa-IR", format);
+  return new Date(timestamp).toLocaleTimeString('fa-IR', format);
 };
 
 export const copyToClipboard = (text) => {
@@ -18,9 +18,9 @@ export const copyToClipboard = (text) => {
  * @returns {string} The plain text content with all tags removed.
  */
 export const stripHtmlTags = (html) => {
-  if (typeof html !== "string") return "";
+  if (typeof html !== 'string') return '';
   return html
-    .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
     .trim();
 };

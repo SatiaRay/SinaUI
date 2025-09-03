@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 const WizardButton = ({ wizard, onWizardClick }) => {
   const [error, setError] = useState(null);
@@ -9,7 +9,7 @@ const WizardButton = ({ wizard, onWizardClick }) => {
         `${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}?enable_only=true`
       );
       if (!response.ok) {
-        throw new Error("خطا در دریافت محتوای ویزارد");
+        throw new Error('خطا در دریافت محتوای ویزارد');
       }
       const data = await response.json();
       onWizardClick(data);

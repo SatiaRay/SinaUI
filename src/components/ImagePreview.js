@@ -1,7 +1,17 @@
 import React from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 
-const ImagePreview = ({ images, currentIndex, onClose, onPrevious, onNext }) => {
+const ImagePreview = ({
+  images,
+  currentIndex,
+  onClose,
+  onPrevious,
+  onNext,
+}) => {
   if (!images || images.length === 0) return null;
 
   return (
@@ -22,9 +32,11 @@ const ImagePreview = ({ images, currentIndex, onClose, onPrevious, onNext }) => 
 
       <div className="relative max-w-4xl max-h-[80vh] mx-4">
         <img
-          src={typeof images[currentIndex] === 'string' 
-            ? images[currentIndex] 
-            : `http://localhost:8000/storage/${images[currentIndex].image_path}`}
+          src={
+            typeof images[currentIndex] === 'string'
+              ? images[currentIndex]
+              : `http://localhost:8000/storage/${images[currentIndex].image_path}`
+          }
           alt={`تصویر ${currentIndex + 1}`}
           className="max-w-full max-h-[80vh] object-contain"
         />
@@ -43,4 +55,4 @@ const ImagePreview = ({ images, currentIndex, onClose, onPrevious, onNext }) => 
   );
 };
 
-export default ImagePreview; 
+export default ImagePreview;

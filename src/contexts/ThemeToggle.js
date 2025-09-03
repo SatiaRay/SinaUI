@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 const ThemeToggle = () => {
@@ -11,7 +10,7 @@ const ThemeToggle = () => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
 
     const editorWrappers = document.querySelectorAll('.ckeditor-wrapper');
-    editorWrappers.forEach(wrapper => {
+    editorWrappers.forEach((wrapper) => {
       wrapper.classList.toggle('dark', theme === 'dark');
     });
 
@@ -21,7 +20,6 @@ const ThemeToggle = () => {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-
   };
 
   return (
@@ -29,7 +27,9 @@ const ThemeToggle = () => {
       onClick={toggleTheme}
       className="p-1 rounded-lg border dark:hover:bg-gray-600 transition-colors duration-200"
       title={theme === 'light' ? 'تغییر به حالت تاریک' : 'تغییر به حالت روشن'}
-      aria-label={theme === 'light' ? 'تغییر به حالت تاریک' : 'تغییر به حالت روشن'}
+      aria-label={
+        theme === 'light' ? 'تغییر به حالت تاریک' : 'تغییر به حالت روشن'
+      }
     >
       {theme === 'light' ? (
         <svg

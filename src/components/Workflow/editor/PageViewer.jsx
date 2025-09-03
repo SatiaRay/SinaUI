@@ -30,7 +30,7 @@ const PageViewer = ({ pageConfig, onClose }) => {
             </svg>
           </button>
         </div>
-        
+
         <div className="flex-1 overflow-hidden">
           <iframe
             src={pageConfig.pageUrl}
@@ -43,4 +43,4 @@ const PageViewer = ({ pageConfig, onClose }) => {
   );
 };
 
-export default PageViewer; 
+export default PageViewer;

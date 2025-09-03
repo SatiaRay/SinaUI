@@ -1,6 +1,6 @@
-import { useEffect, useReducer, useRef, useState } from "react";
-import { sockets } from "../../utils/sockets";
-import { BounceLoader, ScaleLoader } from "react-spinners";
+import { useEffect, useReducer, useRef, useState } from 'react';
+import { sockets } from '../../utils/sockets';
+import { BounceLoader, ScaleLoader } from 'react-spinners';
 
 const VoiceBtn = ({ onTranscribe }) => {
   const recorderRef = useRef(null);
@@ -16,19 +16,19 @@ const VoiceBtn = ({ onTranscribe }) => {
   const [state, dispatch] = useReducer(
     (state, action) => {
       switch (action.type) {
-        case "START_RECORDING":
+        case 'START_RECORDING':
           if (state.isRecording || action.recorder == null) return state;
 
-          if (action.recorder.state == "inactive") {
+          if (action.recorder.state == 'inactive') {
             action.recorder.start();
           }
 
           return { ...state, isRecording: true, recorder: action.recorder };
 
-        case "STOP_RECORDING":
+        case 'STOP_RECORDING':
           if (state.recorder == null) return state;
 
-          if (state.recorder.state == "recording") {
+          if (state.recorder.state == 'recording') {
             state.recorder.stop();
             setIsLoading(true);
           }
@@ -63,12 +63,11 @@ const VoiceBtn = ({ onTranscribe }) => {
       return;
     }
 
-    const blob = new Blob(chunks, { type: "audio/webm" });
+    const blob = new Blob(chunks, { type: 'audio/webm' });
     chunks = [];
 
     const reader = new FileReader();
     reader.onloadend = () => {
-
       if (
         socketRef.current &&
         socketRef.current.readyState === WebSocket.OPEN
@@ -76,9 +75,8 @@ const VoiceBtn = ({ onTranscribe }) => {
         setTimeout(() => {
           socketRef.current.send(reader.result);
         }, 4000);
-
       } else {
-        console.error("WebSocket is not open. Cannot send audio data.");
+        console.error('WebSocket is not open. Cannot send audio data.');
         setIsLoading(false);
       }
     };
@@ -91,8 +89,8 @@ const VoiceBtn = ({ onTranscribe }) => {
 
   const handleVoiceClick = async () => {
     if (state.isRecording) {
-      dispatch({ type: "STOP_RECORDING" });
-      setIsLoading(true)
+      dispatch({ type: 'STOP_RECORDING' });
+      setIsLoading(true);
     } else {
       if (!checkMicSupport()) return;
 
@@ -101,8 +99,8 @@ const VoiceBtn = ({ onTranscribe }) => {
       if (!stream) return;
 
       recorderRef.current = recorderFactory(stream);
-      setIsLoading(false)
-      dispatch({ type: "START_RECORDING", recorder: recorderRef.current });
+      setIsLoading(false);
+      dispatch({ type: 'START_RECORDING', recorder: recorderRef.current });
     }
   };
 
@@ -115,7 +113,6 @@ const VoiceBtn = ({ onTranscribe }) => {
 
     recorder.onstop = () => {
       sendAudioData();
-
     };
 
     return recorder;
@@ -131,7 +128,7 @@ const VoiceBtn = ({ onTranscribe }) => {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       return true;
     } else {
-      console.log("getUserMedia not supported on your browser!");
+      console.log('getUserMedia not supported on your browser!');
       return false;
     }
   };
@@ -147,7 +144,7 @@ const VoiceBtn = ({ onTranscribe }) => {
       })
 
       .catch((err) => {
-        alert("Microphone permission is required to use voice input.");
+        alert('Microphone permission is required to use voice input.');
 
         console.error(`The following getUserMedia error occurred: ${err}`);
 
@@ -172,11 +169,7 @@ const VoiceBtn = ({ onTranscribe }) => {
           className="mb-1 ml-0.5"
         />
       ) : state.isRecording ? (
-        <BounceLoader
-          color="red"
-          size={18}
-          className="mb-1 ml-0.5"
-        />
+        <BounceLoader color="red" size={18} className="mb-1 ml-0.5" />
       ) : (
         <svg
           xmlns="http://www.w3.org/2000/svg"

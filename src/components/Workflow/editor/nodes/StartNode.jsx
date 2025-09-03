@@ -29,12 +29,21 @@ const StartNode = ({ data }) => {
         </div>
         <div className="ml-2">
           <div className="text-lg font-bold">{data.label}</div>
-          <div className="text-gray-500 text-sm break-words" style={{ maxWidth: '250px' }}>{data.description}</div>
+          <div
+            className="text-gray-500 text-sm break-words"
+            style={{ maxWidth: '250px' }}
+          >
+            {data.description}
+          </div>
         </div>
       </div>
-      <Handle type="source" position={Position.Right} className="w-16 !bg-green-500" />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-16 !bg-green-500"
+      />
     </div>
   );
 };
 
-export default memo(StartNode); 
+export default memo(StartNode);
