@@ -31,6 +31,7 @@ import AiToolsFunctionTester from "./pages/AiToolsFunctionTester";
 import { getVersion } from "./utils/apis";
 import Register from "./components/register";
 import Setting from "./pages/setting";
+import { ChatProvider } from "./contexts/ChatContext";
 
 function App() {
   return (
@@ -69,12 +70,13 @@ function AppContent() {
       {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
       <div
-        className={`transition-all duration-300 ${showNavbar
-          ? sidebarCollapsed
-            ? "md:mr-0"
-            : "md:mr-64"
-          : "flex items-center justify-center"
-          }`}
+        className={`transition-all duration-300 ${
+          showNavbar
+            ? sidebarCollapsed
+              ? "md:mr-0"
+              : "md:mr-64"
+            : "flex items-center justify-center"
+        }`}
       >
         {privateRoutes()}
       </div>
@@ -99,7 +101,9 @@ function privateRoutes() {
             path=""
             element={
               <PrivateRoute>
-                <Chat />
+                <ChatProvider>
+                  <Chat />
+                </ChatProvider>
               </PrivateRoute>
             }
           />
