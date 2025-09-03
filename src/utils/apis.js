@@ -72,7 +72,6 @@ export const getVersion = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/version`);
     return response.data;
-
   } catch (error) {
     console.error("Error get version:", error);
     throw error;
@@ -343,5 +342,25 @@ export const voiceAgentEndpoints = {
       throw error;
     }
   },
+};
 
+export const fileEndpoints = {
+  uploadFiles: async (files) => {
+    try {
+      const formData = new FormData();
+
+      // Append all files under the same key "files"
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      const URL = `${BASE_URL}/files/upload`;
+      const response = await axios.post(URL, formData);
+      return response.data;
+    } catch (error) {
+      alert("Upload failed");
+      console.error("Error upload files:", error);
+      throw error;
+    }
+  },
 };
