@@ -36,7 +36,7 @@ const Chat = ({ item }) => {
     history,
     chatContainerRef,
     chatEndRef,
-    sendMessage: contextSendMessage,
+    sendMessage,
     handleWizardSelect,
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
@@ -196,7 +196,7 @@ const Chat = ({ item }) => {
    * @param {String} text
    */
   const sendMessageDecorator = async (text) => {
-    await contextSendMessage(text);
+    await sendMessage(text);
     setQuestion('');
     setError(null);
 
