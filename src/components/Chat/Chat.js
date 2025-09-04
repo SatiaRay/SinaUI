@@ -1,19 +1,19 @@
-import { LucideAudioLines } from "lucide-react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FaRobot } from "react-icons/fa";
-import "react-quill/dist/quill.snow.css";
-import { useNavigate } from "react-router-dom";
-import { BeatLoader } from "react-spinners";
-import { notify } from "../../ui/toast";
-import VoiceBtn from "./VoiceBtn";
-import { WizardButtons } from "./Wizard/";
-import TextInputWithBreaks from "../../ui/textArea";
-import Message from "../ui/chat/message/Message";
-import { useChat } from "../../contexts/ChatContext";
-import { copyToClipboard } from "../../utils/helpers";
+import { LucideAudioLines } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FaRobot } from 'react-icons/fa';
+import 'react-quill/dist/quill.snow.css';
+import { useNavigate } from 'react-router-dom';
+import { BeatLoader } from 'react-spinners';
+import { notify } from '../../ui/toast';
+import VoiceBtn from './VoiceBtn';
+import { WizardButtons } from './Wizard/';
+import TextInputWithBreaks from '../../ui/textArea';
+import Message from '../ui/chat/message/Message';
+import { useChat } from '../../contexts/ChatContext';
+import { copyToClipboard } from '../../utils/helpers';
 
 const Chat = ({ item }) => {
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const processingMessageId = useRef(null);
   const chatLoadingRef = useRef(chatLoading);
@@ -36,7 +36,7 @@ const Chat = ({ item }) => {
     history,
     chatContainerRef,
     chatEndRef,
-    sendMessage: contextSendMessage,
+    sendMessage,
     handleWizardSelect,
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
@@ -64,14 +64,14 @@ const Chat = ({ item }) => {
   }, [history]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatLoading]);
 
   useEffect(() => {
     const container = chatContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
@@ -91,10 +91,10 @@ const Chat = ({ item }) => {
    */
   const renderMessageLinks = () => {
     const timer = setTimeout(() => {
-      const chatLinks = document.querySelectorAll(".chat-message a");
+      const chatLinks = document.querySelectorAll('.chat-message a');
       chatLinks.forEach((link) => {
-        link.setAttribute("target", "_blank");
-        link.setAttribute("rel", "noopener noreferrer");
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
       });
     }, 100);
     return () => clearTimeout(timer);
@@ -105,8 +105,8 @@ const Chat = ({ item }) => {
    */
   const triggerOptionHandler = (optionInfo) => {
     const optionMessage = {
-      type: "option",
-      role: "assistance",
+      type: 'option',
+      role: 'assistance',
       metadata: optionInfo,
       created_at: new Date().toISOString().slice(0, 19),
     };
@@ -123,16 +123,16 @@ const Chat = ({ item }) => {
       const data = JSON.parse(event.data);
       if (data.event) {
         switch (data.event) {
-          case "loading":
+          case 'loading':
             setChatLoading(true);
             break;
-          case "trigger":
+          case 'trigger':
             triggerOptionHandler(data);
             break;
-          case "delta":
+          case 'delta':
             handleDeltaResponse(event);
             break;
-          case "finished":
+          case 'finished':
             finishMessageHandler();
             break;
           default:
@@ -140,7 +140,7 @@ const Chat = ({ item }) => {
         }
       }
     } catch (e) {
-      console.log("Error on message event", e);
+      console.log('Error on message event', e);
     }
   };
 
@@ -157,8 +157,8 @@ const Chat = ({ item }) => {
    * @param {object} event
    */
   const socketOnErrorHandler = (event) => {
-    console.error("WebSocket error:", error);
-    setError("خطا در ارتباط با سرور");
+    console.error('WebSocket error:', error);
+    setError('خطا در ارتباط با سرور');
     resetChatState();
   };
 
@@ -173,11 +173,11 @@ const Chat = ({ item }) => {
           body: inCompatibleMessage,
         });
       }
-      bufferedTable = "";
+      bufferedTable = '';
       isInsideTable = false;
     }
 
-    inCompatibleMessage = "";
+    inCompatibleMessage = '';
     initialMessageAddedRef.current = false;
 
     if (initialResponseTimeoutRef.current) {
@@ -196,13 +196,13 @@ const Chat = ({ item }) => {
    * @param {String} text
    */
   const sendMessageDecorator = async (text) => {
-    await contextSendMessage(text);
-    setQuestion("");
+    await sendMessage(text);
+    setQuestion('');
     setError(null);
 
     initialMessageAddedRef.current = false;
-    inCompatibleMessage = "";
-    bufferedTable = "";
+    inCompatibleMessage = '';
+    bufferedTable = '';
     isInsideTable = false;
 
     setChatLoading(true);
@@ -211,9 +211,9 @@ const Chat = ({ item }) => {
     if (initialResponseTimeoutRef.current)
       clearTimeout(initialResponseTimeoutRef.current);
     initialResponseTimeoutRef.current = setTimeout(() => {
-      notify.error("مشکلی پیش امده لطفا بعدا تلاش نمایید.", {
+      notify.error('مشکلی پیش امده لطفا بعدا تلاش نمایید.', {
         autoClose: 4000,
-        position: "top-left",
+        position: 'top-left',
       });
       resetChatState();
     }, 60000);
@@ -226,8 +226,8 @@ const Chat = ({ item }) => {
   };
 
   // Internal variables (not stateful)
-  let inCompatibleMessage = "";
-  let bufferedTable = "";
+  let inCompatibleMessage = '';
+  let bufferedTable = '';
   let isInsideTable = false;
 
   /**
@@ -235,7 +235,7 @@ const Chat = ({ item }) => {
    */
   const scrollToBottom = () => {
     if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -254,9 +254,9 @@ const Chat = ({ item }) => {
 
     if (!processingMessageId.current) {
       const messageId = addNewMessage({
-        type: "text",
-        body: "",
-        role: "assistant",
+        type: 'text',
+        body: '',
+        role: 'assistant',
         created_at: new Date().toISOString().slice(0, 19),
       });
 
@@ -271,7 +271,7 @@ const Chat = ({ item }) => {
 
     let delta = data.message;
     inCompatibleMessage += delta;
-    if (inCompatibleMessage.includes("<table")) {
+    if (inCompatibleMessage.includes('<table')) {
       isInsideTable = true;
       bufferedTable += delta;
     } else if (isInsideTable) {
@@ -289,13 +289,13 @@ const Chat = ({ item }) => {
         updateMessage(processingMessageId.current, {
           body: inCompatibleMessage,
         });
-        bufferedTable = "";
+        bufferedTable = '';
         isInsideTable = false;
       } else {
         const openTrTags = (bufferedTable.match(/<tr>/g) || []).length;
         const closeTrTags = (bufferedTable.match(/<\/tr>/g) || []).length;
         if (openTrTags > closeTrTags) {
-          const lastOpenTrIndex = bufferedTable.lastIndexOf("<tr>");
+          const lastOpenTrIndex = bufferedTable.lastIndexOf('<tr>');
           if (lastOpenTrIndex !== -1) {
             const partialMessage = bufferedTable.substring(0, lastOpenTrIndex);
             updateMessage(processingMessageId.current, {
@@ -304,7 +304,7 @@ const Chat = ({ item }) => {
           }
           return;
         }
-        const lastCompleteRowIndex = bufferedTable.lastIndexOf("</tr>");
+        const lastCompleteRowIndex = bufferedTable.lastIndexOf('</tr>');
         if (lastCompleteRowIndex !== -1) {
           const partialTable = bufferedTable.substring(
             0,
@@ -326,10 +326,10 @@ const Chat = ({ item }) => {
     setChatLoading(false);
     if (isInsideTable && bufferedTable) {
       updateMessage(processingMessageId.current, { body: inCompatibleMessage });
-      bufferedTable = "";
+      bufferedTable = '';
       isInsideTable = false;
     }
-    inCompatibleMessage = "";
+    inCompatibleMessage = '';
 
     // Clear timeouts
     if (initialResponseTimeoutRef.current) {
@@ -349,18 +349,18 @@ const Chat = ({ item }) => {
    * @param {string} messageId
    */
   const handleCopyAnswer = (textToCopy, messageId) => {
-    const temp = document.createElement("div");
+    const temp = document.createElement('div');
     temp.innerHTML = textToCopy;
-    const plainText = temp.textContent || temp.innerText || "";
+    const plainText = temp.textContent || temp.innerText || '';
     copyToClipboard(plainText)
       .then(() => {
-        notify.success("متن کپی شد!", {
+        notify.success('متن کپی شد!', {
           autoClose: 1000,
-          position: "top-left",
+          position: 'top-left',
         });
       })
       .catch((err) => {
-        console.error("Failed to copy:", err);
+        console.error('Failed to copy:', err);
       });
   };
 
@@ -369,7 +369,7 @@ const Chat = ({ item }) => {
       <div
         ref={chatContainerRef}
         className="flex-1 scrollbar-hidden overflow-y-auto mb-4 space-y-4"
-        style={{ height: "calc(100vh - 200px)" }}
+        style={{ height: 'calc(100vh - 200px)' }}
       >
         {historyLoading && (
           <div className="flex items-center justify-center p-4">
@@ -439,12 +439,12 @@ const Chat = ({ item }) => {
           />
           <div
             className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-              question.trim() ? "hidden" : ""
+              question.trim() ? 'hidden' : ''
             }`}
           >
             <VoiceBtn onTranscribe={setQuestion} />
             <button
-              onClick={() => navigate("/voice-agent")}
+              onClick={() => navigate('/voice-agent')}
               className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
             >
               <LucideAudioLines size={22} />
