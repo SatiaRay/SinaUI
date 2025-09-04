@@ -4,21 +4,18 @@ import { FaRobot } from 'react-icons/fa';
 import 'react-quill/dist/quill.snow.css';
 import { useNavigate } from 'react-router-dom';
 import { BeatLoader } from 'react-spinners';
-import { v4 as uuidv4 } from 'uuid';
 import { notify } from '../../ui/toast';
-import { getWebSocketUrl } from '../../utils/websocket';
 import VoiceBtn from './VoiceBtn';
 import { WizardButtons } from './Wizard/';
 import TextInputWithBreaks from '../../ui/textArea';
 import Message from '../ui/chat/message/Message';
 import { useChat } from '../../contexts/ChatContext';
-import { logDOM } from '@testing-library/react';
-import { copyToClipboard, stripHtmlTags } from '../../utils/helpers';
+import { copyToClipboard } from '../../utils/helpers';
+
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const processingMessageId = useRef(null);
-  const [copiedMessageId, setCopiedMessageId] = useState(null);
   const chatLoadingRef = useRef(chatLoading);
   const initialResponseTimeoutRef = useRef(null);
   const deltaTimeoutRef = useRef(null);
@@ -37,12 +34,10 @@ const Chat = ({ item }) => {
     optionMessageTriggered,
     setOptionMessageTriggered,
     history,
-    setHistory,
     chatContainerRef,
     chatEndRef,
     sendMessage: contextSendMessage,
     handleWizardSelect,
-    registerSocketOnOpenHandler,
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
@@ -54,17 +49,13 @@ const Chat = ({ item }) => {
   useEffect(() => {
     chatLoadingRef.current = chatLoading;
   }, [chatLoading]);
+
   /**
    * Register custom chat socket event handlers
    */
   useEffect(() => {
-    // On CLOSE
     registerSocketOnCloseHandler(socketOnCloseHandler);
-
-    // on MESSAGE
     registerSocketOnMessageHandler(socketOnMessageHandler);
-
-    // on ERROR
     registerSocketOnErrorHandler(socketOnErrorHandler);
   }, []);
 
@@ -149,7 +140,6 @@ const Chat = ({ item }) => {
         }
       }
     } catch (e) {
-      // eslint-disable-next-line
       console.log('Error on message event', e);
     }
   };
@@ -167,7 +157,6 @@ const Chat = ({ item }) => {
    * @param {object} event
    */
   const socketOnErrorHandler = (event) => {
-    // eslint-disable-next-line
     console.error('WebSocket error:', error);
     setError('خطا در ارتباط با سرور');
     resetChatState();
@@ -365,12 +354,10 @@ const Chat = ({ item }) => {
     const plainText = temp.textContent || temp.innerText || '';
     copyToClipboard(plainText)
       .then(() => {
-        setCopiedMessageId(messageId);
         notify.success('متن کپی شد!', {
           autoClose: 1000,
           position: 'top-left',
         });
-        setTimeout(() => setCopiedMessageId(null), 4000);
       })
       .catch((err) => {
         console.error('Failed to copy:', err);
@@ -407,7 +394,6 @@ const Chat = ({ item }) => {
                 messageId={id}
                 data={history.entities[id]}
                 onCopyAnswer={handleCopyAnswer}
-                copiedMessageId={copiedMessageId}
               />
             </div>
           ))
