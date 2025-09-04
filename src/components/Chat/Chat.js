@@ -1,19 +1,16 @@
-import { LucideAudioLines } from 'lucide-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FaRobot } from 'react-icons/fa';
-import 'react-quill/dist/quill.snow.css';
-import { useNavigate } from 'react-router-dom';
-import { BeatLoader } from 'react-spinners';
-import { v4 as uuidv4 } from 'uuid';
-import { notify } from '../../ui/toast';
-import { getWebSocketUrl } from '../../utils/websocket';
-import VoiceBtn from './VoiceBtn';
-import { WizardButtons } from './Wizard/';
-import TextInputWithBreaks from '../../ui/textArea';
-import Message from '../ui/chat/message/Message';
-import { useChat } from '../../contexts/ChatContext';
-import { logDOM } from '@testing-library/react';
-import { copyToClipboard, stripHtmlTags } from '../../utils/helpers';
+import { LucideAudioLines } from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FaRobot } from "react-icons/fa";
+import "react-quill/dist/quill.snow.css";
+import { useNavigate } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
+import VoiceBtn from "./VoiceBtn";
+import { WizardButtons } from "./Wizard/";
+import TextInputWithBreaks from "../../ui/textArea";
+import Message from "../ui/chat/message/Message";
+import { useChat } from "../../contexts/ChatContext";
+import { logDOM } from "@testing-library/react";
+
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
@@ -132,13 +129,20 @@ const Chat = ({ item }) => {
       const data = JSON.parse(event.data);
       if (data.event) {
         switch (data.event) {
-          case 'loading':
+<<<<<<<<< Temporary merge branch 1
+          case "finished":
+          resetChatState();
+            break;
+            case "delta":
+=========
+          case "loading":
             setChatLoading(true);
             break;
           case 'trigger':
             triggerOptionHandler(data);
             break;
-          case 'delta':
+          case "delta":
+>>>>>>>>> Temporary merge branch 2
             handleDeltaResponse(event);
             break;
           case 'finished':
@@ -173,42 +177,15 @@ const Chat = ({ item }) => {
     resetChatState();
   };
 
-  /** Reset chat state to initial state */
-  const resetChatState = () => {
-    setChatLoading(false);
-
-    if (isInsideTable && bufferedTable) {
-      const lastMessageId = history.ids[history.ids.length - 1];
-      if (lastMessageId) {
-        updateMessage(lastMessageId, {
-          body: inCompatibleMessage,
-        });
-      }
-      bufferedTable = '';
-      isInsideTable = false;
-    }
-
-    inCompatibleMessage = '';
-    initialMessageAddedRef.current = false;
-
-    if (initialResponseTimeoutRef.current) {
-      clearTimeout(initialResponseTimeoutRef.current);
-      initialResponseTimeoutRef.current = null;
-    }
-    if (deltaTimeoutRef.current) {
-      clearTimeout(deltaTimeoutRef.current);
-      deltaTimeoutRef.current = null;
-    }
-  };
-
   /**
    * Send message to the socket channel
    *
    * @param {String} text
    */
   const sendMessageDecorator = async (text) => {
-    await contextSendMessage(text);
-    setQuestion('');
+    await sendMessage(text);
+>>>>>>>>> Temporary merge branch 2
+    setQuestion("");
     setError(null);
 
     initialMessageAddedRef.current = false;
@@ -222,11 +199,10 @@ const Chat = ({ item }) => {
     if (initialResponseTimeoutRef.current)
       clearTimeout(initialResponseTimeoutRef.current);
     initialResponseTimeoutRef.current = setTimeout(() => {
-      notify.error('مشکلی پیش امده لطفا بعدا تلاش نمایید.', {
-        autoClose: 4000,
-        position: 'top-left',
-      });
-      resetChatState();
+        notify.error("مشکلی پیش امده لطفا بعدا تلاش نمایید.", {
+            autoClose: 4000, position: "top-left",
+        });
+        resetChatState();
     }, 60000);
 
     // Clear delta timeout if any
@@ -265,10 +241,10 @@ const Chat = ({ item }) => {
 
     if (!processingMessageId.current) {
       const messageId = addNewMessage({
-        type: 'text',
-        body: '',
-        role: 'assistant',
-        created_at: new Date().toISOString().slice(0, 19),
+        type: "text",
+        body: "",
+        role: "assistance",
+        created_at: (new Date()).toISOString().slice(0, 19),
       });
 
       processingMessageId.current = messageId;
@@ -336,45 +312,11 @@ const Chat = ({ item }) => {
     processingMessageId.current = null;
     setChatLoading(false);
     if (isInsideTable && bufferedTable) {
-      updateMessage(processingMessageId.current, { body: inCompatibleMessage });
-      bufferedTable = '';
+      updateMessage(item.id, { body: inCompatibleMessage });
+      bufferedTable = "";
       isInsideTable = false;
     }
-    inCompatibleMessage = '';
-
-    // Clear timeouts
-    if (initialResponseTimeoutRef.current) {
-      clearTimeout(initialResponseTimeoutRef.current);
-      initialResponseTimeoutRef.current = null;
-    }
-    if (deltaTimeoutRef.current) {
-      clearTimeout(deltaTimeoutRef.current);
-      deltaTimeoutRef.current = null;
-    }
-  };
-
-  /**
-   * Copy answer message text to device clipboard
-   *
-   * @param {string} textToCopy
-   * @param {string} messageId
-   */
-  const handleCopyAnswer = (textToCopy, messageId) => {
-    const temp = document.createElement('div');
-    temp.innerHTML = textToCopy;
-    const plainText = temp.textContent || temp.innerText || '';
-    copyToClipboard(plainText)
-      .then(() => {
-        setCopiedMessageId(messageId);
-        notify.success('متن کپی شد!', {
-          autoClose: 1000,
-          position: 'top-left',
-        });
-        setTimeout(() => setCopiedMessageId(null), 4000);
-      })
-      .catch((err) => {
-        console.error('Failed to copy:', err);
-      });
+    inCompatibleMessage = "";
   };
 
   return (
@@ -427,6 +369,7 @@ const Chat = ({ item }) => {
         onWizardSelect={handleWizardSelect}
         wizards={currentWizards}
       />
+
 
       {!optionMessageTriggered && (
         <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">

@@ -202,8 +202,8 @@ export const ChatProvider = ({ children }) => {
       const userMessage = {
         type: 'text',
         body: text,
-        role: 'user',
-        created_at: new Date().toISOString().slice(0, 19),
+        role: "user",
+        created_at: (new Date()).toISOString().slice(0, 19),
       };
 
       addNewMessage(userMessage);
