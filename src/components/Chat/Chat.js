@@ -14,7 +14,7 @@ import { logDOM } from "@testing-library/react";
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const [loadingCaption, setLoadingCaption] = useState(null);
+  const [loadingCaption, setLoadingCaption] = useState("null");
   const processingMessageId = useRef(null);
 
   const navigate = useNavigate();
@@ -114,7 +114,7 @@ const Chat = ({ item }) => {
       type: "option",
       role: "assistance",
       metadata: optionInfo,
-      created_at: (new Date()).toISOString().slice(0, 19),
+      created_at: new Date().toISOString().slice(0, 19),
     };
     addNewMessage(optionMessage);
     setOptionMessageTriggered(true);
@@ -241,7 +241,7 @@ const Chat = ({ item }) => {
         type: "text",
         body: "",
         role: "assistance",
-        created_at: (new Date()).toISOString().slice(0, 19),
+        created_at: new Date().toISOString().slice(0, 19),
       });
 
       processingMessageId.current = messageId;
@@ -343,13 +343,13 @@ const Chat = ({ item }) => {
         {chatLoading && (
           <div className="text-white grid justify-end text-end">
             <div className="flex items-center justify-end p-1 gap-1 text-end">
-              <BeatLoader size={9} color="#808080" />
+              <small className="dark:text-gray-500 text-gray-400 mx-1 italic">
+                {loadingCaption}
+              </small>
+              <BeatLoader size={9} color="#808080" className="ml-1" />
               <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
                 <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
               </span>
-            </div>
-            <div className="dark:text-gray-500 text-gray-400 p-1 italic">
-              <small>{loadingCaption}</small>
             </div>
           </div>
         )}
