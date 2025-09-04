@@ -1,6 +1,6 @@
-import { formatTimestamp, copyToClipboard } from "../../../../../utils/helpers";
-import { notify } from "../../../../../ui/toast";
-import React, { useRef, useState } from "react";
+import { formatTimestamp, copyToClipboard } from '../../../../../utils/helpers';
+import { notify } from '../../../../../ui/toast';
+import React, { useRef, useState } from 'react';
 
 const AnswerMessage = ({ data, messageId }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
@@ -13,22 +13,22 @@ const AnswerMessage = ({ data, messageId }) => {
    * @param {int} messageId
    */
   const handleCopyAnswer = (textToCopy, messageId) => {
-    const temp = document.createElement("div");
+    const temp = document.createElement('div');
     temp.innerHTML = textToCopy;
-    const plainText = temp.textContent || temp.innerText || "";
+    const plainText = temp.textContent || temp.innerText || '';
 
     copyToClipboard(plainText)
       .then(() => {
         setCopiedMessageId(messageId);
-        notify.success("متن کپی شد!", {
+        notify.success('متن کپی شد!', {
           autoClose: 1000,
-          position: "top-left",
+          position: 'top-left',
         });
 
         setTimeout(() => setCopiedMessageId(null), 4000);
       })
       .catch((err) => {
-        console.error("Failed to copy:", err);
+        console.error('Failed to copy:', err);
       });
   };
 
@@ -47,8 +47,8 @@ const AnswerMessage = ({ data, messageId }) => {
         <pre
           ref={textRef}
           style={{
-            unicodeBidi: "plaintext",
-            direction: "rtl",
+            unicodeBidi: 'plaintext',
+            direction: 'rtl',
           }}
           className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
           dangerouslySetInnerHTML={{ __html: data.answer }}
@@ -57,7 +57,7 @@ const AnswerMessage = ({ data, messageId }) => {
           onClick={() => handleCopyAnswer(data.answer, messageId)}
           className="mt-4 flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
           style={{
-            color: copiedMessageId === messageId ? "#3dc909" : "#444",
+            color: copiedMessageId === messageId ? '#3dc909' : '#444',
           }}
         >
           {copiedMessageId === messageId ? (

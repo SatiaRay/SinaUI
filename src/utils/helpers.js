@@ -27,22 +27,22 @@ export const stripHtmlTags = (html) => {
 
 /**
  * Data normalizer
- * 
+ *
  * [{id: 1, ...}, {id: 2, ...}] => {ids: [1, 2], entities: {1: {id:1, ...}, 2: {id:2, ...}}}
- * 
+ *
  * @param {Array} dataArray which compound of objects which each self has id property
  */
 export const dataNormalizer = (dataArray) => {
-  let normalized = {ids: [], entities: {}}
+  let normalized = { ids: [], entities: {} };
 
   dataArray.map((value) => {
-    normalized.ids.push(value.id)
+    normalized.ids.push(value.id);
 
-    normalized.entities[value.id] = value
-  })
+    normalized.entities[value.id] = value;
+  });
 
-  return normalized
-}
+  return normalized;
+};
 
 /**
  * Merges two normalized objects with the structure:
@@ -82,4 +82,4 @@ export const mergeNormalized = (a, b) => {
       ...b.entities, // b overrides a if same id
     },
   };
-}
+};
