@@ -1,12 +1,12 @@
-import { createContext, useContext, useRef, useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { getWebSocketUrl } from "../utils/websocket";
+import { createContext, useContext, useRef, useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { getWebSocketUrl } from '../utils/websocket';
 import {
   dataNormalizer,
   mergeNormalized,
   packFile,
   stripHtmlTags,
-} from "../utils/helpers";
+} from '../utils/helpers';
 
 const ChatContext = createContext();
 
@@ -55,7 +55,7 @@ export const ChatProvider = ({ children }) => {
    * @param {function} handler
    */
   const registerSocketOnOpenHandler = (handler) => {
-    setHandlers((prev) => ({ ...prev, ["open"]: handler }));
+    setHandlers((prev) => ({ ...prev, ['open']: handler }));
   };
 
   /**
@@ -64,7 +64,7 @@ export const ChatProvider = ({ children }) => {
    * @param {function} handler
    */
   const registerSocketOnCloseHandler = (handler) => {
-    setHandlers((prev) => ({ ...prev, ["close"]: handler }));
+    setHandlers((prev) => ({ ...prev, ['close']: handler }));
   };
 
   /**
@@ -73,7 +73,7 @@ export const ChatProvider = ({ children }) => {
    * @param {function} handler
    */
   const registerSocketOnErrorHandler = (handler) => {
-    setHandlers((prev) => ({ ...prev, ["error"]: handler }));
+    setHandlers((prev) => ({ ...prev, ['error']: handler }));
   };
 
   /**
@@ -82,7 +82,7 @@ export const ChatProvider = ({ children }) => {
    * @param {function} handler
    */
   const registerSocketOnMessageHandler = (handler) => {
-    setHandlers((prev) => ({ ...prev, ["message"]: handler }));
+    setHandlers((prev) => ({ ...prev, ['message']: handler }));
   };
 
   /**
@@ -91,10 +91,10 @@ export const ChatProvider = ({ children }) => {
    * Creates new if not exists in local storage
    */
   const getSessionId = () => {
-    let sessionId = localStorage.getItem("chat_session_id");
+    let sessionId = localStorage.getItem('chat_session_id');
     if (!sessionId) {
       sessionId = `uuid_${uuidv4()}`;
-      localStorage.setItem("chat_session_id", sessionId);
+      localStorage.setItem('chat_session_id', sessionId);
     }
     return sessionId;
   };
@@ -108,12 +108,12 @@ export const ChatProvider = ({ children }) => {
         `${process.env.REACT_APP_CHAT_API_URL}/wizards/hierarchy/roots`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }
       );
       if (!response.ok) {
-        throw new Error("خطا در دریافت ویزاردها");
+        throw new Error('خطا در دریافت ویزاردها');
       }
       const data = await response.json();
       setRootWizards(data);
@@ -136,7 +136,7 @@ export const ChatProvider = ({ children }) => {
         `${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }
       );
@@ -157,7 +157,7 @@ export const ChatProvider = ({ children }) => {
       }
     } catch (err) {
       setError(err.message);
-      console.error("Error fetching chat history:", err);
+      console.error('Error fetching chat history:', err);
     } finally {
       setHistoryLoading(false);
     }
@@ -200,17 +200,17 @@ export const ChatProvider = ({ children }) => {
   const sendMessage = async (text) => {
     if (socketRef.current) {
       const userMessage = {
-        type: "text",
+        type: 'text',
         body: text,
-        role: "user",
-        created_at: (new Date()).toISOString().slice(0, 19),
+        role: 'user',
+        created_at: new Date().toISOString().slice(0, 19),
       };
 
       addNewMessage(userMessage);
 
       socketRef.current.send(
         JSON.stringify({
-          event: "text",
+          event: 'text',
           text,
         })
       );
@@ -225,9 +225,9 @@ export const ChatProvider = ({ children }) => {
   const sendUploadedImage = async (images) => {
     if (socketRef.current) {
       const userMessage = {
-        type: "image",
+        type: 'image',
         body: JSON.stringify(images),
-        role: "user",
+        role: 'user',
         timestamp: new Date(),
       };
 
@@ -237,7 +237,7 @@ export const ChatProvider = ({ children }) => {
 
       socketRef.current.send(
         JSON.stringify({
-          event: "image",
+          event: 'image',
           files: images,
         })
       );
@@ -314,14 +314,14 @@ export const ChatProvider = ({ children }) => {
    * @param {object} wizardData selected wizard data
    */
   const handleWizardSelect = (wizardData) => {
-    if (wizardData.wizard_type === "question") {
+    if (wizardData.wizard_type === 'question') {
       sendMessage(stripHtmlTags(wizardData.context));
       return;
     }
     setHistory((prev) => [
       ...prev,
       {
-        type: "answer",
+        type: 'answer',
         answer: wizardData.context,
         timestamp: new Date(),
       },
