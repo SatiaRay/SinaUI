@@ -4,17 +4,24 @@ import { FaRobot } from "react-icons/fa";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import { BeatLoader } from "react-spinners";
+import { v4 as uuidv4 } from "uuid";
+import { notify } from "../../ui/toast";
+import { getWebSocketUrl } from "../../utils/websocket";
 import VoiceBtn from "./VoiceBtn";
 import { WizardButtons } from "./Wizard/";
 import TextInputWithBreaks from "../../ui/textArea";
 import Message from "../ui/chat/message/Message";
 import { useChat } from "../../contexts/ChatContext";
 import { logDOM } from "@testing-library/react";
-
+import { copyToClipboard, stripHtmlTags } from "../../utils/helpers";
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const processingMessageId = useRef(null);
+  const [copiedMessageId, setCopiedMessageId] = useState(null);
+  const chatLoadingRef = useRef(chatLoading);
+  const initialResponseTimeoutRef = useRef(null);
+  const deltaTimeoutRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -33,7 +40,7 @@ const Chat = ({ item }) => {
     setHistory,
     chatContainerRef,
     chatEndRef,
-    sendMessage,
+    sendMessage: contextSendMessage,
     handleWizardSelect,
     registerSocketOnOpenHandler,
     registerSocketOnCloseHandler,
@@ -42,25 +49,13 @@ const Chat = ({ item }) => {
   } = useChat();
 
   const initialMessageAddedRef = useRef(false);
-  const textRef = useRef(null);
-  const [copiedMessageId, setCopiedMessageId] = useState(null);
 
-  let inCompatibleMessage = "";
-  let bufferedTable = "";
-  let isInsideTable = false;
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      [{ align: [] }],
-      ["link", "image"],
-      ["clean"],
-    ],
-  };
-
+  // Update chatLoadingRef whenever chatLoading changes
+  useEffect(() => {
+    chatLoadingRef.current = chatLoading;
+  }, [chatLoading]);
   /**
-   * OnMount
+   * Register custom chat socket event handlers
    */
   useEffect(() => {
     // On CLOSE
@@ -69,11 +64,13 @@ const Chat = ({ item }) => {
     // on MESSAGE
     registerSocketOnMessageHandler(socketOnMessageHandler);
 
-    // init socket connection
-    connectSocket(sessionId);
+    // on ERROR
+    registerSocketOnErrorHandler(socketOnErrorHandler);
   }, []);
 
-
+  useEffect(() => {
+    return renderMessageLinks();
+  }, [history]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -91,10 +88,10 @@ const Chat = ({ item }) => {
    * Trigger scroll to button fuction on history loading or change history length
    */
   useEffect(() => {
-    if (!historyLoading && history.length > 0) {
+    if (!historyLoading && history.ids.length > 0) {
       setTimeout(scrollToBottom, 100);
     }
-  }, [historyLoading, history.length]);
+  }, [historyLoading, history.ids.length]);
 
   /**
    * render chat messages links
@@ -120,7 +117,7 @@ const Chat = ({ item }) => {
       type: "option",
       role: "assistance",
       metadata: optionInfo,
-      created_at: (new Date()).toISOString().slice(0, 19),
+      created_at: new Date().toISOString().slice(0, 19),
     };
     addNewMessage(optionMessage);
     setOptionMessageTriggered(true);
@@ -135,25 +132,12 @@ const Chat = ({ item }) => {
       const data = JSON.parse(event.data);
       if (data.event) {
         switch (data.event) {
-          case "finished":
-            setChatLoading(false);
-            if (isInsideTable && bufferedTable) {
-              setHistory((prev) => {
-                const updated = [...prev];
-                const lastIndex = updated.length - 1;
-                updated[lastIndex] = {
-                  ...updated[lastIndex],
-                  answer: inCompatibleMessage,
-                };
-                return updated;
-              });
-              bufferedTable = "";
-              isInsideTable = false;
-            }
-
-            inCompatibleMessage = "";
+          case "loading":
+            setChatLoading(true);
             break;
-
+          case "trigger":
+            triggerOptionHandler(data);
+            break;
           case "delta":
             handleDeltaResponse(event);
             break;
@@ -175,21 +159,7 @@ const Chat = ({ item }) => {
    * @param {object} event
    */
   const socketOnCloseHandler = (event) => {
-    setChatLoading(false);
-    if (isInsideTable && bufferedTable) {
-      setHistory((prev) => {
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
-        updated[lastIndex] = {
-          ...updated[lastIndex],
-          answer: inCompatibleMessage,
-        };
-        return updated;
-      });
-      bufferedTable = "";
-      isInsideTable = false;
-    }
-    setChatLoading(false);
+    resetChatState();
   };
 
   /**
@@ -203,15 +173,41 @@ const Chat = ({ item }) => {
     resetChatState();
   };
 
+  /** Reset chat state to initial state */
+  const resetChatState = () => {
+    setChatLoading(false);
+
+    if (isInsideTable && bufferedTable) {
+      const lastMessageId = history.ids[history.ids.length - 1];
+      if (lastMessageId) {
+        updateMessage(lastMessageId, {
+          body: inCompatibleMessage,
+        });
+      }
+      bufferedTable = "";
+      isInsideTable = false;
+    }
+
+    inCompatibleMessage = "";
+    initialMessageAddedRef.current = false;
+
+    if (initialResponseTimeoutRef.current) {
+      clearTimeout(initialResponseTimeoutRef.current);
+      initialResponseTimeoutRef.current = null;
+    }
+    if (deltaTimeoutRef.current) {
+      clearTimeout(deltaTimeoutRef.current);
+      deltaTimeoutRef.current = null;
+    }
+  };
+
   /**
    * Send message to the socket channel
    *
    * @param {String} text
    */
-  const sendMessage = async (text) => {
-
-    const currentQuestion = text;
-
+  const sendMessageDecorator = async (text) => {
+    await contextSendMessage(text);
     setQuestion("");
     setError(null);
 
@@ -220,12 +216,42 @@ const Chat = ({ item }) => {
     bufferedTable = "";
     isInsideTable = false;
 
-    socketRef.current.send(
-      JSON.stringify({
-        question: currentQuestion,
-      })
-    );
     setChatLoading(true);
+
+    // 1-minute timeout: If bot does not respond at all
+    if (initialResponseTimeoutRef.current)
+      clearTimeout(initialResponseTimeoutRef.current);
+    initialResponseTimeoutRef.current = setTimeout(() => {
+      notify.error("مشکلی پیش امده لطفا بعدا تلاش نمایید.", {
+        autoClose: 4000,
+        position: "top-left",
+      });
+      resetChatState();
+    }, 60000);
+
+    // Clear delta timeout if any
+    if (deltaTimeoutRef.current) {
+      clearTimeout(deltaTimeoutRef.current);
+      deltaTimeoutRef.current = null;
+    }
+  };
+
+  // Internal variables (not stateful)
+  let inCompatibleMessage = "";
+  let bufferedTable = "";
+  let isInsideTable = false;
+
+  /**
+   * Scroll chat history to bottom to display end message
+   */
+  const scrollToBottom = () => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleScroll = () => {
+    if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
   };
 
   /**
@@ -237,44 +263,21 @@ const Chat = ({ item }) => {
   const handleDeltaResponse = (event) => {
     const data = JSON.parse(event.data);
 
-    try {
-      if (data.event === "finished") {
-        if (isInsideTable && bufferedTable) {
-          setHistory((prev) => {
-            const updated = [...prev];
-            const lastIndex = updated.length - 1;
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-              answer: inCompatibleMessage,
-            };
-            return updated;
-          });
-          bufferedTable = "";
-          isInsideTable = false;
-        }
-        setChatLoading(false);
+    if (!processingMessageId.current) {
+      const messageId = addNewMessage({
+        type: "text",
+        body: "",
+        role: "assistant",
+        created_at: new Date().toISOString().slice(0, 19),
+      });
 
-        inCompatibleMessage = "";
-        return;
-      }
-    } catch (e) {}
-
-    if (!initialMessageAddedRef.current) {
-      const botMessage = {
-        type: "answer",
-        answer: "",
-        sources: [],
-        timestamp: new Date(),
-      };
-      setHistory((prev) => [...prev, botMessage]);
-      initialMessageAddedRef.current = true;
-      setChatLoading(true);
+      processingMessageId.current = messageId;
     }
 
-        // Reset 10-second delta timeout on each delta
+    // Reset 10-second delta timeout on each delta
     if (deltaTimeoutRef.current) clearTimeout(deltaTimeoutRef.current);
     deltaTimeoutRef.current = setTimeout(() => {
-        resetChatState(); // 10-second timeout between deltas
+      resetChatState(); // 10-second timeout between deltas
     }, 10000);
 
     let delta = data.message;
@@ -333,11 +336,45 @@ const Chat = ({ item }) => {
     processingMessageId.current = null;
     setChatLoading(false);
     if (isInsideTable && bufferedTable) {
-      updateMessage(item.id, { body: inCompatibleMessage });
+      updateMessage(processingMessageId.current, { body: inCompatibleMessage });
       bufferedTable = "";
       isInsideTable = false;
     }
     inCompatibleMessage = "";
+
+    // Clear timeouts
+    if (initialResponseTimeoutRef.current) {
+      clearTimeout(initialResponseTimeoutRef.current);
+      initialResponseTimeoutRef.current = null;
+    }
+    if (deltaTimeoutRef.current) {
+      clearTimeout(deltaTimeoutRef.current);
+      deltaTimeoutRef.current = null;
+    }
+  };
+
+  /**
+   * Copy answer message text to device clipboard
+   *
+   * @param {string} textToCopy
+   * @param {string} messageId
+   */
+  const handleCopyAnswer = (textToCopy, messageId) => {
+    const temp = document.createElement("div");
+    temp.innerHTML = textToCopy;
+    const plainText = temp.textContent || temp.innerText || "";
+    copyToClipboard(plainText)
+      .then(() => {
+        setCopiedMessageId(messageId);
+        notify.success("متن کپی شد!", {
+          autoClose: 1000,
+          position: "top-left",
+        });
+        setTimeout(() => setCopiedMessageId(null), 4000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+      });
   };
 
   return (
@@ -366,7 +403,12 @@ const Chat = ({ item }) => {
               key={id}
               className="mb-4 transition-[height] duration-300 ease-in-out grid"
             >
-              <Message messageId={id} data={history.entities[id]} />
+              <Message
+                messageId={id}
+                data={history.entities[id]}
+                onCopyAnswer={handleCopyAnswer}
+                copiedMessageId={copiedMessageId}
+              />
             </div>
           ))
         )}
@@ -386,43 +428,45 @@ const Chat = ({ item }) => {
         wizards={currentWizards}
       />
 
-      <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
-        <button
-          onClick={() => sendMessage(question)}
-          onKeyDown={() => sendMessage(question)}
-          disabled={chatLoading || !question.trim()}
-          className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
-        >
-          <svg
-            className="w-6 h-6 bg-transparent"
-            fill="#2663eb"
-            viewBox="0 0 24 24"
-          >
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-          </svg>
-        </button>
-        <TextInputWithBreaks
-          value={question}
-          onChange={setQuestion}
-          onSubmit={() => sendMessage(question)}
-          disabled={chatLoading}
-          placeholder="سوال خود را بپرسید..."
-        />
-        <div
-          className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-            question.trim() ? "hidden" : ""
-          }`}
-        >
-          <VoiceBtn onTranscribe={setQuestion} />
+
+      {!optionMessageTriggered && (
+        <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
           <button
-            onClick={() => navigate("/voice-agent")}
-            className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+            onClick={() => sendMessageDecorator(question)}
+            onKeyDown={() => sendMessageDecorator(question)}
+            disabled={chatLoading || !question.trim()}
+            className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
           >
-            <LucideAudioLines size={22} />
+            <svg
+              className="w-6 h-6 bg-transparent"
+              fill="#2663eb"
+              viewBox="0 0 24 24"
+            >
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
           </button>
+          <TextInputWithBreaks
+            value={question}
+            onChange={setQuestion}
+            onSubmit={() => sendMessageDecorator(question)}
+            disabled={chatLoading}
+            placeholder="سوال خود را بپرسید..."
+          />
+          <div
+            className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
+              question.trim() ? "hidden" : ""
+            }`}
+          >
+            <VoiceBtn onTranscribe={setQuestion} />
+            <button
+              onClick={() => navigate("/voice-agent")}
+              className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+            >
+              <LucideAudioLines size={22} />
+            </button>
+          </div>
         </div>
-        )
-      </div>
+      )}
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
   );
