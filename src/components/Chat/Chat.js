@@ -14,6 +14,7 @@ import { logDOM } from "@testing-library/react";
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [loadingCaption, setLoadingCaption] = useState(null);
   const processingMessageId = useRef(null);
 
   const navigate = useNavigate();
@@ -74,6 +75,13 @@ const Chat = ({ item }) => {
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
   /**
+   * Reset loadingCaption state on chatLoading state change
+   */
+  useEffect(() => {
+    setLoadingCaption(null);
+  }, [chatLoading]);
+
+  /**
    * Trigger scroll to button fuction on history loading or change history length
    */
   useEffect(() => {
@@ -126,6 +134,9 @@ const Chat = ({ item }) => {
             break;
           case "trigger":
             triggerOptionHandler(data);
+            break;
+          case "call_function":
+            handleCallFunctionEvent(data);
             break;
           case "delta":
             handleDeltaResponse(event);
@@ -207,6 +218,13 @@ const Chat = ({ item }) => {
 
   const handleScroll = () => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
+  };
+
+  /**
+   * Handle call function event
+   */
+  const handleCallFunctionEvent = (data) => {
+    setLoadingCaption(data.lable);
   };
 
   /**
@@ -323,11 +341,16 @@ const Chat = ({ item }) => {
           ))
         )}
         {chatLoading && (
-          <div className="flex items-center justify-end p-1 gap-1 text-white">
-            <BeatLoader size={9} color="#808080" />
-            <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
-              <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
-            </span>
+          <div className="text-white grid justify-end text-end">
+            <div className="flex items-center justify-end p-1 gap-1 text-end">
+              <BeatLoader size={9} color="#808080" />
+              <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
+                <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
+              </span>
+            </div>
+            <div className="dark:text-gray-500 text-gray-400 p-1 italic">
+              <small>{loadingCaption}</small>
+            </div>
           </div>
         )}
         <div ref={chatEndRef} />
