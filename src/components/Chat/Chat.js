@@ -14,7 +14,7 @@ import { useChat } from "../../contexts/ChatContext";
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-
+  const [loadingCaption, setLoadingCaption] = useState("null");
   const processingMessageId = useRef(null);
   const initialResponseTimeoutRef = useRef(null);
   const deltaTimeoutRef = useRef(null);
@@ -120,7 +120,16 @@ const Chat = ({ item }) => {
     }
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
-  /** Scroll to bottom after history load */
+  /**
+   * Reset loadingCaption state on chatLoading state change
+   */
+  useEffect(() => {
+    setLoadingCaption(null);
+  }, [chatLoading]);
+
+  /**
+   * Trigger scroll to button fuction on history loading or change history length
+   */
   useEffect(() => {
     if (!historyLoading && history.ids.length > 0) {
       setTimeout(scrollToBottom, 100);
@@ -162,6 +171,9 @@ const Chat = ({ item }) => {
             break;
           case "trigger":
             triggerOptionHandler(data);
+            break;
+          case "call_function":
+            handleCallFunctionEvent(data);
             break;
           case "delta":
             handleDeltaResponse(data);
@@ -219,8 +231,22 @@ const Chat = ({ item }) => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
   };
 
-  /** Handles delta responses from assistant */
-  const handleDeltaResponse = (data) => {
+  /**
+   * Handle call function event
+   */
+  const handleCallFunctionEvent = (data) => {
+    setLoadingCaption(data.lable);
+  };
+
+  /**
+   * Handles delta response buffers
+   *
+   * @param {object} event
+   * @returns null|object
+   */
+  const handleDeltaResponse = (event) => {
+    const data = JSON.parse(event.data);
+
     if (!processingMessageId.current) {
       processingMessageId.current = addNewMessage({
         type: "text",
@@ -324,11 +350,16 @@ const Chat = ({ item }) => {
 
         {/* Loading bot response */}
         {chatLoading && (
-          <div className="flex items-center justify-end p-1 gap-1 text-white">
-            <BeatLoader size={9} color="#808080" />
-            <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
-              <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
-            </span>
+          <div className="text-white grid justify-end text-end">
+            <div className="flex items-center justify-end p-1 gap-1 text-end">
+              <small className="dark:text-gray-500 text-gray-400 mx-1 italic">
+                {loadingCaption}
+              </small>
+              <BeatLoader size={9} color="#808080" className="ml-1" />
+              <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
+                <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
+              </span>
+            </div>
           </div>
         )}
 
