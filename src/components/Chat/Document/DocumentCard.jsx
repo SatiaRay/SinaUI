@@ -1,13 +1,13 @@
 // DocumentCard.js
-import { useState } from "react";
-import { FaTrash } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { toggleDocumentVectorStatus } from "../../../services/api";
-import { notify } from "../../../ui/toast";
+import { useState } from 'react';
+import { FaTrash } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { toggleDocumentVectorStatus } from '../../../services/api';
+import { notify } from '../../../ui/toast';
 
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const toggleVectorStatus = async () => {
     try {
@@ -17,7 +17,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
         onStatusChange(document.id, response.data.vector_id, true);
       }
     } catch (error) {
-      notify.error("Error toggling document status:", error);
+      notify.error('Error toggling document status:', error);
     } finally {
       setIsLoading(false);
     }
@@ -40,12 +40,13 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
                 toggleVectorStatus();
               }
             }}
-            className={`px-2 py-1 w-20 text-xs font-semibold rounded-full cursor-pointer flex items-center gap-1 justify-center ${isLoading
-              ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-              : document.status === 'vectorized'
-                ? "bg-green-100 text-green-800 dark:bg-green-500 dark:text-white"
-                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-              }`}
+            className={`px-2 py-1 w-20 text-xs font-semibold rounded-full cursor-pointer flex items-center gap-1 justify-center ${
+              isLoading
+                ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                : document.status === 'vectorized'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-500 dark:text-white'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            }`}
           >
             {isLoading ? (
               <>
@@ -71,22 +72,24 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
                 </svg>
               </>
             ) : document.status === 'vectorized' ? (
-              "فعال"
+              'فعال'
             ) : (
-              "غیر فعال"
+              'غیر فعال'
             )}
           </button>
         </div>
       </div>
       <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
         <div className="flex items-center gap-2 justify-between items-center py-1">
-          {document.domain_id && <div>
-            <p>آدرس:</p>
-            <p className="w-full truncate max-w-36">{document.uri} -</p>
-          </div>}
+          {document.domain_id && (
+            <div>
+              <p>آدرس:</p>
+              <p className="w-full truncate max-w-36">{document.uri} -</p>
+            </div>
+          )}
           <span className="py-1 flex gap-2 text-xs">
-            <p>  آخرین بروزرسانی:</p>
-            {new Date(document.updated_at).toLocaleDateString("fa-IR")}
+            <p> آخرین بروزرسانی:</p>
+            {new Date(document.updated_at).toLocaleDateString('fa-IR')}
           </span>
           <FaTrash
             className="text-red-500 dark:text-red-700 pb-1 box-content  px-1"
@@ -95,18 +98,17 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
               handleDelete(document.id);
             }}
           />
-
         </div>
         <div className="flex items-center gap-2 py-1 rounded-bl-xl absolute top-0 right-0 px-4 dark:bg-neutral-100 bg-gray-800">
           <span className="text-xs text-neutral-50 dark:text-gray-800">
-            نوع ربات:{" "}
-            {document.agent_type === "text_agent"
-              ? "ربات متنی"
-              : document.agent_type === "voice_agent"
-                ? "ربات صوتی"
-                : document.agent_type === "both"
-                  ? "همه"
-                  : "-"}
+            نوع ربات:{' '}
+            {document.agent_type === 'text_agent'
+              ? 'ربات متنی'
+              : document.agent_type === 'voice_agent'
+                ? 'ربات صوتی'
+                : document.agent_type === 'both'
+                  ? 'همه'
+                  : '-'}
           </span>
         </div>
       </div>

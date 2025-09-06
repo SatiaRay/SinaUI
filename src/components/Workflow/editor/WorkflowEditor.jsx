@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import ReactFlow, {
   Background,
   Controls,
@@ -11,21 +11,21 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
   useReactFlow,
-} from "reactflow";
-import "reactflow/dist/style.css";
-import { v4 as uuidv4 } from "uuid";
-import { notify } from "../../../ui/toast";
-import { aiFunctionsEndpoints, workflowEndpoints } from "../../../utils/apis";
-import ChatNoHistory from "../../Chat/ChatNoHistory";
-import NodeDetails from "./NodeDetails";
-import PageViewer from "./PageViewer";
-import WorkflowEditorSidebar from "./WorkflowEditorSidebar";
-import DecisionNode from "./nodes/DecisionNode";
-import EndNode from "./nodes/EndNode";
-import FunctionNode from "./nodes/FunctionNode";
-import ProcessNode from "./nodes/ProcessNode";
-import ResponseNode from "./nodes/ResponseNode";
-import StartNode from "./nodes/StartNode";
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { v4 as uuidv4 } from 'uuid';
+import { notify } from '../../../ui/toast';
+import { aiFunctionsEndpoints, workflowEndpoints } from '../../../utils/apis';
+import ChatNoHistory from '../../Chat/ChatNoHistory';
+import NodeDetails from './NodeDetails';
+import PageViewer from './PageViewer';
+import WorkflowEditorSidebar from './WorkflowEditorSidebar';
+import DecisionNode from './nodes/DecisionNode';
+import EndNode from './nodes/EndNode';
+import FunctionNode from './nodes/FunctionNode';
+import ProcessNode from './nodes/ProcessNode';
+import ResponseNode from './nodes/ResponseNode';
+import StartNode from './nodes/StartNode';
 const nodeTypes = {
   start: StartNode,
   process: ProcessNode,
@@ -37,16 +37,16 @@ const nodeTypes = {
 
 const initialNodes = [
   {
-    id: "1",
-    type: "start",
+    id: '1',
+    type: 'start',
     position: { x: 50, y: 250 },
     data: {
-      label: "شروع",
-      description: "نقطه شروع فرآیند",
+      label: 'شروع',
+      description: 'نقطه شروع فرآیند',
       jsonConfig: null,
       pageConfig: {
         showPage: false,
-        pageUrl: "",
+        pageUrl: '',
         closeOnAction: false,
       },
     },
@@ -64,8 +64,8 @@ const WorkflowEditorContent = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [workflowName, setWorkflowName] = useState("");
-  const [agentType, setAgentType] = useState("");
+  const [workflowName, setWorkflowName] = useState('');
+  const [agentType, setAgentType] = useState('');
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [aiFunctions, setAiFunctions] = useState([]);
   const [showChatModal, setShowChatModal] = useState(false);
@@ -73,7 +73,7 @@ const WorkflowEditorContent = () => {
 
   useEffect(() => {
     if (showChatModal) {
-      window.parent.postMessage({ type: "HIDE_NAVBAR" }, "*");
+      window.parent.postMessage({ type: 'HIDE_NAVBAR' }, '*');
     }
   }, [showChatModal]);
 
@@ -86,42 +86,42 @@ const WorkflowEditorContent = () => {
         setError(null);
         const workflow = await workflowEndpoints.getWorkflow(workflowId);
 
-        setWorkflowName(workflow.name || "");
+        setWorkflowName(workflow.name || '');
 
         setAgentType(workflow.agent_type);
 
         const workflowNodes = workflow.flow.map((step) => ({
           id: step.id,
-          type: step.type === "action" ? "process" : step.type,
+          type: step.type === 'action' ? 'process' : step.type,
           position: {
             x: step.position?.x ?? 50,
             y: step.position?.y ?? 250,
           },
           data: {
             label: step.label,
-            description: step.description || "",
+            description: step.description || '',
             conditions:
-              step.type === "decision"
+              step.type === 'decision'
                 ? (step.conditions || []).map((c) => c.label)
                 : [],
             conditionTargets:
-              step.type === "decision"
+              step.type === 'decision'
                 ? (step.conditions || []).reduce((acc, c) => {
-                  acc[c.label] = c.next;
-                  return acc;
-                }, {})
+                    acc[c.label] = c.next;
+                    return acc;
+                  }, {})
                 : {},
             jsonConfig: null,
             pageConfig: {
               showPage: false,
-              pageUrl: "",
+              pageUrl: '',
               closeOnAction: false,
             },
           },
         }));
 
         const workflowEdges = workflow.flow.reduce((acc, step) => {
-          if (step.type === "decision" && step.conditions) {
+          if (step.type === 'decision' && step.conditions) {
             step.conditions.forEach((condition) => {
               if (condition.next) {
                 acc.push({
@@ -129,9 +129,9 @@ const WorkflowEditorContent = () => {
                   source: step.id,
                   target: condition.next,
                   sourceHandle: condition.label,
-                  type: "step",
+                  type: 'step',
                   animated: true,
-                  style: { stroke: "#f59e0b" },
+                  style: { stroke: '#f59e0b' },
                 });
               }
             });
@@ -140,9 +140,9 @@ const WorkflowEditorContent = () => {
               id: `${step.id}-${step.next}`,
               source: step.id,
               target: step.next,
-              type: "step",
+              type: 'step',
               animated: true,
-              style: { stroke: "#f59e0b" },
+              style: { stroke: '#f59e0b' },
             });
           }
           return acc;
@@ -151,8 +151,8 @@ const WorkflowEditorContent = () => {
         setNodes(workflowNodes);
         setEdges(workflowEdges);
       } catch (err) {
-        console.error("Error fetching workflow:", err);
-        setError("خطا در دریافت اطلاعات گردش کار");
+        console.error('Error fetching workflow:', err);
+        setError('خطا در دریافت اطلاعات گردش کار');
       } finally {
         setLoading(false);
       }
@@ -165,11 +165,11 @@ const WorkflowEditorContent = () => {
     (params) => {
       const sourceNode = nodes.find((node) => node.id === params.source);
 
-      if (sourceNode?.type === "start") {
-        params.sourceHandle = "right";
+      if (sourceNode?.type === 'start') {
+        params.sourceHandle = 'right';
       }
 
-      if (sourceNode?.type === "decision") {
+      if (sourceNode?.type === 'decision') {
         if (
           !params.sourceHandle ||
           !sourceNode.data.conditions.includes(params.sourceHandle)
@@ -179,13 +179,13 @@ const WorkflowEditorContent = () => {
         }
       }
 
-      if (sourceNode?.type !== "decision") {
+      if (sourceNode?.type !== 'decision') {
         const existingOutgoingEdges = edges.filter(
           (edge) => edge.source === params.source
         );
         if (existingOutgoingEdges.length > 0) {
           console.warn(
-            "Only decision nodes can have multiple outgoing connections"
+            'Only decision nodes can have multiple outgoing connections'
           );
           return;
         }
@@ -195,11 +195,12 @@ const WorkflowEditorContent = () => {
         return addEdge(
           {
             ...params,
-            id: `${params.source}-${params.sourceHandle}-${params.target
-              }-${Date.now()}`,
-            type: "step",
+            id: `${params.source}-${params.sourceHandle}-${
+              params.target
+            }-${Date.now()}`,
+            type: 'step',
             animated: true,
-            style: { stroke: "#f59e0b" },
+            style: { stroke: '#f59e0b' },
           },
           eds
         );
@@ -218,7 +219,7 @@ const WorkflowEditorContent = () => {
 
   const onNodeUpdate = useCallback(
     (nodeId, newData) => {
-      console.log("Updating node:", nodeId, newData); // لاگ برای دیباگ
+      console.log('Updating node:', nodeId, newData); // لاگ برای دیباگ
       setNodes((nds) => {
         const updatedNodes = nds.map((node) => {
           if (node.id === nodeId) {
@@ -228,21 +229,21 @@ const WorkflowEditorContent = () => {
                 ...node.data,
                 ...newData,
                 conditions:
-                  newData.conditions?.filter((c) => c && c.trim() !== "") || [],
+                  newData.conditions?.filter((c) => c && c.trim() !== '') || [],
               },
             };
           }
           return node;
         });
-        console.log("Updated nodes:", updatedNodes); // لاگ برای دیباگ
+        console.log('Updated nodes:', updatedNodes); // لاگ برای دیباگ
         return updatedNodes;
       });
 
-      if (newData.type === "decision") {
+      if (newData.type === 'decision') {
         setEdges((eds) => {
           const otherEdges = eds.filter((edge) => edge.source !== nodeId);
           const newConditions =
-            newData.conditions?.filter((c) => c && c.trim() !== "") || [];
+            newData.conditions?.filter((c) => c && c.trim() !== '') || [];
           const validEdges = eds.filter(
             (edge) =>
               edge.source === nodeId &&
@@ -258,12 +259,12 @@ const WorkflowEditorContent = () => {
               source: nodeId,
               target: null,
               sourceHandle: condition,
-              type: "step",
+              type: 'step',
               animated: true,
-              style: { stroke: "#f59e0b" },
+              style: { stroke: '#f59e0b' },
             }));
 
-          console.log("Updated edges:", [
+          console.log('Updated edges:', [
             ...otherEdges,
             ...validEdges,
             ...newEdges,
@@ -280,8 +281,8 @@ const WorkflowEditorContent = () => {
       const data = await aiFunctionsEndpoints.getFunctionsMap();
       setAiFunctions(data.functions || []);
     } catch (err) {
-      console.error("Error fetching AI functions:", err);
-      notify.error("خطا در دریافت لیست توابع");
+      console.error('Error fetching AI functions:', err);
+      notify.error('خطا در دریافت لیست توابع');
     }
   }, []);
 
@@ -290,7 +291,7 @@ const WorkflowEditorContent = () => {
   }, [fetchAiFunctions]);
 
   const addNode = (type) => {
-    if (type === "function") {
+    if (type === 'function') {
       setShowFunctionModal(true);
       return;
     }
@@ -308,29 +309,29 @@ const WorkflowEditorContent = () => {
       },
       data: {
         label:
-          type === "start"
-            ? "شروع"
-            : type === "process"
-              ? "فرآیند"
-              : type === "decision"
-                ? "تصمیم"
-                : type === "function"
-                  ? "تابع"
-                  : type === "response"
-                    ? "پاسخ"
-                    : "پایان",
-        description: "",
+          type === 'start'
+            ? 'شروع'
+            : type === 'process'
+              ? 'فرآیند'
+              : type === 'decision'
+                ? 'تصمیم'
+                : type === 'function'
+                  ? 'تابع'
+                  : type === 'response'
+                    ? 'پاسخ'
+                    : 'پایان',
+        description: '',
         connections: [],
-        conditions: type === "decision" ? ["شرط پیش‌فرض"] : [],
+        conditions: type === 'decision' ? ['شرط پیش‌فرض'] : [],
         jsonConfig: null,
         pageConfig: {
           showPage: false,
-          pageUrl: "",
+          pageUrl: '',
           closeOnAction: false,
         },
       },
     };
-    console.log("Adding new node:", newNode); // لاگ برای دیباگ
+    console.log('Adding new node:', newNode); // لاگ برای دیباگ
     setNodes((nds) => [...nds, newNode]);
   };
 
@@ -341,7 +342,7 @@ const WorkflowEditorContent = () => {
 
     const newNode = {
       id: uuidv4(),
-      type: "function",
+      type: 'function',
       position: {
         x: centerX,
         y: centerY,
@@ -354,7 +355,7 @@ const WorkflowEditorContent = () => {
         jsonConfig: null,
         pageConfig: {
           showPage: false,
-          pageUrl: "",
+          pageUrl: '',
           closeOnAction: false,
         },
       },
@@ -387,7 +388,7 @@ const WorkflowEditorContent = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === "Delete") {
+      if (event.key === 'Delete') {
         if (selectedEdge) {
           setEdges((eds) => eds.filter((edge) => edge.id !== selectedEdge.id));
           setSelectedEdge(null);
@@ -398,13 +399,13 @@ const WorkflowEditorContent = () => {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedEdge, selectedNode, setEdges, deleteNode]);
 
   const generateWorkflowJson = useCallback(() => {
     const workflowschema = nodes
-      .filter((node) => node.type !== "end")
+      .filter((node) => node.type !== 'end')
       .map((node) => {
         const step = {
           id: node.id,
@@ -412,17 +413,17 @@ const WorkflowEditorContent = () => {
         };
 
         switch (node.type) {
-          case "start":
-            step.type = "start";
+          case 'start':
+            step.type = 'start';
             break;
-          case "process":
-          case "function":
-          case "response":
-            step.type = "action";
+          case 'process':
+          case 'function':
+          case 'response':
+            step.type = 'action';
             step.description = node.data.description;
             break;
-          case "decision":
-            step.type = "decision";
+          case 'decision':
+            step.type = 'decision';
             const outgoingEdges = edges.filter(
               (edge) => edge.source === node.id
             );
@@ -432,14 +433,14 @@ const WorkflowEditorContent = () => {
             }, {});
             break;
           default:
-            step.type = "unknown";
+            step.type = 'unknown';
         }
 
-        if (node.type !== "decision") {
+        if (node.type !== 'decision') {
           const outgoingEdges = edges.filter((edge) => edge.source === node.id);
           if (outgoingEdges.length > 0) {
             step.next = outgoingEdges[0].target;
-          } else if (node.type !== "end") {
+          } else if (node.type !== 'end') {
             step.next = null;
           }
         }
@@ -451,12 +452,12 @@ const WorkflowEditorContent = () => {
       schema: workflowschema,
     };
 
-    console.log("Workflow JSON:", JSON.stringify(workflowData, null, 2));
+    console.log('Workflow JSON:', JSON.stringify(workflowData, null, 2));
     return workflowData;
   }, [nodes, edges]);
 
   const executeWorkflow = async (userInput) => {
-    let currentNodeId = nodes.find((node) => node.type === "start")?.id;
+    let currentNodeId = nodes.find((node) => node.type === 'start')?.id;
     let chatHistory = [];
     let sessionId = `uuid_${uuidv4()}`;
 
@@ -465,25 +466,25 @@ const WorkflowEditorContent = () => {
       if (!currentNode) break;
 
       chatHistory.push({
-        type: "answer",
+        type: 'answer',
         answer: currentNode.data.label,
         timestamp: new Date(),
       });
 
       switch (currentNode.type) {
-        case "process":
-        case "function":
-        case "response":
+        case 'process':
+        case 'function':
+        case 'response':
           chatHistory.push({
-            type: "answer",
-            answer: currentNode.data.description || "No description",
+            type: 'answer',
+            answer: currentNode.data.description || 'No description',
             timestamp: new Date(),
           });
           currentNodeId = edges.find(
             (edge) => edge.source === currentNodeId
           )?.target;
           break;
-        case "decision":
+        case 'decision':
           const condition =
             currentNode.data.conditions.find((cond) => {
               return userInput.toLowerCase().includes(cond.toLowerCase());
@@ -494,10 +495,10 @@ const WorkflowEditorContent = () => {
           );
           currentNodeId = nextEdge?.target;
           break;
-        case "end":
+        case 'end':
           chatHistory.push({
-            type: "answer",
-            answer: "Workflow ended",
+            type: 'answer',
+            answer: 'Workflow ended',
             timestamp: new Date(),
           });
           currentNodeId = null;
@@ -515,7 +516,7 @@ const WorkflowEditorContent = () => {
       try {
         const workflowData = JSON.parse(jsonString);
         if (!workflowData.flow || !Array.isArray(workflowData.flow)) {
-          throw new Error("Invalid workflow format");
+          throw new Error('Invalid workflow format');
         }
 
         const newNodes = [];
@@ -525,34 +526,34 @@ const WorkflowEditorContent = () => {
         workflowData.flow.forEach((step, index) => {
           const node = {
             id: step.id,
-            type: step.type === "action" ? "process" : step.type,
+            type: step.type === 'action' ? 'process' : step.type,
             position: { x: index * xOffset, y: 250 },
             data: {
               label: step.label,
-              description: step.description || "",
+              description: step.description || '',
               position: step.position,
               conditions:
-                step.type === "decision"
+                step.type === 'decision'
                   ? Object.keys(step.conditions || {})
                   : [],
               jsonConfig: null,
               pageConfig: {
                 showPage: false,
-                pageUrl: "",
+                pageUrl: '',
                 closeOnAction: false,
               },
             },
           };
           newNodes.push(node);
 
-          if (step.type === "decision" && step.conditions) {
+          if (step.type === 'decision' && step.conditions) {
             Object.entries(step.conditions).forEach(([condition, targetId]) => {
               newEdges.push({
                 id: `${step.id}-${targetId}`,
                 source: step.id,
                 target: targetId,
                 sourceHandle: condition,
-                type: "step",
+                type: 'step',
               });
             });
           } else if (step.next) {
@@ -560,7 +561,7 @@ const WorkflowEditorContent = () => {
               id: `${step.id}-${step.next}`,
               source: step.id,
               target: step.next,
-              type: "step",
+              type: 'step',
             });
           }
         });
@@ -568,8 +569,8 @@ const WorkflowEditorContent = () => {
         setNodes(newNodes);
         setEdges(newEdges);
       } catch (error) {
-        console.error("Error importing workflow:", error);
-        alert("Error importing workflow: " + error.message);
+        console.error('Error importing workflow:', error);
+        alert('Error importing workflow: ' + error.message);
       }
     },
     [setNodes, setEdges]
@@ -583,7 +584,7 @@ const WorkflowEditorContent = () => {
         setError(null);
 
         if (!workflowName.trim()) {
-          notify.error("لطفا نام گردش کار را وارد کنید");
+          notify.error('لطفا نام گردش کار را وارد کنید');
           setLoading(false);
           return;
         }
@@ -600,23 +601,23 @@ const WorkflowEditorContent = () => {
             };
 
             switch (node.type) {
-              case "start":
-                step.type = "start";
+              case 'start':
+                step.type = 'start';
                 break;
-              case "process":
-                step.type = "process";
+              case 'process':
+                step.type = 'process';
                 break;
-              case "function":
-                step.type = "function";
+              case 'function':
+                step.type = 'function';
                 step.functionName = node.data.functionData?.name;
                 step.functionDescription = node.data.functionData?.description;
                 step.functionParameters = node.data.functionData?.parameters;
                 break;
-              case "response":
-                step.type = "response";
+              case 'response':
+                step.type = 'response';
                 break;
-              case "decision":
-                step.type = "decision";
+              case 'decision':
+                step.type = 'decision';
                 const outgoingEdges = edges.filter(
                   (edge) =>
                     edge.source === node.id &&
@@ -628,14 +629,14 @@ const WorkflowEditorContent = () => {
                   next: edge.target,
                 }));
                 break;
-              case "end":
-                step.type = "end";
+              case 'end':
+                step.type = 'end';
                 break;
               default:
-                step.type = "unknown";
+                step.type = 'unknown';
             }
 
-            if (node.type !== "decision" && node.type !== "end") {
+            if (node.type !== 'decision' && node.type !== 'end') {
               const outgoingEdges = edges.filter(
                 (edge) => edge.source === node.id && edge.target
               );
@@ -651,27 +652,27 @@ const WorkflowEditorContent = () => {
         };
 
         console.log(
-          "Saving workflow data:",
+          'Saving workflow data:',
           JSON.stringify(workflowData, null, 2)
         ); // لاگ برای دیباگ
 
         if (workflowId) {
           await workflowEndpoints.updateWorkflow(workflowId, workflowData);
-          notify.success("گردش کار با موفقیت بروزرسانی شد");
+          notify.success('گردش کار با موفقیت بروزرسانی شد');
         } else {
           const { id } = await workflowEndpoints.createWorkflow(workflowData);
           navigate(`/workflow/${id}`);
-          notify.success("گردش کار با موفقیت ایجاد شد");
+          notify.success('گردش کار با موفقیت ایجاد شد');
         }
 
         // به‌روزرسانی state اصلی
         setNodes(customNodes);
       } catch (err) {
-        console.error("Error saving workflow:", err);
-        setError("خطا در ذخیره گردش کار");
-        notify.error("خطا در ذخیره گردش کار");
+        console.error('Error saving workflow:', err);
+        setError('خطا در ذخیره گردش کار');
+        notify.error('خطا در ذخیره گردش کار');
         console.log(
-          "Workflow Data Sent:",
+          'Workflow Data Sent:',
           JSON.stringify(workflowData, null, 2)
         );
       } finally {
@@ -808,18 +809,18 @@ const WorkflowEditorContent = () => {
               تایید حذف
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              آیا از حذف این{" "}
-              {selectedNode.type === "start"
-                ? "شروع"
-                : selectedNode.type === "process"
-                  ? "فرآیند"
-                  : selectedNode.type === "decision"
-                    ? "تصمیم"
-                    : selectedNode.type === "function"
-                      ? "تابع"
-                      : selectedNode.type === "response"
-                        ? "پاسخ"
-                        : "پایان"}{" "}
+              آیا از حذف این{' '}
+              {selectedNode.type === 'start'
+                ? 'شروع'
+                : selectedNode.type === 'process'
+                  ? 'فرآیند'
+                  : selectedNode.type === 'decision'
+                    ? 'تصمیم'
+                    : selectedNode.type === 'function'
+                      ? 'تابع'
+                      : selectedNode.type === 'response'
+                        ? 'پاسخ'
+                        : 'پایان'}{' '}
               اطمینان دارید؟
             </p>
             <div className="flex justify-end gap-2">
@@ -847,18 +848,18 @@ const WorkflowEditorContent = () => {
       {showChatModal && (
         <div
           className="fixed inset-0 flex p-6"
-          style={{ zIndex: 10, pointerEvents: "none" }}
+          style={{ zIndex: 10, pointerEvents: 'none' }}
         >
           <div
             className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md h-full flex flex-col justify-between border border-gray-300 dark:border-gray-600"
-            style={{ pointerEvents: "auto" }}
+            style={{ pointerEvents: 'auto' }}
           >
             <div>
               <div className="flex justify-end">
                 <button
                   onClick={() => {
                     setShowChatModal(false);
-                    window.parent.postMessage({ type: "SHOW_NAVBAR" }, "*");
+                    window.parent.postMessage({ type: 'SHOW_NAVBAR' }, '*');
                   }}
                   className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
                 >
@@ -885,7 +886,7 @@ const WorkflowEditorContent = () => {
                     executeWorkflow(message).then(({ chatHistory }) => {
                       if (chatHistory.length > 0) {
                         console.log(
-                          "Latest response:",
+                          'Latest response:',
                           chatHistory[chatHistory.length - 1].answer
                         );
                       }
@@ -893,7 +894,7 @@ const WorkflowEditorContent = () => {
                   }}
                   onClose={() => {
                     setShowChatModal(false);
-                    window.parent.postMessage({ type: "SHOW_NAVBAR" }, "*");
+                    window.parent.postMessage({ type: 'SHOW_NAVBAR' }, '*');
                   }}
                 />
               </div>

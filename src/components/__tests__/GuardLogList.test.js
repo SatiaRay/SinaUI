@@ -20,27 +20,19 @@ const mockGuardLogs = [
         id: 1,
         personnel: { name: 'Guard 1' },
         pas: { name: 'Pass 1' },
-        is_present: true
-      }
-    ]
-  }
+        is_present: true,
+      },
+    ],
+  },
 ];
 
-const mockStations = [
-  { id: 1, name: 'Station 1' }
-];
+const mockStations = [{ id: 1, name: 'Station 1' }];
 
-const mockShifts = [
-  { id: 1, name: 'Shift 1' }
-];
+const mockShifts = [{ id: 1, name: 'Shift 1' }];
 
-const mockPersonnel = [
-  { id: 1, name: 'Guard 1' }
-];
+const mockPersonnel = [{ id: 1, name: 'Guard 1' }];
 
-const mockPasses = [
-  { id: 1, name: 'Pass 1' }
-];
+const mockPasses = [{ id: 1, name: 'Pass 1' }];
 
 describe('GuardLogList Component', () => {
   beforeEach(() => {
@@ -78,7 +70,7 @@ describe('GuardLogList Component', () => {
 
   test('renders guard logs list', async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.getByText('لوح نگهبانی')).toBeInTheDocument();
     });
@@ -103,8 +95,10 @@ describe('GuardLogList Component', () => {
   });
 
   test('can create new guard log', async () => {
-    axios.post.mockResolvedValueOnce({ data: { message: 'لوح نگهبانی با موفقیت ثبت شد' } });
-    
+    axios.post.mockResolvedValueOnce({
+      data: { message: 'لوح نگهبانی با موفقیت ثبت شد' },
+    });
+
     renderComponent();
 
     await waitFor(() => {
@@ -138,7 +132,7 @@ describe('GuardLogList Component', () => {
 
   test('shows error message on failed API call', async () => {
     axios.get.mockRejectedValueOnce(new Error('API Error'));
-    
+
     renderComponent();
 
     await waitFor(() => {
@@ -148,11 +142,11 @@ describe('GuardLogList Component', () => {
 
   test('can handle empty guard logs list', async () => {
     axios.get.mockResolvedValueOnce({ data: [] });
-    
+
     renderComponent();
 
     await waitFor(() => {
       expect(screen.getByText('هیچ لوح نگهبانی یافت نشد')).toBeInTheDocument();
     });
   });
-}); 
+});

@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { workflowEndpoints } from "../../utils/apis";
-import { exportWorkflow, importWorkflow } from "../../services/api";
-import CustomDropdown from "../../ui/dropdown";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { workflowEndpoints } from '../../utils/apis';
+import { exportWorkflow, importWorkflow } from '../../services/api';
+import CustomDropdown from '../../ui/dropdown';
 
 const WorkflowIndex = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
   const [workflows, setWorkflows] = useState([]);
-  const [agentType, setAgentType] = useState("");
+  const [agentType, setAgentType] = useState('');
   const [status, setStatus] = useState({ loading: true, error: null });
 
   const fetchWorkflows = useCallback(async () => {
@@ -18,22 +18,18 @@ const WorkflowIndex = () => {
       const data = await workflowEndpoints.listWorkflows(agentType);
       setWorkflows(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error fetching workflows:", err);
-      setStatus({ loading: false, error: "خطا در دریافت لیست گردش کارها" });
+      console.error('Error fetching workflows:', err);
+      setStatus({ loading: false, error: 'خطا در دریافت لیست گردش کارها' });
       return;
     }
     setStatus({ loading: false, error: null });
   }, [agentType]);
 
-
   useEffect(() => {
     fetchWorkflows();
   }, [fetchWorkflows]);
 
-
-
-
-  const handleCreate = () => navigate("/workflow/create");
+  const handleCreate = () => navigate('/workflow/create');
 
   const handleEdit = (workflowId) => {
     if (!workflowId) return;
@@ -43,7 +39,7 @@ const WorkflowIndex = () => {
   const handleDelete = async (workflowId) => {
     if (!workflowId) return;
     const confirmed = window.confirm(
-      "آیا مطمئن هستید که می‌خواهید این گردش کار را حذف کنید؟"
+      'آیا مطمئن هستید که می‌خواهید این گردش کار را حذف کنید؟'
     );
     if (!confirmed) return;
 
@@ -51,11 +47,10 @@ const WorkflowIndex = () => {
       await workflowEndpoints.deleteWorkflow(workflowId);
       fetchWorkflows();
     } catch (err) {
-      console.error("Error deleting workflow:", err);
-      setStatus((prev) => ({ ...prev, error: "خطا در حذف گردش کار" }));
+      console.error('Error deleting workflow:', err);
+      setStatus((prev) => ({ ...prev, error: 'خطا در حذف گردش کار' }));
     }
   };
-
 
   if (status.loading) {
     return (
@@ -79,22 +74,18 @@ const WorkflowIndex = () => {
     try {
       const blob = await exportWorkflow(workflowId);
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", `workflow-${workflowId}.json`);
+      link.setAttribute('download', `workflow-${workflowId}.json`);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Error downloading workflow:", err);
-      setStatus((prev) => ({ ...prev, error: "خطا در دریافت خروجی" }));
+      console.error('Error downloading workflow:', err);
+      setStatus((prev) => ({ ...prev, error: 'خطا در دریافت خروجی' }));
     }
   };
-
-
-
-
 
   const handleFileSelect = () => {
     fileInputRef.current.click();
@@ -103,25 +94,24 @@ const WorkflowIndex = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.name.endsWith(".json")) {
-      alert("لطفاً فقط فایل‌های JSON انتخاب کنید.");
+    if (!file.name.endsWith('.json')) {
+      alert('لطفاً فقط فایل‌های JSON انتخاب کنید.');
       return;
     }
 
     try {
       const result = await importWorkflow(file);
-      console.log("Import success:", result);
-      setStatus((prev) => ({ ...prev, success: "بارگذاری با موفقیت انجام شد" }));
+      console.log('Import success:', result);
+      setStatus((prev) => ({
+        ...prev,
+        success: 'بارگذاری با موفقیت انجام شد',
+      }));
       fetchWorkflows();
     } catch (err) {
-      console.error("Import failed:", err);
-      setStatus((prev) => ({ ...prev, error: "خطا در بارگذاری" }));
+      console.error('Import failed:', err);
+      setStatus((prev) => ({ ...prev, error: 'خطا در بارگذاری' }));
     }
   };
-
-
-
-
 
   return (
     <div className="container mx-auto px-4  py-12 w-full">
@@ -132,9 +122,9 @@ const WorkflowIndex = () => {
         <div className="flex items-center max-md:justify-between max-md:w-full md:gap-2 gap-1">
           <CustomDropdown
             options={[
-              { value: "", label: "همه" },
-              { value: "text_agent", label: "ربات متنی" },
-              { value: "voice_agent", label: "ربات صوتی" },
+              { value: '', label: 'همه' },
+              { value: 'text_agent', label: 'ربات متنی' },
+              { value: 'voice_agent', label: 'ربات صوتی' },
             ]}
             value={agentType}
             onChange={(val) => setAgentType(val)}
@@ -162,7 +152,6 @@ const WorkflowIndex = () => {
           >
             ایجاد گردش کار
           </button>
-
         </div>
       </div>
 
@@ -172,16 +161,14 @@ const WorkflowIndex = () => {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
             <thead className="bg-neutral-200 dark:bg-gray-700">
               <tr>
-                {["نام", "نوع ربات", "وضعیت", "عملیات", ""].map(
-                  (header) => (
-                    <th
-                      key={header}
-                      className="px-6 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      {header}
-                    </th>
-                  )
-                )}
+                {['نام', 'نوع ربات', 'وضعیت', 'عملیات', ''].map((header) => (
+                  <th
+                    key={header}
+                    className="px-6 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+                  >
+                    {header}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -196,21 +183,18 @@ const WorkflowIndex = () => {
                 </tr>
               ) : (
                 workflows.map((workflow) => (
-                  <tr
-                    key={workflow.id}
-
-                  >
+                  <tr key={workflow.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {workflow.name || "-"}
+                      {workflow.name || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {workflow.agent_type === "text_agent"
-                        ? "ربات متنی"
-                        : workflow.agent_type === "voice_agent"
-                          ? "ربات صوتی"
-                          : workflow.agent_type === "both"
-                            ? "همه"
-                            : "-"}
+                      {workflow.agent_type === 'text_agent'
+                        ? 'ربات متنی'
+                        : workflow.agent_type === 'voice_agent'
+                          ? 'ربات صوتی'
+                          : workflow.agent_type === 'both'
+                            ? 'همه'
+                            : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
@@ -246,7 +230,6 @@ const WorkflowIndex = () => {
           </table>
         </div>
       </div>
-
     </div>
   );
 };

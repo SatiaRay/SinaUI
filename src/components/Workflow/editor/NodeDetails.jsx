@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { notify } from '../../../ui/toast';
 
-const NodeDetails = ({ node, onUpdate, onClose, onDelete, saveWorkflow, nodes }) => {
+const NodeDetails = ({
+  node,
+  onUpdate,
+  onClose,
+  onDelete,
+  saveWorkflow,
+  nodes,
+}) => {
   const [details, setDetails] = useState({
     label: node.data.label || '',
     description: node.data.description || '',
@@ -29,13 +36,13 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete, saveWorkflow, nodes })
       const updatedNodes = nodes.map((n) =>
         n.id === node.id
           ? {
-            ...n,
-            data: {
-              ...n.data,
-              ...updatedData,
-              conditions: updatedData.conditions,
-            },
-          }
+              ...n,
+              data: {
+                ...n.data,
+                ...updatedData,
+                conditions: updatedData.conditions,
+              },
+            }
           : n
       );
 
@@ -107,7 +114,9 @@ const NodeDetails = ({ node, onUpdate, onClose, onDelete, saveWorkflow, nodes })
             <input
               type="text"
               value={details.label}
-              onChange={(e) => setDetails((prev) => ({ ...prev, label: e.target.value }))}
+              onChange={(e) =>
+                setDetails((prev) => ({ ...prev, label: e.target.value }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               disabled={isSaving}
             />

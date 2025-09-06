@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from 'react';
 
 const MicVisualizer = ({ children, analyser }) => {
   const canvasRef = useRef(null);
@@ -8,7 +8,7 @@ const MicVisualizer = ({ children, analyser }) => {
     if (!analyser) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
 
     // Set canvas size dynamically based on container size
     const resizeCanvas = () => {
@@ -17,7 +17,7 @@ const MicVisualizer = ({ children, analyser }) => {
       canvas.height = rect.height;
     };
     resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener('resize', resizeCanvas);
 
     const centerX = () => canvas.width / 2;
     const centerY = () => canvas.height / 2;
@@ -67,8 +67,8 @@ const MicVisualizer = ({ children, analyser }) => {
       // Inner solid circle for core glow
       ctx.beginPath();
       ctx.arc(centerX(), centerY(), baseRadius * 0.9, 0, Math.PI * 2);
-      ctx.fillStyle = "#202936d9";
-      ctx.shadowColor = "#202936f7";
+      ctx.fillStyle = '#202936d9';
+      ctx.shadowColor = '#202936f7';
       ctx.shadowBlur = 80;
       ctx.fill();
       ctx.shadowBlur = 0;
@@ -77,7 +77,7 @@ const MicVisualizer = ({ children, analyser }) => {
     draw();
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener('resize', resizeCanvas);
       if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
     };
   }, [analyser]);
@@ -85,31 +85,31 @@ const MicVisualizer = ({ children, analyser }) => {
   return (
     <div
       style={{
-        position: "relative",
-        width: "100%",
+        position: 'relative',
+        width: '100%',
         maxWidth: 320,
-        aspectRatio: "1 / 1",
-        textAlign: "center",
+        aspectRatio: '1 / 1',
+        textAlign: 'center',
       }}
     >
       <canvas
         ref={canvasRef}
         style={{
-          borderRadius: "50%",
-          width: "100%",
-          height: "100%",
-          display: "block",
-          backgroundColor: "transparent",
+          borderRadius: '50%',
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          backgroundColor: 'transparent',
         }}
       />
       <div
         style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           zIndex: 2,
-          userSelect: "none",
+          userSelect: 'none',
         }}
       >
         {children}

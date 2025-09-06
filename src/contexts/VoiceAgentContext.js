@@ -1,5 +1,5 @@
-import { RealtimeAgent, RealtimeSession } from "@openai/agents-realtime";
-import { createContext, useContext, useEffect, useState } from "react";
+import { RealtimeAgent, RealtimeSession } from '@openai/agents-realtime';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const VoiceAgentContext = createContext();
 
@@ -10,10 +10,10 @@ export function VoiceAgentProvider({ children }) {
 
   const createSession = (instruction = null, tools = []) => {
     const agent = new RealtimeAgent({
-      name: "Voice Assistant",
+      name: 'Voice Assistant',
       instructions:
         instruction ??
-        "Your task is to assist users with their queries using voice commands. Respond in a friendly and helpful manner.",
+        'Your task is to assist users with their queries using voice commands. Respond in a friendly and helpful manner.',
       tools,
     });
 
@@ -23,7 +23,7 @@ export function VoiceAgentProvider({ children }) {
 
   const connect = async (apiKey) => {
     try {
-      if (!session) throw new Error("Session not initialized");
+      if (!session) throw new Error('Session not initialized');
       await session.connect({ apiKey });
       setIsConnected(true);
     } catch (err) {
@@ -54,7 +54,7 @@ export function VoiceAgentProvider({ children }) {
 export const useVoiceAgent = () => {
   const context = useContext(VoiceAgentContext);
   if (!context) {
-    throw new Error("useVoiceAgent must be used within a VoiceAgentProvider");
+    throw new Error('useVoiceAgent must be used within a VoiceAgentProvider');
   }
   return context;
 };

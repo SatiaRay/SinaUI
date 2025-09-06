@@ -9,7 +9,6 @@ import CreateDocument from './CreateDocument';
 import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 
-
 const DocumentIndex = () => {
   const [state, setState] = useState({
     isLoading: false,
@@ -34,19 +33,25 @@ const DocumentIndex = () => {
 
   const fetchDocuments = useCallback(async () => {
     try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       const response = isManualRoute
         ? await getDocuments(
-          true,
-          state.agentType === 'text_agent' ? 'text_agent' : state.agentType || 'both',
-          state.currentPage,
-          state.pageSize
-        )
-        : await getDomainDocuments(domain_id, state.currentPage, state.pageSize);
+            true,
+            state.agentType === 'text_agent'
+              ? 'text_agent'
+              : state.agentType || 'both',
+            state.currentPage,
+            state.pageSize
+          )
+        : await getDomainDocuments(
+            domain_id,
+            state.currentPage,
+            state.pageSize
+          );
 
       if (response?.data) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           documents: response.data.items,
           totalPages: response.data.pages,
@@ -55,14 +60,20 @@ const DocumentIndex = () => {
         }));
       }
     } catch (err) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: err.message || 'دریافت اسناد با خطا مواجه شد',
         isLoading: false,
       }));
       console.error('Document fetch error:', err);
     }
-  }, [isManualRoute, state.agentType, state.currentPage, state.pageSize, domain_id]);
+  }, [
+    isManualRoute,
+    state.agentType,
+    state.currentPage,
+    state.pageSize,
+    domain_id,
+  ]);
 
   useEffect(() => {
     fetchDocuments();
@@ -70,11 +81,11 @@ const DocumentIndex = () => {
 
   const fetchDocumentContent = async (document) => {
     try {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         documentContentLoading: true,
         error: null,
-        selectedDocument: document
+        selectedDocument: document,
       }));
 
       const response = await fetch(
@@ -89,28 +100,28 @@ const DocumentIndex = () => {
       if (!response.ok) throw new Error('دریافت محتوای سند ناموفق بود');
 
       const data = await response.json();
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         documentContent: data,
-        documentContentLoading: false
+        documentContentLoading: false,
       }));
     } catch (err) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: err.message,
-        documentContentLoading: false
+        documentContentLoading: false,
       }));
       console.error('Document content fetch error:', err);
     }
   };
 
   const handlePageChange = (newPage) => {
-    setState(prev => ({ ...prev, currentPage: newPage }));
+    setState((prev) => ({ ...prev, currentPage: newPage }));
   };
 
   const handlePageSizeChange = (e) => {
     const newSize = parseInt(e.target.value);
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       pageSize: newSize,
       currentPage: 1,
@@ -118,14 +129,15 @@ const DocumentIndex = () => {
   };
 
   const handleDelete = async (documentId) => {
-    if (!window.confirm('آیا مطمئن هستید که می‌خواهید این سند را حذف کنید؟')) return;
+    if (!window.confirm('آیا مطمئن هستید که می‌خواهید این سند را حذف کنید؟'))
+      return;
 
     try {
       await documentEndpoints.deleteDocument(documentId);
-      notify.success('سند با موفقیت حذف شد')
-      fetchDocuments()
+      notify.success('سند با موفقیت حذف شد');
+      fetchDocuments();
     } catch (err) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: `حذف ناموفق بود: ${err.message || 'خطای ناشناخته'}`,
       }));
@@ -135,27 +147,27 @@ const DocumentIndex = () => {
 
   const handleStatusChange = async (documentId, newVectorId) => {
     try {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        documents: prev.documents.map(doc =>
+        documents: prev.documents.map((doc) =>
           doc.id === documentId ? { ...doc, vector_id: newVectorId } : doc
         ),
       }));
       await fetchDocuments();
     } catch (err) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: err.message || 'به‌روزرسانی وضعیت ناموفق بود'
+        error: err.message || 'به‌روزرسانی وضعیت ناموفق بود',
       }));
     }
   };
 
   const handleAddKnowledge = () => {
-    setState(prev => ({ ...prev, showAddKnowledge: true }));
+    setState((prev) => ({ ...prev, showAddKnowledge: true }));
   };
 
   const handleCloseAddKnowledge = () => {
-    setState(prev => ({ ...prev, showAddKnowledge: false }));
+    setState((prev) => ({ ...prev, showAddKnowledge: false }));
     fetchDocuments();
   };
 
@@ -174,7 +186,7 @@ const DocumentIndex = () => {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-        {state.documents.map(document => (
+        {state.documents.map((document) => (
           <DocumentCard
             key={document.id}
             document={document}
@@ -202,7 +214,7 @@ const DocumentIndex = () => {
             onChange={handlePageSizeChange}
             className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {PAGE_SIZE_OPTIONS.map(size => (
+            {PAGE_SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
@@ -213,10 +225,11 @@ const DocumentIndex = () => {
           <button
             onClick={() => handlePageChange(state.currentPage - 1)}
             disabled={state.currentPage === 1}
-            className={`px-4 py-2 rounded-lg ${state.currentPage === 1
-              ? 'bg-gray-200 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
-              }`}
+            className={`px-4 py-2 rounded-lg ${
+              state.currentPage === 1
+                ? 'bg-gray-200 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
           >
             قبلی
           </button>
@@ -226,10 +239,11 @@ const DocumentIndex = () => {
           <button
             onClick={() => handlePageChange(state.currentPage + 1)}
             disabled={state.currentPage === state.totalPages}
-            className={`px-4 py-2 rounded-lg ${state.currentPage === state.totalPages
-              ? 'bg-gray-200 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
-              }`}
+            className={`px-4 py-2 rounded-lg ${
+              state.currentPage === state.totalPages
+                ? 'bg-gray-200 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
           >
             بعدی
           </button>
@@ -266,10 +280,11 @@ const DocumentIndex = () => {
                 { value: 'voice_agent', label: 'ربات صوتی' },
               ]}
               value={state.agentType}
-              onChange={(val) => setState(prev => ({ ...prev, agentType: val }))}
+              onChange={(val) =>
+                setState((prev) => ({ ...prev, agentType: val }))
+              }
               placeholder="انتخاب نوع ربات"
             />
-
           </>
         )}
       </div>
@@ -298,12 +313,20 @@ const DocumentIndex = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[999] flex justify-center items-center">
           <div className="relative bg-white rounded-lg shadow-xl overflow-hidden max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <button
-              onClick={() => setState(prev => ({ ...prev, selectedDocument: null, documentContent: null }))}
+              onClick={() =>
+                setState((prev) => ({
+                  ...prev,
+                  selectedDocument: null,
+                  documentContent: null,
+                }))
+              }
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
               &times;
             </button>
-            <h3 className="text-xl font-bold mb-4">{state.selectedDocument.name}</h3>
+            <h3 className="text-xl font-bold mb-4">
+              {state.selectedDocument.name}
+            </h3>
             <div className="prose max-w-none">
               {typeof state.documentContent === 'object' ? (
                 <pre>{JSON.stringify(state.documentContent, null, 2)}</pre>

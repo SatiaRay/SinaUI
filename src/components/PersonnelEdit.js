@@ -9,7 +9,7 @@ const PersonnelEdit = () => {
     employee_id: '',
     role_id: '',
     email: '',
-    phone: ''
+    phone: '',
   });
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,18 +24,21 @@ const PersonnelEdit = () => {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:8000/api/personnel/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await axios.get(
+        `http://localhost:8000/api/personnel/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
       const { name, employee_id, role_id, email, phone } = response.data;
       setFormData({
         name,
         employee_id,
         role_id,
         email,
-        phone
+        phone,
       });
       setLoading(false);
     } catch (error) {
@@ -53,8 +56,8 @@ const PersonnelEdit = () => {
       const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:8000/api/roles', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       setRoles(response.data || []);
     } catch (error) {
@@ -64,9 +67,9 @@ const PersonnelEdit = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -76,16 +79,12 @@ const PersonnelEdit = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
-        `http://localhost:8000/api/personnel/${id}`,
-        formData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      await axios.put(`http://localhost:8000/api/personnel/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       navigate('/personnel');
     } catch (error) {
       console.error('Error updating personnel:', error);
@@ -149,8 +148,10 @@ const PersonnelEdit = () => {
               required
             >
               <option value="">انتخاب کنید</option>
-              {roles.map(role => (
-                <option key={role.id} value={role.id}>{role.display_name}</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.display_name}
+                </option>
               ))}
             </select>
           </div>
@@ -192,4 +193,4 @@ const PersonnelEdit = () => {
   );
 };
 
-export default PersonnelEdit; 
+export default PersonnelEdit;

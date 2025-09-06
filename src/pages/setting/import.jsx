@@ -1,9 +1,9 @@
-import { useRef, useState } from "react";
-import { uploadSystemImport } from "../../services/api";
-import { notify } from "../../ui/toast";
+import { useRef, useState } from 'react';
+import { uploadSystemImport } from '../../services/api';
+import { notify } from '../../ui/toast';
 
 export const Import = () => {
-  const [statusType, setStatusType] = useState("");
+  const [statusType, setStatusType] = useState('');
   const fileInputRef = useRef(null);
 
   const handleFileChange = async (e) => {
@@ -12,11 +12,11 @@ export const Import = () => {
 
     try {
       await uploadSystemImport(file);
-      notify.success(" آپلود با موفقیت انجام شد");
-      setStatusType("success");
+      notify.success(' آپلود با موفقیت انجام شد');
+      setStatusType('success');
     } catch (error) {
-      notify.error(" آپلود ناموفق بود");
-      setStatusType("error");
+      notify.error(' آپلود ناموفق بود');
+      setStatusType('error');
     }
   };
 

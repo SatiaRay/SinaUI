@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import CustomDropdown from "../../../ui/dropdown";
+import React, { useState } from 'react';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import CustomDropdown from '../../../ui/dropdown';
 
 const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
-  const [title, setTitle] = useState("");
-  const [context, setContext] = useState("");
-  const [wizardType, setWizardType] = useState("answer");
+  const [title, setTitle] = useState('');
+  const [context, setContext] = useState('');
+  const [wizardType, setWizardType] = useState('answer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !context.trim()) {
-      setError("لطفا تمام فیلدها را پر کنید");
+      setError('لطفا تمام فیلدها را پر کنید');
       return;
     }
 
@@ -23,21 +23,21 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
       const response = await fetch(
         `${process.env.REACT_APP_CHAT_API_URL}/wizards`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             title,
             context,
             parent_id,
-            wizard_type: wizardType
+            wizard_type: wizardType,
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error("خطا در ایجاد ویزارد");
+        throw new Error('خطا در ایجاد ویزارد');
       }
 
       const newWizard = await response.json();
@@ -47,7 +47,7 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
       onClose();
     } catch (err) {
       setError(err.message);
-      console.error("Error creating wizard:", err);
+      console.error('Error creating wizard:', err);
     } finally {
       setLoading(false);
     }
@@ -90,14 +90,14 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
           </label>
           <CustomDropdown
             options={[
-              { value: "answer", label: "جواب" },
-              { value: "question", label: "سوال" },
+              { value: 'answer', label: 'جواب' },
+              { value: 'question', label: 'سوال' },
             ]}
             value={wizardType}
             onChange={(val) => setWizardType(val)}
             placeholder="انتخاب نوع ویزارد"
-            className={"w-full"}
-            parentStyle={"w-full"}
+            className={'w-full'}
+            parentStyle={'w-full'}
           />
         </div>
 
@@ -117,63 +117,63 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
                 setContext(data);
               }}
               config={{
-                language: "fa",
-                direction: "rtl",
+                language: 'fa',
+                direction: 'rtl',
                 toolbar: {
                   items: [
-                    "heading",
-                    "|",
-                    "bold",
-                    "italic",
-                    "link",
-                    "bulletedList",
-                    "numberedList",
-                    "|",
-                    "outdent",
-                    "indent",
-                    "|",
-                    "insertTable",
-                    "undo",
-                    "redo",
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'link',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'outdent',
+                    'indent',
+                    '|',
+                    'insertTable',
+                    'undo',
+                    'redo',
                   ],
                 },
                 table: {
                   contentToolbar: [
-                    "tableColumn",
-                    "tableRow",
-                    "mergeTableCells",
-                    "tableProperties",
-                    "tableCellProperties",
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells',
+                    'tableProperties',
+                    'tableCellProperties',
                   ],
                   defaultProperties: {
-                    borderWidth: "1px",
-                    borderColor: "#ccc",
-                    borderStyle: "solid",
-                    alignment: "right",
+                    borderWidth: '1px',
+                    borderColor: '#ccc',
+                    borderStyle: 'solid',
+                    alignment: 'right',
                   },
                 },
                 htmlSupport: {
                   allow: [
                     {
-                      name: "table",
+                      name: 'table',
                       attributes: true,
                       classes: true,
                       styles: true,
                     },
                     {
-                      name: "tr",
+                      name: 'tr',
                       attributes: true,
                       classes: true,
                       styles: true,
                     },
                     {
-                      name: "td",
+                      name: 'td',
                       attributes: true,
                       classes: true,
                       styles: true,
                     },
                     {
-                      name: "th",
+                      name: 'th',
                       attributes: true,
                       classes: true,
                       styles: true,
@@ -181,7 +181,7 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
                   ],
                 },
               }}
-              style={{ direction: "rtl", textAlign: "right" }}
+              style={{ direction: 'rtl', textAlign: 'right' }}
             />
           </div>
         </div>
@@ -209,7 +209,7 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
                 در حال ایجاد...
               </>
             ) : (
-              "ایجاد ویزارد"
+              'ایجاد ویزارد'
             )}
           </button>
         </div>

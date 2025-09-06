@@ -1,43 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import { RiUploadCloud2Fill } from "react-icons/ri";
+import React, { useEffect, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { RiUploadCloud2Fill } from 'react-icons/ri';
 
 const thumbsContainer = {
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "wrap",
+  display: 'flex',
+  flexDirection: 'row',
+  flexWrap: 'wrap',
   marginTop: 16,
 };
 
 const thumb = {
-  display: "inline-flex",
+  display: 'inline-flex',
   borderRadius: 2,
-  border: "1px solid #eaeaea",
+  border: '1px solid #eaeaea',
   marginBottom: 8,
   marginRight: 8,
   width: 100,
   height: 100,
   padding: 4,
-  boxSizing: "border-box",
+  boxSizing: 'border-box',
 };
 
 const thumbInner = {
-  display: "flex",
+  display: 'flex',
   minWidth: 0,
-  overflow: "hidden",
+  overflow: 'hidden',
 };
 
 const img = {
-  display: "block",
-  width: "auto",
-  height: "100%",
+  display: 'block',
+  width: 'auto',
+  height: '100%',
 };
 
-const Dropzone = ({onChange}) => {
+const Dropzone = ({ onChange }) => {
   const [files, setFiles] = useState([]);
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      "image/*": [],
+      'image/*': [],
     },
     onDrop: (acceptedFiles) => {
       addFile(acceptedFiles[0]);
@@ -46,7 +46,7 @@ const Dropzone = ({onChange}) => {
 
   useEffect(() => {
     onChange(files);
-  }, [files])
+  }, [files]);
 
   const addFile = (file) => {
     Object.assign(file, {
@@ -79,7 +79,7 @@ const Dropzone = ({onChange}) => {
   return (
     <section className="container">
       <div
-        {...getRootProps({ className: "dropzone" })}
+        {...getRootProps({ className: 'dropzone' })}
         className="text-center cursor-pointer grid justify-center align-center border-2 border-dashed border-gray-500 py-3"
       >
         <input {...getInputProps()} />
