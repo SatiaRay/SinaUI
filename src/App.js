@@ -83,9 +83,10 @@ function AppContent() {
 
       <div className="flex items-center justify-center">{publicRoutes()}</div>
 
-      <span className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1">
-        {appVersion}
-      </span>
+        <span
+            className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"dir="ltr">
+              {appVersion}
+        </span>
     </div>
   );
 }

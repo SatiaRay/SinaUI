@@ -188,7 +188,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                         {/* Wizard content */}
                         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                             <div
-                                className="prose dark:prose-invert max-w-none [&_a]:text-blue-600 [&_a]:underline [&_a]:hover:text-blue-700 dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
+                                className="prose dark:prose-invert max-w-none text-gray-800 dark:text-white [&_a]:text-blue-600 [&_a]:underline [&_a]:hover:text-blue-700 dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300 [&_span.katex]:text-current"
                                 dangerouslySetInnerHTML={{ __html: wizardData.context }}
                             />
                         </div>
