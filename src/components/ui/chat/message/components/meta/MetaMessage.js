@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { fileEndpoints } from '../../../../../../utils/apis';
 
 const MetaMessage = ({ messageId, metadata }) => {
-  const { sendData, removeMessage, sendUploadedImage } = useChat();
+  const { sendData, removeMessage, sendUploadedImage, setOptionMessageTriggered} = useChat();
   const [isLoading, setIsLoading] = useState(false);
 
   /**
@@ -46,6 +46,8 @@ const MetaMessage = ({ messageId, metadata }) => {
     });
 
     removeMessage(messageId);
+
+    setOptionMessageTriggered(false);
   };
 
   /**
@@ -63,6 +65,8 @@ const MetaMessage = ({ messageId, metadata }) => {
     sendUploadedImage(data['files']);
 
     removeMessage(messageId);
+
+    setOptionMessageTriggered(false);
   };
 
   return <>{getMessageComponent(metadata)}</>;
