@@ -71,17 +71,17 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
                     text-gray-800 dark:text-gray-100
                     py-3.5
                     px-2
-                    focus:outline-none
-                    placeholder-gray-400 dark:placeholder-gray-500
-                    transition-all
                     whitespace-pre-wrap
                     break-words
-                    overflow-hidden
-                    min-h-[20px]
+                    rounded-lg
+                    min-h-[44px]
                     max-h-[200px]
                     overflow-y-auto
-                    rounded-lg
+                    border-none
+                    outline-none
+                    focus:outline-none
                     focus:border-none
+                    focus:ring-0
                 "
                 dir="rtl"
                 contentEditable={!disabled}
@@ -92,7 +92,7 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
             />
             {isEmpty && (
                 <div
-                    className="absolute top-3 right-2 text-gray-400 dark:text-gray-500 pointer-events-none"
+                    className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
                     style={{ direction: "rtl" }}
                 >
                     {placeholder}
