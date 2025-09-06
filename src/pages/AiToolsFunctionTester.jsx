@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import { aiToolsEndpoints } from "../services/ai_tools_function";
+import React, { useState } from 'react';
+import { aiToolsEndpoints } from '../services/ai_tools_function';
 
 const AiToolsFunctionTester = () => {
   // State for submitRequest
   const [submitData, setSubmitData] = useState({
-    mobile: "",
-    address: "",
-    lat: "",
-    long: "",
-    subject_id: "",
+    mobile: '',
+    address: '',
+    lat: '',
+    long: '',
+    subject_id: '',
   });
   const [submitResult, setSubmitResult] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
 
   // State for neshanSearch
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
 
   // State for mayoralSearchSubject
-  const [subjectSearchTerm, setSubjectSearchTerm] = useState("");
+  const [subjectSearchTerm, setSubjectSearchTerm] = useState('');
   const [subjectSearchResult, setSubjectSearchResult] = useState(null);
   const [subjectSearchLoading, setSubjectSearchLoading] = useState(false);
 
@@ -75,7 +75,7 @@ const AiToolsFunctionTester = () => {
 
   return (
     <div
-      style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "sans-serif" }}
+      style={{ maxWidth: 600, margin: '2rem auto', fontFamily: 'sans-serif' }}
     >
       <h2>Test submitRequest (137 شهرداری)</h2>
       <form onSubmit={handleSubmitRequest} style={{ marginBottom: 24 }}>
@@ -84,51 +84,51 @@ const AiToolsFunctionTester = () => {
           placeholder="Mobile"
           value={submitData.mobile}
           onChange={handleSubmitChange}
-          style={{ display: "block", marginBottom: 8, width: "100%" }}
+          style={{ display: 'block', marginBottom: 8, width: '100%' }}
         />
         <input
           name="address"
           placeholder="Address"
           value={submitData.address}
           onChange={handleSubmitChange}
-          style={{ display: "block", marginBottom: 8, width: "100%" }}
+          style={{ display: 'block', marginBottom: 8, width: '100%' }}
         />
         <input
           name="lat"
           placeholder="Latitude"
           value={submitData.lat}
           onChange={handleSubmitChange}
-          style={{ display: "block", marginBottom: 8, width: "100%" }}
+          style={{ display: 'block', marginBottom: 8, width: '100%' }}
         />
         <input
           name="long"
           placeholder="Longitude"
           value={submitData.long}
           onChange={handleSubmitChange}
-          style={{ display: "block", marginBottom: 8, width: "100%" }}
+          style={{ display: 'block', marginBottom: 8, width: '100%' }}
         />
         <input
           name="subject_id"
           placeholder="Subject ID (number)"
           value={submitData.subject_id}
           onChange={handleSubmitChange}
-          style={{ display: "block", marginBottom: 8, width: "100%" }}
+          style={{ display: 'block', marginBottom: 8, width: '100%' }}
         />
         <button type="submit" disabled={submitLoading}>
-          {submitLoading ? "Submitting..." : "Submit Request"}
+          {submitLoading ? 'Submitting...' : 'Submit Request'}
         </button>
       </form>
       {submitResult && (
         <div
           style={{
-            background: "#f6f8fa",
+            background: '#f6f8fa',
             padding: 12,
             borderRadius: 4,
             marginBottom: 24,
           }}
         >
           <strong>Result:</strong>
-          <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
             {JSON.stringify(submitResult, null, 2)}
           </pre>
         </div>
@@ -141,23 +141,23 @@ const AiToolsFunctionTester = () => {
           placeholder="Search term"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ display: "block", marginBottom: 8, width: "100%" }}
+          style={{ display: 'block', marginBottom: 8, width: '100%' }}
         />
         <button type="submit" disabled={searchLoading}>
-          {searchLoading ? "Searching..." : "Search"}
+          {searchLoading ? 'Searching...' : 'Search'}
         </button>
       </form>
       {searchResult && (
         <div
           style={{
-            background: "#f6f8fa",
+            background: '#f6f8fa',
             padding: 12,
             borderRadius: 4,
             marginBottom: 24,
           }}
         >
           <strong>Result:</strong>
-          <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
             {JSON.stringify(searchResult, null, 2)}
           </pre>
         </div>
@@ -170,16 +170,16 @@ const AiToolsFunctionTester = () => {
           placeholder="Subject search term"
           value={subjectSearchTerm}
           onChange={(e) => setSubjectSearchTerm(e.target.value)}
-          style={{ display: "block", marginBottom: 8, width: "100%" }}
+          style={{ display: 'block', marginBottom: 8, width: '100%' }}
         />
         <button type="submit" disabled={subjectSearchLoading}>
-          {subjectSearchLoading ? "Searching..." : "Search Subject"}
+          {subjectSearchLoading ? 'Searching...' : 'Search Subject'}
         </button>
       </form>
       {subjectSearchResult && (
-        <div style={{ background: "#f6f8fa", padding: 12, borderRadius: 4 }}>
+        <div style={{ background: '#f6f8fa', padding: 12, borderRadius: 4 }}>
           <strong>Result:</strong>
-          <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
             {JSON.stringify(subjectSearchResult, null, 2)}
           </pre>
         </div>

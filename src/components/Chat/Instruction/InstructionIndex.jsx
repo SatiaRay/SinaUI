@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { instructionEndpoints } from "../../../utils/apis";
-import CustomDropdown from "../../../ui/dropdown";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { instructionEndpoints } from '../../../utils/apis';
+import CustomDropdown from '../../../ui/dropdown';
 
 const InstructionIndex = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const InstructionIndex = () => {
     pages: 0,
   });
 
-  const [agentType, setAgentType] = useState("");
+  const [agentType, setAgentType] = useState('');
 
   useEffect(() => {
     fetchInstructions(pagination.page);
@@ -33,18 +33,18 @@ const InstructionIndex = () => {
       });
       setLoading(false);
     } catch (err) {
-      setError("خطا در دریافت لیست دستورالعمل‌ها");
+      setError('خطا در دریافت لیست دستورالعمل‌ها');
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("آیا از حذف این دستورالعمل اطمینان دارید؟")) {
+    if (window.confirm('آیا از حذف این دستورالعمل اطمینان دارید؟')) {
       try {
         await instructionEndpoints.deleteInstruction(id);
         fetchInstructions(pagination.page);
       } catch (err) {
-        setError("خطا در حذف دستورالعمل");
+        setError('خطا در حذف دستورالعمل');
       }
     }
   };
@@ -54,7 +54,7 @@ const InstructionIndex = () => {
   };
 
   const handleCreate = () => {
-    navigate("/instructions/create");
+    navigate('/instructions/create');
   };
 
   const handleEdit = (id) => {
@@ -73,9 +73,9 @@ const InstructionIndex = () => {
         <div className="max-md:w-full flex justify-between items-center">
           <CustomDropdown
             options={[
-              { value: "", label: "همه" },
-              { value: "text_agent", label: "ربات متنی" },
-              { value: "voice_agent", label: "ربات صوتی" },
+              { value: '', label: 'همه' },
+              { value: 'text_agent', label: 'ربات متنی' },
+              { value: 'voice_agent', label: 'ربات صوتی' },
             ]}
             value={agentType}
             onChange={(val) => setAgentType(val)}
@@ -97,14 +97,16 @@ const InstructionIndex = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-neutral-200 dark:bg-gray-700">
                 <tr>
-                  {['برچسب', 'متن', 'نوع ربات', 'وضعیت', 'عملیات'].map((item, idx) => (
-                    <th
-                      key={idx}
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
-                    >
-                      {item}
-                    </th>
-                  ))}
+                  {['برچسب', 'متن', 'نوع ربات', 'وضعیت', 'عملیات'].map(
+                    (item, idx) => (
+                      <th
+                        key={idx}
+                        className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
+                      >
+                        {item}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -117,16 +119,16 @@ const InstructionIndex = () => {
                       {instruction.text}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                      {instruction.agent_type === "text_agent"
-                        ? "ربات متنی"
-                        : instruction.agent_type === "voice_agent"
-                          ? "ربات صوتی"
-                          : instruction.agent_type === "both"
-                            ? "همه"
-                            : "-"}
+                      {instruction.agent_type === 'text_agent'
+                        ? 'ربات متنی'
+                        : instruction.agent_type === 'voice_agent'
+                          ? 'ربات صوتی'
+                          : instruction.agent_type === 'both'
+                            ? 'همه'
+                            : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                      {instruction.status == 1 ? "فعال" : "غیرفعال"}
+                      {instruction.status == 1 ? 'فعال' : 'غیرفعال'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4 rtl:space-x-reverse">
                       <button
@@ -171,17 +173,14 @@ const InstructionIndex = () => {
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              نمایش{" "}
+              نمایش{' '}
               <span className="font-medium">
                 {(pagination.page - 1) * pagination.size + 1}
-              </span>{" "}
-              تا{" "}
+              </span>{' '}
+              تا{' '}
               <span className="font-medium">
-                {Math.min(
-                  pagination.page * pagination.size,
-                  pagination.total
-                )}
-              </span>{" "}
+                {Math.min(pagination.page * pagination.size, pagination.total)}
+              </span>{' '}
               از <span className="font-medium">{pagination.total}</span> نتیجه
             </p>
           </div>
@@ -211,10 +210,11 @@ const InstructionIndex = () => {
                     <button
                       key={pageNumber}
                       onClick={() => handlePageChange(pageNumber)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${pageNumber === pagination.page
-                        ? "z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-300"
-                        : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
-                        }`}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        pageNumber === pagination.page
+                          ? 'z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-300'
+                          : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                      }`}
                     >
                       {pageNumber}
                     </button>

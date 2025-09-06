@@ -1,7 +1,7 @@
-import axios from "axios";
+import axios from 'axios';
 
-const handleAxiosError = (error, defaultMessage = "خطا رخ داده است") => {
-  console.error("Axios error:", {
+const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است') => {
+  console.error('Axios error:', {
     message: error.message,
     response: error.response?.data,
     status: error.response?.status,
@@ -17,7 +17,9 @@ const handleAxiosError = (error, defaultMessage = "خطا رخ داده است")
     throw new Error(`${defaultMessage} (کد خطا: ${error.response.status})`);
   } else if (error.request) {
     // Request was sent but no response received
-    throw new Error("سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.");
+    throw new Error(
+      'سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.'
+    );
   } else {
     // Something went wrong before sending the request
     throw new Error(defaultMessage);
@@ -32,8 +34,8 @@ const PYTHON_APP_URL = process.env.REACT_APP_CHAT_API_URL;
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
 });
 
@@ -41,15 +43,15 @@ const axiosInstance = axios.create({
 const chatAxiosInstance = axios.create({
   baseURL: PYTHON_APP_URL,
   headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
 });
 
 // افزودن interceptor برای افزودن توکن به هدرها
 chatAxiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -62,11 +64,11 @@ chatAxiosInstance.interceptors.request.use(
 export const getDataSources = async () => {
   try {
     console.log(
-      "Fetching data sources from:",
+      'Fetching data sources from:',
       `${PYTHON_APP_URL}/data_sources/`
     );
-    const response = await chatAxiosInstance.get("/data_sources/");
-    console.log("Data sources response structure:", {
+    const response = await chatAxiosInstance.get('/data_sources/');
+    console.log('Data sources response structure:', {
       isArray: Array.isArray(response.data),
       hasResultsArray: response.data && Array.isArray(response.data.results),
       hasDataArray: response.data && Array.isArray(response.data.data),
@@ -76,7 +78,7 @@ export const getDataSources = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error details:", {
+    console.error('Error details:', {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
@@ -93,10 +95,10 @@ export const getDataSources = async () => {
       );
     } else if (error.request) {
       throw new Error(
-        "سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید."
+        'سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.'
       );
     } else {
-      throw new Error("خطا در ارسال درخواست به سرور");
+      throw new Error('خطا در ارسال درخواست به سرور');
     }
   }
 };
@@ -104,12 +106,12 @@ export const getDataSources = async () => {
 // ارسال سوال به چت‌بات
 export const askQuestion = async (question) => {
   try {
-    console.log("Sending question to:", `${PYTHON_APP_URL}/ask`);
-    const response = await chatAxiosInstance.post("/ask", { question });
-    console.log("Chat response:", response.data);
+    console.log('Sending question to:', `${PYTHON_APP_URL}/ask`);
+    const response = await chatAxiosInstance.post('/ask', { question });
+    console.log('Chat response:', response.data);
     return response.data;
   } catch (error) {
-    console.error("Error details:", {
+    console.error('Error details:', {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
@@ -124,15 +126,13 @@ export const askQuestion = async (question) => {
       throw new Error(`خطا در دریافت پاسخ (کد خطا: ${error.response.status})`);
     } else if (error.request) {
       throw new Error(
-        "سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید."
+        'سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.'
       );
     } else {
-      throw new Error("خطا در ارسال درخواست به سرور");
+      throw new Error('خطا در ارسال درخواست به سرور');
     }
   }
 };
-
-
 
 export const checkAuthorizationFetcher = (args) =>
   axios.get(`${PYTHON_APP_URL}/auth/me`).then((res) => res.data);
@@ -178,7 +178,7 @@ export const getDocument = async (document_id) => {
   try {
     return await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
   } catch (err) {
-    console.error("Error fetching document:", err.message);
+    console.error('Error fetching document:', err.message);
     throw err;
   }
 };
@@ -189,7 +189,7 @@ export const toggleDocumentVectorStatus = async (document_id) => {
       `${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`
     );
   } catch (err) {
-    console.error("Error fetching document:", err.message);
+    console.error('Error fetching document:', err.message);
     throw err;
   }
 };
@@ -206,7 +206,7 @@ export const crawlUrl = async (
       store_in_vector: store_in_vector,
     });
   } catch (err) {
-    console.error("Error fetching document:", err.message);
+    console.error('Error fetching document:', err.message);
     throw err;
   }
 };
@@ -218,83 +218,88 @@ export const vectorizeDocument = async (document_id, document) => {
       document
     );
   } catch (err) {
-    console.error("Error vectorizing document:", err.message);
+    console.error('Error vectorizing document:', err.message);
     throw err;
   }
 };
 
-
-
 export const downloadSystemExport = async () => {
   try {
-    const res = await chatAxiosInstance.get("/system/export", {
-      responseType: "blob",
+    const res = await chatAxiosInstance.get('/system/export', {
+      responseType: 'blob',
     });
-    return res.data; 
+    return res.data;
   } catch (err) {
-    handleAxiosError(err, "خطا در دریافت فایل پشتیبان");
+    handleAxiosError(err, 'خطا در دریافت فایل پشتیبان');
   }
 };
 
+export const uploadSystemImport = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
 
+  const response = await axios.post(`${API_URL}/system/import`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 
-  export const uploadSystemImport = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-  
-    const response = await axios.post(`${API_URL}/system/import`, formData, { 
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-  
-    return response.data;
-  };
+  return response.data;
+};
 
 export const exportWorkflow = async (workflow_id) => {
   try {
     const res = await axiosInstance.get(`/workflows/${workflow_id}/export`, {
-      responseType: "blob",
+      responseType: 'blob',
     });
     return res.data;
   } catch (err) {
-    handleAxiosError(err, "خطا در دریافت خروجی");
+    handleAxiosError(err, 'خطا در دریافت خروجی');
   }
 };
 
-
 export const importWorkflow = async (file) => {
-  if (!file) throw new Error("فایل الزامی است");
+  if (!file) throw new Error('فایل الزامی است');
 
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append('file', file);
 
   try {
-    const res = await axios.post(`${PYTHON_APP_URL}/workflows/import`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("token")}`, // اگر نیاز دارید
-      },
-    });
+    const res = await axios.post(
+      `${PYTHON_APP_URL}/workflows/import`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // اگر نیاز دارید
+        },
+      }
+    );
     return res.data;
   } catch (err) {
-    handleAxiosError(err, "خطا در بارگذاری گردش کار");
+    handleAxiosError(err, 'خطا در بارگذاری گردش کار');
   }
 };
 
 // Register new user
-export const register = async ({ first_name, last_name, email, password, phone }) => {
+export const register = async ({
+  first_name,
+  last_name,
+  email,
+  password,
+  phone,
+}) => {
   try {
     const res = await axiosInstance.post(`/auth/register`, {
       first_name,
       last_name,
       email,
       password,
-      phone
+      phone,
     });
     return res.data; // ✅ return directly if success
   } catch (err) {
-    handleAxiosError(err, "خطا در ثبت نام");
+    handleAxiosError(err, 'خطا در ثبت نام');
   }
 };
 
@@ -304,7 +309,6 @@ export const login = async (email, password) => {
     const res = await axiosInstance.post(`/auth/login`, { email, password });
     return res.data;
   } catch (err) {
-    handleAxiosError(err, "خطا در ورود به سیستم");
+    handleAxiosError(err, 'خطا در ورود به سیستم');
   }
 };
-

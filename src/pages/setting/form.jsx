@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import CustomDropdown from "../../ui/dropdown";
+import React, { useState, useEffect } from 'react';
+import CustomDropdown from '../../ui/dropdown';
 
 const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({});
@@ -7,7 +7,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
   useEffect(() => {
     const defaults = {};
     Object.entries(schema.properties).forEach(([key, property]) => {
-      defaults[key] = initialValues[key] ?? property.default ?? "";
+      defaults[key] = initialValues[key] ?? property.default ?? '';
     });
     setFormData(defaults);
   }, [initialValues, schema]);
@@ -17,13 +17,13 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
   };
 
   const renderField = (key, property) => {
-    const value = formData[key] ?? "";
+    const value = formData[key] ?? '';
     const label = property.label || property.lable || key;
 
     if (property.enum) {
-      const options = property.enum.map(option => ({
+      const options = property.enum.map((option) => ({
         value: option,
-        label: option
+        label: option,
       }));
 
       return (
@@ -39,7 +39,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
     }
 
     switch (property.type) {
-      case "string":
+      case 'string':
         return (
           <input
             type="text"
@@ -50,7 +50,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
           />
         );
 
-      case "boolean":
+      case 'boolean':
         return (
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -63,7 +63,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
           </label>
         );
 
-      case "number":
+      case 'number':
         return (
           <input
             type="number"
@@ -98,9 +98,9 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
         const label = property.label || property.lable || key;
         return (
           <div key={key} className="flex flex-col">
-            {property.type !== "boolean" && (
+            {property.type !== 'boolean' && (
               <label className="mb-1 pr-1 dark:text-gray-300">
-                {label}{" "}
+                {label}{' '}
                 {schema.required?.includes(key) && (
                   <span className="text-red-500">*</span>
                 )}
@@ -116,7 +116,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
         disabled={isLoading}
         className="mt-4 p-2 rounded-lg bg-gray-800 text-white hover:bg-blue-700 disabled:bg-gray-400 dark:bg-blue-700 dark:hover:bg-blue-800 dark:disabled:bg-gray-600 transition-colors"
       >
-        {isLoading ? "در حال ذخیره..." : "ذخیره تنظیمات"}
+        {isLoading ? 'در حال ذخیره...' : 'ذخیره تنظیمات'}
       </button>
     </form>
   );

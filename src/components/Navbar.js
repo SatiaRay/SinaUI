@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import ThemeToggle from "../contexts/ThemeToggle";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import ThemeToggle from '../contexts/ThemeToggle';
 
 import {
   ArrowLeftEndOnRectangleIcon,
@@ -10,13 +10,22 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   XMarkIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
-import { FaRobot, FaMicrophone, FaMagic, FaProjectDiagram, FaBook, FaCog, FaFileAlt, FaLink, FaFolderOpen } from "react-icons/fa";
+import {
+  FaRobot,
+  FaMicrophone,
+  FaMagic,
+  FaProjectDiagram,
+  FaBook,
+  FaCog,
+  FaFileAlt,
+  FaLink,
+  FaFolderOpen,
+} from 'react-icons/fa';
 
-import { IoDocuments } from "react-icons/io5";
-import { toEnglishLetter } from "../utils/translate";
-
+import { IoDocuments } from 'react-icons/io5';
+import { toEnglishLetter } from '../utils/translate';
 
 const NavList = ({ items, onNavigate, closeSidebar }) => (
   <ul className="flex flex-col gap-2">
@@ -29,7 +38,9 @@ const NavList = ({ items, onNavigate, closeSidebar }) => (
           }}
           className="flex items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
         >
-          {Icon && <Icon className="w-4 h-4 text-gray-300 group-hover:text-white" />}
+          {Icon && (
+            <Icon className="w-4 h-4 text-gray-300 group-hover:text-white" />
+          )}
           {label}
         </button>
       </li>
@@ -46,26 +57,25 @@ const Navbar = ({ onSidebarCollapse }) => {
   const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
 
   const navItems = [
-    { path: "/chat", label: "چت", icon: FaRobot },
-    { path: "/wizard", label: "پاسخ‌های هوشمند", icon: FaMagic },
-    { path: "/workflow", label: "گردش کار", icon: FaProjectDiagram },
-    { path: "/instructions", label: "دستورالعمل‌ها", icon: FaBook },
+    { path: '/chat', label: 'چت', icon: FaRobot },
+    { path: '/wizard', label: 'پاسخ‌های هوشمند', icon: FaMagic },
+    { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
+    { path: '/instructions', label: 'دستورالعمل‌ها', icon: FaBook },
   ];
 
-
   const documentItems = [
-    { path: "/document/manuals", label: "مستندات دستی ", icon: FaBook },
-    { path: "/document", label: "مستندات", icon: FaFileAlt },
-    { path: "/crawl-url", label: "جمع‌آوری URL", icon: FaLink },
-    { path: "/processes", label: "فرایندها", icon: FaProjectDiagram },
+    { path: '/document/manuals', label: 'مستندات دستی ', icon: FaBook },
+    { path: '/document', label: 'مستندات', icon: FaFileAlt },
+    { path: '/crawl-url', label: 'جمع‌آوری URL', icon: FaLink },
+    { path: '/processes', label: 'فرایندها', icon: FaProjectDiagram },
   ];
   const handleLogout = async () => {
     try {
       resetUIState();
       await logout();
-      navigate("/login");
+      navigate('/login');
     } catch (error) {
-      console.error("Error logging out:", error);
+      console.error('Error logging out:', error);
     }
   };
 
@@ -92,17 +102,17 @@ const Navbar = ({ onSidebarCollapse }) => {
 
   useEffect(() => {
     const handleMessage = (event) => {
-      if (event.data.type === "HIDE_NAVBAR") {
+      if (event.data.type === 'HIDE_NAVBAR') {
         setSidebarOpen(false);
         setDesktopSidebarCollapsed(true);
         onSidebarCollapse(true);
-      } else if (event.data.type === "SHOW_NAVBAR") {
+      } else if (event.data.type === 'SHOW_NAVBAR') {
         setDesktopSidebarCollapsed(false);
         onSidebarCollapse(false);
       }
     };
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, [onSidebarCollapse]);
 
   return (
@@ -113,14 +123,22 @@ const Navbar = ({ onSidebarCollapse }) => {
           className="text-gray-800 backdrop-blur-sm dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-md transition-all duration-300"
           aria-label="Toggle sidebar"
         >
-          {sidebarOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+          {sidebarOpen ? (
+            <XMarkIcon className="h-6 w-6" />
+          ) : (
+            <Bars3Icon className="h-6 w-6" />
+          )}
         </button>
       </div>
 
       <button
         onClick={toggleDesktopSidebar}
         className="hidden md:flex fixed right-64 top-4 z-50 items-center justify-center w-6 h-6 bg-gray-800 dark:bg-gray-900 text-gray-300 hover:text-white rounded-l-md border border-gray-700 border-r-0 transition-all duration-300 hover:bg-gray-700"
-        style={{ transform: desktopSidebarCollapsed ? "translateX(16rem)" : "translateX(0)" }}
+        style={{
+          transform: desktopSidebarCollapsed
+            ? 'translateX(16rem)'
+            : 'translateX(0)',
+        }}
         aria-label="Toggle desktop sidebar"
       >
         {desktopSidebarCollapsed ? (
@@ -131,13 +149,15 @@ const Navbar = ({ onSidebarCollapse }) => {
       </button>
 
       <aside
-        className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${desktopSidebarCollapsed ? "w-0" : "w-64"
-          }`}
+        className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${
+          desktopSidebarCollapsed ? 'w-0' : 'w-64'
+        }`}
         aria-expanded={!desktopSidebarCollapsed}
       >
         <div
-          className={`flex flex-col h-full transition-all duration-300 ${desktopSidebarCollapsed ? "opacity-0 w-0" : "opacity-100 w-64"
-            }`}
+          className={`flex flex-col h-full transition-all duration-300 ${
+            desktopSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-64'
+          }`}
         >
           <header className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
             <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
@@ -157,23 +177,28 @@ const Navbar = ({ onSidebarCollapse }) => {
 
                 <p>اسناد</p>
                 <ChevronDownIcon
-                  className={`h-4 w-4 mr-2 transition-transform duration-200 ${documentsDropdownOpen ? "rotate-180" : ""
-                    }`}
+                  className={`h-4 w-4 mr-2 transition-transform duration-200 ${
+                    documentsDropdownOpen ? 'rotate-180' : ''
+                  }`}
                 />
               </button>
               <div
                 id="documents-dropdown"
-                className={`mr-4 overflow-hidden transition-all duration-200 ${documentsDropdownOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
-                  }`}
+                className={`mr-4 overflow-hidden transition-all duration-200 ${
+                  documentsDropdownOpen
+                    ? 'max-h-48 opacity-100'
+                    : 'max-h-0 opacity-0'
+                }`}
               >
                 <NavList items={documentItems} onNavigate={navigate} />
               </div>
             </div>
-            <button onClick={() => navigate('/setting')} className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+            <button
+              onClick={() => navigate('/setting')}
+              className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
             >
               <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white" />
               <p>تنظیمات</p>
-
             </button>
           </nav>
 
@@ -185,11 +210,12 @@ const Navbar = ({ onSidebarCollapse }) => {
               </span>
               <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
                 <p className="text-white text-xs w-32 truncate">
-                  {user ? `${user.first_name} ${user.last_name}` : "Guest"}
+                  {user ? `${user.first_name} ${user.last_name}` : 'Guest'}
                 </p>
-                <p className="text-white text-xs w-32 truncate">{user?.email || "example@example.com"}</p>
+                <p className="text-white text-xs w-32 truncate">
+                  {user?.email || 'example@example.com'}
+                </p>
               </div>
-
             </div>
             <button
               onClick={handleLogout}
@@ -228,7 +254,11 @@ const Navbar = ({ onSidebarCollapse }) => {
               </header>
 
               <nav className="flex-1 py-2 overflow-y-auto">
-                <NavList items={navItems} onNavigate={navigate} closeSidebar={closeSidebar} />
+                <NavList
+                  items={navItems}
+                  onNavigate={navigate}
+                  closeSidebar={closeSidebar}
+                />
                 <div className="mt-2">
                   <button
                     onClick={toggleDocumentsDropdown}
@@ -238,25 +268,32 @@ const Navbar = ({ onSidebarCollapse }) => {
                   >
                     <FaFolderOpen className="w-4 h-4 text-gray-300 group-hover:text-white" />
 
-
                     <p>اسناد</p>
                     <ChevronDownIcon
-                      className={`h-4 w-4 mr-2 transition-transform duration-200 ${documentsDropdownOpen ? "rotate-180" : ""
-                        }`}
+                      className={`h-4 w-4 mr-2 transition-transform duration-200 ${
+                        documentsDropdownOpen ? 'rotate-180' : ''
+                      }`}
                     />
                   </button>
                   {documentsDropdownOpen && (
-                    <ul id="mobile-documents-dropdown" className="mr-4 space-y-1">
-                      <NavList items={documentItems} onNavigate={navigate} closeSidebar={closeSidebar} />
+                    <ul
+                      id="mobile-documents-dropdown"
+                      className="mr-4 space-y-1"
+                    >
+                      <NavList
+                        items={documentItems}
+                        onNavigate={navigate}
+                        closeSidebar={closeSidebar}
+                      />
                     </ul>
                   )}
-
                 </div>
-                <button onClick={() => navigate('/setting')} className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                <button
+                  onClick={() => navigate('/setting')}
+                  className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                 >
                   <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white" />
                   <p>تنظیمات</p>
-
                 </button>
               </nav>
 
@@ -268,11 +305,12 @@ const Navbar = ({ onSidebarCollapse }) => {
                   </span>
                   <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
                     <p className="text-white text-xs w-32 truncate">
-                      {user ? `${user.first_name} ${user.last_name}` : "Guest"}
+                      {user ? `${user.first_name} ${user.last_name}` : 'Guest'}
                     </p>
-                    <p className="text-white text-xs w-32 truncate">{user?.email || "example@example.com"}</p>
+                    <p className="text-white text-xs w-32 truncate">
+                      {user?.email || 'example@example.com'}
+                    </p>
                   </div>
-
                 </div>
                 <button
                   onClick={handleLogout}

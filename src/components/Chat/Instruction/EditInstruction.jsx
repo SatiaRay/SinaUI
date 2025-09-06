@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { instructionEndpoints } from "../../../utils/apis";
-import CustomDropdown from "../../../ui/dropdown";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { instructionEndpoints } from '../../../utils/apis';
+import CustomDropdown from '../../../ui/dropdown';
 
 const EditInstruction = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [formData, setFormData] = useState({
-    label: "",
-    text: "",
-    agent_type: "",
+    label: '',
+    text: '',
+    agent_type: '',
     status: 1,
   });
   const [error, setError] = useState(null);
@@ -26,12 +26,12 @@ const EditInstruction = () => {
       setFormData({
         label: data.label,
         text: data.text,
-        agent_type: data.agent_type || "",
+        agent_type: data.agent_type || '',
         status: Number(data.status),
       });
       setLoading(false);
     } catch (err) {
-      setError("خطا در دریافت اطلاعات دستورالعمل");
+      setError('خطا در دریافت اطلاعات دستورالعمل');
       setLoading(false);
     }
   };
@@ -39,7 +39,7 @@ const EditInstruction = () => {
   const handleChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "status" ? Number(value) : value,
+      [name]: name === 'status' ? Number(value) : value,
     }));
   };
 
@@ -50,9 +50,9 @@ const EditInstruction = () => {
 
     try {
       await instructionEndpoints.updateInstruction(id, formData);
-      navigate("/instructions");
+      navigate('/instructions');
     } catch (err) {
-      setError("خطا در بروزرسانی دستورالعمل");
+      setError('خطا در بروزرسانی دستورالعمل');
       setSaving(false);
     }
   };
@@ -80,7 +80,7 @@ const EditInstruction = () => {
               type="text"
               name="label"
               value={formData.label}
-              onChange={(e) => handleChange("label", e.target.value)}
+              onChange={(e) => handleChange('label', e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
@@ -93,7 +93,7 @@ const EditInstruction = () => {
             <textarea
               name="text"
               value={formData.text}
-              onChange={(e) => handleChange("text", e.target.value)}
+              onChange={(e) => handleChange('text', e.target.value)}
               required
               rows="4"
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -106,12 +106,12 @@ const EditInstruction = () => {
               </label>
               <CustomDropdown
                 options={[
-                  { value: "both", label: "همه" },
-                  { value: "text_agent", label: "ربات متنی" },
-                  { value: "voice_agent", label: "ربات صوتی" },
+                  { value: 'both', label: 'همه' },
+                  { value: 'text_agent', label: 'ربات متنی' },
+                  { value: 'voice_agent', label: 'ربات صوتی' },
                 ]}
                 value={formData.agent_type}
-                onChange={(val) => handleChange("agent_type", val)}
+                onChange={(val) => handleChange('agent_type', val)}
                 placeholder="انتخاب کنید"
                 className={'w-full'}
                 parentStyle={'w-full'}
@@ -124,11 +124,11 @@ const EditInstruction = () => {
               </label>
               <CustomDropdown
                 options={[
-                  { value: 1, label: "فعال" },
-                  { value: 0, label: "غیرفعال" },
+                  { value: 1, label: 'فعال' },
+                  { value: 0, label: 'غیرفعال' },
                 ]}
                 value={formData.status}
-                onChange={(val) => handleChange("status", val)}
+                onChange={(val) => handleChange('status', val)}
                 placeholder="انتخاب وضعیت"
                 className={'w-full'}
                 parentStyle={'w-full'}
@@ -136,11 +136,10 @@ const EditInstruction = () => {
             </div>
           </div>
 
-
           <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
-              onClick={() => navigate("/instructions")}
+              onClick={() => navigate('/instructions')}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               انصراف
@@ -150,7 +149,7 @@ const EditInstruction = () => {
               disabled={saving}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             >
-              {saving ? "در حال ذخیره..." : "ذخیره تغییرات"}
+              {saving ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
             </button>
           </div>
         </form>
