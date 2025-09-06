@@ -14,6 +14,7 @@ import { useChat } from "../../contexts/ChatContext";
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [loadingCaption, setLoadingCaption] = useState("null");
   const processingMessageId = useRef(null);
   const initialResponseTimeoutRef = useRef(null);
   const deltaTimeoutRef = useRef(null);
@@ -62,11 +63,9 @@ const Chat = ({ item }) => {
     }
   };
 
-
   /** Reset chat state to initial values */
   const resetChatState = () => {
     setChatLoading(false);
-
 
     // Handle buffered table if chat was in middle of a table
     if (
@@ -121,9 +120,16 @@ const Chat = ({ item }) => {
     }
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
+  /**
+   * Reset loadingCaption state on chatLoading state change
+   */
+  useEffect(() => {
+    setLoadingCaption(null);
+  }, [chatLoading]);
 
-  /** Scroll to bottom after history load */
-
+  /**
+   * Trigger scroll to button fuction on history loading or change history length
+   */
   useEffect(() => {
     if (!historyLoading && history.ids.length > 0) {
       setTimeout(scrollToBottom, 100);
@@ -225,10 +231,20 @@ const Chat = ({ item }) => {
     if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
   };
 
+  /**
+   * Handle call function event
+   */
+  const handleCallFunctionEvent = (data) => {
+    setLoadingCaption(data.lable);
+  };
 
-  /** Handles delta responses from assistant */
+  /**
+   * Handles delta response buffers
+   *
+   * @param {object}
+   * @returns null|object
+   */
   const handleDeltaResponse = (data) => {
-
     if (!processingMessageId.current) {
       processingMessageId.current = addNewMessage({
         type: "text",
@@ -279,7 +295,6 @@ const Chat = ({ item }) => {
 
   /** Finalize assistant message */
   const finishMessageHandler = () => {
-    processingMessageId.current = null;
     setChatLoading(false);
 
     if (
@@ -293,6 +308,7 @@ const Chat = ({ item }) => {
       internalVarsRef.current.isInsideTable = false;
     }
 
+    processingMessageId.current = null;
     internalVarsRef.current.inCompatibleMessage = "";
     clearAllTimeouts();
   };
