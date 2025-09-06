@@ -241,12 +241,10 @@ const Chat = ({ item }) => {
   /**
    * Handles delta response buffers
    *
-   * @param {object} event
+   * @param {object}
    * @returns null|object
    */
-  const handleDeltaResponse = (event) => {
-    const data = JSON.parse(event.data);
-
+  const handleDeltaResponse = (data) => {
     if (!processingMessageId.current) {
       processingMessageId.current = addNewMessage({
         type: "text",
@@ -297,7 +295,6 @@ const Chat = ({ item }) => {
 
   /** Finalize assistant message */
   const finishMessageHandler = () => {
-    processingMessageId.current = null;
     setChatLoading(false);
 
     if (
@@ -311,6 +308,7 @@ const Chat = ({ item }) => {
       internalVarsRef.current.isInsideTable = false;
     }
 
+    processingMessageId.current = null;
     internalVarsRef.current.inCompatibleMessage = "";
     clearAllTimeouts();
   };
