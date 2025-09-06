@@ -60,7 +60,12 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
             placeCaretAtEnd(inputRef.current);
         }
     };
-
+    // Handle paste → force plain text (strip formatting like GPT)
+    const handlePaste = (e) => {
+        e.preventDefault();
+        const text = e.clipboardData.getData("text/plain"); // only plain text
+        document.execCommand("insertText", false, text); // insert clean text
+    };
     return (
         <div className="relative w-full">
             <div
@@ -88,6 +93,7 @@ const TextInputWithBreaks = ({ value, onChange, onSubmit, disabled, placeholder 
                 onInput={handleInput}
                 onKeyDown={handleKeyDown}
                 onFocus={handleFocus}
+                onPaste={handlePaste}   // 🔥 new paste handler
                 suppressContentEditableWarning={true}
             />
             {isEmpty && (
