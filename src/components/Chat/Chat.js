@@ -205,7 +205,6 @@ const Chat = ({ item }) => {
     await sendMessage(text);
     setQuestion("");
     setError(null);
-    setChatLoading(true);
 
     // Clear any existing timers
     clearAllTimeouts();
