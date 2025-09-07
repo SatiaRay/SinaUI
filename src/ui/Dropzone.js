@@ -80,13 +80,15 @@ const Dropzone = ({ onChange }) => {
     <section className="container">
       <div
         {...getRootProps({ className: 'dropzone' })}
-        className="text-center cursor-pointer grid justify-center align-center border-2 border-dashed border-gray-500 py-3"
+        className="text-center cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-gray-500 py-3 relative"
       >
-        <input {...getInputProps()} />
+        <input
+          {...getInputProps()}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        />
         <RiUploadCloud2Fill
           size={150}
-          className="justify-self-center"
-          color="white"
+          className="justify-self-center text-gray-700  dark:text-white"
         />
         <p className="pt-5 dark:text-white">
           فایل مورد نظر را بکشید و در اینجا رها کنید یا بر روی آیکون کلیک کنید
