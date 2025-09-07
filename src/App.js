@@ -31,6 +31,7 @@ import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
+import ChatBoxPreview from './pages/widget/chat-box-perview'
 import { ChatProvider } from './contexts/ChatContext';
 
 function App() {
@@ -260,6 +261,15 @@ function privateRoutes() {
           }
         />
       </Route>
+      {/* Widget  */}
+      <Route
+          path="widget/chat"
+          element={
+            <PrivateRoute>
+              <ChatBoxPreview />
+            </PrivateRoute>
+          }
+        />
     </Routes>
   );
 }
