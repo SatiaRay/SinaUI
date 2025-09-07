@@ -4,6 +4,10 @@ import { FaTrash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { toggleDocumentVectorStatus } from '../../../services/api';
 import { notify } from '../../../ui/toast';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
 
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -13,11 +17,30 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
     try {
       setIsLoading(true);
       const response = await toggleDocumentVectorStatus(document.id);
+
       if (response.status === 200) {
         onStatusChange(document.id, response.data.vector_id, true);
+
+        MySwal.fire({
+          icon: 'success',
+          title: 'وضعیت سند با موفقیت تغییر کرد!',
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
     } catch (error) {
-      notify.error('Error toggling document status:', error);
+      MySwal.fire({
+        icon: 'error',
+        title: 'خطا در تغییر وضعیت سند',
+        text: 'عملیات تغییر وضعیت با مشکل مواجه شد. دوباره تلاش کنید.',
+        showCancelButton: true,
+        confirmButtonText: 'تلاش مجدد',
+        cancelButtonText: 'انصراف',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          toggleVectorStatus();
+        }
+      });
     } finally {
       setIsLoading(false);
     }
