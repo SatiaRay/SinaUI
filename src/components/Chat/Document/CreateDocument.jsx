@@ -48,7 +48,7 @@ const CreateDocument = ({ onClose }) => {
         if (apiStatus === 'success') {
           notify.success('اطلاعات با موفقیت ذخیره شد');
           setForm({ title: '', text: '', agentType: 'text_agent' });
-          onClose();
+          onClose(form.agentType);
         } else {
           throw new Error('خطا در ذخیره اطلاعات');
         }
