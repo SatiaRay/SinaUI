@@ -4,6 +4,7 @@ import { FaTrash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { toggleDocumentVectorStatus } from '../../../services/api';
 import { notify } from '../../../ui/toast';
+
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -29,6 +30,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
         });
       }
     } catch (error) {
+
       MySwal.fire({
         icon: 'error',
         title: 'خطا در تغییر وضعیت سند',
