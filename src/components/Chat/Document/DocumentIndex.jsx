@@ -8,6 +8,7 @@ import DocumentCard from './DocumentCard';
 import CreateDocument from './CreateDocument';
 import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
+import SearchDocument from './searchDocument/SearchDocument'; // Import the separate search component
 
 const DocumentIndex = () => {
   const [state, setState] = useState({
@@ -17,12 +18,14 @@ const DocumentIndex = () => {
     documentContent: null,
     selectedDocument: null,
     documents: [],
+    filteredDocuments: [],
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
     agentType: 'both' || 'voice_agent' || 'text_agent',
+    searchQuery: '',
   });
 
   const location = useLocation();
@@ -54,6 +57,7 @@ const DocumentIndex = () => {
         setState((prev) => ({
           ...prev,
           documents: response.data.items,
+          filteredDocuments: response.data.items,
           totalPages: response.data.pages,
           totalItems: response.data.total,
           isLoading: false,
@@ -78,6 +82,14 @@ const DocumentIndex = () => {
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
+
+  const handleSearchResults = useCallback((filteredDocuments) => {
+    setState((prev) => ({ ...prev, filteredDocuments }));
+  }, []);
+
+  const handleSearchChange = useCallback((searchQuery) => {
+    setState((prev) => ({ ...prev, searchQuery }));
+  }, []);
 
   const fetchDocumentContent = async (document) => {
     try {
@@ -180,13 +192,21 @@ const DocumentIndex = () => {
       return <div className="text-red-500 text-center">خطا: {state.error}</div>;
     }
 
-    if (!state.documents.length) {
+    if (!state.filteredDocuments.length && state.searchQuery) {
+      return (
+        <div className="text-center">
+          هیچ سندی با عنوان "{state.searchQuery}" یافت نشد.
+        </div>
+      );
+    }
+
+    if (!state.filteredDocuments.length) {
       return <div className="text-center">هیچ سندی یافت نشد.</div>;
     }
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-        {state.documents.map((document) => (
+        {state.filteredDocuments.map((document) => (
           <DocumentCard
             key={document.id}
             document={document}
@@ -254,16 +274,22 @@ const DocumentIndex = () => {
 
   return (
     <div className="document-index pb-20">
-      <div className="flex justify-between mb-3">
+      <div className="flex flex-col md:flex-row justify-between mb-3 gap-4">
         {location.pathname.includes('/domain/') && (
           <Link
             to="/document/domains"
-            className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300"
+            className="px-6 py-3 rounded-lg font-medium transition-all bg-gray-300 text-center md:text-right"
           >
             بازگشت
           </Link>
         )}
-
+        <SearchDocument
+          documents={state.documents}
+          onSearchResults={handleSearchResults}
+          searchQuery={state.searchQuery}
+          onSearchChange={handleSearchChange}
+          placeholder="جستجو در عنوان اسناد..."
+        />
         {isManualRoute && (
           <>
             <button
