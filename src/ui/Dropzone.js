@@ -80,9 +80,12 @@ const Dropzone = ({ onChange }) => {
     <section className="container">
       <div
         {...getRootProps({ className: 'dropzone' })}
-        className="text-center cursor-pointer grid justify-center align-center border-2 border-dashed border-gray-500 py-3"
+        className="text-center cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-gray-500 py-3 relative"
       >
-        <input {...getInputProps()} />
+        <input
+          {...getInputProps()}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        />
         <RiUploadCloud2Fill
           size={150}
           className="justify-self-center"
