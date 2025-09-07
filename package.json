@@ -13,6 +13,11 @@
     "@openai/agents": "^0.0.14",
     "@openai/agents-realtime": "^0.0.14",
     "@react-three/fiber": "^9.1.2",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -41,6 +46,8 @@
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
     "reactflow": "^11.11.4",
+    "rollup-plugin-dotenv": "^0.5.1",
+    "styled-components": "^6.1.19",
     "swr": "^2.3.4",
     "three": "^0.176.0",
     "typeface-vazir": "^1.0.1",
@@ -72,6 +79,7 @@
     ]
   },
   "devDependencies": {
+    "@rollup/plugin-replace": "^6.0.2",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1"
