@@ -6,6 +6,7 @@ import json from '@rollup/plugin-json';
 import replace from '@rollup/plugin-replace';
 import postcss from 'rollup-plugin-postcss';
 import { config } from 'dotenv';
+import postcssUrl from 'postcss-url';
 
 // Load environment variables from .env
 const envConfig = config({path: './.env.production'}).parsed;
@@ -55,6 +56,9 @@ export default {
       inject: true,
       minimize: true,
       sourceMap: true,
+      plugins: [
+        postcssUrl({ url: 'inline' }) 
+      ]
     }),
     terser(),
   ],
