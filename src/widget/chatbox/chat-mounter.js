@@ -10,11 +10,20 @@ function initChatWidget(scriptEl) {
   const container = document.createElement('div');
   scriptEl.insertAdjacentElement('afterend', container);
 
-  const props = {};
+  // Convert data-* attributes to props
+  const props = Object.fromEntries(
+    Array.from(scriptEl.attributes)
+      .filter(attr => attr.name.startsWith("data-") && attr.name !== "data-widget")
+      .map(attr => [
+        attr.name.replace(/^data-/, "").replace(/-([a-z])/g, (_, c) => c.toUpperCase()), // kebab → camelCase
+        attr.value === "" ? true : attr.value, // handle boolean flags
+      ])
+  );
 
   const root = ReactDOM.createRoot(container);
-  root.render(<ChatBox {...props} className="font-sans"/>);
+  root.render(<ChatBox {...props} className="font-sans" />);
 }
 
-// Find all <script data-widget="chat">
+// Auto-init all widgets
 document.querySelectorAll("script[data-widget='chat']").forEach(initChatWidget);
+
