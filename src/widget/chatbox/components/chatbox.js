@@ -3,7 +3,7 @@ import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Box = styled.div`
   position: fixed;
@@ -18,6 +18,14 @@ const Box = styled.div`
   flex-direction: column;
   overflow: hidden;
   font-family: Arial, sans-serif;
+`;
+
+const FullscreenBox = styled(Box)`
+  width: 100vw !important;
+  height: 100vh !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  border-radius: 0;
 `;
 
 const Header = styled.div`
@@ -63,32 +71,42 @@ const ChatBoxTrigger = styled.button`
   align-items: center;
 `;
 
-const ChatBox = () => {
+const ChatBox = (props) => {
+  const isStatic = props['static'];
+  const [fullscreen, setFullscreen] = useState(props['fullscreen']);
   const [isVisible, setIsVisible] = useState(false);
+
+  const boxContent = (
+    <>
+      <Header>
+        {!isStatic && (
+          <Close onClick={() => setIsVisible(false)}>
+            <IoClose size={20} />
+          </Close>
+        )}
+        <Title>چت بات خان 🤖</Title>
+      </Header>
+      <Messages>
+        <ChatProvider>
+          <Chat />
+        </ChatProvider>
+      </Messages>
+    </>
+  );
 
   return (
     <>
-      (
-      {isVisible ? (
-        <Box>
-          <Header>
-            <Close onClick={() => setIsVisible(false)}>
-              <IoClose size={20} />
-            </Close>
-            <Title>چت بات خان 🤖</Title>
-          </Header>
-          <Messages>
-            <ChatProvider>
-              <Chat />
-            </ChatProvider>
-          </Messages>
-        </Box>
+      {isVisible || isStatic ? (
+        fullscreen ? (
+          <FullscreenBox>{boxContent}</FullscreenBox>
+        ) : (
+          <Box>{boxContent}</Box>
+        )
       ) : (
         <ChatBoxTrigger onClick={() => setIsVisible(true)}>
           <SiChatbot size={30} />
         </ChatBoxTrigger>
       )}
-      )
     </>
   );
 };
