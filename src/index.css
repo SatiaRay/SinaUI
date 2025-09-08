@@ -268,3 +268,54 @@ code {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+.ck-content {
+  color: #111827 !important;
+  background: #ffffff !important;
+}
+
+.dark .ck-content {
+  color: #f9fafb !important;
+  background: #1f2937 !important;
+}
+.ck-content a {
+  color: #1d4ed8 !important;
+}
+
+.ck-content table,
+.ck-content td,
+.ck-content th {
+  border-color: #d1d5db !important;
+}
+
+.dark .ck-content a {
+  color: #60a5fa !important;
+}
+
+.dark .ck-content table,
+.dark .ck-content td,
+.dark .ck-content th {
+  border-color: #374151 !important;
+}
+
+/* حالت لایت */
+.ck-content,
+.ck-content p,
+.ck-content span,
+.ck-content li,
+.ck-content td,
+.ck-content th {
+  color: #111827 !important;
+  background: #ffffff !important;
+}
+
+/* حالت دارک */
+.dark .ck-content,
+.dark .ck-content p,
+.dark .ck-content span,
+.dark .ck-content li,
+.dark .ck-content td,
+.dark .ck-content th {
+  color: #f9fafb !important;
+  background: #1f2937 !important;
+}

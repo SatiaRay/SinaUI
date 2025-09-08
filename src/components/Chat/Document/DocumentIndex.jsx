@@ -10,6 +10,7 @@ import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import SearchDocument from './searchDocument/SearchDocument'; // Import the separate search component
 
+
 const DocumentIndex = () => {
   const [state, setState] = useState({
     isLoading: false,
