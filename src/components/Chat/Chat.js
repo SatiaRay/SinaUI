@@ -313,11 +313,10 @@ const Chat = ({ item }) => {
   };
 
   return (
-    <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[1220px] mx-auto">
+    <div className="flex flex-col overflow-x-hidden h-full pb-7 px-2 w-full max-w-[1220px] mx-auto relative">
       <div
         ref={chatContainerRef}
-        className="flex-1 scrollbar-hidden overflow-y-auto mb-4 space-y-4"
-        style={{ height: "calc(100vh - 200px)" }}
+        className="scrollbar-hidden overflow-y-auto pb-11"
       >
         {/* Loading indicator for chat history */}
         {historyLoading && (
@@ -363,6 +362,7 @@ const Chat = ({ item }) => {
         <div ref={chatEndRef} />
       </div>
 
+      <div className="absolute bottom-0 left-[1px] w-full">
       {/* Wizard buttons */}
       <WizardButtons
         onWizardSelect={handleWizardSelect}
@@ -395,7 +395,7 @@ const Chat = ({ item }) => {
           />
           <div
             className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-              question.trim() ? "hidden" : ""
+                question.trim() ? 'hidden' : ''
             }`}
           >
             <VoiceBtn onTranscribe={setQuestion} />
@@ -408,6 +408,7 @@ const Chat = ({ item }) => {
           </div>
         </div>
       )}
+      </div>
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
   );

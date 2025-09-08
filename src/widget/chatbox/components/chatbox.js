@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import Chat from '../../../components/Chat/Chat'
+import { ChatProvider } from '../../../contexts/ChatContext';
 
 const Box = styled.div`
   position: fixed;
@@ -35,7 +37,9 @@ const ChatBox = () => {
     <Box>
       <Header>چت بات خان 🤖</Header>
       <Messages>
-        <p>Hello world!</p>
+        <ChatProvider>
+          <Chat/>
+        </ChatProvider>
       </Messages>
     </Box>
   );
