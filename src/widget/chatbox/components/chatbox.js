@@ -1,6 +1,9 @@
 import styled from 'styled-components';
-import Chat from '../../../components/Chat/Chat'
+import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
+import { SiChatbot } from 'react-icons/si';
+import { IoClose } from 'react-icons/io5';
+import { useState } from 'react';
 
 const Box = styled.div`
   position: fixed;
@@ -18,11 +21,17 @@ const Box = styled.div`
 `;
 
 const Header = styled.div`
-  background-color: #2e0ad1ff;
+  background-color: rgb(220, 20, 53);
   color: white;
-  padding: 12px;
+  padding: 15px;
   font-weight: bold;
   text-align: center;
+  position: relative;
+`;
+
+const Title = styled.div`
+  justify-self: center;
+  font-family: vazir;
 `;
 
 const Messages = styled.div`
@@ -32,16 +41,55 @@ const Messages = styled.div`
   overflow-y: auto;
 `;
 
+const Close = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+`;
+
+const ChatBoxTrigger = styled.button`
+  position: fixed;
+  bottom: 2vh;
+  right: 2vw;
+  width: 70px;
+  height: 70px;
+  z-index: 100;
+  color: white;
+  background-color: #dc143c;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const ChatBox = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
   return (
-    <Box>
-      <Header>چت بات خان 🤖</Header>
-      <Messages>
-        <ChatProvider>
-          <Chat/>
-        </ChatProvider>
-      </Messages>
-    </Box>
+    <>
+      (
+      {isVisible ? (
+        <Box>
+          <Header>
+            <Close onClick={() => setIsVisible(false)}>
+              <IoClose size={20} />
+            </Close>
+            <Title>چت بات خان 🤖</Title>
+          </Header>
+          <Messages>
+            <ChatProvider>
+              <Chat />
+            </ChatProvider>
+          </Messages>
+        </Box>
+      ) : (
+        <ChatBoxTrigger onClick={() => setIsVisible(true)}>
+          <SiChatbot size={30} />
+        </ChatBoxTrigger>
+      )}
+      )
+    </>
   );
 };
 
