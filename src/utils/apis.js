@@ -348,19 +348,53 @@ export const fileEndpoints = {
   uploadFiles: async (files) => {
     try {
       const formData = new FormData();
-
-      // Append all files under the same key "files"
-      files.forEach((file) => {
-        formData.append('files', file);
-      });
+      files.forEach((file) => formData.append('files', file));
 
       const URL = `${BASE_URL}/files/upload`;
       const response = await axios.post(URL, formData);
       return response.data;
     } catch (error) {
-      alert('Upload failed');
-      console.error('Error upload files:', error);
-      throw error;
+      console.info(error);
+      if (error.response) {
+        const status = error.response.status;
+        let message = '';
+
+        switch (status) {
+          case 400:
+            message = 'درخواست ارسالی معتبر نمی‌باشد.';
+            break;
+          case 401:
+            message = 'هویت کاربر تأیید نشده است.';
+            break;
+          case 403:
+            message = 'شما مجوز دسترسی به این بخش را ندارید.';
+            break;
+          case 404:
+            message = 'منبع درخواستی یافت نشد.';
+            break;
+          case 413:
+            message = 'حجم فایل ارسالی بیش از حد مجاز است.';
+            break;
+          case 415:
+            message = 'فرمت فایل پشتیبانی نمی‌گردد.';
+            break;
+          case 422:
+            message = 'اطلاعات ارسالی صحیح نمی‌باشد.';
+            break;
+          case 500:
+            message = 'خطای داخلی در سرور رخ داده است.';
+            break;
+          default:
+            message = `خطای غیرمنتظره (کد خطا: ${status})`;
+        }
+
+        throw { status, message };
+      } else {
+        throw {
+          status: null,
+          message: 'خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.',
+        };
+      }
     }
   },
 };
