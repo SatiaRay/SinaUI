@@ -1,24 +1,24 @@
-import { useEffect, useState, useRef } from "react";
-import { useVoiceAgent } from "../contexts/VoiceAgentContext";
-import { Button } from "react-bootstrap";
-import { ClipLoader } from "react-spinners";
-import MicVisualizer from "../components/MicVisualizer";
-import { AudioLines, Mic, MicVocal } from "lucide-react";
+import { useEffect, useState, useRef } from 'react';
+import { useVoiceAgent } from '../contexts/VoiceAgentContext';
+import { Button } from 'react-bootstrap';
+import { ClipLoader } from 'react-spinners';
+import MicVisualizer from '../components/MicVisualizer';
+import { AudioLines, Mic, MicVocal } from 'lucide-react';
 import {
   submitRequest,
   neshanSearch,
   searchSubject,
-} from "../services/ai_tools_function";
-import { aiFunctionsEndpoints, voiceAgentEndpoints } from "../utils/apis";
-import { useNavigate } from "react-router-dom";
+} from '../services/ai_tools_function';
+import { aiFunctionsEndpoints, voiceAgentEndpoints } from '../utils/apis';
+import { useNavigate } from 'react-router-dom';
 
 const VoiceAgentConversation = () => {
   const [instruction, setInstruction] = useState(null);
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("ready");
+  const [mode, setMode] = useState('ready');
   const [audioBlob, setAudioBlob] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // 📝 Conversation transcript
   const [conversation, setConversation] = useState([]);
@@ -61,8 +61,8 @@ const VoiceAgentConversation = () => {
   // Handle errors
   useEffect(() => {
     if (error) {
-      console.error("VoiceAgentConversation error:", error);
-      alert("An error occurred: " + error);
+      console.error('VoiceAgentConversation error:', error);
+      alert('An error occurred: ' + error);
     }
   }, [error]);
 
@@ -85,7 +85,7 @@ const VoiceAgentConversation = () => {
       source.connect(analyser);
 
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: "audio/webm",
+        mimeType: 'audio/webm',
       });
 
       mediaRecorderRef.current.ondataavailable = async (event) => {
@@ -94,17 +94,17 @@ const VoiceAgentConversation = () => {
           try {
             await session?.sendAudio(arrayBuffer);
           } catch (err) {
-            console.error("Failed to send audio:", err);
+            console.error('Failed to send audio:', err);
           }
         }
       };
 
       mediaRecorderRef.current.start(100);
-      setMode("recording");
+      setMode('recording');
       setShowConversation(false);
     } catch (err) {
-      console.error("Error starting recording:", err);
-      setMode("ready");
+      console.error('Error starting recording:', err);
+      setMode('ready');
     }
   };
 
@@ -113,57 +113,51 @@ const VoiceAgentConversation = () => {
     if (!session) return;
 
     const handleAudio = (event) => {
-      const blob = new Blob([event.audioData], { type: "audio/mp3" });
+      const blob = new Blob([event.audioData], { type: 'audio/mp3' });
       setAudioBlob(blob);
-      setMode("playing");
+      setMode('playing');
     };
 
-    session.on("audio", handleAudio);
+    session.on('audio', handleAudio);
 
-    session.on("input_transcript.delta", (e) => {
+    session.on('input_transcript.delta', (e) => {
       setConversation((prev) => {
         const last = prev[prev.length - 1];
-        if (last?.role === "user") {
-          return [
-            ...prev.slice(0, -1),
-            { ...last, text: last.text + e.delta },
-          ];
+        if (last?.role === 'user') {
+          return [...prev.slice(0, -1), { ...last, text: last.text + e.delta }];
         }
-        return [...prev, { role: "user", text: e.delta }];
+        return [...prev, { role: 'user', text: e.delta }];
       });
     });
 
-    session.on("response.output_text.delta", (e) => {
+    session.on('response.output_text.delta', (e) => {
       setConversation((prev) => {
         const last = prev[prev.length - 1];
-        if (last?.role === "assistant") {
-          return [
-            ...prev.slice(0, -1),
-            { ...last, text: last.text + e.delta },
-          ];
+        if (last?.role === 'assistant') {
+          return [...prev.slice(0, -1), { ...last, text: last.text + e.delta }];
         }
-        return [...prev, { role: "assistant", text: e.delta }];
+        return [...prev, { role: 'assistant', text: e.delta }];
       });
     });
 
-    session.on("response.completed", (res) => {
+    session.on('response.completed', (res) => {
       setConversation((prev) => [
         ...prev,
-        { role: "assistant", text: res.output_text },
+        { role: 'assistant', text: res.output_text },
       ]);
     });
 
     return () => {
-      session.off("audio", handleAudio);
-      session.off("input_transcript.delta");
-      session.off("response.output_text.delta");
-      session.off("response.completed");
+      session.off('audio', handleAudio);
+      session.off('input_transcript.delta');
+      session.off('response.output_text.delta');
+      session.off('response.completed');
     };
   }, [session]);
 
   // 🔊 Playback AI audio
   useEffect(() => {
-    if (mode !== "playing" || !audioBlob) return;
+    if (mode !== 'playing' || !audioBlob) return;
 
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext ||
@@ -175,12 +169,14 @@ const VoiceAgentConversation = () => {
     analyserRef.current.fftSize = 2048;
 
     audioPlayerRef.current = new Audio(URL.createObjectURL(audioBlob));
-    const source = audioContext.createMediaElementSource(audioPlayerRef.current);
+    const source = audioContext.createMediaElementSource(
+      audioPlayerRef.current
+    );
     source.connect(analyserRef.current);
     analyserRef.current.connect(audioContext.destination);
 
     audioPlayerRef.current.onended = () => {
-      setMode("ready");
+      setMode('ready');
       setAudioBlob(null);
     };
 
@@ -188,7 +184,7 @@ const VoiceAgentConversation = () => {
 
     return () => {
       audioPlayerRef.current?.pause();
-      audioPlayerRef.current?.removeEventListener("ended", () => { });
+      audioPlayerRef.current?.removeEventListener('ended', () => {});
     };
   }, [mode, audioBlob]);
 
@@ -201,7 +197,7 @@ const VoiceAgentConversation = () => {
       await connect(data.value);
       startRecording();
     } catch (err) {
-      console.error("Error connecting to voice agent:", err);
+      console.error('Error connecting to voice agent:', err);
     } finally {
       setLoading(false);
       setShowConversation(false);
@@ -210,7 +206,7 @@ const VoiceAgentConversation = () => {
 
   // ⏹ Stop recording but keep conversation
   const handleStopAndShowConversation = () => {
-    if (mediaRecorderRef.current?.state === "recording") {
+    if (mediaRecorderRef.current?.state === 'recording') {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream
         .getTracks()
@@ -222,14 +218,14 @@ const VoiceAgentConversation = () => {
       audioPlayerRef.current = null;
     }
 
-    setMode("ready");
+    setMode('ready');
     setAudioBlob(null);
     setShowConversation(true);
   };
 
   // ❌ Disconnect fully
   const handleDisconnect = () => {
-    if (mediaRecorderRef.current?.state === "recording") {
+    if (mediaRecorderRef.current?.state === 'recording') {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream
         .getTracks()
@@ -242,7 +238,7 @@ const VoiceAgentConversation = () => {
     }
 
     disconnect();
-    setMode("ready");
+    setMode('ready');
     setAudioBlob(null);
     setShowConversation(false);
     setConversation([]); // clear only on full disconnect
@@ -257,8 +253,14 @@ const VoiceAgentConversation = () => {
           <p className="text-gray-500">
             با ربات هوش مصنوعی به صورت صوتی گفتگو کنید
           </p>
-          <div dir="ltr" className="flex my-5 w-full justify-center items-center gap-2">
-            <button onClick={() => navigate('/chat')} className="text-blue-600 hover:bg-blue-600/90 border border-blue-600 hover:text-white w-[48%] px-4 rounded-lg h-10 flex items-center justify-center w-auto justify-self-center">
+          <div
+            dir="ltr"
+            className="flex my-5 w-full justify-center items-center gap-2"
+          >
+            <button
+              onClick={() => navigate('/chat')}
+              className="text-blue-600 hover:bg-blue-600/90 border border-blue-600 hover:text-white w-[48%] px-4 rounded-lg h-10 flex items-center justify-center w-auto justify-self-center"
+            >
               بازگشت به چت
             </button>
             <Button
@@ -276,7 +278,6 @@ const VoiceAgentConversation = () => {
               )}
             </Button>
           </div>
-
         </div>
       </div>
     );
@@ -285,10 +286,13 @@ const VoiceAgentConversation = () => {
   return (
     <div className="flex flex-col justify-center h-screen items-center gap-4 p-4">
       <MicVisualizer analyser={analyserRef.current}>
-        <Mic size={24} color={mode === "recording" ? "red" : "gray"} />
+        <Mic size={24} color={mode === 'recording' ? 'red' : 'gray'} />
       </MicVisualizer>
 
-      <button className="text-gray-800 hover:text-blue-600" onClick={handleStopAndShowConversation}>
+      <button
+        className="text-gray-800 hover:text-blue-600"
+        onClick={handleStopAndShowConversation}
+      >
         پایان ضبط
       </button>
       {/* <div
@@ -302,12 +306,13 @@ const VoiceAgentConversation = () => {
         ))}
       </div> */}
 
-
       <div className="flex gap-2 mt-4">
-        <button className="px-4 bg-gray-800 hover:bg-gray-800/90 text-white rounded-lg  h-10 text-sm" onClick={handleDisconnect}>
+        <button
+          className="px-4 bg-gray-800 hover:bg-gray-800/90 text-white rounded-lg  h-10 text-sm"
+          onClick={handleDisconnect}
+        >
           قطع ارتباط
         </button>
-
       </div>
     </div>
   );

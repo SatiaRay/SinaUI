@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { notify } from "../../ui/toast";
-import { Export } from "./export";
-import SettingsForm from "./form";
-import { Import } from "./import";
+import { notify } from '../../ui/toast';
+import { Export } from './export';
+import SettingsForm from './form';
+import { Import } from './import';
 
 const Setting = () => {
   const [settingsSchema, setSettingsSchema] = useState(null);
@@ -19,10 +19,10 @@ const Setting = () => {
 
         const [schemaResponse, settingsResponse] = await axios.all([
           axios.get('/system/settings-schema'),
-          axios.get('/system/settings')
+          axios.get('/system/settings'),
         ]);
-        console.log("Schema from backend:", schemaResponse.data);  // ✅ log schema
-        console.log("Current settings from backend:", settingsResponse.data);
+        console.log('Schema from backend:', schemaResponse.data); // ✅ log schema
+        console.log('Current settings from backend:', settingsResponse.data);
 
         setSettingsSchema(schemaResponse.data.schema);
         setCurrentSettings(settingsResponse.data);
@@ -50,7 +50,9 @@ const Setting = () => {
         setCurrentSettings(settingsResponse.data);
       }
     } catch (error) {
-      notify.error(`خطا در ذخیره تنظیمات: ${error.response?.data?.message || error.message}`);
+      notify.error(
+        `خطا در ذخیره تنظیمات: ${error.response?.data?.message || error.message}`
+      );
     } finally {
       setLoading(false);
     }

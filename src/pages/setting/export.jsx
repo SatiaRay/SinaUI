@@ -1,27 +1,27 @@
-import { useState } from "react";
-import { downloadSystemExport } from "../../services/api";
-import { notify } from "../../ui/toast";
+import { useState } from 'react';
+import { downloadSystemExport } from '../../services/api';
+import { notify } from '../../ui/toast';
 
 export const Export = () => {
-  const [statusMessage, setStatusMessage] = useState("");
+  const [statusMessage, setStatusMessage] = useState('');
 
   const handleDownload = async () => {
     try {
       const blob = await downloadSystemExport();
-      if (!blob) throw new Error("فایل دریافت نشد");
+      if (!blob) throw new Error('فایل دریافت نشد');
 
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", "system_export.zip");
+      link.setAttribute('download', 'system_export.zip');
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      notify.success(" دانلود با موفقیت انجام شد");
+      notify.success(' دانلود با موفقیت انجام شد');
     } catch (error) {
-      notify.error(" دانلود ناموفق بود");
+      notify.error(' دانلود ناموفق بود');
     }
   };
 

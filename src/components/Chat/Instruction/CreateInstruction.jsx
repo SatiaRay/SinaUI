@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { instructionEndpoints } from "../../../utils/apis";
-import CustomDropdown from "../../../ui/dropdown";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { instructionEndpoints } from '../../../utils/apis';
+import CustomDropdown from '../../../ui/dropdown';
 
 const CreateInstruction = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    label: "",
-    text: "",
-    agent_type: "both",
+    label: '',
+    text: '',
+    agent_type: 'both',
     status: 1,
   });
   const [error, setError] = useState(null);
@@ -17,7 +17,7 @@ const CreateInstruction = () => {
   const handleChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "status" ? Number(value) : value,
+      [name]: name === 'status' ? Number(value) : value,
     }));
   };
 
@@ -28,22 +28,22 @@ const CreateInstruction = () => {
 
     try {
       await instructionEndpoints.createInstruction(formData);
-      navigate("/instructions");
+      navigate('/instructions');
     } catch (err) {
-      setError("خطا در ایجاد دستورالعمل");
+      setError('خطا در ایجاد دستورالعمل');
       setLoading(false);
     }
   };
 
   const agentTypeOptions = [
-    { value: "both", label: "همه" },
-    { value: "text_agent", label: "ربات متنی" },
-    { value: "voice_agent", label: "ربات صوتی" },
+    { value: 'both', label: 'همه' },
+    { value: 'text_agent', label: 'ربات متنی' },
+    { value: 'voice_agent', label: 'ربات صوتی' },
   ];
 
   const statusOptions = [
-    { value: 1, label: "فعال" },
-    { value: 0, label: "غیرفعال" },
+    { value: 1, label: 'فعال' },
+    { value: 0, label: 'غیرفعال' },
   ];
 
   return (
@@ -94,10 +94,10 @@ const CreateInstruction = () => {
               <CustomDropdown
                 options={agentTypeOptions}
                 value={formData.agent_type}
-                onChange={(value) => handleChange("agent_type", value)}
+                onChange={(value) => handleChange('agent_type', value)}
                 placeholder="نوع ربات را انتخاب کنید"
                 className="w-full"
-                parentStyle='w-full'
+                parentStyle="w-full"
               />
             </div>
             <div className="w-full">
@@ -107,10 +107,10 @@ const CreateInstruction = () => {
               <CustomDropdown
                 options={statusOptions}
                 value={formData.status}
-                onChange={(value) => handleChange("status", value)}
+                onChange={(value) => handleChange('status', value)}
                 placeholder="وضعیت را انتخاب کنید"
                 className="w-full"
-                parentStyle='w-full'
+                parentStyle="w-full"
               />
             </div>
           </div>
@@ -118,7 +118,7 @@ const CreateInstruction = () => {
           <div className="flex justify-end gap-2 mt-2">
             <button
               type="button"
-              onClick={() => navigate("/instructions")}
+              onClick={() => navigate('/instructions')}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               انصراف
@@ -128,7 +128,7 @@ const CreateInstruction = () => {
               disabled={loading}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             >
-              {loading ? "در حال ذخیره..." : "ذخیره"}
+              {loading ? 'در حال ذخیره...' : 'ذخیره'}
             </button>
           </div>
         </form>

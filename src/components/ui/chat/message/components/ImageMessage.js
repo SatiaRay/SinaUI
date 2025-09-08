@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { formatTimestamp } from "../../../../../utils/helpers";
+import { useEffect, useState } from 'react';
+import { formatTimestamp } from '../../../../../utils/helpers';
 
 const ImageMessage = ({ data }) => {
   const [images, setImages] = useState([]);

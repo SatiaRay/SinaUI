@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronUp, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import React, { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import {
   PlayIcon,
   PlusCircleIcon,
@@ -8,12 +8,12 @@ import {
   QuestionMarkCircleIcon,
   XCircleIcon,
   CheckIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 const WorkflowEditorSidebar = ({
   workflowName,
   setWorkflowName,
-  agentType = "text_agent",
+  agentType = 'text_agent',
   setAgentType,
   saveWorkflow,
   addNode,
@@ -22,7 +22,7 @@ const WorkflowEditorSidebar = ({
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   useEffect(() => {
     if (!agentType) {
-      setAgentType("text_agent");
+      setAgentType('text_agent');
     }
   }, [agentType, setAgentType]);
   const toggleMenu = () => {
@@ -30,7 +30,7 @@ const WorkflowEditorSidebar = ({
   };
 
   const buttonStyles =
-    "flex items-center gap-2 w-full px-3 py-1.5 text-sm font-medium text-white rounded-md transition-all duration-200 hover:scale-102 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900";
+    'flex items-center gap-2 w-full px-3 py-1.5 text-sm font-medium text-white rounded-md transition-all duration-200 hover:scale-102 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900';
 
   return (
     <div className="absolute left-6 top-6 z-10 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
@@ -66,8 +66,8 @@ const WorkflowEditorSidebar = ({
       <div
         className={`flex flex-col gap-1.5 p-2 transition-all duration-300 ease-in-out ${
           isMenuOpen
-            ? "max-h-[calc(100vh-110px)] opacity-100"
-            : "max-h-0 opacity-0 overflow-hidden"
+            ? 'max-h-[calc(100vh-110px)] opacity-100'
+            : 'max-h-0 opacity-0 overflow-hidden'
         }`}
       >
         <div className="p-1.5">
@@ -104,44 +104,44 @@ const WorkflowEditorSidebar = ({
           </select>
         </div>
         <hr className="border-gray-200 dark:border-gray-700 my-1" />
-    
+
         <button
-          onClick={() => addNode("start")}
+          onClick={() => addNode('start')}
           className={`${buttonStyles} bg-[var(--accent-blue)] hover:bg-blue-600 focus:ring-blue-400`}
         >
           <PlusCircleIcon className="h-4 w-4" />
           شروع
         </button>
         <button
-          onClick={() => addNode("process")}
+          onClick={() => addNode('process')}
           className={`${buttonStyles} bg-[var(--accent-blue)] hover:bg-blue-600 focus:ring-blue-400`}
         >
           <CogIcon className="h-4 w-4" />
           فرآیند
         </button>
         <button
-          onClick={() => addNode("decision")}
+          onClick={() => addNode('decision')}
           className={`${buttonStyles} bg-[var(--accent-yellow)] hover:bg-yellow-600 focus:ring-yellow-400`}
         >
           <QuestionMarkCircleIcon className="h-4 w-4" />
           تصمیم
         </button>
         <button
-          onClick={() => addNode("function")}
+          onClick={() => addNode('function')}
           className={`${buttonStyles} bg-[var(--accent-purple)] hover:bg-purple-600 focus:ring-purple-400`}
         >
           <CogIcon className="h-4 w-4" />
           تابع
         </button>
         <button
-          onClick={() => addNode("response")}
+          onClick={() => addNode('response')}
           className={`${buttonStyles} bg-[var(--accent-orange)] hover:bg-orange-600 focus:ring-orange-400`}
         >
           <QuestionMarkCircleIcon className="h-4 w-4" />
           پاسخ
         </button>
         <button
-          onClick={() => addNode("end")}
+          onClick={() => addNode('end')}
           className={`${buttonStyles} bg-[var(--accent-red)] hover:bg-red-600 focus:ring-red-400`}
         >
           <XCircleIcon className="h-4 w-4" />

@@ -1,37 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Navigate,
   Route,
   BrowserRouter as Router,
   Routes,
   useLocation,
-} from "react-router-dom";
-import Chat from "./components/Chat/Chat";
-import CrawlUrl from "./components/Chat/CrawlUrl";
+} from 'react-router-dom';
+import Chat from './components/Chat/Chat';
+import CrawlUrl from './components/Chat/CrawlUrl';
 import {
   Document,
   DocumentIndex,
   DomainIndex,
   EditDocument,
-} from "./components/Chat/Document";
-import CreateInstruction from "./components/Chat/Instruction/CreateInstruction";
-import EditInstruction from "./components/Chat/Instruction/EditInstruction";
-import InstructionIndex from "./components/Chat/Instruction/InstructionIndex";
-import Status1 from "./components/Chat/Status";
-import Wizard from "./components/Chat/Wizard";
-import Login from "./components/Login";
-import Navbar from "./components/Navbar";
-import PrivateRoute from "./components/PrivateRoute";
-import Workflow from "./components/Workflow/WorkflowIndex";
-import WorkflowEditor from "./components/Workflow/editor/WorkflowEditor";
-import { AuthProvider } from "./contexts/AuthContext";
-import { VoiceAgentProvider } from "./contexts/VoiceAgentContext";
-import VoiceAgentConversation from "./pages/VoiceAgentConversation";
-import AiToolsFunctionTester from "./pages/AiToolsFunctionTester";
-import { getVersion } from "./utils/apis";
-import Register from "./components/register";
-import Setting from "./pages/setting";
-import { ChatProvider } from "./contexts/ChatContext";
+} from './components/Chat/Document';
+import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
+import EditInstruction from './components/Chat/Instruction/EditInstruction';
+import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
+import Status1 from './components/Chat/Status';
+import Wizard from './components/Chat/Wizard';
+import Login from './components/Login';
+import Navbar from './components/Navbar';
+import PrivateRoute from './components/PrivateRoute';
+import Workflow from './components/Workflow/WorkflowIndex';
+import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
+import { AuthProvider } from './contexts/AuthContext';
+import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
+import VoiceAgentConversation from './pages/VoiceAgentConversation';
+import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
+import { getVersion } from './utils/apis';
+import Register from './components/register';
+import Setting from './pages/setting';
+import { ChatProvider } from './contexts/ChatContext';
 
 function App() {
   return (
@@ -49,7 +49,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const showNavbar = location.pathname !== "/login";
+  const showNavbar = location.pathname !== '/login';
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
@@ -58,7 +58,7 @@ function AppContent() {
         const res = await getVersion();
         setAppVersion(res.version);
       } catch (err) {
-        setAppVersion("undefined");
+        setAppVersion('undefined');
       }
     };
 
@@ -73,9 +73,9 @@ function AppContent() {
         className={`transition-all duration-300 ${
           showNavbar
             ? sidebarCollapsed
-              ? "md:mr-0"
-              : "md:mr-64"
-            : "flex items-center justify-center"
+              ? 'md:mr-0'
+              : 'md:mr-64'
+            : 'flex items-center justify-center'
         }`}
       >
         {privateRoutes()}
@@ -83,10 +83,14 @@ function AppContent() {
 
       <div className="flex items-center justify-center">{publicRoutes()}</div>
 
-        <span
-            className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"dir="ltr">
-              {appVersion}
-        </span>
+
+      <span
+        className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
+        dir="ltr"
+      >
+        {appVersion}
+      </span>
+
     </div>
   );
 }

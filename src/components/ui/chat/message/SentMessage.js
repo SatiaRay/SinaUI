@@ -1,4 +1,4 @@
-import { formatTimestamp } from "../../../../utils/helpers";
+import { formatTimestamp } from '../../../../utils/helpers';
 
 const SentMessage = ({ children, timestamp }) => {
   return (

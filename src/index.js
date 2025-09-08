@@ -14,7 +14,8 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <App />
-    <ToastContainer position="bottom-center"
+    <ToastContainer
+      position="bottom-center"
       autoClose={3000}
       hideProgressBar={false}
       newestOnTop={false}
@@ -28,4 +29,4 @@ root.render(
   </React.StrictMode>
 );
 
-reportWebVitals(); 
+reportWebVitals();

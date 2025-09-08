@@ -1,4 +1,4 @@
-import axios from "../contexts/axios";
+import axios from '../contexts/axios';
 
 // API Base URL
 const BASE_URL = process.env.REACT_APP_CHAT_API_URL;
@@ -11,7 +11,7 @@ export const workflowEndpoints = {
       const response = await axios.get(`${BASE_URL}/workflows/${workflowId}`);
       return response.data;
     } catch (error) {
-      console.error("Error fetching workflow:", error);
+      console.error('Error fetching workflow:', error);
       throw error;
     }
   },
@@ -22,7 +22,7 @@ export const workflowEndpoints = {
       const response = await axios.post(`${BASE_URL}/workflows`, workflowData);
       return response.data;
     } catch (error) {
-      console.error("Error creating workflow:", error);
+      console.error('Error creating workflow:', error);
       throw error;
     }
   },
@@ -36,7 +36,7 @@ export const workflowEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error updating workflow:", error);
+      console.error('Error updating workflow:', error);
       throw error;
     }
   },
@@ -49,7 +49,7 @@ export const workflowEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error deleting workflow:", error);
+      console.error('Error deleting workflow:', error);
       throw error;
     }
   },
@@ -62,7 +62,7 @@ export const workflowEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error listing workflows:", error);
+      console.error('Error listing workflows:', error);
       throw error;
     }
   },
@@ -73,7 +73,7 @@ export const getVersion = async () => {
     const response = await axios.get(`${BASE_URL}/version`);
     return response.data;
   } catch (error) {
-    console.error("Error get version:", error);
+    console.error('Error get version:', error);
     throw error;
   }
 };
@@ -88,7 +88,7 @@ export const instructionEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error fetching instruction:", error);
+      console.error('Error fetching instruction:', error);
       throw error;
     }
   },
@@ -102,7 +102,7 @@ export const instructionEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error creating instruction:", error);
+      console.error('Error creating instruction:', error);
       throw error;
     }
   },
@@ -116,7 +116,7 @@ export const instructionEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error updating instruction:", error);
+      console.error('Error updating instruction:', error);
       throw error;
     }
   },
@@ -129,7 +129,7 @@ export const instructionEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error deleting instruction:", error);
+      console.error('Error deleting instruction:', error);
       throw error;
     }
   },
@@ -142,7 +142,7 @@ export const instructionEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error listing instructions:", error);
+      console.error('Error listing instructions:', error);
       throw error;
     }
   },
@@ -154,7 +154,7 @@ export const aiFunctionsEndpoints = {
       const response = await axios.get(`${BASE_URL}/ai-functions/map`);
       return response.data;
     } catch (error) {
-      console.error("Error fetching AI functions:", error);
+      console.error('Error fetching AI functions:', error);
       throw error;
     }
   },
@@ -167,7 +167,7 @@ export const aiFunctionsEndpoints = {
       });
       return response.data;
     } catch (error) {
-      console.error("Error calling AI function:", error);
+      console.error('Error calling AI function:', error);
       throw error;
     }
   },
@@ -184,7 +184,7 @@ export const workspaceEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error creating workspace:", error);
+      console.error('Error creating workspace:', error);
       throw error;
     }
   },
@@ -197,7 +197,7 @@ export const workspaceEndpoints = {
       });
       return response.data;
     } catch (error) {
-      console.error("Error listing workspaces:", error);
+      console.error('Error listing workspaces:', error);
       throw error;
     }
   },
@@ -208,7 +208,7 @@ export const workspaceEndpoints = {
       const response = await axios.get(`${BASE_URL}/workspaces/${workspaceId}`);
       return response.data;
     } catch (error) {
-      console.error("Error fetching workspace:", error);
+      console.error('Error fetching workspace:', error);
       throw error;
     }
   },
@@ -222,7 +222,7 @@ export const workspaceEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error updating workspace:", error);
+      console.error('Error updating workspace:', error);
       throw error;
     }
   },
@@ -235,7 +235,7 @@ export const workspaceEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error deleting workspace:", error);
+      console.error('Error deleting workspace:', error);
       throw error;
     }
   },
@@ -249,7 +249,7 @@ export const workspaceEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error adding user to workspace:", error);
+      console.error('Error adding user to workspace:', error);
       throw error;
     }
   },
@@ -262,7 +262,7 @@ export const workspaceEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error removing user from workspace:", error);
+      console.error('Error removing user from workspace:', error);
       throw error;
     }
   },
@@ -275,7 +275,7 @@ export const workspaceEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error listing workspace users:", error);
+      console.error('Error listing workspace users:', error);
       throw error;
     }
   },
@@ -288,7 +288,7 @@ export const workspaceEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error selecting workspace:", error);
+      console.error('Error selecting workspace:', error);
       throw error;
     }
   },
@@ -304,7 +304,7 @@ export const documentEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error add manually:", error);
+      console.error('Error add manually:', error);
       throw error;
     }
   },
@@ -315,7 +315,7 @@ export const documentEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error("Error deleting document:", error);
+      console.error('Error deleting document:', error);
       throw error;
     }
   },
@@ -327,7 +327,7 @@ export const voiceAgentEndpoints = {
       const response = await axios.get(`${BASE_URL}/voice_agent/instruction`);
       return response.data;
     } catch (error) {
-      console.error("Error getting voice agent instuction:", error);
+      console.error('Error getting voice agent instuction:', error);
       throw error;
     }
   },
@@ -337,8 +337,8 @@ export const voiceAgentEndpoints = {
       const response = await axios.get(URL);
       return response.data;
     } catch (error) {
-      alert("Error fetching client secret key. Please try again later.");
-      console.error("Error fetching client secret key:", error);
+      alert('Error fetching client secret key. Please try again later.');
+      console.error('Error fetching client secret key:', error);
       throw error;
     }
   },
@@ -351,15 +351,15 @@ export const fileEndpoints = {
 
       // Append all files under the same key "files"
       files.forEach((file) => {
-        formData.append("files", file);
+        formData.append('files', file);
       });
 
       const URL = `${BASE_URL}/files/upload`;
       const response = await axios.post(URL, formData);
       return response.data;
     } catch (error) {
-      alert("Upload failed");
-      console.error("Error upload files:", error);
+      alert('Upload failed');
+      console.error('Error upload files:', error);
       throw error;
     }
   },

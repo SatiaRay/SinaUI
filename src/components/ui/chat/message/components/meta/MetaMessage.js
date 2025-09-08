@@ -1,7 +1,7 @@
-import UploadImage from "./UploadImage";
-import { useChat } from "../../../../../../contexts/ChatContext";
-import React, { useEffect, useState, useCallback } from "react";
-import { fileEndpoints } from "../../../../../../utils/apis";
+import UploadImage from './UploadImage';
+import { useChat } from '../../../../../../contexts/ChatContext';
+import React, { useEffect, useState, useCallback } from 'react';
+import { fileEndpoints } from '../../../../../../utils/apis';
 
 const MetaMessage = ({ messageId, metadata }) => {
   const { sendData, removeMessage, sendUploadedImage, setOptionMessageTriggered} = useChat();
@@ -13,10 +13,10 @@ const MetaMessage = ({ messageId, metadata }) => {
   const getMessageComponent = useCallback(
     (metadata) => {
       switch (metadata.option) {
-        case "upload": {
+        case 'upload': {
           return (() => {
             switch (metadata.upload_type) {
-              case "image":
+              case 'image':
                 return (
                   <UploadImage
                     onCacnel={cancel}
@@ -38,10 +38,10 @@ const MetaMessage = ({ messageId, metadata }) => {
    * Cacnel send meta message
    */
   const cancel = () => {
-    if (!window.confirm("آیا مطمئن هستید ؟")) return;
+    if (!window.confirm('آیا مطمئن هستید ؟')) return;
 
     sendData({
-      event: "cancel",
+      event: 'cancel',
       desc: `Client canceled sending ${metadata.option} message`,
     });
 
@@ -54,7 +54,7 @@ const MetaMessage = ({ messageId, metadata }) => {
    * Upload file to chat websocket channel
    */
   const upload = async (files) => {
-    if (!window.confirm("آیا مطمئن هستید ؟")) return;
+    if (!window.confirm('آیا مطمئن هستید ؟')) return;
 
     setIsLoading(true);
 
@@ -62,7 +62,7 @@ const MetaMessage = ({ messageId, metadata }) => {
 
     setIsLoading(false);
 
-    sendUploadedImage(data["files"]);
+    sendUploadedImage(data['files']);
 
     removeMessage(messageId);
 

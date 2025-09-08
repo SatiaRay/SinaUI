@@ -1,21 +1,21 @@
-import React, { useState, useCallback } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { documentEndpoints } from "../../../utils/apis";
-import CustomDropdown from "../../../ui/dropdown";
-import { notify } from "../../../ui/toast";
+import React, { useState, useCallback } from 'react';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { documentEndpoints } from '../../../utils/apis';
+import CustomDropdown from '../../../ui/dropdown';
+import { notify } from '../../../ui/toast';
 
 const AGENT_TYPES = [
-  { value: "text_agent", label: "ربات متن" },
-  { value: "voice_agent", label: "ربات صوتی" },
-  { value: "both", label: "هر دو" },
+  { value: 'text_agent', label: 'ربات متن' },
+  { value: 'voice_agent', label: 'ربات صوتی' },
+  { value: 'both', label: 'هر دو' },
 ];
 
 const CreateDocument = ({ onClose }) => {
   const [form, setForm] = useState({
-    title: "",
-    text: "",
-    agentType: "text_agent", // Set default value to match one of the AGENT_TYPES values
+    title: '',
+    text: '',
+    agentType: 'text_agent', // Set default value to match one of the AGENT_TYPES values
   });
   const [status, setStatus] = useState({
     loading: false,
@@ -31,29 +31,30 @@ const CreateDocument = ({ onClose }) => {
       e.preventDefault();
 
       if (!form.title.trim() || !form.text.trim()) {
-        setStatus({ loading: false, error: "لطفاً عنوان و متن را وارد کنید." });
+        setStatus({ loading: false, error: 'لطفاً عنوان و متن را وارد کنید.' });
         return;
       }
 
       setStatus({ loading: true, error: null });
 
       try {
-        const { status: apiStatus } = await documentEndpoints.addDocumentManually({
-          text: form.text,
-          agent_type: form.agentType,
-          metadata: { source: "manual", title: form.title },
-        });
+        const { status: apiStatus } =
+          await documentEndpoints.addDocumentManually({
+            text: form.text,
+            agent_type: form.agentType,
+            metadata: { source: 'manual', title: form.title },
+          });
 
-        if (apiStatus === "success") {
-          notify.success("اطلاعات با موفقیت ذخیره شد");
-          setForm({ title: "", text: "", agentType: "text_agent" });
+        if (apiStatus === 'success') {
+          notify.success('اطلاعات با موفقیت ذخیره شد');
+          setForm({ title: '', text: '', agentType: 'text_agent' });
           onClose();
         } else {
-          throw new Error("خطا در ذخیره اطلاعات");
+          throw new Error('خطا در ذخیره اطلاعات');
         }
       } catch (err) {
         setStatus({ loading: false, error: err.message });
-        console.error("خطا در ذخیره سند:", err);
+        console.error('خطا در ذخیره سند:', err);
       } finally {
         setStatus((prev) => ({ ...prev, loading: false }));
       }
@@ -64,7 +65,7 @@ const CreateDocument = ({ onClose }) => {
   /** ثبت با Enter */
   const handleKeyDown = useCallback(
     (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         handleSubmit(e);
       }
@@ -82,14 +83,17 @@ const CreateDocument = ({ onClose }) => {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="w-full flex gap-2">
             <div className="w-1/2 flex flex-col gap-1">
-              <label htmlFor="title" className="block dark:text-white text-sm font-medium mb-1">
+              <label
+                htmlFor="title"
+                className="block dark:text-white text-sm font-medium mb-1"
+              >
                 عنوان
               </label>
               <input
                 type="text"
                 id="title"
                 value={form.title}
-                onChange={(e) => handleChange("title", e.target.value)}
+                onChange={(e) => handleChange('title', e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="عنوان سند را وارد کنید"
                 className="w-full px-3 h-10 border rounded-lg shadow-sm bg-transparent dark:border-white"
@@ -98,13 +102,16 @@ const CreateDocument = ({ onClose }) => {
             </div>
 
             <div className="w-1/2 flex flex-col gap-1">
-              <label htmlFor="agentType" className="block dark:text-white text-sm font-medium mb-1">
+              <label
+                htmlFor="agentType"
+                className="block dark:text-white text-sm font-medium mb-1"
+              >
                 نوع ربات
               </label>
               <CustomDropdown
                 options={AGENT_TYPES}
                 value={form.agentType}
-                onChange={(value) => handleChange("agentType", value)}
+                onChange={(value) => handleChange('agentType', value)}
                 placeholder="نوع ربات را انتخاب کنید"
                 className="h-10"
                 parentStyle="w-full"
@@ -112,70 +119,95 @@ const CreateDocument = ({ onClose }) => {
             </div>
           </div>
 
-
           <div className="flex flex-col gap-1">
-            <label htmlFor="text" className="block dark:text-white text-sm font-medium mb-1">
+            <label
+              htmlFor="text"
+              className="block dark:text-white text-sm font-medium mb-1"
+            >
               متن
             </label>
             <div className="min-h-[200px] max-h-[30vh] overflow-auto p-3 border rounded-lg">
               <CKEditor
                 editor={ClassicEditor}
                 data={form.text}
-                onChange={(event, editor) => handleChange("text", editor.getData())}
+                onChange={(event, editor) =>
+                  handleChange('text', editor.getData())
+                }
                 config={{
-                  language: "fa",
-                  direction: "rtl",
+                  language: 'fa',
+                  direction: 'rtl',
                   toolbar: {
                     items: [
-                      "heading",
-                      "|",
-                      "bold",
-                      "italic",
-                      "link",
-                      "bulletedList",
-                      "numberedList",
-                      "|",
-                      "outdent",
-                      "indent",
-                      "|",
-                      "insertTable",
-                      "undo",
-                      "redo",
+                      'heading',
+                      '|',
+                      'bold',
+                      'italic',
+                      'link',
+                      'bulletedList',
+                      'numberedList',
+                      '|',
+                      'outdent',
+                      'indent',
+                      '|',
+                      'insertTable',
+                      'undo',
+                      'redo',
                     ],
                   },
                   table: {
                     contentToolbar: [
-                      "tableColumn",
-                      "tableRow",
-                      "mergeTableCells",
-                      "tableProperties",
-                      "tableCellProperties",
+                      'tableColumn',
+                      'tableRow',
+                      'mergeTableCells',
+                      'tableProperties',
+                      'tableCellProperties',
                     ],
                     defaultProperties: {
-                      borderWidth: "1px",
-                      borderColor: "#ccc",
-                      borderStyle: "solid",
-                      alignment: "right",
+                      borderWidth: '1px',
+                      borderColor: '#ccc',
+                      borderStyle: 'solid',
+                      alignment: 'right',
                     },
                   },
                   htmlSupport: {
                     allow: [
-                      { name: "table", attributes: true, classes: true, styles: true },
-                      { name: "tr", attributes: true, classes: true, styles: true },
-                      { name: "td", attributes: true, classes: true, styles: true },
-                      { name: "th", attributes: true, classes: true, styles: true },
+                      {
+                        name: 'table',
+                        attributes: true,
+                        classes: true,
+                        styles: true,
+                      },
+                      {
+                        name: 'tr',
+                        attributes: true,
+                        classes: true,
+                        styles: true,
+                      },
+                      {
+                        name: 'td',
+                        attributes: true,
+                        classes: true,
+                        styles: true,
+                      },
+                      {
+                        name: 'th',
+                        attributes: true,
+                        classes: true,
+                        styles: true,
+                      },
                     ],
                   },
                 }}
                 onKeyDown={handleKeyDown}
               />
             </div>
-
           </div>
 
           {/* پیام خطا */}
           {status.error && (
-            <div className="text-red-500 text-sm text-center">{status.error}</div>
+            <div className="text-red-500 text-sm text-center">
+              {status.error}
+            </div>
           )}
         </form>
       </div>
@@ -194,7 +226,7 @@ const CreateDocument = ({ onClose }) => {
               در حال ذخیره...
             </>
           ) : (
-            "ذخیره سند"
+            'ذخیره سند'
           )}
         </button>
       </div>

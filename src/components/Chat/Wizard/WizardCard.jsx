@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { ShowWizard, UpdateWizard } from "./index";
+import React, { useState, useEffect } from 'react';
+import { ShowWizard, UpdateWizard } from './index';
 
 const WizardCard = ({
   wizard,
@@ -14,16 +14,16 @@ const WizardCard = ({
   const toggleWizardStatus = async (wizardId, currentStatus) => {
     setUpdatingStatus((prev) => ({ ...prev, [wizardId]: true }));
     try {
-      const endpoint = currentStatus ? "disable" : "enable";
+      const endpoint = currentStatus ? 'disable' : 'enable';
       const response = await fetch(
         `${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}/${endpoint}`,
         {
-          method: "POST",
+          method: 'POST',
         }
       );
 
       if (!response.ok) {
-        throw new Error("خطا در تغییر وضعیت ویزارد");
+        throw new Error('خطا در تغییر وضعیت ویزارد');
       }
 
       wizard.enabled = !wizard.enabled;
@@ -35,19 +35,19 @@ const WizardCard = ({
   };
 
   const submitDelete = () => {
-    if (window.confirm("آیا از حذف این ویزارد مطمئن هستید ؟")) {
+    if (window.confirm('آیا از حذف این ویزارد مطمئن هستید ؟')) {
       fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizard.id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error("خطا در حذف ویزارد");
+            throw new Error('خطا در حذف ویزارد');
           }
           onDeleteWizard(wizard.id);
         })
         .catch((error) => {
-          console.error("Error deleting wizard:", error);
-          alert("خطا در حذف ویزارد");
+          console.error('Error deleting wizard:', error);
+          alert('خطا در حذف ویزارد');
         });
     }
   };
@@ -72,8 +72,8 @@ const WizardCard = ({
                 disabled={updatingStatus[wizard.id]}
                 className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors ${
                   wizard.enabled
-                    ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
-                    : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800'
+                    : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {updatingStatus[wizard.id] ? (
@@ -82,9 +82,9 @@ const WizardCard = ({
                     <span>در حال تغییر...</span>
                   </div>
                 ) : wizard.enabled ? (
-                  "فعال"
+                  'فعال'
                 ) : (
-                  "غیرفعال"
+                  'غیرفعال'
                 )}
               </button>
 
@@ -114,8 +114,8 @@ const WizardCard = ({
 
           <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
             <span>شناسه: {wizard.id}</span>
-            <span>نوع: {wizard.wizard_type == "answer" ? "پاسخ" : "سوال"}</span>
-            <span>{new Date(wizard.created_at).toLocaleString("fa-IR")}</span>
+            <span>نوع: {wizard.wizard_type == 'answer' ? 'پاسخ' : 'سوال'}</span>
+            <span>{new Date(wizard.created_at).toLocaleString('fa-IR')}</span>
           </div>
         </div>
       </div>
