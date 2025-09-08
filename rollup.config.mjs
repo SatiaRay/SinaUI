@@ -3,8 +3,21 @@ import babel from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
-import dotenv from 'rollup-plugin-dotenv';
 import replace from '@rollup/plugin-replace';
+import postcss from 'rollup-plugin-postcss';
+import { config } from 'dotenv';
+
+// Load environment variables from .env
+const envConfig = config({path: './.env.production'}).parsed;
+
+// Transform env variables for the replace plugin
+const replaceValues = {};
+for (const [key, value] of Object.entries(envConfig)) {
+  replaceValues[`process.env.${key}`] = JSON.stringify(value); // Stringify values for proper replacement
+}
+
+replaceValues['process.env.NODE_ENV'] = JSON.stringify('development');
+
 
 export default {
   input: 'src/widget/chatbox/chat-mounter.js',
@@ -17,7 +30,6 @@ export default {
     },
   ],
   plugins: [
-    dotenv(),
     json(),
     resolve({
       extensions: ['.js', '.jsx'],
@@ -25,9 +37,8 @@ export default {
       preferBuiltins: false,
     }),
     replace({
-      preventAssignment: true,
-      'process.env.NODE_ENV': JSON.stringify('production'),
-      'process.env': JSON.stringify({}), // fallback for any other usage
+      preventAssignment: true, // Recommended for security
+      values: replaceValues,
     }),
     commonjs({
       include: /node_modules/, // only process true CJS modules
@@ -40,6 +51,11 @@ export default {
         ['@babel/preset-react', { runtime: 'automatic' }], // 👈 use automatic runtime
       ],
     }),
-    terser(), // minify
+    postcss({
+      inject: true,
+      minimize: true,
+      sourceMap: true,
+    }),
+    terser(),
   ],
 };
