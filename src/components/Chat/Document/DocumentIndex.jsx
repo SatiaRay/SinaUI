@@ -25,7 +25,7 @@ const DocumentIndex = () => {
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
-    agentType: 'both' || 'voice_agent' || 'text_agent',
+    agentType: '',
     searchQuery: '',
   });
 
@@ -39,12 +39,17 @@ const DocumentIndex = () => {
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
+      let agentParam;
+      if (state.agentType === '') {
+        agentParam = undefined;
+      } else {
+        agentParam = state.agentType; // 'text_agent' | 'voice_agent' | 'both'
+      }
+
       const response = isManualRoute
         ? await getDocuments(
             true,
-            state.agentType === 'text_agent'
-              ? 'text_agent'
-              : state.agentType || 'both',
+            agentParam,
             state.currentPage,
             state.pageSize
           )
@@ -179,8 +184,13 @@ const DocumentIndex = () => {
     setState((prev) => ({ ...prev, showAddKnowledge: true }));
   };
 
-  const handleCloseAddKnowledge = () => {
-    setState((prev) => ({ ...prev, showAddKnowledge: false }));
+  const handleCloseAddKnowledge = (newAgentType) => {
+    setState((prev) => ({
+      ...prev,
+      showAddKnowledge: false,
+      agentType: newAgentType || prev.agentType,
+      currentPage: 1,
+    }));
     fetchDocuments();
   };
 
@@ -303,6 +313,7 @@ const DocumentIndex = () => {
             <CustomDropdown
               options={[
                 { value: '', label: 'همه' },
+                { value: 'both', label: 'هردو' },
                 { value: 'text_agent', label: 'ربات متنی' },
                 { value: 'voice_agent', label: 'ربات صوتی' },
               ]}

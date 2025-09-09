@@ -145,16 +145,22 @@ export const getDomains = async () => {
     return null;
   }
 };
-
 export const getDocuments = async (
   manualType = false,
   agentType = null,
   page = 1,
   size = 10
 ) => {
-  const url = manualType
-    ? `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}&agent_type=${agentType}`
-    : `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
+  let url;
+  if (manualType) {
+    url = `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}`;
+
+    if (agentType && typeof agentType === 'string') {
+      url += `&agent_type=${agentType}`;
+    }
+  } else {
+    url = `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
+  }
 
   try {
     return await axios.get(url);
