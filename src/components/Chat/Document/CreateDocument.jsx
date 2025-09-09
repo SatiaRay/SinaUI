@@ -48,7 +48,7 @@ const CreateDocument = ({ onClose }) => {
         if (apiStatus === 'success') {
           notify.success('اطلاعات با موفقیت ذخیره شد');
           setForm({ title: '', text: '', agentType: 'text_agent' });
-          onClose();
+          onClose(form.agentType);
         } else {
           throw new Error('خطا در ذخیره اطلاعات');
         }
@@ -96,7 +96,7 @@ const CreateDocument = ({ onClose }) => {
                 onChange={(e) => handleChange('title', e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="عنوان سند را وارد کنید"
-                className="w-full px-3 h-10 border rounded-lg shadow-sm bg-transparent dark:border-white"
+                className="w-full px-3 h-10 border rounded-lg shadow-sm bg-transparent dark:border-gray-600 dark:text-white dark:bg-gray-700 border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 required
               />
             </div>
@@ -114,7 +114,7 @@ const CreateDocument = ({ onClose }) => {
                 onChange={(value) => handleChange('agentType', value)}
                 placeholder="نوع ربات را انتخاب کنید"
                 className="h-10"
-                parentStyle="w-full"
+                parentStyle="w-full dark:text-white"
               />
             </div>
           </div>
