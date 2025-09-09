@@ -9,11 +9,6 @@ import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-
-const MySwal = withReactContent(Swal);
-
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
