@@ -40,26 +40,37 @@ const CustomDropdown = ({
       >
         {selectedOption ? selectedOption.label : placeholder}
         <span
-          className={`ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`ml-2 transition-transform dark:bg-gray-800 dark:border-gray-600 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
         >
           <IoIosArrowDown />
         </span>
       </button>
 
       <ul
-        className={`absolute p-2 left-0 right-0 mt-1 border rounded-lg bg-white shadow-lg z-50 overflow-hidden transition-all duration-300 ${
-          isOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
-        }`}
+        className={`absolute p-2 left-0 right-0 mt-1 border rounded-lg
+  bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 shadow-lg z-50 overflow-hidden transition-all duration-300
+  ${isOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}
       >
         {options.map((opt, index) => (
           <li
             key={opt.value}
             onClick={() => handleSelect(opt.value)}
             className={`
-      px-3 py-2 cursor-pointer hover:bg-blue-200 text-sm rounded-lg
-      ${opt.value === value ? 'bg-gray-800 text-white font-medium' : 'text-black'}
-      ${index !== options.length - 1 ? 'border-b border-gray-200' : ''}
-    `}
+  px-3 py-2 cursor-pointer rounded-lg text-sm
+  ${
+    opt.value === value
+      ? 'bg-blue-600 dark:bg-blue-500 text-white font-medium'
+      : 'text-gray-900 dark:text-gray-100'
+  }
+  hover:bg-blue-100 dark:hover:bg-blue-700
+  ${
+    index !== options.length - 1
+      ? 'border-b border-gray-200 dark:border-gray-700'
+      : ''
+  }
+`}
           >
             {opt.label}
           </li>
