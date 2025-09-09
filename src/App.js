@@ -31,7 +31,7 @@ import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
-import ChatBoxPreview from './pages/widget/chat-box-perview'
+import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
 
 function App() {
@@ -71,7 +71,7 @@ function AppContent() {
       {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
       <div
-        className={`transition-all duration-300 ${
+        className={`transition-all duration-300 h-screen ${
           showNavbar
             ? sidebarCollapsed
               ? 'md:mr-0'
@@ -84,14 +84,12 @@ function AppContent() {
 
       <div className="flex items-center justify-center">{publicRoutes()}</div>
 
-
       <span
         className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
         dir="ltr"
       >
         {appVersion}
       </span>
-
     </div>
   );
 }
@@ -263,13 +261,13 @@ function privateRoutes() {
       </Route>
       {/* Widget  */}
       <Route
-          path="widget/chat"
-          element={
-            <PrivateRoute>
-              <ChatBoxPreview />
-            </PrivateRoute>
-          }
-        />
+        path="widget/chat"
+        element={
+          <PrivateRoute>
+            <ChatBoxPreview />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }
