@@ -9,6 +9,11 @@ import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
+
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -40,7 +45,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
         cancelButtonText: 'انصراف',
       }).then((result) => {
         if (result.isConfirmed) {
-          toggleVectorStatus(); // دوباره تلاش می‌کنه
+          toggleVectorStatus();
         }
       });
     } finally {
