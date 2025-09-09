@@ -40,7 +40,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
         cancelButtonText: 'انصراف',
       }).then((result) => {
         if (result.isConfirmed) {
-          toggleVectorStatus(); // دوباره تلاش می‌کنه
+          toggleVectorStatus();
         }
       });
     } finally {

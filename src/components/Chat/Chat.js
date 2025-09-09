@@ -1,20 +1,18 @@
-import { LucideAudioLines } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { FaRobot } from "react-icons/fa";
-import "react-quill/dist/quill.snow.css";
-import { useNavigate } from "react-router-dom";
-import { BeatLoader } from "react-spinners";
-import { notify } from "../../ui/toast";
-import VoiceBtn from "./VoiceBtn";
-import { WizardButtons } from "./Wizard/";
-import TextInputWithBreaks from "../../ui/textArea";
-import Message from "../ui/chat/message/Message";
-import { useChat } from "../../contexts/ChatContext";
+import { LucideAudioLines } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { FaRobot } from 'react-icons/fa';
+import { BeatLoader } from 'react-spinners';
+import { notify } from '../../ui/toast';
+import VoiceBtn from './VoiceBtn';
+import { WizardButtons } from './Wizard/';
+import TextInputWithBreaks from '../../ui/textArea';
+import Message from '../ui/chat/message/Message';
+import { useChat } from '../../contexts/ChatContext';
 
 const Chat = ({ item }) => {
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
-  const [loadingCaption, setLoadingCaption] = useState("null");
+  const [loadingCaption, setLoadingCaption] = useState('null');
   const [initialLayout, setInitialLayout] = useState(true); // حالت جدید برای کنترل چیدمان اولیه
   const processingMessageId = useRef(null);
   const initialResponseTimeoutRef = useRef(null);
@@ -22,14 +20,14 @@ const Chat = ({ item }) => {
 
   // Internal variables (not stateful) - moved inside component
   const internalVarsRef = useRef({
-    inCompatibleMessage: "",
-    bufferedTable: "",
+    inCompatibleMessage: '',
+    bufferedTable: '',
     isInsideTable: false,
   });
 
   const initialMessageAddedRef = useRef(false);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const {
     addNewMessage,
@@ -90,8 +88,8 @@ const Chat = ({ item }) => {
 
     // Reset internal variables
     internalVarsRef.current = {
-      inCompatibleMessage: "",
-      bufferedTable: "",
+      inCompatibleMessage: '',
+      bufferedTable: '',
       isInsideTable: false,
     };
     initialMessageAddedRef.current = false;
@@ -116,15 +114,15 @@ const Chat = ({ item }) => {
 
   /** Scroll chat to bottom when loading changes */
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatLoading]);
 
   /** Add scroll listener to chat container */
   useEffect(() => {
     const container = chatContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
@@ -147,10 +145,10 @@ const Chat = ({ item }) => {
   /** render chat messages links */
   const renderMessageLinks = () => {
     const timer = setTimeout(() => {
-      const chatLinks = document.querySelectorAll(".chat-message a");
+      const chatLinks = document.querySelectorAll('.chat-message a');
       chatLinks.forEach((link) => {
-        link.setAttribute("target", "_blank");
-        link.setAttribute("rel", "noopener noreferrer");
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
       });
     }, 100);
     return () => clearTimeout(timer);
@@ -159,8 +157,8 @@ const Chat = ({ item }) => {
   /** Trigger option message from assistant */
   const triggerOptionHandler = (optionInfo) => {
     const optionMessage = {
-      type: "option",
-      role: "assistant",
+      type: 'option',
+      role: 'assistant',
       metadata: optionInfo,
       created_at: new Date().toISOString().slice(0, 19),
     };
@@ -174,19 +172,19 @@ const Chat = ({ item }) => {
       const data = JSON.parse(event.data);
       if (data.event) {
         switch (data.event) {
-          case "loading":
+          case 'loading':
             setChatLoading(true);
             break;
-          case "trigger":
+          case 'trigger':
             triggerOptionHandler(data);
             break;
-          case "call_function":
+          case 'call_function':
             handleCallFunctionEvent(data);
             break;
-          case "delta":
+          case 'delta':
             handleDeltaResponse(data);
             break;
-          case "finished":
+          case 'finished':
             finishMessageHandler();
             break;
           default:
@@ -194,7 +192,7 @@ const Chat = ({ item }) => {
         }
       }
     } catch (e) {
-      console.log("Error on message event", e);
+      console.log('Error on message event', e);
     }
   };
 
@@ -203,15 +201,15 @@ const Chat = ({ item }) => {
 
   /** Handle WebSocket errors */
   const socketOnErrorHandler = (event) => {
-    console.error("WebSocket error:", event);
-    setError("خطا در ارتباط با سرور");
+    console.error('WebSocket error:', event);
+    setError('خطا در ارتباط با سرور');
     resetChatState();
   };
 
   /** Send message through socket and set 1-minute fallback timeout */
   const sendMessageDecorator = async (text) => {
     await sendMessage(text);
-    setQuestion("");
+    setQuestion('');
     setError(null);
 
     // Clear any existing timers
@@ -219,10 +217,10 @@ const Chat = ({ item }) => {
 
     // Set fallback timeout for 1 minute
     initialResponseTimeoutRef.current = setTimeout(() => {
-      notify.error("مشکلی پیش آمده لطفا بعدا تلاش نمایید.", {
-        autoClose: 4000,
-        position: "top-left",
-      });
+      // notify.error("مشکلی پیش آمده لطفا بعدا تلاش نمایید.", {
+      //   autoClose: 4000,
+      //   position: "top-left",
+      // });
       resetChatState();
     }, 60000);
   };
@@ -230,7 +228,7 @@ const Chat = ({ item }) => {
   /** Scroll chat to bottom */
   const scrollToBottom = () => {
     if (chatEndRef.current)
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
   };
 
   /** Handle scroll event on chat container */
@@ -254,9 +252,9 @@ const Chat = ({ item }) => {
   const handleDeltaResponse = (data) => {
     if (!processingMessageId.current) {
       processingMessageId.current = addNewMessage({
-        type: "text",
-        body: "",
-        role: "assistant",
+        type: 'text',
+        body: '',
+        role: 'assistant',
         created_at: new Date().toISOString().slice(0, 19),
       });
     }
@@ -270,7 +268,7 @@ const Chat = ({ item }) => {
     const delta = data.message;
     internalVarsRef.current.inCompatibleMessage += delta;
 
-    if (internalVarsRef.current.inCompatibleMessage.includes("<table")) {
+    if (internalVarsRef.current.inCompatibleMessage.includes('<table')) {
       internalVarsRef.current.isInsideTable = true;
       internalVarsRef.current.bufferedTable += delta;
     } else if (internalVarsRef.current.isInsideTable) {
@@ -294,7 +292,7 @@ const Chat = ({ item }) => {
         updateMessage(processingMessageId.current, {
           body: internalVarsRef.current.inCompatibleMessage,
         });
-        internalVarsRef.current.bufferedTable = "";
+        internalVarsRef.current.bufferedTable = '';
         internalVarsRef.current.isInsideTable = false;
       }
     }
@@ -311,17 +309,17 @@ const Chat = ({ item }) => {
       updateMessage(processingMessageId.current, {
         body: internalVarsRef.current.inCompatibleMessage,
       });
-      internalVarsRef.current.bufferedTable = "";
+      internalVarsRef.current.bufferedTable = '';
       internalVarsRef.current.isInsideTable = false;
     }
 
     processingMessageId.current = null;
-    internalVarsRef.current.inCompatibleMessage = "";
+    internalVarsRef.current.inCompatibleMessage = '';
     clearAllTimeouts();
   };
 
   return (
-    <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[860px] mx-auto">
+    <div className="flex flex-col overflow-x-hidden h-full w-full max-w-[860px] mx-auto py-2">
       {/* حالت اولیه - قبل از ارسال اولین پیام */}
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <div className="flex flex-col items-center justify-center h-full space-y-8 transition-all duration-500">
@@ -361,17 +359,18 @@ const Chat = ({ item }) => {
                 centerAlign={true}
               />
               <div
-                className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-                  question.trim() ? "hidden" : ""
+                className={`max-w-60 flex items-center justify-center gap-2 mb-[12px] ml-1 ${
+                  question.trim() ? 'hidden' : ''
                 }`}
               >
                 <VoiceBtn onTranscribe={setQuestion} />
-                <button
+                {/*<button
                   onClick={() => navigate("/voice-agent")}
                   className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
                 >
                   <LucideAudioLines size={22} />
                 </button>
+                */}
               </div>
             </div>
 
@@ -392,7 +391,7 @@ const Chat = ({ item }) => {
           <div
             ref={chatContainerRef}
             className="flex-1 scrollbar-hidden overflow-y-auto mb-4 space-y-4 transition-all duration-500"
-            style={{ height: "calc(100vh - 200px)" }}
+            style={{ height: 'calc(100vh - 200px)' }}
           >
             {/* Loading indicator for chat history */}
             {historyLoading && (
@@ -469,17 +468,17 @@ const Chat = ({ item }) => {
                 placeholder="سوال خود را بپرسید..."
               />
               <div
-                className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-                  question.trim() ? "hidden" : ""
+                className={`max-w-60 flex items-center justify-center gap-2 mb-[12px] ml-1 ${
+                  question.trim() ? 'hidden' : ''
                 }`}
               >
                 <VoiceBtn onTranscribe={setQuestion} />
-                <button
+                {/* <button
                   onClick={() => navigate("/voice-agent")}
                   className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
                 >
                   <LucideAudioLines size={22} />
-                </button>
+                </button> */}
               </div>
             </div>
           )}
