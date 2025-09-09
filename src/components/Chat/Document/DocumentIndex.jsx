@@ -10,7 +10,6 @@ import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import SearchDocument from './searchDocument/SearchDocument'; // Import the separate search component
 
-
 const DocumentIndex = () => {
   const [state, setState] = useState({
     isLoading: false,
@@ -25,7 +24,7 @@ const DocumentIndex = () => {
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
-    agentType: '',
+    agentType: 'both', // 🔧 مقدار اولیه درست شد
     searchQuery: '',
   });
 
@@ -35,55 +34,66 @@ const DocumentIndex = () => {
   const PAGE_SIZE_OPTIONS = [20, 50, 100];
   const isManualRoute = location.pathname.endsWith('/manuals');
 
-  const fetchDocuments = useCallback(async () => {
-    try {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  // 🔧 تابع fetchDocuments جدید با قابلیت دریافت state سفارشی
+  const fetchDocuments = useCallback(
+    async (customState = state) => {
+      try {
+        setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      let agentParam;
-      if (state.agentType === '') {
-        agentParam = undefined;
-      } else {
-        agentParam = state.agentType; // 'text_agent' | 'voice_agent' | 'both'
-      }
+        const response = isManualRoute
+          ? await getDocuments(
+              true,
+              customState.agentType === 'text_agent'
+                ? 'text_agent'
+                : customState.agentType,
+              customState.currentPage,
+              customState.pageSize
+            )
+          : await getDomainDocuments(
+              domain_id,
+              customState.currentPage,
+              customState.pageSize
+            );
 
-      const response = isManualRoute
-        ? await getDocuments(
-            true,
-            agentParam,
-            state.currentPage,
-            state.pageSize
-          )
-        : await getDomainDocuments(
-            domain_id,
-            state.currentPage,
-            state.pageSize
-          );
+        if (response?.data) {
+          setState((prev) => {
+            const docs = response.data.items;
+            // 🔧 filteredDocuments حالا همیشه sync میشه
+            const filteredDocs = prev.searchQuery
+              ? docs.filter(
+                  (doc) =>
+                    doc.name?.includes(prev.searchQuery) ||
+                    doc.metadata?.title?.includes(prev.searchQuery)
+                )
+              : docs;
 
-      if (response?.data) {
+            return {
+              ...prev,
+              documents: docs,
+              filteredDocuments: filteredDocs,
+              totalPages: response.data.pages,
+              totalItems: response.data.total,
+              isLoading: false,
+            };
+          });
+        }
+      } catch (err) {
         setState((prev) => ({
           ...prev,
-          documents: response.data.items,
-          filteredDocuments: response.data.items,
-          totalPages: response.data.pages,
-          totalItems: response.data.total,
+          error: err.message || 'دریافت اسناد با خطا مواجه شد',
           isLoading: false,
         }));
+        console.error('Document fetch error:', err);
       }
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        error: err.message || 'دریافت اسناد با خطا مواجه شد',
-        isLoading: false,
-      }));
-      console.error('Document fetch error:', err);
-    }
-  }, [
-    isManualRoute,
-    state.agentType,
-    state.currentPage,
-    state.pageSize,
-    domain_id,
-  ]);
+    },
+    [
+      isManualRoute,
+      state.agentType,
+      state.currentPage,
+      state.pageSize,
+      domain_id,
+    ]
+  );
 
   useEffect(() => {
     fetchDocuments();
@@ -185,13 +195,17 @@ const DocumentIndex = () => {
   };
 
   const handleCloseAddKnowledge = (newAgentType) => {
-    setState((prev) => ({
-      ...prev,
-      showAddKnowledge: false,
-      agentType: newAgentType || prev.agentType,
-      currentPage: 1,
-    }));
-    fetchDocuments();
+    // 🔧 حالا fetchDocuments با state جدید صدا زده میشه
+    setState((prev) => {
+      const updated = {
+        ...prev,
+        showAddKnowledge: false,
+        agentType: newAgentType || prev.agentType,
+        currentPage: 1,
+      };
+      fetchDocuments(updated);
+      return updated;
+    });
   };
 
   const renderContent = () => {
