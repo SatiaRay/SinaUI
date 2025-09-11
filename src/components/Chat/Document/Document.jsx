@@ -213,7 +213,7 @@ const DocumentIndex = () => {
   return (
     <>
       <style>{globalStyles}</style>
-      <div className="flex flex-col h-full p-6 max-w-6xl mx-auto">
+      <div className="flex flex-col h-full p-6 max-w-6xl mx-auto w-full">
         {/* هدر */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -262,8 +262,8 @@ const DocumentIndex = () => {
               {selectedFile
                 ? 'محتوای سند'
                 : selectedDomain
-                  ? `فایل‌های دامنه: ${selectedDomain.domain}`
-                  : 'مستندات'}
+                ? `فایل‌های دامنه: ${selectedDomain.domain}`
+                : 'مستندات'}
             </h2>
           </div>
 
