@@ -24,7 +24,7 @@ const DocumentIndex = () => {
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
-    agentType: 'both', // 🔧 مقدار اولیه درست شد
+    agentType: '', // 🔧 مقدار اولیه درست شد
     searchQuery: '',
   });
 
