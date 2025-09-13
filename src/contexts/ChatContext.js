@@ -332,6 +332,25 @@ export const ChatProvider = ({ children }) => {
       setCurrentWizards(rootWizards);
     }
   };
+  const clearHistory = () => {
+    setHistory({ ids: [], entities: {} });
+    localStorage.removeItem('chat_session_id');
+    if (socketRef.current) {
+      if (socketRef.current.readyState === WebSocket.OPEN) {
+        socketRef.current.close();
+      }
+      socketRef.current = null;
+    }
+    const newSessionId = getSessionId();
+    connectSocket(newSessionId);
+    setHistory({ ids: [], entities: {} });
+    if (rootWizards.length > 0) {
+      setCurrentWizards(rootWizards);
+    } else {
+      loadRootWizards();
+    }
+    console.log('Chat history cleared and session reset successfully');
+  };
 
   // Context value
   const value = {
@@ -367,6 +386,7 @@ export const ChatProvider = ({ children }) => {
     addNewMessage,
     updateMessage,
     removeMessage,
+    clearHistory,
     registerSocketOnOpenHandler,
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,

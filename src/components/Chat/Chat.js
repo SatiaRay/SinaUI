@@ -1,6 +1,7 @@
-import { LucideAudioLines } from 'lucide-react';
+import { BrushCleaning, LucideAudioLines } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaRobot } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import { BeatLoader } from 'react-spinners';
 import { notify } from '../../ui/toast';
 import VoiceBtn from './VoiceBtn';
@@ -8,6 +9,7 @@ import { WizardButtons } from './Wizard/';
 import TextInputWithBreaks from '../../ui/textArea';
 import Message from '../ui/chat/message/Message';
 import { useChat } from '../../contexts/ChatContext';
+import Swal from 'sweetalert2';
 
 const Chat = ({ item }) => {
   const [question, setQuestion] = useState('');
@@ -27,7 +29,7 @@ const Chat = ({ item }) => {
 
   const initialMessageAddedRef = useRef(false);
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const {
     addNewMessage,
@@ -41,6 +43,7 @@ const Chat = ({ item }) => {
     optionMessageTriggered,
     setOptionMessageTriggered,
     history,
+    clearHistory,
     chatContainerRef,
     chatEndRef,
     sendMessage,
@@ -217,10 +220,10 @@ const Chat = ({ item }) => {
 
     // Set fallback timeout for 1 minute
     initialResponseTimeoutRef.current = setTimeout(() => {
-      // notify.error("مشکلی پیش آمده لطفا بعدا تلاش نمایید.", {
-      //   autoClose: 4000,
-      //   position: "top-left",
-      // });
+      notify.error('مشکلی پیش آمده لطفا بعدا تلاش نمایید.', {
+        autoClose: 4000,
+        position: 'top-left',
+      });
       resetChatState();
     }, 60000);
   };
@@ -318,8 +321,43 @@ const Chat = ({ item }) => {
     clearAllTimeouts();
   };
 
+  const handleClearHistory = async () => {
+    if (history.ids.length === 0) return;
+
+    const result = await Swal.fire({
+      title: 'آیا مطمئن هستید؟',
+      text: 'آیا از پاک کردن تمام تاریخچه چت مطمئن هستید؟ این عمل قابل بازگشت نیست.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'بله، پاک کن!',
+      cancelButtonText: 'لغو',
+      customClass: {
+        confirmButton: 'swal2-confirm-btn',
+        cancelButton: 'swal2-cancel-btn',
+      },
+      buttonsStyling: false,
+    });
+
+    if (result.isConfirmed) {
+      clearHistory();
+      setInitialLayout(true); // اگر خواستید صفحه اولیه دوباره بیاد
+      Swal.fire({
+        title: 'پاک شد!',
+        text: 'تاریخچه چت با موفقیت پاک شد.',
+        icon: 'success',
+        confirmButtonText: 'باشه',
+        customClass: {
+          confirmButton: 'swal2-ok-btn',
+        },
+        buttonsStyling: false,
+      });
+    }
+  };
+
   return (
-    <div className="flex flex-col overflow-x-hidden h-full w-full max-w-[860px] mx-auto py-2">
+    <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[860px] mx-auto">
       {/* حالت اولیه - قبل از ارسال اولین پیام */}
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <div className="flex flex-col items-center justify-center h-full space-y-8 transition-all duration-500">
@@ -359,18 +397,17 @@ const Chat = ({ item }) => {
                 centerAlign={true}
               />
               <div
-                className={`max-w-60 flex items-center justify-center gap-2 mb-[12px] ml-1 ${
+                className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
                   question.trim() ? 'hidden' : ''
                 }`}
               >
                 <VoiceBtn onTranscribe={setQuestion} />
-                {/*<button
-                  onClick={() => navigate("/voice-agent")}
+                <button
+                  onClick={() => navigate('/voice-agent')}
                   className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
                 >
                   <LucideAudioLines size={22} />
                 </button>
-                */}
               </div>
             </div>
 
@@ -445,12 +482,13 @@ const Chat = ({ item }) => {
 
           {/* Chat input */}
           {!optionMessageTriggered && (
-            <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border transition-all duration-500">
+            <div className="flex items-center w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border transition-all duration-500">
+              {/* دکمه ارسال */}
               <button
                 onClick={() => sendMessageDecorator(question)}
                 onKeyDown={() => sendMessageDecorator(question)}
                 disabled={chatLoading || !question.trim()}
-                className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+                className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
               >
                 <svg
                   className="w-6 h-6 bg-transparent"
@@ -460,25 +498,37 @@ const Chat = ({ item }) => {
                   <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                 </svg>
               </button>
+
+              {/* اینپوت */}
               <TextInputWithBreaks
                 value={question}
                 onChange={setQuestion}
                 onSubmit={() => sendMessageDecorator(question)}
                 disabled={chatLoading}
                 placeholder="سوال خود را بپرسید..."
+                className="flex-1"
               />
+
+              {/* دکمه‌ها و VoiceBtn */}
               <div
-                className={`max-w-60 flex items-center justify-center gap-2 mb-[12px] ml-1 ${
-                  question.trim() ? 'hidden' : ''
-                }`}
+                className={`flex items-center gap-2 ${question.trim() ? 'hidden' : ''}`}
               >
-                <VoiceBtn onTranscribe={setQuestion} />
-                {/* <button
-                  onClick={() => navigate("/voice-agent")}
-                  className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+                <button
+                  onClick={handleClearHistory}
+                  className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                  title="پاک کردن تاریخچه"
                 >
-                  <LucideAudioLines size={22} />
-                </button> */}
+                  <BrushCleaning className="h-5 w-5" />
+                </button>
+
+                <VoiceBtn onTranscribe={setQuestion} />
+
+                {/* <button
+      onClick={() => navigate("/voice-agent")}
+      className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+    >
+      <LucideAudioLines size={22} />
+    </button> */}
               </div>
             </div>
           )}
