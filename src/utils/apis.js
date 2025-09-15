@@ -364,3 +364,90 @@ export const fileEndpoints = {
     }
   },
 };
+
+// Monitoring Endpoints
+export const monitoringEndpoints = {
+  // Get recent logs (with filters & pagination)
+  getRecentLogs: async ({
+    hours = 48,
+    min_duration,
+    max_duration,
+    has_errors,
+    tool_name,
+    page = 1,
+    per_page = 20,
+  }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/function-calling-logs/`, {
+        params: {
+          hours,
+          min_duration,
+          max_duration,
+          has_errors,
+          tool_name,
+          page,
+          per_page,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching recent logs:', error);
+      throw error;
+    }
+  },
+
+  // Get tool usage statistics
+  getToolStats: async (days = 7, top_n = 10) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/function-calling-logs/stats/tools`,
+        { params: { days, top_n } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching tool stats:', error);
+      throw error;
+    }
+  },
+
+  // Get user activity statistics
+  getUserStats: async (user_id, days = 30) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/function-calling-logs/stats/user/${user_id}`,
+        { params: { days } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+      throw error;
+    }
+  },
+
+  // Search logs
+  searchLogs: async (query, limit = 10) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/function-calling-logs/search`,
+        { params: { query, limit } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error searching logs:', error);
+      throw error;
+    }
+  },
+
+  // Get log details by ID
+  getLogById: async (id) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/function-calling-logs/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching log details:', error);
+      throw error;
+    }
+  },
+};

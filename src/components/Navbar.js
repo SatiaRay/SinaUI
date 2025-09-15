@@ -23,6 +23,7 @@ import {
   FaFileAlt,
   FaLink,
   FaFolderOpen,
+  FaChartLine,
 } from 'react-icons/fa';
 
 import { IoDocuments } from 'react-icons/io5';
@@ -61,6 +62,7 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: '/wizard', label: 'پاسخ‌های هوشمند', icon: FaMagic },
     { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
     { path: '/instructions', label: 'دستورالعمل‌ها', icon: FaBook },
+    { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
   ];
 
   const documentItems = [
@@ -77,40 +79,6 @@ const Navbar = ({ onSidebarCollapse }) => {
       navigate('/login');
     } catch (error) {
       console.error('Error logging out:', error);
-    }
-  };
-
-  const handleClearHistory = async () => {
-    const result = await Swal.fire({
-      title: 'آیا مطمئن هستید؟',
-      text: 'آیا از پاک کردن تمام تاریخچه چت مطمئن هستید؟ این عمل قابل بازگشت نیست.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'بله، پاک کن!',
-      cancelButtonText: 'لغو',
-      customClass: {
-        confirmButton: 'swal2-confirm-btn',
-        cancelButton: 'swal2-cancel-btn',
-      },
-      buttonsStyling: false,
-    });
-
-    if (result.isConfirmed) {
-      localStorage.removeItem('chat_session_id');
-      Swal.fire({
-        title: 'پاک شد!',
-        text: 'تاریخچه چت با موفقیت پاک شد.',
-        icon: 'success',
-        confirmButtonText: 'باشه',
-        customClass: {
-          confirmButton: 'swal2-ok-btn',
-        },
-        buttonsStyling: false,
-      }).then(() => {
-        window.location.reload();
-      });
     }
   };
 
@@ -194,20 +162,9 @@ const Navbar = ({ onSidebarCollapse }) => {
             desktopSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-64'
           }`}
         >
-          <header className="p-4 border-b flex w-full justify-between items-center border-gray-700 whitespace-nowrap overflow-hidden">
+          <header className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
             <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              {/* دکمه پاک کردن تاریخچه با استایل مشابه دکمه تم */}
-              <button
-                onClick={handleClearHistory}
-                className="p-1 rounded-lg text-gray-300 border dark:hover:bg-gray-600 transition-colors duration-200"
-                aria-label="پاک کردن تاریخچه"
-                title="پاک کردن تاریخچه"
-              >
-                <TrashIcon className="h-4 w-4" />
-              </button>
-            </div>
+            <ThemeToggle />
           </header>
 
           <nav className="flex-1 p-2 overflow-hidden">
@@ -287,15 +244,7 @@ const Navbar = ({ onSidebarCollapse }) => {
               <header className="flex items-center justify-between p-4 border-b border-gray-700">
                 <div className="flex gap-2 items-center">
                   <ThemeToggle />
-                  {/* دکمه پاک کردن تاریخچه با استایل مشابه دکمه تم برای موبایل */}
-                  <button
-                    onClick={handleClearHistory}
-                    className="p-1 rounded-lg text-gray-300 border dark:hover:bg-gray-600 transition-colors duration-200"
-                    aria-label="پاک کردن تاریخچه"
-                    title="پاک کردن تاریخچه"
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
+
                   <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
                 </div>
                 <button

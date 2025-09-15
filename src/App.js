@@ -32,6 +32,10 @@ import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
 import { ChatProvider } from './contexts/ChatContext';
+import MonitoringPage from './components/Monitoring/MonitoringPage';
+import RecentLogsPage from './components/Monitoring/RecentLogsPage';
+import ToolUsageStats from './components/Monitoring/ToolUsageStats';
+import LogSearchPage from './components/Monitoring/LogSearchPage';
 
 function App() {
   return (
@@ -83,14 +87,12 @@ function AppContent() {
 
       <div className="flex items-center justify-center">{publicRoutes()}</div>
 
-
       <span
         className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
         dir="ltr"
       >
         {appVersion}
       </span>
-
     </div>
   );
 }
@@ -120,6 +122,40 @@ function privateRoutes() {
             element={
               <PrivateRoute>
                 <VoiceAgentConversation />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+        <Route path="/monitoring">
+          <Route
+            path=""
+            element={
+              <PrivateRoute>
+                <MonitoringPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="logs"
+            element={
+              <PrivateRoute>
+                <RecentLogsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="log-by-id"
+            element={
+              <PrivateRoute>
+                <LogSearchPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="tools"
+            element={
+              <PrivateRoute>
+                <ToolUsageStats />
               </PrivateRoute>
             }
           />
