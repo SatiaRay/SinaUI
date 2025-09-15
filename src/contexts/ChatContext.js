@@ -317,15 +317,12 @@ export const ChatProvider = ({ children }) => {
     if (wizardData.wizard_type === 'question') {
       sendMessage(stripHtmlTags(wizardData.context));
       return;
-    }
-    setHistory((prev) => [
-      ...prev,
-      {
-        type: 'answer',
-        answer: wizardData.context,
-        timestamp: new Date(),
-      },
-    ]);
+    } else 
+      sendData({
+        event: "wizard",
+        wizard_id: wizardData.id
+      })
+    
     if (wizardData.children && wizardData.children.length > 0) {
       setCurrentWizards(wizardData.children);
     } else {

@@ -40,7 +40,7 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
           unicodeBidi: 'plaintext',
           direction: 'rtl',
         }}
-        className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 leading-5 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
+        className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
         dangerouslySetInnerHTML={{ __html: data.body }}
       />
       {enableCopy && (
@@ -48,7 +48,7 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
           onClick={() => handleCopyAnswer(data.body, messageId)}
           className="mt-2 flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
           style={{
-            color: copiedMessageId === messageId ? "#3dc909" : "#444",
+            color: copiedMessageId === messageId ? '#3dc909' : '#444',
           }}
         >
           {copiedMessageId === messageId ? (

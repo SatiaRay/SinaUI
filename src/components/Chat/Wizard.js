@@ -7,7 +7,7 @@ const Wizard = () => {
   const [selectedWebsiteData, setSelectedWebsiteData] = useState(null);
 
   return (
-    <div className="space-y-4 p-12">
+    <div className="space-y-4 p-12 w-full">
       {' '}
       {/* اضافه کردن p-6 برای padding */}
       <WizardIndex />

@@ -68,7 +68,7 @@ const WizardIndex = () => {
           onWizardUpdated={freshWizard}
         />
       ) : (
-        <div className="space-y-6 container mx-auto">
+        <div className="space-y-6 mx-auto w-full">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 border-r-2 border-blue-500 pr-2">
               پاسخ‌های ویزارد
