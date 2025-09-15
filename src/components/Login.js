@@ -49,7 +49,7 @@ const Login = () => {
   const handleRegister = () => navigate('/register');
 
   return (
-    <div className="min-h-screen w-full px-4 flex items-center justify-center relative overflow-hidden">
+    <div className="w-full px-4 flex items-center justify-center relative overflow-hidden">
       <NetworkBackground3D />
       <div className="relative max-w-md z-10 w-full space-y-8 backdrop-blur-lg px-4 py-7 md:p-8 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">

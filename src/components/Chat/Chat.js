@@ -1,34 +1,33 @@
-import { LucideAudioLines } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { FaRobot } from "react-icons/fa";
-import "react-quill/dist/quill.snow.css";
-import { useNavigate } from "react-router-dom";
-import { BeatLoader } from "react-spinners";
-import { notify } from "../../ui/toast";
-import VoiceBtn from "./VoiceBtn";
-import { WizardButtons } from "./Wizard/";
-import TextInputWithBreaks from "../../ui/textArea";
-import Message from "../ui/chat/message/Message";
-import { useChat } from "../../contexts/ChatContext";
+import { LucideAudioLines } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { FaRobot } from 'react-icons/fa';
+import { BeatLoader } from 'react-spinners';
+import { notify } from '../../ui/toast';
+import VoiceBtn from './VoiceBtn';
+import { WizardButtons } from './Wizard/';
+import TextInputWithBreaks from '../../ui/textArea';
+import Message from '../ui/chat/message/Message';
+import { useChat } from '../../contexts/ChatContext';
 
 const Chat = ({ item }) => {
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
-  const [loadingCaption, setLoadingCaption] = useState("null");
+  const [loadingCaption, setLoadingCaption] = useState('null');
+  const [initialLayout, setInitialLayout] = useState(true); // حالت جدید برای کنترل چیدمان اولیه
   const processingMessageId = useRef(null);
   const initialResponseTimeoutRef = useRef(null);
   const deltaTimeoutRef = useRef(null);
 
   // Internal variables (not stateful) - moved inside component
   const internalVarsRef = useRef({
-    inCompatibleMessage: "",
-    bufferedTable: "",
+    inCompatibleMessage: '',
+    bufferedTable: '',
     isInsideTable: false,
   });
 
   const initialMessageAddedRef = useRef(false);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const {
     addNewMessage,
@@ -50,6 +49,13 @@ const Chat = ({ item }) => {
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
   } = useChat();
+
+  // Effect برای تغییر چیدمان وقتی اولین پیام ارسال می‌شود
+  useEffect(() => {
+    if (history.ids.length > 0 && initialLayout) {
+      setInitialLayout(false);
+    }
+  }, [history.ids.length, initialLayout]);
 
   /** Clear all timeouts */
   const clearAllTimeouts = () => {
@@ -82,8 +88,8 @@ const Chat = ({ item }) => {
 
     // Reset internal variables
     internalVarsRef.current = {
-      inCompatibleMessage: "",
-      bufferedTable: "",
+      inCompatibleMessage: '',
+      bufferedTable: '',
       isInsideTable: false,
     };
     initialMessageAddedRef.current = false;
@@ -108,15 +114,15 @@ const Chat = ({ item }) => {
 
   /** Scroll chat to bottom when loading changes */
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatLoading]);
 
   /** Add scroll listener to chat container */
   useEffect(() => {
     const container = chatContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
     }
   }, [historyLoading, hasMoreHistory, historyOffset]);
 
@@ -139,10 +145,10 @@ const Chat = ({ item }) => {
   /** render chat messages links */
   const renderMessageLinks = () => {
     const timer = setTimeout(() => {
-      const chatLinks = document.querySelectorAll(".chat-message a");
+      const chatLinks = document.querySelectorAll('.chat-message a');
       chatLinks.forEach((link) => {
-        link.setAttribute("target", "_blank");
-        link.setAttribute("rel", "noopener noreferrer");
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
       });
     }, 100);
     return () => clearTimeout(timer);
@@ -151,8 +157,8 @@ const Chat = ({ item }) => {
   /** Trigger option message from assistant */
   const triggerOptionHandler = (optionInfo) => {
     const optionMessage = {
-      type: "option",
-      role: "assistant",
+      type: 'option',
+      role: 'assistant',
       metadata: optionInfo,
       created_at: new Date().toISOString().slice(0, 19),
     };
@@ -166,19 +172,19 @@ const Chat = ({ item }) => {
       const data = JSON.parse(event.data);
       if (data.event) {
         switch (data.event) {
-          case "loading":
+          case 'loading':
             setChatLoading(true);
             break;
-          case "trigger":
+          case 'trigger':
             triggerOptionHandler(data);
             break;
-          case "call_function":
+          case 'call_function':
             handleCallFunctionEvent(data);
             break;
-          case "delta":
+          case 'delta':
             handleDeltaResponse(data);
             break;
-          case "finished":
+          case 'finished':
             finishMessageHandler();
             break;
           default:
@@ -186,7 +192,7 @@ const Chat = ({ item }) => {
         }
       }
     } catch (e) {
-      console.log("Error on message event", e);
+      console.log('Error on message event', e);
     }
   };
 
@@ -195,15 +201,15 @@ const Chat = ({ item }) => {
 
   /** Handle WebSocket errors */
   const socketOnErrorHandler = (event) => {
-    console.error("WebSocket error:", event);
-    setError("خطا در ارتباط با سرور");
+    console.error('WebSocket error:', event);
+    setError('خطا در ارتباط با سرور');
     resetChatState();
   };
 
   /** Send message through socket and set 1-minute fallback timeout */
   const sendMessageDecorator = async (text) => {
     await sendMessage(text);
-    setQuestion("");
+    setQuestion('');
     setError(null);
 
     // Clear any existing timers
@@ -211,10 +217,10 @@ const Chat = ({ item }) => {
 
     // Set fallback timeout for 1 minute
     initialResponseTimeoutRef.current = setTimeout(() => {
-      notify.error("مشکلی پیش آمده لطفا بعدا تلاش نمایید.", {
-        autoClose: 4000,
-        position: "top-left",
-      });
+      // notify.error("مشکلی پیش آمده لطفا بعدا تلاش نمایید.", {
+      //   autoClose: 4000,
+      //   position: "top-left",
+      // });
       resetChatState();
     }, 60000);
   };
@@ -222,7 +228,7 @@ const Chat = ({ item }) => {
   /** Scroll chat to bottom */
   const scrollToBottom = () => {
     if (chatEndRef.current)
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
   };
 
   /** Handle scroll event on chat container */
@@ -246,9 +252,9 @@ const Chat = ({ item }) => {
   const handleDeltaResponse = (data) => {
     if (!processingMessageId.current) {
       processingMessageId.current = addNewMessage({
-        type: "text",
-        body: "",
-        role: "assistant",
+        type: 'text',
+        body: '',
+        role: 'assistant',
         created_at: new Date().toISOString().slice(0, 19),
       });
     }
@@ -262,7 +268,7 @@ const Chat = ({ item }) => {
     const delta = data.message;
     internalVarsRef.current.inCompatibleMessage += delta;
 
-    if (internalVarsRef.current.inCompatibleMessage.includes("<table")) {
+    if (internalVarsRef.current.inCompatibleMessage.includes('<table')) {
       internalVarsRef.current.isInsideTable = true;
       internalVarsRef.current.bufferedTable += delta;
     } else if (internalVarsRef.current.isInsideTable) {
@@ -286,7 +292,7 @@ const Chat = ({ item }) => {
         updateMessage(processingMessageId.current, {
           body: internalVarsRef.current.inCompatibleMessage,
         });
-        internalVarsRef.current.bufferedTable = "";
+        internalVarsRef.current.bufferedTable = '';
         internalVarsRef.current.isInsideTable = false;
       }
     }
@@ -303,111 +309,182 @@ const Chat = ({ item }) => {
       updateMessage(processingMessageId.current, {
         body: internalVarsRef.current.inCompatibleMessage,
       });
-      internalVarsRef.current.bufferedTable = "";
+      internalVarsRef.current.bufferedTable = '';
       internalVarsRef.current.isInsideTable = false;
     }
 
     processingMessageId.current = null;
-    internalVarsRef.current.inCompatibleMessage = "";
+    internalVarsRef.current.inCompatibleMessage = '';
     clearAllTimeouts();
   };
 
   return (
-    <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[1220px] mx-auto">
-      <div
-        ref={chatContainerRef}
-        className="flex-1 scrollbar-hidden overflow-y-auto mb-4 space-y-4"
-        style={{ height: "calc(100vh - 200px)" }}
-      >
-        {/* Loading indicator for chat history */}
-        {historyLoading && (
-          <div className="flex items-center justify-center p-4">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
-            <p className="text-gray-600 dark:text-gray-300">
-              در حال بارگذاری تاریخچه...
+    <div className="flex flex-col overflow-x-hidden h-full w-full max-w-[860px] mx-auto py-2">
+      {/* حالت اولیه - قبل از ارسال اولین پیام */}
+      {initialLayout && history.ids.length === 0 && !historyLoading && (
+        <div className="flex flex-col items-center justify-center h-full space-y-8 transition-all duration-500">
+          {/* عنوان خوشامدگویی */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-3">
+              چطور می‌تونم کمکتون کنم؟ 😊🚀🌟
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم
             </p>
           </div>
-        )}
 
-        {/* Empty state */}
-        {history.ids.length === 0 && !historyLoading ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-            سوال خود را بپرسید تا گفتگو شروع شود
-          </div>
-        ) : (
-          history.ids.map((id) => (
-            <div
-              key={id}
-              className="mb-4 transition-[height] duration-300 ease-in-out grid"
-            >
-              <Message messageId={id} data={history.entities[id]} />
+          {/* اینپوت در مرکز */}
+          <div className="w-full max-w-2xl mx-auto">
+            <div className="flex items-end justify-center overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
+              <button
+                onClick={() => sendMessageDecorator(question)}
+                onKeyDown={() => sendMessageDecorator(question)}
+                disabled={chatLoading || !question.trim()}
+                className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+              >
+                <svg
+                  className="w-6 h-6 bg-transparent"
+                  fill="#2663eb"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+              </button>
+              <TextInputWithBreaks
+                value={question}
+                onChange={setQuestion}
+                onSubmit={() => sendMessageDecorator(question)}
+                disabled={chatLoading}
+                placeholder="سوال خود را بپرسید..."
+                centerAlign={true}
+              />
+              <div
+                className={`max-w-60 flex items-center justify-center gap-2 mb-[12px] ml-1 ${
+                  question.trim() ? 'hidden' : ''
+                }`}
+              >
+                <VoiceBtn onTranscribe={setQuestion} />
+                {/*<button
+                  onClick={() => navigate("/voice-agent")}
+                  className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+                >
+                  <LucideAudioLines size={22} />
+                </button>
+                */}
+              </div>
             </div>
-          ))
-        )}
 
-        {/* Loading bot response */}
-        {chatLoading && (
-          <div className="text-white grid justify-end text-end">
-            <div className="flex items-center justify-end p-1 gap-1 text-end">
-              <small className="dark:text-gray-500 text-gray-400 mx-1 italic">
-                {loadingCaption}
-              </small>
-              <BeatLoader size={9} color="#808080" className="ml-1" />
-              <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
-                <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
-              </span>
+            {/* ویزارد باتن‌ها در زیر اینپوت */}
+            <div className="mt-6">
+              <WizardButtons
+                onWizardSelect={handleWizardSelect}
+                wizards={currentWizards}
+              />
             </div>
-          </div>
-        )}
-
-        <div ref={chatEndRef} />
-      </div>
-
-      {/* Wizard buttons */}
-      <WizardButtons
-        onWizardSelect={handleWizardSelect}
-        wizards={currentWizards}
-      />
-
-      {/* Chat input */}
-      {!optionMessageTriggered && (
-        <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
-          <button
-            onClick={() => sendMessageDecorator(question)}
-            onKeyDown={() => sendMessageDecorator(question)}
-            disabled={chatLoading || !question.trim()}
-            className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
-          >
-            <svg
-              className="w-6 h-6 bg-transparent"
-              fill="#2663eb"
-              viewBox="0 0 24 24"
-            >
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-          </button>
-          <TextInputWithBreaks
-            value={question}
-            onChange={setQuestion}
-            onSubmit={() => sendMessageDecorator(question)}
-            disabled={chatLoading}
-            placeholder="سوال خود را بپرسید..."
-          />
-          <div
-            className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-              question.trim() ? "hidden" : ""
-            }`}
-          >
-            <VoiceBtn onTranscribe={setQuestion} />
-            <button
-              onClick={() => navigate("/voice-agent")}
-              className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
-            >
-              <LucideAudioLines size={22} />
-            </button>
           </div>
         </div>
       )}
+
+      {/* حالت عادی - بعد از ارسال اولین پیام */}
+      {!initialLayout && (
+        <>
+          <div
+            ref={chatContainerRef}
+            className="flex-1 scrollbar-hidden overflow-y-auto mb-4 space-y-4 transition-all duration-500"
+            style={{ height: 'calc(100vh - 200px)' }}
+          >
+            {/* Loading indicator for chat history */}
+            {historyLoading && (
+              <div className="flex items-center justify-center p-4">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
+                <p className="text-gray-600 dark:text-gray-300">
+                  در حال بارگذاری تاریخچه...
+                </p>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {history.ids.length === 0 && !historyLoading ? (
+              <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+                سوال خود را بپرسید تا گفتگو شروع شود
+              </div>
+            ) : (
+              history.ids.map((id) => (
+                <div
+                  key={id}
+                  className="mb-4 transition-[height] duration-300 ease-in-out grid"
+                >
+                  <Message messageId={id} data={history.entities[id]} />
+                </div>
+              ))
+            )}
+
+            {/* Loading bot response */}
+            {chatLoading && (
+              <div className="text-white grid justify-end text-end">
+                <div className="flex items-center justify-end p-1 gap-1 text-end">
+                  <small className="dark:text-gray-500 text-gray-400 mx-1 italic">
+                    {loadingCaption}
+                  </small>
+                  <BeatLoader size={9} color="#808080" className="ml-1" />
+                  <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
+                    <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Wizard buttons */}
+          <WizardButtons
+            onWizardSelect={handleWizardSelect}
+            wizards={currentWizards}
+          />
+
+          {/* Chat input */}
+          {!optionMessageTriggered && (
+            <div className="flex items-end justify-end overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border transition-all duration-500">
+              <button
+                onClick={() => sendMessageDecorator(question)}
+                onKeyDown={() => sendMessageDecorator(question)}
+                disabled={chatLoading || !question.trim()}
+                className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+              >
+                <svg
+                  className="w-6 h-6 bg-transparent"
+                  fill="#2663eb"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+              </button>
+              <TextInputWithBreaks
+                value={question}
+                onChange={setQuestion}
+                onSubmit={() => sendMessageDecorator(question)}
+                disabled={chatLoading}
+                placeholder="سوال خود را بپرسید..."
+              />
+              <div
+                className={`max-w-60 flex items-center justify-center gap-2 mb-[12px] ml-1 ${
+                  question.trim() ? 'hidden' : ''
+                }`}
+              >
+                <VoiceBtn onTranscribe={setQuestion} />
+                {/* <button
+                  onClick={() => navigate("/voice-agent")}
+                  className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+                >
+                  <LucideAudioLines size={22} />
+                </button> */}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
     </div>
   );

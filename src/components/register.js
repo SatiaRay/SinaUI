@@ -56,7 +56,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen px-4 flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen px-4 flex items-center justify-center relative overflow-hidden w-full">
       <NetworkBackground3D />
       <div className="relative z-10 max-w-md w-full space-y-8 backdrop-blur-lg md:p-8 py-8 px-4 rounded-xl shadow-2xl border border-gray-700/50 animate-fade-in">
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-white">

@@ -18,9 +18,15 @@ const Message = ({ messageId, data }) => {
     <>
       {(() => {
         switch (data.type) {
-          case 'text':
-            return <TextMessage data={data} messageId={messageId} />;
-          case 'option':
+          case "text":
+            return (
+              <TextMessage
+                data={data}
+                messageId={messageId}
+                enableCopy={data.role == "assistant"}
+              />
+            );
+          case "option":
             return <OptionMessage data={data} messageId={messageId} />;
           case 'image':
             return <ImageMessage data={data} messageId={messageId} />;
