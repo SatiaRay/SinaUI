@@ -41,7 +41,6 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
 
   const handleUpload = async (files) => {
     setError(null);
-
     if (!files || files.length === 0) {
       setError('هیچ فایلی برای ارسال انتخاب نشده است.');
       return;

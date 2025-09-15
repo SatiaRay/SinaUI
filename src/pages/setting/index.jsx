@@ -51,7 +51,9 @@ const Setting = () => {
       }
     } catch (error) {
       notify.error(
-        `خطا در ذخیره تنظیمات: ${error.response?.data?.message || error.message}`
+        `خطا در ذخیره تنظیمات: ${
+          error.response?.data?.message || error.message
+        }`
       );
     } finally {
       setLoading(false);
@@ -59,7 +61,7 @@ const Setting = () => {
   };
 
   return (
-    <section className="flex px-4 py-12 gap-10 h-screen overflow-hidden items-center justify-center text-black dark:text-white">
+    <section className="flex px-4 py-12 gap-10 h-screen overflow-hidden items-center justify-center text-black dark:text-white w-full">
       <main className="md:w-[40%] w-full flex flex-col items-center justify-center p-4 rounded-lg border shadow-lg dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full h-full">
           {loading ? (
