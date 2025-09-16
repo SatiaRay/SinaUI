@@ -60,7 +60,7 @@ const EditInstruction = () => {
   if (loading) return <div className="p-4">در حال بارگذاری...</div>;
 
   return (
-    <div className="p-4 max-md:pt-10">
+    <div className="p-4 max-md:pt-10 w-full">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">ویرایش دستورالعمل</h1>
 

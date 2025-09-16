@@ -31,6 +31,7 @@ import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
+import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
 import MonitoringPage from './components/Monitoring/MonitoringPage';
 import RecentLogsPage from './components/Monitoring/RecentLogsPage';
@@ -70,23 +71,28 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-gray-900">
+    <div
+      className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
+        showNavbar
+          ? sidebarCollapsed
+            ? 'md:mr-0'
+            : 'md:mr-64'
+          : 'flex items-center justify-center'
+      }`}
+    >
       {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
-      <div
-        className={`transition-all duration-300 ${
+      {/* <div
+        className={`transition-all duration-300 h-screen bg-red-300 ${
           showNavbar
             ? sidebarCollapsed
               ? 'md:mr-0'
               : 'md:mr-64'
             : 'flex items-center justify-center'
         }`}
-      >
-        {privateRoutes()}
-      </div>
-
-      <div className="flex items-center justify-center">{publicRoutes()}</div>
-
+      > */}
+      {privateRoutes()}
+      {/* </div> */}
       <span
         className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
         dir="ltr"
@@ -296,6 +302,15 @@ function privateRoutes() {
           }
         />
       </Route>
+      {/* Widget  */}
+      <Route
+        path="widget/chat"
+        element={
+          <PrivateRoute>
+            <ChatBoxPreview />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }
