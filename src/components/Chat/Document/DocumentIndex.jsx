@@ -24,7 +24,7 @@ const DocumentIndex = () => {
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
-    agentType: 'both', // 🔧 مقدار اولیه درست شد
+    agentType: '',
     searchQuery: '',
   });
 
@@ -45,7 +45,7 @@ const DocumentIndex = () => {
               true,
               customState.agentType === 'text_agent'
                 ? 'text_agent'
-                : customState.agentType || 'both',
+                : customState.agentType,
               customState.currentPage,
               customState.pageSize
             )
@@ -58,7 +58,7 @@ const DocumentIndex = () => {
         if (response?.data) {
           setState((prev) => {
             const docs = response.data.items;
-            // 🔧 filteredDocuments حالا همیشه sync میشه
+            
             const filteredDocs = prev.searchQuery
               ? docs.filter(
                   (doc) =>
@@ -195,7 +195,7 @@ const DocumentIndex = () => {
   };
 
   const handleCloseAddKnowledge = (newAgentType) => {
-    // 🔧 حالا fetchDocuments با state جدید صدا زده میشه
+    
     setState((prev) => {
       const updated = {
         ...prev,
