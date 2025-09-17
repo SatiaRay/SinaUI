@@ -26,6 +26,7 @@
     "ajv-keywords": "^3.5.2",
     "axios": "^1.6.7",
     "bootstrap": "^5.3.5",
+    "browser-image-compression": "^2.0.2",
     "ckeditor": "^4.12.1",
     "ckeditor5": "^45.1.0",
     "date-fns": "^3.3.1",

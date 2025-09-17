@@ -2,11 +2,42 @@ import React, { useState } from 'react';
 import { ClipLoader } from 'react-spinners';
 import Dropzone from '../../../../../../ui/Dropzone';
 import { fileEndpoints } from '../../../../../../utils/apis';
+import imageCompression from 'browser-image-compression';
 
-const UploadImage = ({ onCacnel, onUpload, isLoading }) => {
+const MAX_SIZE_BYTES = 500 * 1024; // 500KB
+
+const UploadImage = ({ onCancel, onUpload, isLoading }) => {
   const [images, setImages] = useState([]);
   const [error, setError] = useState(null);
   const [uploading, setUploading] = useState(false);
+
+  const compressIfNeeded = async (files) => {
+    const processed = [];
+
+    for (const file of files) {
+      if (file.size > MAX_SIZE_BYTES) {
+        const options = {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          fileType: file.type,
+        };
+
+        const compressedBlob = await imageCompression(file, options);
+
+        const newFile = new File([compressedBlob], file.name, {
+          type: file.type,
+          lastModified: Date.now(),
+        });
+
+        processed.push(newFile);
+      } else {
+        processed.push(file);
+      }
+    }
+
+    return processed;
+  };
 
   const handleUpload = async (files) => {
     setError(null);
@@ -17,9 +48,11 @@ const UploadImage = ({ onCacnel, onUpload, isLoading }) => {
 
     try {
       setUploading(true);
-      await fileEndpoints.uploadFiles(files);
+      const readyFiles = await compressIfNeeded(files);
+      await fileEndpoints.uploadFiles(readyFiles);
       setUploading(false);
-      if (onUpload) onUpload(files);
+
+      if (onUpload) onUpload(readyFiles);
       setImages([]);
     } catch (err) {
       setUploading(false);
@@ -33,7 +66,7 @@ const UploadImage = ({ onCacnel, onUpload, isLoading }) => {
 
   const handleCancel = () => {
     setImages([]);
-    if (typeof onCacnel === 'function') onCacnel();
+    if (typeof onCancel === 'function') onCancel();
   };
 
   return (
@@ -45,7 +78,7 @@ const UploadImage = ({ onCacnel, onUpload, isLoading }) => {
           setError(null);
         }}
         maxFiles={5}
-        maxTotalSize={10 * 1024 * 1024} // مجموع همه فایل‌ها حداکثر ۱۰ مگ
+        maxTotalSize={10 * 1024 * 1024} // 10MB
         accept={{
           'image/jpeg': [],
           'image/png': [],
@@ -55,7 +88,7 @@ const UploadImage = ({ onCacnel, onUpload, isLoading }) => {
       />
 
       {error && (
-        <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-200">
+        <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
           {error}
         </div>
       )}

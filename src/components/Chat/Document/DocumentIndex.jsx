@@ -58,7 +58,7 @@ const DocumentIndex = () => {
         if (response?.data) {
           setState((prev) => {
             const docs = response.data.items;
-            // 🔧 filteredDocuments حالا همیشه sync میشه
+            
             const filteredDocs = prev.searchQuery
               ? docs.filter(
                   (doc) =>
@@ -195,7 +195,7 @@ const DocumentIndex = () => {
   };
 
   const handleCloseAddKnowledge = (newAgentType) => {
-    // 🔧 حالا fetchDocuments با state جدید صدا زده میشه
+    
     setState((prev) => {
       const updated = {
         ...prev,
