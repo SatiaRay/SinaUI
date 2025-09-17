@@ -367,7 +367,7 @@ code {
   color: white !important;
   font-weight: 500 !important;
   transition: background-color 0.2s !important;
-  margin-right: 5px !important; 
+  margin-right: 5px !important;
 }
 
 :root .swal2-cancel:hover {
@@ -389,7 +389,7 @@ code {
 
 .dark .swal2-confirm {
   background-color: #0ea5e9 !important;
-  margin-left: 5px !important; 
+  margin-left: 5px !important;
 }
 
 .dark .swal2-confirm:hover {
@@ -398,7 +398,7 @@ code {
 
 .dark .swal2-cancel {
   background-color: #4b5563 !important;
-  margin-right: 5px !important; 
+  margin-right: 5px !important;
 }
 
 .dark .swal2-cancel:hover {
@@ -426,4 +426,11 @@ code {
 
 .swal2-actions {
   gap: 5px !important;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE و Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }

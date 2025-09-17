@@ -31,7 +31,6 @@ import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
-import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
 import MonitoringPage from './components/Monitoring/MonitoringPage';
 import RecentLogsPage from './components/Monitoring/RecentLogsPage';
@@ -93,6 +92,9 @@ function AppContent() {
       > */}
       {privateRoutes()}
       {/* </div> */}
+
+      {publicRoutes()}
+
       <span
         className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
         dir="ltr"
@@ -302,15 +304,6 @@ function privateRoutes() {
           }
         />
       </Route>
-      {/* Widget  */}
-      <Route
-        path="widget/chat"
-        element={
-          <PrivateRoute>
-            <ChatBoxPreview />
-          </PrivateRoute>
-        }
-      />
     </Routes>
   );
 }

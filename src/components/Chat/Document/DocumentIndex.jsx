@@ -45,7 +45,7 @@ const DocumentIndex = () => {
               true,
               customState.agentType === 'text_agent'
                 ? 'text_agent'
-                : customState.agentType || 'both',
+                : customState.agentType,
               customState.currentPage,
               customState.pageSize
             )

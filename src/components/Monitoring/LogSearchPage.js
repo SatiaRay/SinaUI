@@ -207,8 +207,8 @@ const LogSearchPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="flex flex-1 flex-col items-center overflow-y-auto scrollbar-hide bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8 relative">
           <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">

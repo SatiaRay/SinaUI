@@ -1,3 +1,4 @@
+// ToolUsageStats.jsx
 import React, { useEffect, useState, useCallback } from 'react';
 import { ResponsiveBar } from '@nivo/bar';
 import { monitoringEndpoints } from '../../utils/apis';
@@ -11,7 +12,6 @@ const colors = [
   '#8B5CF6',
   '#EC4899',
   '#14B8A6',
-
   '#679EF8',
   '#46C99D',
   '#F7B442',
@@ -19,7 +19,6 @@ const colors = [
   '#A581F8',
   '#F071B0',
   '#49C8BA',
-
   '#26539D',
   '#0A7653',
   '#9D6507',
@@ -27,7 +26,6 @@ const colors = [
   '#593B9D',
   '#972E62',
   '#0D766A',
-
   '#1B3C71',
   '#07553B',
   '#714905',
@@ -35,15 +33,6 @@ const colors = [
   '#402A71',
   '#6D2146',
   '#09554C',
-
-  '#3B82F6',
-  '#10B981',
-  '#F59E0B',
-  '#6366F1',
-  '#8B5CF6',
-  '#EC4899',
-  '#14B8A6',
-
   '#BFD6FC',
   '#B1E8D6',
   '#FCDFB0',
@@ -51,7 +40,6 @@ const colors = [
   '#D9CAFC',
   '#F9C4DE',
   '#B3E8E2',
-
   '#93BAFA',
   '#7CD8BA',
   '#FACA79',
@@ -59,7 +47,6 @@ const colors = [
   '#BFA5FA',
   '#F59AC7',
   '#7ED8CE',
-
   '#306BCA',
   '#0D986A',
   '#C98209',
@@ -67,7 +54,6 @@ const colors = [
   '#724BCA',
   '#C23B7D',
   '#109788',
-
   '#112445',
   '#043424',
   '#452C03',
@@ -75,7 +61,6 @@ const colors = [
   '#271A45',
   '#42142B',
   '#06342E',
-
   '#060D19',
   '#02130D',
   '#191001',
@@ -183,7 +168,6 @@ export default function ToolUsageStats() {
   const [days, setDays] = useState(7);
   const [inputValue, setInputValue] = useState('7');
 
-  // make dark detection reactive (handles toggling the `dark` class on <html>)
   const getIsDark = useCallback(() => {
     if (typeof window === 'undefined') return false;
     return document.documentElement.classList.contains('dark');
@@ -203,7 +187,6 @@ export default function ToolUsageStats() {
       attributeFilter: ['class'],
     });
 
-    // also listen for when user changes system preference (optional)
     const mm =
       window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
     const onPrefChange = () => setIsDark(getIsDark());
@@ -281,44 +264,26 @@ export default function ToolUsageStats() {
     return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center';
   };
 
-  // رنگ مخصوص خطا برای لایت و دارک
   const errorColor = isDark ? '#F87171' : '#EF4444';
 
-  // theme برای Nivo (با توجه به دارک/لایت)
   const nivoTheme = {
     axis: {
       ticks: {
-        text: {
-          fill: isDark ? '#E5E7EB' : '#374151',
-          fontSize: 12,
-        },
+        text: { fill: isDark ? '#E5E7EB' : '#374151', fontSize: 12 },
       },
-      legend: {
-        text: {
-          fill: isDark ? '#E5E7EB' : '#374151',
-        },
-      },
+      legend: { text: { fill: isDark ? '#E5E7EB' : '#374151' } },
     },
-    labels: {
-      text: {
-        fill: isDark ? '#E5E7EB' : '#374151',
-      },
-    },
+    labels: { text: { fill: isDark ? '#E5E7EB' : '#374151' } },
     grid: {
-      line: {
-        stroke: isDark ? '#374151' : '#E5E7EB',
-        strokeOpacity: 0.25,
-      },
+      line: { stroke: isDark ? '#374151' : '#E5E7EB', strokeOpacity: 0.25 },
     },
-    tooltip: {
-      container: {
-        // keep minimal -- actual tooltip inlined below for better dark-mode reliability
-      },
-    },
+    tooltip: { container: {} },
   };
 
   return (
-    <div className="w-full flex flex-col gap-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    // مهم: min-h-screen + overflow-y-auto روی این دیو باعث میشه "کل صفحه" اسکرول کنه
+    <div className="min-h-screen flex-1 flex-col p-4 bg-gray-50 dark:bg-gray-800 rounded-lg gap-6 overflow-y-auto scrollbar-hide">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-6 w-6 text-primary-600 dark:text-primary-400" />
@@ -351,6 +316,7 @@ export default function ToolUsageStats() {
         </div>
       </div>
 
+      {/* Alerts */}
       {error === 'validation' && (
         <ErrorAlert
           message="لطفاً یک عدد بین ۱ تا ۳۶۵ وارد کنید."
@@ -361,19 +327,20 @@ export default function ToolUsageStats() {
         <ErrorAlert message={error} onRetry={fetchToolStats} />
       )}
 
-      <div className={`grid ${gridClasses()} gap-4`}>
+      {/* Cards — note: added mb-6 so cards don't stick to the chart below */}
+      <div className={`grid ${gridClasses()} gap-4 mb-6`}>
         {toolStats.map((tool) => (
           <StatCard key={tool.key} tool={tool} loading={loading} />
         ))}
       </div>
 
-      <div className="w-full bg-white dark:bg-gray-900 rounded-xl shadow-md p-4 mt-4 flex-1">
+      {/* Chart wrapper — added mt-4 for a bit more breathing room */}
+      <div className="w-full bg-white dark:bg-gray-900 rounded-xl shadow-md p-4 mt-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
             نمودار تعداد فراخوانی و خطاهای ابزارها
           </h3>
-
-          {/* Legend کنترل‌شده بیرون نمودار (خواناتر) */}
+          {/* Legend */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span
@@ -405,6 +372,7 @@ export default function ToolUsageStats() {
             هیچ داده‌ای برای نمایش وجود ندارد
           </div>
         ) : (
+          // ارتفاع نمودار هنوز تعیین شده، اما چون overflow روی والد نیست، اسکرول به صفحه منتقل میشه
           <div className="w-full h-[60vh] sm:h-[70vh] lg:h-[80vh]">
             <ResponsiveBar
               data={toolStats}
@@ -434,49 +402,6 @@ export default function ToolUsageStats() {
                 legendPosition: 'middle',
                 legendOffset: -60,
               }}
-              tooltip={({ id, value, color, data }) => (
-                // use inline styles for tooltip so we don't depend on parent's `dark` class (Nivo tooltips can be portaled)
-                <div
-                  style={{
-                    minWidth: 180,
-                    background: isDark ? 'rgb(31,41,55)' : '#ffffff',
-                    color: isDark ? '#ffffff' : '#000000',
-                    padding: 12,
-                    borderRadius: 8,
-                    border: isDark
-                      ? '1px solid rgba(255,255,255,0.06)'
-                      : '1px solid rgba(0,0,0,0.06)',
-                    boxShadow: '0 6px 18px rgba(0,0,0,0.08)',
-                  }}
-                >
-                  <p style={{ fontWeight: 700, marginBottom: 6 }}>
-                    {data.fullName}
-                  </p>
-                  <p style={{ fontSize: 13, color }}>
-                    {id === 'total' ? 'فراخوانی' : 'خطا'}:{' '}
-                    <span style={{ fontWeight: 700 }}>
-                      {Number(value).toLocaleString()}
-                    </span>
-                  </p>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: isDark ? '#9CA3AF' : '#6B7280',
-                      marginTop: 8,
-                    }}
-                  >
-                    مجموع فراخوانی‌ها:{' '}
-                    <span
-                      style={{
-                        fontWeight: 600,
-                        color: isDark ? '#F3F4F6' : '#111827',
-                      }}
-                    >
-                      {Number(data.total).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              )}
               theme={nivoTheme}
               animate={true}
               motionConfig="gentle"
