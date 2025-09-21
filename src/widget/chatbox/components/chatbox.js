@@ -50,7 +50,7 @@ const FullscreenBox = styled(Box)`
 `;
 
 const Header = styled.div`
-  background-color: rgb(220, 20, 53);
+  background-color: #1d3557;
   color: white;
   padding: 12px 48px 12px 12px;
   font-weight: bold;
@@ -113,7 +113,7 @@ const ChatBoxTrigger = styled.button`
   height: 70px;
   z-index: 1001;
   color: white;
-  background-color: #dc143c;
+  background-color: #1d3557;
   border-radius: 100%;
   display: flex;
   justify-content: center;
