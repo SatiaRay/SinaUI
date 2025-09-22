@@ -15,7 +15,7 @@ root.render(
   <React.StrictMode>
     <App />
     <ToastContainer
-      position="bottom-center"
+      position="top-right"
       autoClose={3000}
       hideProgressBar={false}
       newestOnTop={false}
@@ -24,7 +24,6 @@ root.render(
       pauseOnFocusLoss
       draggable
       pauseOnHover
-      theme="light"
     />
   </React.StrictMode>
 );
