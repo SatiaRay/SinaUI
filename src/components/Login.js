@@ -6,7 +6,7 @@ import NetworkBackground3D from './NetworkBackground3D';
 const Login = () => {
   const { login: authLogin, user } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -16,31 +16,94 @@ const Login = () => {
     }
   }, [user, navigate]);
 
+  // پاک‌سازی ورودی ایمیل: حذف فاصله‌ها، ویرگول فارسی و کاراکترهای علامت‌گذاری راست‌به‌چپ
+  const sanitizeEmail = (value) => {
+    if (!value) return value;
+    // حذف ویرگول فارسی (،) و فاصله و کاراکترهای جهت‌دهی ونال‌سپیس
+    return String(value).replace(/[\u200E\u200F\s،\u060C]/g, '');
+  };
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    let { value } = e.target;
+
+    if (name === 'email') {
+      value = sanitizeEmail(value);
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const validateEmail = (email) => {
+    // regex استاندارد پایه‌ای برای ایمیل (ساده و قابل اعتماد برای client-side)
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      setError('ایمیل و رمز عبور الزامی است');
+    // client-side validation (ما از native validation مرورگر استفاده نمی‌کنیم)
+    const newErrors = {};
+    if (!formData.email) newErrors.email = 'ایمیل الزامی است';
+    else if (!validateEmail(formData.email)) newErrors.email = 'ایمیل معتبر نیست';
+
+    if (!formData.password) newErrors.password = 'رمز عبور الزامی است';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
     setLoading(true);
-    setError('');
+    setErrors({});
 
     try {
-      const success = await authLogin(formData.email, formData.password);
+      const res = await authLogin(formData.email, formData.password);
 
-      if (!success) {
-        setError('ورود ناموفق بود. لطفاً اطلاعات را بررسی کنید.');
+      if (res && typeof res === 'object') {
+        if (res.success === false) {
+          if (res.fieldErrors && Object.keys(res.fieldErrors).length > 0) {
+            const serverErrors = {};
+            Object.entries(res.fieldErrors).forEach(([field, messages]) => {
+              serverErrors[field] = Array.isArray(messages) ? messages.join(', ') : String(messages);
+            });
+            setErrors(serverErrors);
+            return;
+          }
+
+          if (res.error) {
+            setErrors({ general: res.error });
+            return;
+          }
+
+          setErrors({ general: 'ورود ناموفق بود. لطفاً اطلاعات را بررسی کنید.' });
+          return;
+        }
+
+        // موفق: AuthContext ست می‌کند و useEffect ریدایرکت می‌کند
+        return;
       }
+
+      // اگر authLogin رفتار قدیمی داشت، اجازه بده useEffect مدیریت کند
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message || 'خطایی در ورود به سیستم رخ داد');
+      const serverData = err?.response?.data;
+      if (serverData) {
+        if (serverData.errors && typeof serverData.errors === 'object') {
+          const serverErrors = {};
+          Object.entries(serverData.errors).forEach(([field, messages]) => {
+            serverErrors[field] = Array.isArray(messages) ? messages.join(', ') : String(messages);
+          });
+          setErrors(serverErrors);
+        } else if (serverData.message) {
+          setErrors({ general: serverData.message });
+        } else {
+          setErrors({ general: err?.message || 'خطایی در ورود به سیستم رخ داد' });
+        }
+      } else {
+        setErrors({ general: err?.message || 'خطایی در ورود به سیستم رخ داد' });
+      }
     } finally {
       setLoading(false);
     }
@@ -56,32 +119,43 @@ const Login = () => {
           ورود به سیستم
         </h2>
 
-        {error && (
+        {errors.general && (
           <div className="text-red-400 text-sm text-center animate-pulse">
-            {error}
+            {errors.general}
           </div>
         )}
 
-        <form className="mt-6 space-y-6 w-full" onSubmit={handleSubmit}>
+        {/* جلوگیری از validation بومی مرورگر */}
+        <form className="mt-6 space-y-6 w-full" onSubmit={handleSubmit} noValidate>
           <div className="space-y-4">
-            <input
-              name="email"
-              type="email"
-              placeholder="ایمیل"
-              required
-              className="appearance-none block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <input
-              name="password"
-              type="password"
-              placeholder="رمز عبور"
-              required
-              className="appearance-none block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
-              value={formData.password}
-              onChange={handleChange}
-            />
+            <div>
+              <input
+                name="email"
+                type="email"
+                placeholder="ایمیل"
+                required
+                autoComplete="email"
+                inputMode="email"
+                className="appearance-none block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+            </div>
+
+            <div>
+              <input
+                name="password"
+                type="password"
+                placeholder="رمز عبور"
+                required
+                autoComplete="current-password"
+                className="appearance-none block w-full px-4 py-2 border border-gray-600/50 bg-gray-800/50 text-white rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
+                value={formData.password}
+                onChange={handleChange}
+              />
+              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+            </div>
           </div>
 
           <div className="space-y-4 w-full">
@@ -93,30 +167,7 @@ const Login = () => {
                   loading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                {loading ? (
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-50"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.272A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                ) : (
-                  'ورود'
-                )}
+                {loading ? '...' : 'ورود'}
               </button>
               <button
                 type="button"

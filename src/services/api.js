@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است') => {
+const handleAxiosError = (error, defaultMessage = 'An error occurred') => {
   console.error('Axios error:', {
     message: error.message,
     response: error.response?.data,
@@ -13,22 +13,74 @@ const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است')
   });
 
   if (error.response) {
-    // Server responded but with an error code
-    throw new Error(`${defaultMessage} (کد خطا: ${error.response.status})`);
+    const serverMessage = error.response.data?.message ?? null;
+    const status = error.response.status;
+    const raw = error.response.data ?? null;
+    // throw an Error only for unexpected callers; most API functions below return structured objects
+    throw { type: 'http', message: serverMessage ?? defaultMessage, status, raw };
   } else if (error.request) {
-    // Request was sent but no response received
-    throw new Error(
-      'سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.'
-    );
+    throw { type: 'network', message: 'No response from server. Please check your network or server status.' };
   } else {
-    // Something went wrong before sending the request
-    throw new Error(defaultMessage);
+    throw { type: 'other', message: defaultMessage };
   }
+};
+
+export const formatAxiosError = (error) => {
+  if (error?.response?.data) {
+    const data = error.response.data;
+    const status = error.response.status;
+    const userMessage = data.message ?? null;
+    const fieldErrors = {};
+    if (data.errors && typeof data.errors === 'object') {
+      for (const key of Object.keys(data.errors)) {
+        const val = data.errors[key];
+        if (Array.isArray(val)) {
+          fieldErrors[key] = val;
+        } else if (typeof val === 'string') {
+          fieldErrors[key] = [val];
+        } else {
+          fieldErrors[key] = [JSON.stringify(val)];
+        }
+      }
+    }
+    return {
+      userMessage,
+      fieldErrors,
+      status,
+      raw: data,
+    };
+  }
+
+  if (error?.request) {
+    return {
+      userMessage: 'No response from server',
+      fieldErrors: {},
+      status: null,
+      raw: null,
+    };
+  }
+
+  return {
+    userMessage: error?.message || 'An error occurred',
+    fieldErrors: {},
+    status: null,
+    raw: null,
+  };
 };
 
 // تنظیم baseURL برای APIهای مختلف
 const API_URL = process.env.REACT_APP_API_URL;
 const PYTHON_APP_URL = process.env.REACT_APP_CHAT_API_URL;
+const AUTH_API_URL = process.env.REACT_APP_AUTH_API_URL;
+
+// ایجاد نمونه axios برای احراز هویت
+const authAxiosInstance = axios.create({
+  baseURL: AUTH_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+});
 
 // ایجاد نمونه axios با تنظیمات پیش‌فرض
 const axiosInstance = axios.create({
@@ -288,33 +340,50 @@ export const importWorkflow = async (file) => {
 };
 
 // Register new user
-export const register = async ({
-  first_name,
-  last_name,
-  email,
-  password,
-  phone,
-}) => {
+export const register = async ({ name, email, password, phone, password_confirmation }) => {
   try {
-    const res = await axiosInstance.post(`/auth/register`, {
-      first_name,
-      last_name,
+    const res = await authAxiosInstance.post('/api/register', {
+      name,
       email,
       password,
+      password_confirmation,
       phone,
     });
-    return res.data; // ✅ return directly if success
+
+    return { success: true, data: res.data };
   } catch (err) {
-    handleAxiosError(err, 'خطا در ثبت نام');
+    if (err?.response?.data) {
+      const data = err.response.data;
+      return {
+        success: false,
+        error: data.message ?? null,
+        fieldErrors: data.errors && typeof data.errors === 'object' ? data.errors : {},
+        status: err.response.status,
+        raw: data,
+      };
+    }
+    const formatted = formatAxiosError(err);
+    return { success: false, error: formatted.userMessage, fieldErrors: formatted.fieldErrors, status: formatted.status, raw: formatted.raw };
   }
 };
 
 // Login
 export const login = async (email, password) => {
   try {
-    const res = await axiosInstance.post(`/auth/login`, { email, password });
-    return res.data;
+    const res = await authAxiosInstance.post('/api/login', { email, password });
+    return { success: true, data: res.data };
   } catch (err) {
-    handleAxiosError(err, 'خطا در ورود به سیستم');
+    if (err?.response?.data) {
+      const data = err.response.data;
+      return {
+        success: false,
+        error: data.message ?? null,
+        fieldErrors: data.errors && typeof data.errors === 'object' ? data.errors : {},
+        status: err.response.status,
+        raw: data,
+      };
+    }
+    const formatted = formatAxiosError(err);
+    return { success: false, error: formatted.userMessage, fieldErrors: formatted.fieldErrors, status: formatted.status, raw: formatted.raw };
   }
 };
