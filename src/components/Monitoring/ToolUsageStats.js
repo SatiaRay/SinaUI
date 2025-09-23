@@ -195,8 +195,8 @@ export default function ToolUsageStats() {
     return () => {
       mo.disconnect();
       mm &&
-        mm.removeEventListener &&
-        mm.removeEventListener('change', onPrefChange);
+      mm.removeEventListener &&
+      mm.removeEventListener('change', onPrefChange);
     };
   }, [getIsDark]);
 
@@ -373,7 +373,14 @@ export default function ToolUsageStats() {
           </div>
         ) : (
           // ارتفاع نمودار هنوز تعیین شده، اما چون overflow روی والد نیست، اسکرول به صفحه منتقل میشه
-          <div className="w-full h-[60vh] sm:h-[70vh] lg:h-[80vh]">
+          <div
+            className="w-full"
+            style={{
+              height: `${Math.min(80, toolStats.length * 20 + 40)}vh`,
+              maxHeight: '600px',
+              minHeight: '300px',
+            }}
+          >
             <ResponsiveBar
               data={toolStats}
               keys={['total', 'error_count']}

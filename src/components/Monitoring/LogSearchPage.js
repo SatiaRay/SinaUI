@@ -175,7 +175,7 @@ const LogSearchPage = () => {
       setLogData(data);
     } catch (err) {
       console.error('Error fetching log details:', err);
-      setError('خطا در دریافت اطلاعات لاگ');
+      setError('خطا در دریافت اطلاعات لاگ اگر از صحت شناسه مطمن هستید اتصال اینترنت و سرور را چک کنید ');
       setLogData(null);
     } finally {
       setLoading(false);
@@ -232,15 +232,23 @@ const LogSearchPage = () => {
               <input
                 type="text"
                 value={logId}
-                onChange={(e) => setLogId(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (/^\d*$/.test(val)) {
+                    if (val === '' || (/^[1-9]\d*$/.test(val))) {
+                      setLogId(val);
+                    }
+                  }
+                }}
                 onKeyPress={handleKeyPress}
                 placeholder="شناسه لاگ را وارد کنید"
-                className="block w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white 
-                         placeholder-gray-500 dark:placeholder-gray-400 
-                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                         transition-all duration-200 shadow-sm"
+                className="block w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+           placeholder-gray-500 dark:placeholder-gray-400
+           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+           transition-all duration-200 shadow-sm"
               />
+
             </div>
             <button
               onClick={handleSearch}
