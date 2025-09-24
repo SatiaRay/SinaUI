@@ -53,22 +53,30 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await loginApi(email, password);
 
-      if (res && res.success) {
-        // prefer token fields commonly used
-        const receivedToken = res.data?.access_token ?? res.data?.token ?? null;
-        const serverUser = res.data?.user ?? res.data?.data ?? null;
+      if ((res && res.success) || (res.user && res.token)) {
+        const receivedToken =
+          res.data?.access_token ?? res.data?.token ?? res.token ?? null;
+
+        const serverUser = res.data?.user ?? res.data?.data ?? res.user ?? null;
 
         const completeUser = {
           ...(serverUser || {}),
-          first_name: (serverUser && (serverUser.first_name ?? serverUser.name?.split?.(' ')?.[0])) ?? '',
-          last_name: (serverUser && (serverUser.last_name ?? (() => {
-            if (serverUser && serverUser.name) {
-              const parts = serverUser.name.trim().split(/\s+/);
-              parts.shift();
-              return parts.join(' ');
-            }
-            return '';
-          })())) ?? '',
+          first_name:
+            (serverUser &&
+              (serverUser.first_name ?? serverUser.name?.split?.(' ')?.[0])) ??
+            '',
+          last_name:
+            (serverUser &&
+              (serverUser.last_name ??
+                (() => {
+                  if (serverUser && serverUser.name) {
+                    const parts = serverUser.name.trim().split(/\s+/);
+                    parts.shift();
+                    return parts.join(' ');
+                  }
+                  return '';
+                })())) ??
+            '',
           phone: serverUser?.phone ?? '',
         };
 
@@ -78,25 +86,43 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
 
-      // unsuccessful login: pass server messages through
-      return { success: false, error: res?.error ?? null, fieldErrors: res?.fieldErrors ?? {} };
+      return {
+        success: false,
+        error: res?.error ?? null,
+        fieldErrors: res?.fieldErrors ?? {},
+      };
     } catch (error) {
-      // If unexpected error thrown, format and return structured object
       if (error && error.raw) {
-        return { success: false, error: error.message ?? null, fieldErrors: error.raw.errors ?? {} };
+        return {
+          success: false,
+          error: error.message ?? null,
+          fieldErrors: error.raw.errors ?? {},
+        };
       }
       const apiErr = formatAxiosError(error);
-      return { success: false, error: apiErr.userMessage, fieldErrors: apiErr.fieldErrors };
+      return {
+        success: false,
+        error: apiErr.userMessage,
+        fieldErrors: apiErr.fieldErrors,
+      };
     }
   };
 
   const register = async (formData) => {
     try {
-      if (!formData.password || !formData.repeat_password || formData.password !== formData.repeat_password) {
-        return { success: false, error: 'کلمه‌های عبور الزامی است و باید یکسان باشند' };
+      if (
+        !formData.password ||
+        !formData.repeat_password ||
+        formData.password !== formData.repeat_password
+      ) {
+        return {
+          success: false,
+          error: 'کلمه‌های عبور الزامی است و باید یکسان باشند',
+        };
       }
 
-      const nameFromFields = `${(formData.first_name ?? '').trim()} ${(formData.last_name ?? '').trim()}`.trim();
+      const nameFromFields =
+        `${(formData.first_name ?? '').trim()} ${(formData.last_name ?? '').trim()}`.trim();
       const name = (formData.name ?? '').trim() || nameFromFields;
 
       // Validation: همه فیلدها اجباری
@@ -152,13 +178,25 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
 
-      return { success: false, error: res?.error ?? 'خطا در ثبت نام', fieldErrors: res?.fieldErrors ?? {} };
+      return {
+        success: false,
+        error: res?.error ?? 'خطا در ثبت نام',
+        fieldErrors: res?.fieldErrors ?? {},
+      };
     } catch (error) {
       if (error && error.raw) {
-        return { success: false, error: error.message ?? null, fieldErrors: error.raw.errors ?? {} };
+        return {
+          success: false,
+          error: error.message ?? null,
+          fieldErrors: error.raw.errors ?? {},
+        };
       }
       const apiErr = formatAxiosError(error);
-      return { success: false, error: apiErr.userMessage, fieldErrors: apiErr.fieldErrors };
+      return {
+        success: false,
+        error: apiErr.userMessage,
+        fieldErrors: apiErr.fieldErrors,
+      };
     }
   };
 

@@ -364,3 +364,15 @@ export const fileEndpoints = {
     }
   },
 };
+
+export const wizardEndpoints = {
+  listWizards: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards`);
+      return response.data;
+    } catch (error) {
+      console.error('Error listing workspace users:', error);
+      throw error;
+    }
+  },
+};
