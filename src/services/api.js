@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const handleAxiosError = (error, defaultMessage = 'An error occurred') => {
+const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است') => {
   console.error('Axios error:', {
     message: error.message,
     response: error.response?.data,
@@ -13,18 +13,18 @@ const handleAxiosError = (error, defaultMessage = 'An error occurred') => {
   });
 
   if (error.response) {
-    const serverMessage = error.response.data?.message ?? null;
-    const status = error.response.status;
-    const raw = error.response.data ?? null;
-    // throw an Error only for unexpected callers; most API functions below return structured objects
-    throw { type: 'http', message: serverMessage ?? defaultMessage, status, raw };
+    // Server responded but with an error code
+    throw new Error(`${defaultMessage} (کد خطا: ${error.response.status})`);
   } else if (error.request) {
-    throw { type: 'network', message: 'No response from server. Please check your network or server status.' };
+    // Request was sent but no response received
+    throw new Error(
+      'سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.'
+    );
   } else {
-    throw { type: 'other', message: defaultMessage };
+    // Something went wrong before sending the request
+    throw new Error(defaultMessage);
   }
 };
-
 export const formatAxiosError = (error) => {
   if (error?.response?.data) {
     const data = error.response.data;
@@ -68,19 +68,10 @@ export const formatAxiosError = (error) => {
   };
 };
 
-// تنظیم baseURL برای APIهای مختلف
-const API_URL = process.env.REACT_APP_API_URL;
-const PYTHON_APP_URL = process.env.REACT_APP_CHAT_API_URL;
-const AUTH_API_URL = process.env.REACT_APP_AUTH_API_URL;
 
-// ایجاد نمونه axios برای احراز هویت
-const authAxiosInstance = axios.create({
-  baseURL: AUTH_API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
-});
+// تنظیم baseURL برای APIهای مختلف
+const API_URL = process.env.REACT_APP_IPD_SERVICE;
+const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
 
 // ایجاد نمونه axios با تنظیمات پیش‌فرض
 const axiosInstance = axios.create({
@@ -186,8 +177,14 @@ export const askQuestion = async (question) => {
   }
 };
 
-export const checkAuthorizationFetcher = (args) =>
-  axios.get(`${PYTHON_APP_URL}/auth/me`).then((res) => res.data);
+export const checkAuthorizationFetcher = async () => {
+  try {
+    const res = await axios.get(`${PYTHON_APP_URL}/whoami`);
+    return res.data;
+  } catch (err) {
+    console.error("Request failed:", err.response?.data || err.message);
+  }
+};
 
 export const getDomains = async () => {
   try {
@@ -342,7 +339,7 @@ export const importWorkflow = async (file) => {
 // Register new user
 export const register = async ({ name, email, password, phone, password_confirmation }) => {
   try {
-    const res = await authAxiosInstance.post('/api/register', {
+    const res = await axiosInstance.post('/api/register', {
       name,
       email,
       password,
@@ -370,7 +367,7 @@ export const register = async ({ name, email, password, phone, password_confirma
 // Login
 export const login = async (email, password) => {
   try {
-    const res = await authAxiosInstance.post('/api/login', { email, password });
+    const res = await axiosInstance.post('/api/login', { email, password });
     return { success: true, data: res.data };
   } catch (err) {
     if (err?.response?.data) {
