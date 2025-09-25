@@ -384,4 +384,52 @@ export const wizardEndpoints = {
       throw error;
     }
   },
+
+  // Get wizard by ID
+  getWizard: async (wizardId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards/${wizardId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching wizard:', error);
+      throw error;
+    }
+  },
+
+  // Update existing wizard
+  updateWizard: async (wizardId, wizardData) => {
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/wizards/${wizardId}`,
+        wizardData
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating wizard:', error);
+      throw error;
+    }
+  },
+  // Toggle status  wizard
+  toggleStatusWizard: async (wizardId, endpoint) => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/wizards/${wizardId}/${endpoint}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating wizard:', error);
+      throw error;
+    }
+  },
+
+  // Delete wizard
+  deleteWizard: async (wizardId) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/wizards/${wizardId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting wizard:', error);
+      throw error;
+    }
+  },
 };

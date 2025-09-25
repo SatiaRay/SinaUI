@@ -20,27 +20,25 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
 
     setLoading(true);
     setError(null);
-    const wizardData = JSON.stringify({
+    const wizardData = {
       title,
       context,
       parent_id,
       wizard_type: wizardType,
-    });
-    console.log(wizardData);
+    };
+
     try {
-      const response = await wizardEndpoints.createWizard(wizardData);
+      const newWizard = await wizardEndpoints.createWizard(wizardData);
 
-      if (!response.ok) {
-        throw new Error('خطا در ایجاد ویزارد');
-      }
-
-      const newWizard = await response.json();
+      // با axios، داده‌ها مستقیماً در newWizard هستند
       if (onWizardCreated) {
         onWizardCreated(newWizard);
       }
       onClose();
     } catch (err) {
-      setError(err.message);
+      setError(
+        err.response?.data?.message || err.message || 'خطا در ایجاد ویزارد'
+      );
       console.error('Error creating wizard:', err);
     } finally {
       setLoading(false);
@@ -50,11 +48,9 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 pb-12">
       <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            ایجاد ویزارد جدید
-          </h2>
-        </div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          ایجاد ویزارد جدید
+        </h2>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,7 +84,7 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
               { value: 'question', label: 'سوال' },
             ]}
             value={wizardType}
-            onChange={(val) => setWizardType(val)}
+            onChange={setWizardType}
             placeholder="انتخاب نوع ویزارد"
             className={'w-full'}
             parentStyle={'w-full'}
@@ -106,31 +102,26 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
             <CKEditor
               editor={ClassicEditor}
               data={context}
-              onChange={(event, editor) => {
-                const data = editor.getData();
-                setContext(data);
-              }}
+              onChange={(event, editor) => setContext(editor.getData())}
               config={{
                 language: 'fa',
                 direction: 'rtl',
-                toolbar: {
-                  items: [
-                    'heading',
-                    '|',
-                    'bold',
-                    'italic',
-                    'link',
-                    'bulletedList',
-                    'numberedList',
-                    '|',
-                    'outdent',
-                    'indent',
-                    '|',
-                    'insertTable',
-                    'undo',
-                    'redo',
-                  ],
-                },
+                toolbar: [
+                  'heading',
+                  '|',
+                  'bold',
+                  'italic',
+                  'link',
+                  'bulletedList',
+                  'numberedList',
+                  '|',
+                  'outdent',
+                  'indent',
+                  '|',
+                  'insertTable',
+                  'undo',
+                  'redo',
+                ],
                 table: {
                   contentToolbar: [
                     'tableColumn',
@@ -139,12 +130,6 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
                     'tableProperties',
                     'tableCellProperties',
                   ],
-                  defaultProperties: {
-                    borderWidth: '1px',
-                    borderColor: '#ccc',
-                    borderStyle: 'solid',
-                    alignment: 'right',
-                  },
                 },
                 htmlSupport: {
                   allow: [
