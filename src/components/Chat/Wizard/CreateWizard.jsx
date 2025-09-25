@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '../../../ui/dropdown';
+import { wizardEndpoints } from '../../../utils/apis';
 
 const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
   const [title, setTitle] = useState('');
@@ -19,22 +20,15 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
 
     setLoading(true);
     setError(null);
+    const wizardData = JSON.stringify({
+      title,
+      context,
+      parent_id,
+      wizard_type: wizardType,
+    });
+    console.log(wizardData);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title,
-            context,
-            parent_id,
-            wizard_type: wizardType,
-          }),
-        }
-      );
+      const response = await wizardEndpoints.createWizard(wizardData);
 
       if (!response.ok) {
         throw new Error('خطا در ایجاد ویزارد');

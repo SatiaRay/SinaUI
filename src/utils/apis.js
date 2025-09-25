@@ -375,4 +375,13 @@ export const wizardEndpoints = {
       throw error;
     }
   },
+  createWizard: async (wizardData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/wizards`, wizardData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating wizard:', error);
+      throw error;
+    }
+  },
 };
