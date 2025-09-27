@@ -76,11 +76,23 @@ const ChatBox = (props) => {
   const isStatic = props['static'];
   const [fullscreen, setFullscreen] = useState(props['fullscreen']);
   const [isVisible, setIsVisible] = useState(false);
+  let services = null;
 
   if (props['token']) {
     delete (axios.defaults.headers.common['Authorization'])
     axios.defaults.headers.common['Authorization'] = `Bearer ${props['token']}`;
   }
+
+  if(props['satiaToken'] && props['satiaCustomer']){
+    services = {
+      satia: {
+        token: props['satiaToken'],
+        customer: props['satiaCustomer']
+      }
+    }
+  }
+
+  
 
   const boxContent = (
     <>
@@ -94,7 +106,7 @@ const ChatBox = (props) => {
       </Header>
       <Messages>
           <ChatProvider>
-            <Chat services={props['services']}/>
+            <Chat services={services}/>
           </ChatProvider>
       </Messages>
     </>
