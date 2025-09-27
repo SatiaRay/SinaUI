@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CreateWizard from './CreateWizard';
 import UpdateWizard from './UpdateWizard';
+import { wizardEndpoints } from '../../../utils/apis';
 
 const ShowWizard = ({ wizard, onWizardSelect }) => {
   const [wizardData, setWizardData] = useState(null);
@@ -18,16 +19,10 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
       setError(null);
 
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizard.id}`
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch wizard data');
-        }
-        const data = await response.json();
+        const data = await wizardEndpoints.getWizard(wizard.id);
         setWizardData(data);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'خطا در دریافت ویزارد');
         console.error('Error fetching wizard:', err);
       } finally {
         setLoading(false);
@@ -48,62 +43,41 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   };
 
   const addNewChild = (child) => {
-    let children = wizardData.children || [];
     setWizardData((prev) => ({
       ...prev,
-      children: [...children, child],
+      children: [...(prev.children || []), child],
     }));
   };
 
   const handleWizardUpdated = (updatedWizard) => {
-    // Update the wizard in the children array
-    const updatedChildren = wizardData.children.map((child) =>
-      child.id === updatedWizard.id ? updatedWizard : child
-    );
     setWizardData((prev) => ({
       ...prev,
-      children: updatedChildren,
+      children: prev.children.map((child) =>
+        child.id === updatedWizard.id ? updatedWizard : child
+      ),
     }));
   };
 
-  const handleDeleteWizard = (wizardId) => {
-    if (window.confirm('آیا از حذف این ویزارد مطمئن هستید ؟')) {
-      fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}`, {
-        method: 'DELETE',
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('خطا در حذف ویزارد');
-          }
-          // Remove the deleted wizard from the children array
-          setWizardData((prev) => ({
-            ...prev,
-            children: prev.children.filter((child) => child.id !== wizardId),
-          }));
-        })
-        .catch((error) => {
-          console.error('Error deleting wizard:', error);
-          alert('خطا در حذف ویزارد');
-        });
+  const handleDeleteWizard = async (wizardId) => {
+    try {
+      await wizardEndpoints.deleteWizard(wizardId);
+      setWizardData((prev) => ({
+        ...prev,
+        children: prev.children.filter((child) => child.id !== wizardId),
+      }));
+    } catch (error) {
+      console.error('Error deleting wizard:', error);
+      alert('خطا در حذف ویزارد');
     }
   };
 
   const toggleWizardStatus = async (wizardId, currentStatus) => {
     setUpdatingStatus((prev) => ({ ...prev, [wizardId]: true }));
     try {
-      const endpoint = currentStatus ? 'disable' : 'enable';
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}/${endpoint}`,
-        {
-          method: 'POST',
-        }
+      await wizardEndpoints.toggleStatusWizard(
+        wizardId,
+        currentStatus ? 'disable' : 'enable'
       );
-
-      if (!response.ok) {
-        throw new Error('خطا در تغییر وضعیت ویزارد');
-      }
-
-      // Update the wizard status in the children array
       setWizardData((prev) => ({
         ...prev,
         children: prev.children.map((child) =>
@@ -111,7 +85,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
         ),
       }));
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'خطا در تغییر وضعیت ویزارد');
     } finally {
       setUpdatingStatus((prev) => ({ ...prev, [wizardId]: false }));
     }
@@ -163,7 +137,6 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
         />
       ) : (
         <div className="space-y-6 text-white">
-          {/* Header with back button */}
           <div className="flex items-center justify-between">
             <h2 className="text-xl dark:text-white font-semibold text-gray-800">
               {wizardData.title}
@@ -179,25 +152,11 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                 onClick={handleBackClick}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
                 بازگشت
               </button>
             </div>
           </div>
 
-
-          {/* Wizard content */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div
               className="prose dark:prose-invert max-w-none text-gray-800 dark:text-white [&_a]:text-blue-600 [&_a]:underline [&_a]:hover:text-blue-700 dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300 [&_span.katex]:text-current"
@@ -205,7 +164,6 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
             />
           </div>
 
-          {/* Children table */}
           {wizardData.children && wizardData.children.length > 0 && (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -217,28 +175,16 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-900">
                     <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                      >
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         عنوان
                       </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                      >
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         تاریخ ایجاد
                       </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                      >
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         وضعیت
                       </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                      >
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         عملیات
                       </th>
                     </tr>
@@ -271,11 +217,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                               toggleWizardStatus(child.id, child.enabled);
                             }}
                             disabled={updatingStatus[child.id]}
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer transition-colors ${
-                              child.enabled
-                                ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800'
-                                : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer transition-colors ${child.enabled ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800' : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'} disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {updatingStatus[child.id] ? (
                               <div className="flex items-center gap-1">
@@ -298,14 +240,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                               }}
                               className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                              </svg>
+                              ویرایش
                             </button>
                             <button
                               onClick={(e) => {
@@ -314,18 +249,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                               }}
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
+                              حذف
                             </button>
                           </div>
                         </td>

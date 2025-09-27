@@ -19,8 +19,7 @@ const WizardIndex = () => {
 
   const fetchWizards = async () => {
     try {
-      const resData = await wizardEndpoints.listWizards()
-
+      const resData = await wizardEndpoints.listWizards();
       setWizards(resData);
     } catch (err) {
       setError(err.message);
@@ -41,9 +40,15 @@ const WizardIndex = () => {
     setSelectedWizard(wizard);
   };
 
-  const freshWizard = (wizard) => {
+  const handleWizardUpdated = (updatedWizard) => {
     setWizards((prevWizards) =>
-      prevWizards.map((w) => (w.id === wizard.id ? wizard : w))
+      prevWizards.map((w) => (w.id === updatedWizard.id ? updatedWizard : w))
+    );
+  };
+
+  const handleWizardToggled = (updatedWizard) => {
+    setWizards((prevWizards) =>
+      prevWizards.map((w) => (w.id === updatedWizard.id ? updatedWizard : w))
     );
   };
 
@@ -58,10 +63,8 @@ const WizardIndex = () => {
       {selectedWizardForUpdate ? (
         <UpdateWizard
           wizard={selectedWizardForUpdate}
-          onClose={() => {
-            setSelectedWizardForEdit(null);
-          }}
-          onWizardUpdated={freshWizard}
+          onClose={() => setSelectedWizardForEdit(null)}
+          onWizardUpdated={handleWizardUpdated}
         />
       ) : (
         <div className="space-y-6 mx-auto w-full">
@@ -70,9 +73,7 @@ const WizardIndex = () => {
               پاسخ‌های ویزارد
             </h2>
             <button
-              onClick={() => {
-                setShowCreateWizard(true);
-              }}
+              onClick={() => setShowCreateWizard(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               ایجاد ویزارد جدید
@@ -81,9 +82,7 @@ const WizardIndex = () => {
 
           {showCreateWizard ? (
             <CreateWizard
-              onClose={() => {
-                setShowCreateWizard(false);
-              }}
+              onClose={() => setShowCreateWizard(false)}
               onWizardCreated={handleWizardCreated}
             />
           ) : loading ? (
@@ -132,6 +131,7 @@ const WizardIndex = () => {
                   onClickWizard={handleWizardClick}
                   onDeleteWizard={handleWizardDeleted}
                   selectedWizardForUpdate={setSelectedWizardForEdit}
+                  onToggleWizard={handleWizardToggled}
                 />
               ))}
             </div>
