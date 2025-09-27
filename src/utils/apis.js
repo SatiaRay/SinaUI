@@ -447,6 +447,15 @@ export const monitoringEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching log details:', error);
+export const wizardEndpoints = {
+  listWizards: async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/wizards`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error listing workspace users:', error);
       throw error;
     }
   },

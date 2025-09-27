@@ -27,8 +27,8 @@ const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است')
 };
 
 // تنظیم baseURL برای APIهای مختلف
-const API_URL = process.env.REACT_APP_API_URL;
-const PYTHON_APP_URL = process.env.REACT_APP_CHAT_API_URL;
+const API_URL = process.env.REACT_APP_IPD_SERVICE;
+const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
 
 // ایجاد نمونه axios با تنظیمات پیش‌فرض
 const axiosInstance = axios.create({
@@ -134,8 +134,14 @@ export const askQuestion = async (question) => {
   }
 };
 
-export const checkAuthorizationFetcher = (args) =>
-  axios.get(`${PYTHON_APP_URL}/auth/me`).then((res) => res.data);
+export const checkAuthorizationFetcher = async () => {
+  try {
+    const res = await axios.get(`${PYTHON_APP_URL}/whoami`);
+    return res.data;
+  } catch (err) {
+    console.error("Request failed:", err.response?.data || err.message);
+  }
+};
 
 export const getDomains = async () => {
   try {
@@ -312,7 +318,7 @@ export const register = async ({
 // Login
 export const login = async (email, password) => {
   try {
-    const res = await axiosInstance.post(`/auth/login`, { email, password });
+    const res = await axiosInstance.post(`/api/login`, { email, password });
     return res.data;
   } catch (err) {
     handleAxiosError(err, 'خطا در ورود به سیستم');
