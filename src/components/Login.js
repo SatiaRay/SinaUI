@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import NetworkBackground3D from './NetworkBackground3D';
+import NetworkBackground3D from './NetworkBackground2D';
 
 const Login = () => {
   const { login: authLogin, user } = useAuth();
