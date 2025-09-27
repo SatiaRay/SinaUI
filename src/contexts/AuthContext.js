@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const response = await loginApi(email, password);
 
-    if (response.user && response.access_token) {
+    if (response.user && response.token) {
       // Merge fallback values if backend sends null
       const completeUser = {
         ...response.user,
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
       };
 
       setUser(completeUser);
-      setToken(response.access_token);
+      setToken(response.token);
     } else {
       throw new Error('ورود به سیستم موفق نبود');
     }

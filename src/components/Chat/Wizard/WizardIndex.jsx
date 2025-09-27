@@ -3,6 +3,7 @@ import CreateWizard from './CreateWizard';
 import ShowWizard from './ShowWizard';
 import WizardCard from './WizardCard';
 import UpdateWizard from './UpdateWizard';
+import { wizardEndpoints } from '../../../utils/apis';
 
 const WizardIndex = () => {
   const [wizards, setWizards] = useState([]);
@@ -18,14 +19,9 @@ const WizardIndex = () => {
 
   const fetchWizards = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/`
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت لیست ویزاردها');
-      }
-      const data = await response.json();
-      setWizards(data);
+      const resData = await wizardEndpoints.listWizards()
+
+      setWizards(resData);
     } catch (err) {
       setError(err.message);
     } finally {
