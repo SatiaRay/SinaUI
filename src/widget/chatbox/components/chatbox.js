@@ -4,6 +4,7 @@ import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const Box = styled.div`
   position: fixed;
@@ -76,6 +77,11 @@ const ChatBox = (props) => {
   const [fullscreen, setFullscreen] = useState(props['fullscreen']);
   const [isVisible, setIsVisible] = useState(false);
 
+  if (props['token']) {
+    delete (axios.defaults.headers.common['Authorization'])
+    axios.defaults.headers.common['Authorization'] = `Bearer ${props['token']}`;
+  }
+
   const boxContent = (
     <>
       <Header>
@@ -87,9 +93,9 @@ const ChatBox = (props) => {
         <Title>چت بات خان 🤖</Title>
       </Header>
       <Messages>
-        <ChatProvider>
-          <Chat />
-        </ChatProvider>
+          <ChatProvider>
+            <Chat services={props['services']}/>
+          </ChatProvider>
       </Messages>
     </>
   );
