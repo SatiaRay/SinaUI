@@ -11,7 +11,7 @@ import Message from '../ui/chat/message/Message';
 import { useChat } from '../../contexts/ChatContext';
 import Swal from 'sweetalert2';
 
-const Chat = ({ item }) => {
+const Chat = ({ services = null }) => {
   const [question, setQuestion] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [loadingCaption, setLoadingCaption] = useState('null');
@@ -32,6 +32,7 @@ const Chat = ({ item }) => {
   // const navigate = useNavigate();
 
   const {
+    isConnected,
     addNewMessage,
     updateMessage,
     setError,
@@ -47,11 +48,20 @@ const Chat = ({ item }) => {
     chatContainerRef,
     chatEndRef,
     sendMessage,
+    setService,
     handleWizardSelect,
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
   } = useChat();
+
+  /**
+   * Setup service
+   */
+  useEffect(() => {
+    if(isConnected && services)
+      Object.keys(services).forEach((name) => setService(name, services[name]))
+  }, [isConnected])
 
   // Effect برای تغییر چیدمان وقتی اولین پیام ارسال می‌شود
   useEffect(() => {
@@ -402,12 +412,12 @@ const Chat = ({ item }) => {
                 }`}
               >
                 <VoiceBtn onTranscribe={setQuestion} />
-                {/*<button*/}
-                {/*  onClick={() => navigate('/voice-agent')}*/}
-                {/*  className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"*/}
-                {/*>*/}
-                {/*  <LucideAudioLines size={22} />*/}
-                {/*</button>*/}
+                {/* <button
+                  onClick={() => navigate('/voice-agent')}
+                  className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
+                >
+                  <LucideAudioLines size={22} />
+                </button> */}
               </div>
             </div>
 

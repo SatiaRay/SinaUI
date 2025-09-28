@@ -12,6 +12,7 @@ const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
   // State
+  const [isConnected, setIsConnected] = useState(false)
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
@@ -173,6 +174,7 @@ export const ChatProvider = ({ children }) => {
     );
 
     socket.onopen = () => {
+      setIsConnected(true)
       if (handlersRef.current.open) handlersRef.current.open();
     };
 
@@ -256,14 +258,30 @@ export const ChatProvider = ({ children }) => {
   };
 
   /**
+   * Set service enable through sending its credentials to the channel
+   *
+   * @param {string} name Service name
+   * @param {object} credentials  Service setting credentials
+   */
+  const setService = async (name, credentials) => {
+    if (socketRef.current) {
+      socketRef.current.send(
+        JSON.stringify({
+          event: 'service',
+          name,
+          credentials
+        })
+      );
+    }
+  };
+
+  /**
    * Adds new message to the chat history
    *
    * @param {object} messageData
    */
   const addNewMessage = (messageData) => {
     messageData.id = uuidv4();
-
-    console.log(messageData);
 
     setHistory((prev) => ({
       ids: [...prev.ids, messageData.id],
@@ -317,12 +335,12 @@ export const ChatProvider = ({ children }) => {
     if (wizardData.wizard_type === 'question') {
       sendMessage(stripHtmlTags(wizardData.context));
       return;
-    } else 
+    } else
       sendData({
-        event: "wizard",
-        wizard_id: wizardData.id
-      })
-    
+        event: 'wizard',
+        wizard_id: wizardData.id,
+      });
+
     if (wizardData.children && wizardData.children.length > 0) {
       setCurrentWizards(wizardData.children);
     } else {
@@ -351,6 +369,7 @@ export const ChatProvider = ({ children }) => {
 
   // Context value
   const value = {
+    isConnected,
     historyLoading,
     setHistoryLoading,
     hasMoreHistory,
@@ -379,6 +398,7 @@ export const ChatProvider = ({ children }) => {
     sendMessage,
     sendUploadedImage,
     sendData,
+    setService,
     handleWizardSelect,
     addNewMessage,
     updateMessage,
