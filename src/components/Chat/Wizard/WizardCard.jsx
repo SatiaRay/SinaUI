@@ -1,54 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ShowWizard, UpdateWizard } from './index';
+import { wizardEndpoints } from '../../../utils/apis';
 
 const WizardCard = ({
   wizard,
   onClickWizard,
   onDeleteWizard,
   selectedWizardForUpdate,
+  onToggleWizard,
 }) => {
   const [error, setError] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState({});
-  const [showUpdateWizard, setShowUpdateWizard] = useState(false);
 
   const toggleWizardStatus = async (wizardId, currentStatus) => {
     setUpdatingStatus((prev) => ({ ...prev, [wizardId]: true }));
     try {
       const endpoint = currentStatus ? 'disable' : 'enable';
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}/${endpoint}`,
-        {
-          method: 'POST',
-        }
-      );
+      await wizardEndpoints.toggleStatusWizard(wizardId, endpoint);
 
-      if (!response.ok) {
-        throw new Error('خطا در تغییر وضعیت ویزارد');
-      }
-
-      wizard.enabled = !wizard.enabled;
+      // به جای تغییر مستقیم props از callback والد استفاده می‌کنیم
+      onToggleWizard({ ...wizard, enabled: !wizard.enabled });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'خطا در تغییر وضعیت ویزارد');
     } finally {
       setUpdatingStatus((prev) => ({ ...prev, [wizardId]: false }));
     }
   };
 
-  const submitDelete = () => {
-    if (window.confirm('آیا از حذف این ویزارد مطمئن هستید ؟')) {
-      fetch(`${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizard.id}`, {
-        method: 'DELETE',
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('خطا در حذف ویزارد');
-          }
-          onDeleteWizard(wizard.id);
-        })
-        .catch((error) => {
-          console.error('Error deleting wizard:', error);
-          alert('خطا در حذف ویزارد');
-        });
+  const submitDelete = async () => {
+    try {
+      await wizardEndpoints.deleteWizard(wizard.id);
+      onDeleteWizard(wizard.id);
+    } catch (error) {
+      console.error('Error deleting wizard:', error);
+      alert('خطا در حذف ویزارد');
     }
   };
 

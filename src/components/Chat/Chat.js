@@ -367,7 +367,7 @@ const Chat = ({ services = null }) => {
   };
 
   return (
-    <div className="flex flex-col overflow-x-hidden h-screen md:p-7 pt-9 pb-7 px-2 w-full max-w-[860px] mx-auto">
+    <div className="flex flex-col overflow-x-hidden pt-9 pb-7 px-2 h-full w-full max-w-[860px] mx-auto">
       {/* حالت اولیه - قبل از ارسال اولین پیام */}
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <div className="flex flex-col items-center justify-center h-full space-y-8 transition-all duration-500">
