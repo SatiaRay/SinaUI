@@ -1,7 +1,7 @@
 import { BrushCleaning, LucideAudioLines } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaRobot } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { BeatLoader } from 'react-spinners';
 import { notify } from '../../ui/toast';
 import VoiceBtn from './VoiceBtn';
@@ -29,7 +29,7 @@ const Chat = ({ item }) => {
 
   const initialMessageAddedRef = useRef(false);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const {
     addNewMessage,
@@ -402,12 +402,12 @@ const Chat = ({ item }) => {
                 }`}
               >
                 <VoiceBtn onTranscribe={setQuestion} />
-                <button
-                  onClick={() => navigate('/voice-agent')}
-                  className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
-                >
-                  <LucideAudioLines size={22} />
-                </button>
+                {/*<button*/}
+                {/*  onClick={() => navigate('/voice-agent')}*/}
+                {/*  className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"*/}
+                {/*>*/}
+                {/*  <LucideAudioLines size={22} />*/}
+                {/*</button>*/}
               </div>
             </div>
 

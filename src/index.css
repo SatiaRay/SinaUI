@@ -433,4 +433,24 @@ code {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+
+@layer components {
+    .Toastify__toast {
+        @apply bg-white text-gray-900;
+    }
+
+    .dark .Toastify__toast {
+        @apply bg-gray-800 text-gray-100;
+    }
+
+    .Toastify__close-button {
+        @apply text-gray-500;
+    }
+    .dark .Toastify__close-button {
+        @apply text-gray-300;
+    }
+
+    .Toastify__progress-bar {
+        @apply bg-primary-500;
+    }
 }

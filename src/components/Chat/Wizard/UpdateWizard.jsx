@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '../../../ui/dropdown';
+import { wizardEndpoints } from '../../../utils/apis';
 
 const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
   const [title, setTitle] = useState('');
@@ -14,7 +15,7 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
     if (wizard) {
       setTitle(wizard.title || '');
       setContext(wizard.context || '');
-      setWizardType(wizard.wizard_type || '');
+      setWizardType(wizard.wizard_type || 'answer');
     }
   }, [wizard]);
 
@@ -27,34 +28,28 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
 
     setLoading(true);
     setError(null);
+    const wizardData = {
+      title,
+      context,
+      parent_id: wizard.parent_id,
+      wizard_type: wizardType,
+    };
+
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizard.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title,
-            context,
-            parent_id: wizard.parent_id,
-            wizard_type: wizardType,
-          }),
-        }
+      // با axios مستقیم داده برگشتی در response.data است
+      const updatedWizard = await wizardEndpoints.updateWizard(
+        wizard.id,
+        wizardData
       );
 
-      if (!response.ok) {
-        throw new Error('خطا در بروزرسانی ویزارد');
-      }
-
-      const updatedWizard = await response.json();
       if (onWizardUpdated) {
         onWizardUpdated(updatedWizard);
       }
       onClose();
     } catch (err) {
-      setError(err.message);
+      setError(
+        err.response?.data?.message || err.message || 'خطا در بروزرسانی ویزارد'
+      );
       console.error('Error updating wizard:', err);
     } finally {
       setLoading(false);
@@ -64,11 +59,9 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 pb-12">
       <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            ویرایش ویزارد
-          </h2>
-        </div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          ویرایش ویزارد
+        </h2>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -102,10 +95,10 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
               { value: 'question', label: 'سوال' },
             ]}
             value={wizardType}
-            onChange={(val) => setWizardType(val)}
+            onChange={setWizardType}
             placeholder="انتخاب نوع ویزارد"
-            className={'w-full'}
-            parentStyle={'w-full'}
+            className="w-full"
+            parentStyle="w-full"
           />
         </div>
 
@@ -120,31 +113,26 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
             <CKEditor
               editor={ClassicEditor}
               data={context}
-              onChange={(event, editor) => {
-                const data = editor.getData();
-                setContext(data);
-              }}
+              onChange={(event, editor) => setContext(editor.getData())}
               config={{
                 language: 'fa',
                 direction: 'rtl',
-                toolbar: {
-                  items: [
-                    'heading',
-                    '|',
-                    'bold',
-                    'italic',
-                    'link',
-                    'bulletedList',
-                    'numberedList',
-                    '|',
-                    'outdent',
-                    'indent',
-                    '|',
-                    'insertTable',
-                    'undo',
-                    'redo',
-                  ],
-                },
+                toolbar: [
+                  'heading',
+                  '|',
+                  'bold',
+                  'italic',
+                  'link',
+                  'bulletedList',
+                  'numberedList',
+                  '|',
+                  'outdent',
+                  'indent',
+                  '|',
+                  'insertTable',
+                  'undo',
+                  'redo',
+                ],
                 table: {
                   contentToolbar: [
                     'tableColumn',
@@ -153,12 +141,6 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
                     'tableProperties',
                     'tableCellProperties',
                   ],
-                  defaultProperties: {
-                    borderWidth: '1px',
-                    borderColor: '#ccc',
-                    borderStyle: 'solid',
-                    alignment: 'right',
-                  },
                 },
                 htmlSupport: {
                   allow: [

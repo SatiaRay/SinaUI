@@ -107,9 +107,9 @@ const WorkflowEditorContent = () => {
             conditionTargets:
               step.type === 'decision'
                 ? (step.conditions || []).reduce((acc, c) => {
-                    acc[c.label] = c.next;
-                    return acc;
-                  }, {})
+                  acc[c.label] = c.next;
+                  return acc;
+                }, {})
                 : {},
             jsonConfig: null,
             pageConfig: {
@@ -577,7 +577,7 @@ const WorkflowEditorContent = () => {
   );
 
   const saveWorkflow = useCallback(
-    async (customNodes = nodes) => {
+    async (customNodes = nodes, overrideAgentType = null) => {
       let workflowData = null;
       try {
         setLoading(true);
@@ -589,9 +589,11 @@ const WorkflowEditorContent = () => {
           return;
         }
 
+        const usedAgentType = overrideAgentType ?? agentType;
+
         workflowData = {
           name: workflowName.trim(),
-          agent_type: agentType,
+          agent_type: usedAgentType,
           flow: customNodes.map((node) => {
             const step = {
               id: node.id,
@@ -679,7 +681,7 @@ const WorkflowEditorContent = () => {
         setLoading(false);
       }
     },
-    [nodes, edges, workflowId, workflowName, setNodes]
+    [nodes, edges, workflowId, workflowName, setNodes, agentType]
   );
 
   if (loading) {

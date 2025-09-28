@@ -25,6 +25,49 @@ const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است')
     throw new Error(defaultMessage);
   }
 };
+export const formatAxiosError = (error) => {
+  if (error?.response?.data) {
+    const data = error.response.data;
+    const status = error.response.status;
+    const userMessage = data.message ?? null;
+    const fieldErrors = {};
+    if (data.errors && typeof data.errors === 'object') {
+      for (const key of Object.keys(data.errors)) {
+        const val = data.errors[key];
+        if (Array.isArray(val)) {
+          fieldErrors[key] = val;
+        } else if (typeof val === 'string') {
+          fieldErrors[key] = [val];
+        } else {
+          fieldErrors[key] = [JSON.stringify(val)];
+        }
+      }
+    }
+    return {
+      userMessage,
+      fieldErrors,
+      status,
+      raw: data,
+    };
+  }
+
+  if (error?.request) {
+    return {
+      userMessage: 'No response from server',
+      fieldErrors: {},
+      status: null,
+      raw: null,
+    };
+  }
+
+  return {
+    userMessage: error?.message || 'An error occurred',
+    fieldErrors: {},
+    status: null,
+    raw: null,
+  };
+};
+
 
 // تنظیم baseURL برای APIهای مختلف
 const API_URL = process.env.REACT_APP_IPD_SERVICE;
@@ -294,33 +337,50 @@ export const importWorkflow = async (file) => {
 };
 
 // Register new user
-export const register = async ({
-  first_name,
-  last_name,
-  email,
-  password,
-  phone,
-}) => {
+export const register = async ({ name, email, password, phone, password_confirmation }) => {
   try {
-    const res = await axiosInstance.post(`/auth/register`, {
-      first_name,
-      last_name,
+    const res = await axiosInstance.post('/api/register', {
+      name,
       email,
       password,
+      password_confirmation,
       phone,
     });
-    return res.data; // ✅ return directly if success
+
+    return { success: true, data: res.data };
   } catch (err) {
-    handleAxiosError(err, 'خطا در ثبت نام');
+    if (err?.response?.data) {
+      const data = err.response.data;
+      return {
+        success: false,
+        error: data.message ?? null,
+        fieldErrors: data.errors && typeof data.errors === 'object' ? data.errors : {},
+        status: err.response.status,
+        raw: data,
+      };
+    }
+    const formatted = formatAxiosError(err);
+    return { success: false, error: formatted.userMessage, fieldErrors: formatted.fieldErrors, status: formatted.status, raw: formatted.raw };
   }
 };
 
 // Login
 export const login = async (email, password) => {
   try {
-    const res = await axiosInstance.post(`/api/login`, { email, password });
-    return res.data;
+    const res = await axiosInstance.post('/api/login', { email, password });
+    return { success: true, data: res.data };
   } catch (err) {
-    handleAxiosError(err, 'خطا در ورود به سیستم');
+    if (err?.response?.data) {
+      const data = err.response.data;
+      return {
+        success: false,
+        error: data.message ?? null,
+        fieldErrors: data.errors && typeof data.errors === 'object' ? data.errors : {},
+        status: err.response.status,
+        raw: data,
+      };
+    }
+    const formatted = formatAxiosError(err);
+    return { success: false, error: formatted.userMessage, fieldErrors: formatted.fieldErrors, status: formatted.status, raw: formatted.raw };
   }
 };
