@@ -83,24 +83,23 @@ const TextInputWithBreaks = ({
       <div
         ref={inputRef}
         className="
-          w-full
-          bg-gray-50 dark:bg-gray-900
-          text-gray-800 dark:text-gray-100
-          py-3.5
-          px-2
-          whitespace-pre-wrap
-          break-words
-          rounded-lg
-          min-h-[44px]
-          h-[44px]
-          max-h-[200px]
-          overflow-y-auto
-          border-none
-          outline-none
-          focus:outline-none
-          focus:border-none
-          focus:ring-0
-        "
+    w-full
+    bg-gray-50 dark:bg-gray-900
+    text-gray-800 dark:text-gray-100
+    py-3.5
+    px-2
+    whitespace-pre-wrap
+    break-words
+    rounded-lg
+    min-h-[44px]
+    max-h-[200px]
+    overflow-y-auto
+    border-none
+    outline-none
+    focus:outline-none
+    focus:border-none
+    focus:ring-0
+  "
         dir="rtl"
         contentEditable={!disabled}
         onInput={handleInput}
