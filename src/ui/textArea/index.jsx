@@ -6,12 +6,10 @@ const TextInputWithBreaks = ({
   onSubmit,
   disabled,
   placeholder,
-  className = '',
 }) => {
   const inputRef = useRef(null);
   const [isEmpty, setIsEmpty] = useState(!value);
 
-  // Update the contentEditable div whenever value changes
   useEffect(() => {
     if (inputRef.current) {
       // Only update if content is different to avoid cursor jumping
@@ -22,7 +20,6 @@ const TextInputWithBreaks = ({
     }
   }, [value]);
 
-  // Handle key presses (Enter and Shift+Enter)
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {
@@ -51,7 +48,6 @@ const TextInputWithBreaks = ({
     selection.addRange(range);
   };
 
-  // Handle input changes inside contentEditable div
   const handleInput = (e) => {
     const textContent = e.target.textContent;
     onChange(textContent);
@@ -63,45 +59,44 @@ const TextInputWithBreaks = ({
     }
   };
 
-  // Ensure caret placement and RTL on focus
   const handleFocus = () => {
+    // Ensure RTL direction on focus for Firefox
     if (inputRef.current) {
       inputRef.current.setAttribute('dir', 'rtl');
       placeCaretAtEnd(inputRef.current);
     }
   };
-
   // Handle paste → force plain text (strip formatting like GPT)
   const handlePaste = (e) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain'); // only plain text
     document.execCommand('insertText', false, text); // insert clean text
   };
-
   return (
-    <div className={`relative w-full ${className}`}>
+    <div className="relative w-full">
       <div
         ref={inputRef}
         className="
-    w-full
-    bg-gray-50 dark:bg-gray-900
-    text-gray-800 dark:text-gray-100
-    py-3.5
-    px-2
-    whitespace-pre-wrap
-    break-words
-    rounded-lg
-    min-h-[44px]
-    max-h-[200px]
-    overflow-y-auto
-    border-none
-    outline-none
-    focus:outline-none
-    focus:border-none
-    focus:ring-0
-  "
+                    w-full
+                    bg-gray-50 dark:bg-gray-900
+                    text-gray-800 dark:text-gray-100
+                    py-3.5
+                    px-2
+                    whitespace-pre-wrap
+                    break-words
+                    rounded-lg
+                    min-h-[44px]
+                    max-h-[200px]
+                    overflow-y-auto
+                    border-none
+                    outline-none
+                    focus:outline-none
+                    focus:border-none
+                    focus:ring-0
+                "
         dir="rtl"
-        contentEditable={!disabled}
+        contentEditable={true}
+        aria-disabled={disabled}
         onInput={handleInput}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
@@ -120,5 +115,4 @@ const TextInputWithBreaks = ({
   );
 };
 
-// Export wrapped in React.memo to prevent unnecessary re-renders
-export default React.memo(TextInputWithBreaks);
+export default TextInputWithBreaks;
