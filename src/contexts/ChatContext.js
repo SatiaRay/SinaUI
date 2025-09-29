@@ -12,7 +12,7 @@ const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
   // State
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
@@ -174,7 +174,7 @@ export const ChatProvider = ({ children }) => {
     );
 
     socket.onopen = () => {
-      setIsConnected(true)
+      setIsConnected(true);
       if (handlersRef.current.open) handlersRef.current.open();
     };
 
@@ -192,58 +192,85 @@ export const ChatProvider = ({ children }) => {
 
     socketRef.current = socket;
   };
-
   /**
-   * Send new message
+   * Send new message with local timestamp
    *
    * @param {string} text
    * @returns sent message object
    */
   const sendMessage = async (text) => {
-    if (socketRef.current) {
-      const userMessage = {
-        type: 'text',
-        body: text,
-        role: 'user',
-        created_at: new Date().toISOString().slice(0, 19),
-      };
+    if (!socketRef.current) return;
 
-      addNewMessage(userMessage);
+    const now = new Date();
+    const localCreatedAt =
+      now.getFullYear() +
+      '-' +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(now.getDate()).padStart(2, '0') +
+      'T' +
+      String(now.getHours()).padStart(2, '0') +
+      ':' +
+      String(now.getMinutes()).padStart(2, '0') +
+      ':' +
+      String(now.getSeconds()).padStart(2, '0');
 
-      socketRef.current.send(
-        JSON.stringify({
-          event: 'text',
-          text,
-        })
-      );
-    }
+    const userMessage = {
+      type: 'text',
+      body: text,
+      role: 'user',
+      created_at: localCreatedAt,
+    };
+
+    addNewMessage(userMessage);
+
+    socketRef.current.send(
+      JSON.stringify({
+        event: 'text',
+        text,
+      })
+    );
   };
 
   /**
-   * Uploads image to the socket channel
+   * Uploads image to the socket channel with local timestamp
    *
    * @param {Array} images
    */
   const sendUploadedImage = async (images) => {
-    if (socketRef.current) {
-      const userMessage = {
-        type: 'image',
-        body: JSON.stringify(images),
-        role: 'user',
-        timestamp: new Date(),
-      };
+    if (!socketRef.current) return;
 
-      setTimeout(() => {
-        addNewMessage(userMessage);
-      }, 50);
+    const now = new Date();
+    const localCreatedAt =
+      now.getFullYear() +
+      '-' +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(now.getDate()).padStart(2, '0') +
+      'T' +
+      String(now.getHours()).padStart(2, '0') +
+      ':' +
+      String(now.getMinutes()).padStart(2, '0') +
+      ':' +
+      String(now.getSeconds()).padStart(2, '0');
 
-      socketRef.current.send(
-        JSON.stringify({
-          event: 'image',
-          files: images,
-        })
-      );
-    }
+    const userMessage = {
+      type: 'image',
+      body: JSON.stringify(images),
+      role: 'user',
+      created_at: localCreatedAt,
+    };
+
+    setTimeout(() => {
+      addNewMessage(userMessage);
+    }, 50);
+
+    socketRef.current.send(
+      JSON.stringify({
+        event: 'image',
+        files: images,
+      })
+    );
   };
 
   /**
@@ -269,7 +296,7 @@ export const ChatProvider = ({ children }) => {
         JSON.stringify({
           event: 'service',
           name,
-          credentials
+          credentials,
         })
       );
     }
