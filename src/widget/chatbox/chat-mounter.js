@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import ChatBox from './components/chatbox';
 import '../../index.css';
 import '../../../public/css/style.css'
+import './chatbox.css'
 import 'react-toastify/dist/ReactToastify.css';
 import 'typeface-vazir';
 
@@ -21,7 +22,7 @@ function initChatWidget(scriptEl) {
   );
 
   const root = ReactDOM.createRoot(container);
-  root.render(<ChatBox {...props} className="font-sans" />);
+  root.render(<ChatBox {...props} className="font-sans"/>);
 }
 
 // Auto-init all widgets

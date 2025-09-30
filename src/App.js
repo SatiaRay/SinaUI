@@ -68,6 +68,7 @@ function AppContent() {
 
   return (
     <div
+      id='khan'
       className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
         showNavbar
           ? sidebarCollapsed

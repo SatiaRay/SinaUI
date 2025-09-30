@@ -1,0 +1,213 @@
+/* Preflight (scoped to #khan-chatbox) */
+
+#khan-chatbox *,
+#khan-chatbox ::before,
+#khan-chatbox ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: currentColor;
+  font-family: Vazir !important;
+}
+
+#khan-chatbox ::before,
+#khan-chatbox ::after {
+  --tw-content: '';
+}
+
+/* html/body resets — scope as children */
+#khan-chatbox,
+#khan-chatbox :host {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#khan-chatbox body {
+  margin: 0;
+  line-height: inherit;
+}
+
+#khan-chatbox hr {
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+#khan-chatbox abbr:where([title]) {
+  text-decoration: underline dotted;
+}
+
+#khan-chatbox h1,
+#khan-chatbox h2,
+#khan-chatbox h3,
+#khan-chatbox h4,
+#khan-chatbox h5,
+#khan-chatbox h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+#khan-chatbox a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+#khan-chatbox b,
+#khan-chatbox strong {
+  font-weight: bolder;
+}
+
+#khan-chatbox code,
+#khan-chatbox kbd,
+#khan-chatbox samp,
+#khan-chatbox pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  font-size: 1em;
+}
+
+#khan-chatbox small {
+  font-size: 80%;
+}
+
+#khan-chatbox sub,
+#khan-chatbox sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+#khan-chatbox sub { bottom: -0.25em; }
+#khan-chatbox sup { top: -0.5em; }
+
+#khan-chatbox table {
+  text-indent: 0;
+  border-color: inherit;
+  border-collapse: collapse;
+}
+
+#khan-chatbox button,
+#khan-chatbox input,
+#khan-chatbox optgroup,
+#khan-chatbox select,
+#khan-chatbox textarea {
+  font-family: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  font-size: 100%;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+#khan-chatbox button,
+#khan-chatbox select {
+  text-transform: none;
+}
+
+#khan-chatbox button,
+#khan-chatbox input[type='button'],
+#khan-chatbox input[type='reset'],
+#khan-chatbox input[type='submit'] {
+  -webkit-appearance: button;
+  background-color: transparent;
+  background-image: none;
+}
+
+#khan-chatbox :-moz-focusring { outline: auto; }
+#khan-chatbox :-moz-ui-invalid { box-shadow: none; }
+
+#khan-chatbox progress { vertical-align: baseline; }
+
+#khan-chatbox ::-webkit-inner-spin-button,
+#khan-chatbox ::-webkit-outer-spin-button {
+  height: auto;
+}
+
+#khan-chatbox [type='search'] {
+  -webkit-appearance: textfield;
+  outline-offset: -2px;
+}
+
+#khan-chatbox ::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+#khan-chatbox ::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+#khan-chatbox summary { display: list-item; }
+
+#khan-chatbox blockquote,
+#khan-chatbox dl,
+#khan-chatbox dd,
+#khan-chatbox h1,
+#khan-chatbox h2,
+#khan-chatbox h3,
+#khan-chatbox h4,
+#khan-chatbox h5,
+#khan-chatbox h6,
+#khan-chatbox hr,
+#khan-chatbox figure,
+#khan-chatbox p,
+#khan-chatbox pre {
+  margin: 0;
+}
+
+#khan-chatbox fieldset { margin: 0; padding: 0; }
+#khan-chatbox legend { padding: 0; }
+
+#khan-chatbox ol,
+#khan-chatbox ul,
+#khan-chatbox menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#khan-chatbox dialog { padding: 0; }
+#khan-chatbox textarea { resize: vertical; }
+
+#khan-chatbox input::placeholder,
+#khan-chatbox textarea::placeholder {
+  opacity: 1;
+  color: #9ca3af; /* gray-400 */
+}
+
+#khan-chatbox button,
+#khan-chatbox [role="button"] { cursor: pointer; }
+#khan-chatbox :disabled { cursor: default; }
+
+#khan-chatbox img,
+#khan-chatbox svg,
+#khan-chatbox video,
+#khan-chatbox canvas,
+#khan-chatbox audio,
+#khan-chatbox iframe,
+#khan-chatbox embed,
+#khan-chatbox object {
+  display: block;
+  vertical-align: middle;
+}
+
+#khan-chatbox img,
+#khan-chatbox video {
+  max-width: 100%;
+  height: auto;
+}
+
+#khan-chatbox [hidden]:where(:not([hidden="until-found"])) {
+  display: none;
+}
