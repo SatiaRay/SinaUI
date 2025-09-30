@@ -59,7 +59,7 @@ const Chat = ({ services = null }) => {
    * Setup service
    */
   useEffect(() => {
-    if(isConnected && services)
+    if (isConnected && services)
       Object.keys(services).forEach((name) => setService(name, services[name]))
   }, [isConnected])
 
@@ -407,9 +407,8 @@ const Chat = ({ services = null }) => {
                 centerAlign={true}
               />
               <div
-                className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-                  question.trim() ? 'hidden' : ''
-                }`}
+                className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${question.trim() ? 'hidden' : ''
+                  }`}
               >
                 <VoiceBtn onTranscribe={setQuestion} />
                 {/* <button

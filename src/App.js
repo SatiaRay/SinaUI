@@ -7,6 +7,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import Chat from './components/Chat/Chat';
+import ChatNoHistory from './components/Chat/ChatNoHistory';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import {
   Document,
@@ -68,13 +69,12 @@ function AppContent() {
 
   return (
     <div
-      className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
-        showNavbar
-          ? sidebarCollapsed
-            ? 'md:mr-0'
-            : 'md:mr-64'
-          : 'flex items-center justify-center'
-      }`}
+      className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${showNavbar
+        ? sidebarCollapsed
+          ? 'md:mr-0'
+          : 'md:mr-64'
+        : 'flex items-center justify-center'
+        }`}
     >
       {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
@@ -119,7 +119,18 @@ function privateRoutes() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="nohistory"
+            element={
+              <PrivateRoute>
+                <ChatProvider>
+                  <ChatNoHistory />
+                </ChatProvider>
+              </PrivateRoute>
+            }
+          />
         </Route>
+
         /** VOICE AGENT CONVERSATION */
         <Route path="/voice-agent">
           <Route

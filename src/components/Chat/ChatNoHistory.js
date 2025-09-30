@@ -201,6 +201,33 @@ const Chat = () => {
     ],
   };
 
+  const formatTimestamp = (timestamp) => {
+    try {
+      const date = new Date(timestamp);
+
+      return date.toLocaleTimeString('fa-IR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    } catch (error) {
+      console.error('Error formatting timestamp:', error);
+      return new Date().toLocaleTimeString('fa-IR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+  };
+
+  useEffect(() => {
+    console.log("Current time:", new Date().toLocaleTimeString('fa-IR'));
+  }, []);
+
+  useEffect(() => {
+    console.log("Debug - Current system time:", formatTimestamp(Date.now()));
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       const chatLinks = document.querySelectorAll('.chat-message a');
@@ -279,12 +306,16 @@ const Chat = () => {
       const messages = await response.json();
 
       if (Array.isArray(messages)) {
-        const transformedMessages = messages.map((msg) => ({
-          type: msg.role === 'user' ? 'question' : 'answer',
-          text: msg.role === 'user' ? msg.body : undefined,
-          answer: msg.role === 'assistant' ? msg.body : undefined,
-          timestamp: new Date(msg.created_at),
-        }));
+        const transformedMessages = messages.map((msg) => {
+          const serverDate = new Date(msg.created_at);
+
+          return {
+            type: msg.role === 'user' ? 'question' : 'answer',
+            text: msg.role === 'user' ? msg.body : undefined,
+            answer: msg.role === 'assistant' ? msg.body : undefined,
+            timestamp: serverDate,
+          };
+        });
 
         const reversedMessages = [...transformedMessages].reverse();
 
@@ -468,13 +499,6 @@ const Chat = () => {
       setHistoryOffset(newOffset);
       fetchChatHistory(newOffset);
     }
-  };
-
-  const formatTimestamp = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString('fa-IR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   return (
