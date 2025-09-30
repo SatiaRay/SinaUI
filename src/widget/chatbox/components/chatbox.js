@@ -9,7 +9,7 @@ import axios from 'axios';
 const Box = styled.div`
   position: fixed;
   bottom: 2vh;
-  right: 2vw;
+  left: 2vw;
   width: 400px; /* 20% of viewport width */
   height: 700px; /* 40% of viewport height */
   background-color: #fff;
@@ -62,11 +62,11 @@ const Close = styled.div`
 const ChatBoxTrigger = styled.button`
   position: fixed;
   bottom: 2vh;
-  right: 2vw;
+  left: 2vw;
   width: 70px;
   height: 70px;
   z-index: 100;
-  color: white;
+  color: white !important;
   background-color: #dc143c !important;
   border-radius: 100%;
   display: flex;
