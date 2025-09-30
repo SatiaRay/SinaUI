@@ -1,11 +1,26 @@
-export const formatTimestamp = (
-  timestamp,
-  format = {
-    hour: '2-digit',
-    minute: '2-digit',
+export const formatTimestamp = (timestamp, useCurrentTime = false) => {
+  if (useCurrentTime || !timestamp) {
+    return new Date().toLocaleTimeString('fa-IR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
   }
-) => {
-  return new Date(timestamp).toLocaleTimeString('fa-IR', format);
+
+  try {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('fa-IR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  } catch (error) {
+    return new Date().toLocaleTimeString('fa-IR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  }
 };
 
 export const copyToClipboard = (text) => {
