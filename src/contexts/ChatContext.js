@@ -230,7 +230,7 @@ export const ChatProvider = ({ children }) => {
         type: 'image',
         body: JSON.stringify(images),
         role: 'user',
-        timestamp: new Date(),
+        created_at: new Date().toISOString().split('.')[0],
       };
 
       setTimeout(() => {
