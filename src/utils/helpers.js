@@ -1,25 +1,26 @@
 export const formatTimestamp = (timestamp, useCurrentTime = false) => {
+  const options = {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  };
+
   if (useCurrentTime || !timestamp) {
-    return new Date().toLocaleTimeString('fa-IR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
+    return new Date().toLocaleTimeString('fa-IR', options);
   }
 
   try {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('fa-IR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
+    const utcTimestamp = timestamp.endsWith('Z') ? timestamp : `${timestamp}Z`;
+    const date = new Date(utcTimestamp);
+
+    if (isNaN(date.getTime())) {
+      return '--:--';
+    }
+
+    return date.toLocaleTimeString('fa-IR', options);
   } catch (error) {
-    return new Date().toLocaleTimeString('fa-IR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
+    console.error('Error formatting timestamp:', error);
+    return '--:--';
   }
 };
 

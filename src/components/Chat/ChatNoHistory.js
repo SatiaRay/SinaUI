@@ -378,7 +378,7 @@ const Chat = () => {
     const userMessage = {
       type: 'question',
       text: currentQuestion,
-      timestamp: new Date(),
+      created_at: new Date().toISOString(),
     };
     setChatHistory((prev) => [...prev, userMessage]);
 
@@ -432,7 +432,8 @@ const Chat = () => {
         type: 'answer',
         answer: '',
         sources: [],
-        timestamp: new Date(),
+        created_at: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
       };
       setChatHistory((prev) => [...prev, botMessage]);
       setChatLoading(false);
