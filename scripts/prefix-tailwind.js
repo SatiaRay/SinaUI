@@ -13,12 +13,25 @@ const path = require('path');
 const PROJECT_ROOT = process.cwd();
 const PREFIX = 'khan-';
 
-const TEXT_FILE_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.html', '.css']);
+const TEXT_FILE_EXTENSIONS = new Set([
+  '.js',
+  '.jsx',
+  '.ts',
+  '.tsx',
+  '.html',
+  '.css',
+]);
 
 function walkDirectory(dirPath, onFile) {
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'dist' || entry.name === 'build') continue;
+    if (
+      entry.name === 'node_modules' ||
+      entry.name === '.git' ||
+      entry.name === 'dist' ||
+      entry.name === 'build'
+    )
+      continue;
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory()) {
       walkDirectory(fullPath, onFile);
@@ -41,19 +54,42 @@ function shouldPrefixToken(token) {
   // Heuristic: Tailwind utilities almost always contain '-' or brackets or are known singletons (e.g., flex, grid, block, hidden)
   const singletonUtilities = new Set([
     // display/layout
-    'flex','grid','block','inline','inline-block','table','hidden','sr-only','container','contents','flow-root','list-item','inline-flex','inline-grid',
+    'flex',
+    'grid',
+    'block',
+    'inline',
+    'inline-block',
+    'table',
+    'hidden',
+    'sr-only',
+    'container',
+    'contents',
+    'flow-root',
+    'list-item',
+    'inline-flex',
+    'inline-grid',
     // position
-    'static','fixed','absolute','relative','sticky',
+    'static',
+    'fixed',
+    'absolute',
+    'relative',
+    'sticky',
     // text case
-    'uppercase','lowercase','capitalize','normal-case',
+    'uppercase',
+    'lowercase',
+    'capitalize',
+    'normal-case',
     // borders
     'border',
     // rendering
-    'subpixel-antialiased','antialiased',
+    'subpixel-antialiased',
+    'antialiased',
     // font style
-    'italic','not-italic'
+    'italic',
+    'not-italic',
   ]);
-  const looksLikeUtility = base.includes('-') || base.includes('[') || singletonUtilities.has(base);
+  const looksLikeUtility =
+    base.includes('-') || base.includes('[') || singletonUtilities.has(base);
   return looksLikeUtility;
 }
 
@@ -76,21 +112,32 @@ function transformClassList(value) {
 
 function transformClassAttributeContent(content) {
   // Double-quoted and single-quoted class values
-  content = content.replace(/\b(class|className)\s*=\s*"([^"]*)"/g, (m, attr, val) => {
-    return `${attr}="${transformClassList(val)}"`;
-  });
-  content = content.replace(/\b(class|className)\s*=\s*'([^']*)'/g, (m, attr, val) => {
-    return `${attr}='${transformClassList(val)}'`;
-  });
+  content = content.replace(
+    /\b(class|className)\s*=\s*"([^"]*)"/g,
+    (m, attr, val) => {
+      return `${attr}="${transformClassList(val)}"`;
+    }
+  );
+  content = content.replace(
+    /\b(class|className)\s*=\s*'([^']*)'/g,
+    (m, attr, val) => {
+      return `${attr}='${transformClassList(val)}'`;
+    }
+  );
   // Template literal without expressions or with expressions preserved:
   // className={`foo ${bar} baz`} -> only transform plain segments
-  content = content.replace(/\b(class|className)\s*=\s*\{`([\s\S]*?)`\}/g, (m, attr, tpl) => {
-    const parts = tpl.split(/(\$\{[\s\S]*?\})/g);
-    const transformed = parts
-      .map((segment) => (segment.startsWith('${') ? segment : transformClassList(segment)))
-      .join('');
-    return `${attr}={` + '`' + transformed + '`' + `}`;
-  });
+  content = content.replace(
+    /\b(class|className)\s*=\s*\{`([\s\S]*?)`\}/g,
+    (m, attr, tpl) => {
+      const parts = tpl.split(/(\$\{[\s\S]*?\})/g);
+      const transformed = parts
+        .map((segment) =>
+          segment.startsWith('${') ? segment : transformClassList(segment)
+        )
+        .join('');
+      return `${attr}={` + '`' + transformed + '`' + `}`;
+    }
+  );
   return content;
 }
 
@@ -108,7 +155,13 @@ function processFile(filePath) {
 
   if (ext === '.css') {
     content = transformCssApply(content);
-  } else if (ext === '.js' || ext === '.jsx' || ext === '.ts' || ext === '.tsx' || ext === '.html') {
+  } else if (
+    ext === '.js' ||
+    ext === '.jsx' ||
+    ext === '.ts' ||
+    ext === '.tsx' ||
+    ext === '.html'
+  ) {
     content = transformClassAttributeContent(content);
   }
 
@@ -119,7 +172,10 @@ function processFile(filePath) {
 }
 
 function main() {
-  const targetRoots = [path.join(PROJECT_ROOT, 'src'), path.join(PROJECT_ROOT, 'public')];
+  const targetRoots = [
+    path.join(PROJECT_ROOT, 'src'),
+    path.join(PROJECT_ROOT, 'public'),
+  ];
   for (const root of targetRoots) {
     if (fs.existsSync(root)) {
       walkDirectory(root, processFile);
@@ -130,5 +186,3 @@ function main() {
 if (require.main === module) {
   main();
 }
-
-

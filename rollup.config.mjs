@@ -48,9 +48,7 @@ export default {
     }),
     babel({
       babelHelpers: 'bundled',
-      presets: [
-        ['@babel/preset-react', { runtime: 'automatic' }],
-      ],
+      presets: [['@babel/preset-react', { runtime: 'automatic' }]],
     }),
     postcss({
       inject: true, // injects CSS into JS bundle

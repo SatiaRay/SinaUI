@@ -47,7 +47,8 @@ const Login = () => {
     // client-side validation (ما از native validation مرورگر استفاده نمی‌کنیم)
     const newErrors = {};
     if (!formData.email) newErrors.email = 'ایمیل الزامی است';
-    else if (!validateEmail(formData.email)) newErrors.email = 'ایمیل معتبر نیست';
+    else if (!validateEmail(formData.email))
+      newErrors.email = 'ایمیل معتبر نیست';
 
     if (!formData.password) newErrors.password = 'رمز عبور الزامی است';
 
@@ -67,7 +68,9 @@ const Login = () => {
           if (res.fieldErrors && Object.keys(res.fieldErrors).length > 0) {
             const serverErrors = {};
             Object.entries(res.fieldErrors).forEach(([field, messages]) => {
-              serverErrors[field] = Array.isArray(messages) ? messages.join(', ') : String(messages);
+              serverErrors[field] = Array.isArray(messages)
+                ? messages.join(', ')
+                : String(messages);
             });
             setErrors(serverErrors);
             return;
@@ -78,7 +81,9 @@ const Login = () => {
             return;
           }
 
-          setErrors({ general: 'ورود ناموفق بود. لطفاً اطلاعات را بررسی کنید.' });
+          setErrors({
+            general: 'ورود ناموفق بود. لطفاً اطلاعات را بررسی کنید.',
+          });
           return;
         }
 
@@ -93,13 +98,17 @@ const Login = () => {
         if (serverData.errors && typeof serverData.errors === 'object') {
           const serverErrors = {};
           Object.entries(serverData.errors).forEach(([field, messages]) => {
-            serverErrors[field] = Array.isArray(messages) ? messages.join(', ') : String(messages);
+            serverErrors[field] = Array.isArray(messages)
+              ? messages.join(', ')
+              : String(messages);
           });
           setErrors(serverErrors);
         } else if (serverData.message) {
           setErrors({ general: serverData.message });
         } else {
-          setErrors({ general: err?.message || 'خطایی در ورود به سیستم رخ داد' });
+          setErrors({
+            general: err?.message || 'خطایی در ورود به سیستم رخ داد',
+          });
         }
       } else {
         setErrors({ general: err?.message || 'خطایی در ورود به سیستم رخ داد' });
@@ -126,7 +135,11 @@ const Login = () => {
         )}
 
         {/* جلوگیری از validation بومی مرورگر */}
-        <form className="mt-6 space-y-6 w-full" onSubmit={handleSubmit} noValidate>
+        <form
+          className="mt-6 space-y-6 w-full"
+          onSubmit={handleSubmit}
+          noValidate
+        >
           <div className="space-y-4">
             <div>
               <input
@@ -140,7 +153,9 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
               />
-              {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -154,7 +169,9 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
               />
-              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+              {errors.password && (
+                <p className="text-red-400 text-xs mt-1">{errors.password}</p>
+              )}
             </div>
           </div>
 

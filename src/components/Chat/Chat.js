@@ -59,9 +59,9 @@ const Chat = ({ services = null }) => {
    * Setup service
    */
   useEffect(() => {
-    if(isConnected && services)
-      Object.keys(services).forEach((name) => setService(name, services[name]))
-  }, [isConnected])
+    if (isConnected && services)
+      Object.keys(services).forEach((name) => setService(name, services[name]));
+  }, [isConnected]);
 
   // Effect برای تغییر چیدمان وقتی اولین پیام ارسال می‌شود
   useEffect(() => {

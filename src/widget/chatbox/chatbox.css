@@ -22,7 +22,9 @@
   -webkit-text-size-adjust: 100%;
   -moz-tab-size: 4;
   tab-size: 4;
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
   font-feature-settings: normal;
   font-variation-settings: normal;
   -webkit-tap-highlight-color: transparent;
@@ -67,7 +69,9 @@
 #khan-chatbox kbd,
 #khan-chatbox samp,
 #khan-chatbox pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   font-feature-settings: normal;
   font-variation-settings: normal;
   font-size: 1em;
@@ -84,8 +88,12 @@
   position: relative;
   vertical-align: baseline;
 }
-#khan-chatbox sub { bottom: -0.25em; }
-#khan-chatbox sup { top: -0.5em; }
+#khan-chatbox sub {
+  bottom: -0.25em;
+}
+#khan-chatbox sup {
+  top: -0.5em;
+}
 
 #khan-chatbox table {
   text-indent: 0;
@@ -122,10 +130,16 @@
   background-image: none;
 }
 
-#khan-chatbox :-moz-focusring { outline: auto; }
-#khan-chatbox :-moz-ui-invalid { box-shadow: none; }
+#khan-chatbox :-moz-focusring {
+  outline: auto;
+}
+#khan-chatbox :-moz-ui-invalid {
+  box-shadow: none;
+}
 
-#khan-chatbox progress { vertical-align: baseline; }
+#khan-chatbox progress {
+  vertical-align: baseline;
+}
 
 #khan-chatbox ::-webkit-inner-spin-button,
 #khan-chatbox ::-webkit-outer-spin-button {
@@ -146,7 +160,9 @@
   font: inherit;
 }
 
-#khan-chatbox summary { display: list-item; }
+#khan-chatbox summary {
+  display: list-item;
+}
 
 #khan-chatbox blockquote,
 #khan-chatbox dl,
@@ -164,8 +180,13 @@
   margin: 0;
 }
 
-#khan-chatbox fieldset { margin: 0; padding: 0; }
-#khan-chatbox legend { padding: 0; }
+#khan-chatbox fieldset {
+  margin: 0;
+  padding: 0;
+}
+#khan-chatbox legend {
+  padding: 0;
+}
 
 #khan-chatbox ol,
 #khan-chatbox ul,
@@ -175,8 +196,12 @@
   padding: 0;
 }
 
-#khan-chatbox dialog { padding: 0; }
-#khan-chatbox textarea { resize: vertical; }
+#khan-chatbox dialog {
+  padding: 0;
+}
+#khan-chatbox textarea {
+  resize: vertical;
+}
 
 #khan-chatbox input::placeholder,
 #khan-chatbox textarea::placeholder {
@@ -185,8 +210,12 @@
 }
 
 #khan-chatbox button,
-#khan-chatbox [role="button"] { cursor: pointer; }
-#khan-chatbox :disabled { cursor: default; }
+#khan-chatbox [role='button'] {
+  cursor: pointer;
+}
+#khan-chatbox :disabled {
+  cursor: default;
+}
 
 #khan-chatbox img,
 #khan-chatbox svg,
@@ -206,6 +235,6 @@
   height: auto;
 }
 
-#khan-chatbox [hidden]:where(:not([hidden="until-found"])) {
+#khan-chatbox [hidden]:where(:not([hidden='until-found'])) {
   display: none;
 }

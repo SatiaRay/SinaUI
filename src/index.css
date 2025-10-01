@@ -429,22 +429,22 @@ code {
 }
 
 @layer components {
-    .Toastify__toast {
-        @apply bg-white text-gray-900;
-    }
+  .Toastify__toast {
+    @apply bg-white text-gray-900;
+  }
 
-    .dark .Toastify__toast {
-        @apply bg-gray-800 text-gray-100;
-    }
+  .dark .Toastify__toast {
+    @apply bg-gray-800 text-gray-100;
+  }
 
-    .Toastify__close-button {
-        @apply text-gray-500;
-    }
-    .dark .Toastify__close-button {
-        @apply text-gray-300;
-    }
+  .Toastify__close-button {
+    @apply text-gray-500;
+  }
+  .dark .Toastify__close-button {
+    @apply text-gray-300;
+  }
 
-    .Toastify__progress-bar {
-        @apply bg-primary-500;
-    }
+  .Toastify__progress-bar {
+    @apply bg-primary-500;
+  }
 }
