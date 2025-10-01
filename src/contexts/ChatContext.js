@@ -12,7 +12,7 @@ const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
   // State
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
@@ -174,7 +174,7 @@ export const ChatProvider = ({ children }) => {
     );
 
     socket.onopen = () => {
-      setIsConnected(true)
+      setIsConnected(true);
       if (handlersRef.current.open) handlersRef.current.open();
     };
 
@@ -269,7 +269,7 @@ export const ChatProvider = ({ children }) => {
         JSON.stringify({
           event: 'service',
           name,
-          credentials
+          credentials,
         })
       );
     }

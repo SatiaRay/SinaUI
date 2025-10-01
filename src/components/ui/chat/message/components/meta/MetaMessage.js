@@ -4,7 +4,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { fileEndpoints } from '../../../../../../utils/apis';
 
 const MetaMessage = ({ messageId, metadata }) => {
-  const { sendData, removeMessage, sendUploadedImage, setOptionMessageTriggered} = useChat();
+  const {
+    sendData,
+    removeMessage,
+    sendUploadedImage,
+    setOptionMessageTriggered,
+  } = useChat();
   const [isLoading, setIsLoading] = useState(false);
 
   /**

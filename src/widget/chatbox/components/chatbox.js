@@ -19,7 +19,7 @@ const Box = styled.div`
   flex-direction: column;
   overflow: hidden;
   font-family: Vazir !important;
-  z-index: 1000
+  z-index: 1000;
 `;
 
 const FullscreenBox = styled(Box)`
@@ -81,20 +81,18 @@ const ChatBox = (props) => {
   let services = null;
 
   if (props['token']) {
-    delete (axios.defaults.headers.common['Authorization'])
+    delete axios.defaults.headers.common['Authorization'];
     axios.defaults.headers.common['Authorization'] = `Bearer ${props['token']}`;
   }
 
-  if(props['satiaToken'] && props['satiaCustomer']){
+  if (props['satiaToken'] && props['satiaCustomer']) {
     services = {
       satia: {
         token: props['satiaToken'],
-        customer: props['satiaCustomer']
-      }
-    }
+        customer: props['satiaCustomer'],
+      },
+    };
   }
-
-  
 
   const boxContent = (
     <>
@@ -107,9 +105,9 @@ const ChatBox = (props) => {
         <Title>چت بات خان 🤖</Title>
       </Header>
       <Messages>
-          <ChatProvider>
-            <Chat services={services}/>
-          </ChatProvider>
+        <ChatProvider>
+          <Chat services={services} />
+        </ChatProvider>
       </Messages>
     </>
   );
