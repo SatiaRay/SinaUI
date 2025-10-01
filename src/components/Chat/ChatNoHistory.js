@@ -201,32 +201,6 @@ const Chat = () => {
     ],
   };
 
-  const formatTimestamp = (timestamp) => {
-    try {
-      const date = new Date(timestamp);
-
-      return date.toLocaleTimeString('fa-IR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-    } catch (error) {
-      console.error('Error formatting timestamp:', error);
-      return new Date().toLocaleTimeString('fa-IR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-    }
-  };
-
-  useEffect(() => {
-    console.log("Current time:", new Date().toLocaleTimeString('fa-IR'));
-  }, []);
-
-  useEffect(() => {
-    console.log("Debug - Current system time:", formatTimestamp(Date.now()));
-  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -263,6 +237,25 @@ const Chat = () => {
       setTimeout(scrollToBottom, 100);
     }
   }, [historyLoading, chatHistory.length]);
+
+  const formatTimestamp = (timestamp) => {
+    try {
+      const date = new Date(timestamp);
+
+      return date.toLocaleTimeString('fa-IR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    } catch (error) {
+      console.error('Error formatting timestamp:', error);
+      return new Date().toLocaleTimeString('fa-IR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+  };
 
   const fetchRootWizards = async () => {
     try {

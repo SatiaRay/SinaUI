@@ -7,7 +7,6 @@ import {
   useLocation,
 } from 'react-router-dom';
 import Chat from './components/Chat/Chat';
-import ChatNoHistory from './components/Chat/ChatNoHistory';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import {
   Document,
@@ -115,16 +114,6 @@ function privateRoutes() {
               <PrivateRoute>
                 <ChatProvider>
                   <Chat />
-                </ChatProvider>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="nohistory"
-            element={
-              <PrivateRoute>
-                <ChatProvider>
-                  <ChatNoHistory />
                 </ChatProvider>
               </PrivateRoute>
             }
