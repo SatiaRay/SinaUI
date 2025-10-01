@@ -9,7 +9,7 @@ import axios from 'axios';
 const Box = styled.div`
   position: fixed;
   bottom: 2vh;
-  right: 2vw;
+  left: 2vw;
   width: 400px; /* 20% of viewport width */
   height: 700px; /* 40% of viewport height */
   background-color: #fff;
@@ -18,7 +18,8 @@ const Box = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-family: Arial, sans-serif;
+  font-family: Vazir !important;
+  z-index: 1000
 `;
 
 const FullscreenBox = styled(Box)`
@@ -48,6 +49,7 @@ const Messages = styled.div`
   padding: 12px;
   background-color: #f9f9f9;
   overflow-y: auto;
+  font-size: 15px;
 `;
 
 const Close = styled.div`
@@ -60,12 +62,12 @@ const Close = styled.div`
 const ChatBoxTrigger = styled.button`
   position: fixed;
   bottom: 2vh;
-  right: 2vw;
+  left: 2vw;
   width: 70px;
   height: 70px;
   z-index: 100;
-  color: white;
-  background-color: #dc143c;
+  color: white !important;
+  background-color: #dc143c !important;
   border-radius: 100%;
   display: flex;
   justify-content: center;
@@ -113,7 +115,7 @@ const ChatBox = (props) => {
   );
 
   return (
-    <>
+    <div id="khan-chatbox">
       {isVisible || isStatic ? (
         fullscreen ? (
           <FullscreenBox>{boxContent}</FullscreenBox>
@@ -125,7 +127,7 @@ const ChatBox = (props) => {
           <SiChatbot size={30} />
         </ChatBoxTrigger>
       )}
-    </>
+    </div>
   );
 };
 

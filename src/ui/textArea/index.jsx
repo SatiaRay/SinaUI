@@ -94,6 +94,7 @@ const TextInputWithBreaks = ({
                     focus:outline-none
                     focus:border-none
                     focus:ring-0
+                    text-right
                 "
         dir="rtl"
         contentEditable={!disabled}

@@ -68,13 +68,15 @@ function AppContent() {
 
   return (
     <div
-      className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${showNavbar
-        ? sidebarCollapsed
-          ? 'md:mr-0'
-          : 'md:mr-64'
-        : 'flex items-center justify-center'
-        }`}
-    >
+  id="khan"
+  className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
+    showNavbar
+      ? sidebarCollapsed
+        ? 'md:mr-0'
+        : 'md:mr-64'
+      : 'flex items-center justify-center'
+  }`}
+>
       {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
       {/* <div
