@@ -484,63 +484,66 @@ const Chat = ({ services = null }) => {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Wizard buttons */}
-          <WizardButtons
-            onWizardSelect={handleWizardSelect}
-            wizards={currentWizards}
-          />
-
           {/* Chat input */}
           {!optionMessageTriggered && (
-            <div className="flex items-center w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border transition-all duration-500">
-              {/* دکمه ارسال */}
-              <button
-                onClick={() => sendMessageDecorator(question)}
-                onKeyDown={() => sendMessageDecorator(question)}
-                disabled={chatLoading || !question.trim()}
-                className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
-              >
-                <svg
-                  className="w-6 h-6 bg-transparent"
-                  fill="#2663eb"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                </svg>
-              </button>
-
-              {/* اینپوت */}
-              <TextInputWithBreaks
-                value={question}
-                onChange={setQuestion}
-                onSubmit={() => sendMessageDecorator(question)}
-                disabled={chatLoading}
-                placeholder="سوال خود را بپرسید..."
-                className="flex-1"
+            <>
+              {/* Wizard buttons */}
+              <WizardButtons
+                onWizardSelect={handleWizardSelect}
+                wizards={currentWizards}
               />
-
-              {/* دکمه‌ها و VoiceBtn */}
-              <div
-                className={`flex items-center gap-2 ${question.trim() ? 'hidden' : ''}`}
-              >
+              <div className="flex items-center w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border transition-all duration-500">
+                {/* دکمه ارسال */}
                 <button
-                  onClick={handleClearHistory}
-                  className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
-                  title="پاک کردن تاریخچه"
+                  onClick={() => sendMessageDecorator(question)}
+                  onKeyDown={() => sendMessageDecorator(question)}
+                  disabled={chatLoading || !question.trim()}
+                  className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
                 >
-                  <BrushCleaning className="h-5 w-5" />
+                  <svg
+                    className="w-6 h-6 bg-transparent"
+                    fill="#2663eb"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                  </svg>
                 </button>
 
-                <VoiceBtn onTranscribe={setQuestion} />
+                {/* اینپوت */}
+                <TextInputWithBreaks
+                  value={question}
+                  onChange={setQuestion}
+                  onSubmit={() => sendMessageDecorator(question)}
+                  disabled={chatLoading}
+                  placeholder="سوال خود را بپرسید..."
+                  className="flex-1"
+                />
 
-                {/* <button
+                {/* دکمه‌ها و VoiceBtn */}
+                <div
+                  className={`flex items-center gap-2 ${
+                    question.trim() ? 'hidden' : ''
+                  }`}
+                >
+                  <button
+                    onClick={handleClearHistory}
+                    className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                    title="پاک کردن تاریخچه"
+                  >
+                    <BrushCleaning className="h-5 w-5" />
+                  </button>
+
+                  <VoiceBtn onTranscribe={setQuestion} />
+
+                  {/* <button
       onClick={() => navigate("/voice-agent")}
       className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
     >
       <LucideAudioLines size={22} />
     </button> */}
+                </div>
               </div>
-            </div>
+            </>
           )}
         </>
       )}
@@ -551,3 +554,4 @@ const Chat = ({ services = null }) => {
 };
 
 export default Chat;
+
