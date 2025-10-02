@@ -1,18 +1,19 @@
 import { formatTimestamp } from '../../../../utils/helpers';
+import { SentMessageContainer, SentMessageHeader, SentMessageTimestamp, SentMessageLabel } from '../../common';
 
 const SentMessage = ({ children, created_at }) => {
   return (
-    <div className='bg-blue-100/70 md:ml-16 dark:bg-blue-900/20 p-3 rounded-lg text-right max-w-3xl min-w-[10rem] inline-block justify-self-start'>
-      <div className='flex justify-between items-center mb-1'>
-        <span className='text-xs text-gray-500 dark:text-gray-400'>
+    <SentMessageContainer>
+      <SentMessageHeader>
+        <SentMessageTimestamp>
           {formatTimestamp(created_at)}
-        </span>
-        <span className='text-xs font-medium text-blue-600 dark:text-blue-400'>
+        </SentMessageTimestamp>
+        <SentMessageLabel>
           شما
-        </span>
-      </div>
+        </SentMessageLabel>
+      </SentMessageHeader>
       {children}
-    </div>
+    </SentMessageContainer>
   );
 };
 

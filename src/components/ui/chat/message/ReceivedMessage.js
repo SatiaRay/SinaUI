@@ -1,10 +1,11 @@
 import { formatTimestamp } from '../../../../utils/helpers';
+import { ReceivedMessageContainer } from '../../common';
 
 const ReceivedMessage = ({ children, timestamp }) => {
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 leading-8 px-2 py-2 flex flex-col text-wrap text-justify md:ml-1 md:mr-8 rounded-lg min-w-[10rem] w-full max-w-full justify-self-end">
+    <ReceivedMessageContainer>
       <div>{children}</div>
-    </div>
+    </ReceivedMessageContainer>
   );
 };
 

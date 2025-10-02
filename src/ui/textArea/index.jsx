@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { EditableInput, InputWrapper, Placeholder } from '../../components/ui/common';
 
 const TextInputWithBreaks = ({
   value,
   onChange,
   onSubmit,
   disabled,
-  placeholder,
+  placeholder = 'سوال خود را بپرسید...',
 }) => {
   const inputRef = useRef(null);
   const [isEmpty, setIsEmpty] = useState(!value);
@@ -73,45 +74,19 @@ const TextInputWithBreaks = ({
     document.execCommand('insertText', false, text); // insert clean text
   };
   return (
-    <div className="relative w-full">
-      <div
+    <InputWrapper>
+      <EditableInput
         ref={inputRef}
-        className="
-                    w-full
-                    bg-gray-50 dark:bg-gray-900
-                    text-gray-800 dark:text-gray-100
-                    py-3.5
-                    px-2
-                    whitespace-pre-wrap
-                    break-words
-                    rounded-lg
-                    min-h-[44px]
-                    max-h-[200px]
-                    overflow-y-auto
-                    border-none
-                    outline-none
-                    focus:outline-none
-                    focus:border-none
-                    focus:ring-0
-                    text-right
-                "
         dir="rtl"
         contentEditable={!disabled}
         onInput={handleInput}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
-        onPaste={handlePaste} // 🔥 new paste handler
+        onPaste={handlePaste}
         suppressContentEditableWarning={true}
       />
-      {isEmpty && (
-        <div
-          className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
-          style={{ direction: 'rtl' }}
-        >
-          {placeholder}
-        </div>
-      )}
-    </div>
+      {isEmpty && <Placeholder>{placeholder}</Placeholder>}
+    </InputWrapper>
   );
 };
 
