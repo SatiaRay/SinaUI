@@ -3,9 +3,10 @@ import axios from '../contexts/axios';
 // API Base URL
 const BASE_URL = process.env.REACT_APP_CHAT_API_URL;
 
+// =============================
 // Workflow Endpoints
+// =============================
 export const workflowEndpoints = {
-  // Get workflow by ID
   getWorkflow: async (workflowId) => {
     try {
       const response = await axios.get(`${BASE_URL}/workflows/${workflowId}`);
@@ -16,7 +17,6 @@ export const workflowEndpoints = {
     }
   },
 
-  // Create new workflow
   createWorkflow: async (workflowData) => {
     try {
       const response = await axios.post(`${BASE_URL}/workflows`, workflowData);
@@ -27,7 +27,6 @@ export const workflowEndpoints = {
     }
   },
 
-  // Update existing workflow
   updateWorkflow: async (workflowId, workflowData) => {
     try {
       const response = await axios.put(
@@ -41,7 +40,6 @@ export const workflowEndpoints = {
     }
   },
 
-  // Delete workflow
   deleteWorkflow: async (workflowId) => {
     try {
       const response = await axios.delete(
@@ -54,7 +52,6 @@ export const workflowEndpoints = {
     }
   },
 
-  // List all workflows
   listWorkflows: async (agentType = null) => {
     try {
       const response = await axios.get(
@@ -78,9 +75,10 @@ export const getVersion = async () => {
   }
 };
 
+// =============================
 // Instruction Endpoints
+// =============================
 export const instructionEndpoints = {
-  // Get instruction by ID
   getInstruction: async (instructionId) => {
     try {
       const response = await axios.get(
@@ -93,7 +91,6 @@ export const instructionEndpoints = {
     }
   },
 
-  // Create new instruction
   createInstruction: async (instructionData) => {
     try {
       const response = await axios.post(
@@ -107,7 +104,6 @@ export const instructionEndpoints = {
     }
   },
 
-  // Update existing instruction
   updateInstruction: async (instructionId, instructionData) => {
     try {
       const response = await axios.put(
@@ -121,7 +117,6 @@ export const instructionEndpoints = {
     }
   },
 
-  // Delete instruction
   deleteInstruction: async (instructionId) => {
     try {
       const response = await axios.delete(
@@ -134,7 +129,6 @@ export const instructionEndpoints = {
     }
   },
 
-  // List all instructions
   listInstructions: async (agentType = null, page = 1) => {
     try {
       const response = await axios.get(
@@ -148,6 +142,9 @@ export const instructionEndpoints = {
   },
 };
 
+// =============================
+// AI Functions Endpoints
+// =============================
 export const aiFunctionsEndpoints = {
   getFunctionsMap: async () => {
     try {
@@ -173,9 +170,10 @@ export const aiFunctionsEndpoints = {
   },
 };
 
+// =============================
 // Workspace Endpoints
+// =============================
 export const workspaceEndpoints = {
-  // 1. Create a new workspace
   createWorkspace: async (workspaceData) => {
     try {
       const response = await axios.post(
@@ -189,7 +187,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 2. List all workspaces with pagination
   listWorkspaces: async (page = 1, per_page = 10) => {
     try {
       const response = await axios.get(`${BASE_URL}/workspaces/`, {
@@ -202,7 +199,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 3. Get workspace details by ID
   getWorkspace: async (workspaceId) => {
     try {
       const response = await axios.get(`${BASE_URL}/workspaces/${workspaceId}`);
@@ -213,7 +209,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 4. Update workspace by ID
   updateWorkspace: async (workspaceId, updateData) => {
     try {
       const response = await axios.put(
@@ -227,7 +222,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 5. Delete workspace by ID
   deleteWorkspace: async (workspaceId) => {
     try {
       const response = await axios.delete(
@@ -240,7 +234,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 6. Add user to workspace
   addUserToWorkspace: async (workspaceId, userData) => {
     try {
       const response = await axios.post(
@@ -254,7 +247,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 7. Remove user from workspace
   removeUserFromWorkspace: async (workspaceId, userId) => {
     try {
       const response = await axios.delete(
@@ -267,7 +259,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 8. List users in a workspace
   listWorkspaceUsers: async (workspaceId) => {
     try {
       const response = await axios.get(
@@ -280,7 +271,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 9. Select or switch the current workspace for the authenticated user
   selectWorkspace: async (workspaceId) => {
     try {
       const response = await axios.patch(
@@ -294,8 +284,10 @@ export const workspaceEndpoints = {
   },
 };
 
+// =============================
+// Document Endpoints
+// =============================
 export const documentEndpoints = {
-  // add document manuallay
   addDocumentManually: async (data) => {
     try {
       const response = await axios.post(
@@ -321,6 +313,9 @@ export const documentEndpoints = {
   },
 };
 
+// =============================
+// Voice Agent Endpoints
+// =============================
 export const voiceAgentEndpoints = {
   getVoiceAgentInstruction: async () => {
     try {
@@ -344,12 +339,13 @@ export const voiceAgentEndpoints = {
   },
 };
 
+// =============================
+// File Endpoints
+// =============================
 export const fileEndpoints = {
   uploadFiles: async (files) => {
     try {
       const formData = new FormData();
-
-      // Append all files under the same key "files"
       files.forEach((file) => {
         formData.append('files', file);
       });
@@ -365,10 +361,10 @@ export const fileEndpoints = {
   },
 };
 
-<<<<<<< HEAD
+// =============================
 // Monitoring Endpoints
+// =============================
 export const monitoringEndpoints = {
-  // Get recent logs (with filters & pagination)
   getRecentLogs: async ({
     hours = 48,
     min_duration,
@@ -393,30 +389,10 @@ export const monitoringEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching recent logs:', error);
-=======
-export const wizardEndpoints = {
-  listWizards: async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/wizards`);
-      return response.data;
-    } catch (error) {
-      console.error('Error listing workspace users:', error);
-      throw error;
-    }
-  },
-  createWizard: async (wizardData) => {
-    try {
-      const response = await axios.post(`${BASE_URL}/wizards`, wizardData);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating wizard:', error);
->>>>>>> dev
       throw error;
     }
   },
 
-<<<<<<< HEAD
-  // Get tool usage statistics
   getToolStats: async (days = 7, top_n = 10) => {
     try {
       const response = await axios.get(
@@ -426,21 +402,10 @@ export const wizardEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching tool stats:', error);
-=======
-  // Get wizard by ID
-  getWizard: async (wizardId) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/wizards/${wizardId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching wizard:', error);
->>>>>>> dev
       throw error;
     }
   },
 
-<<<<<<< HEAD
-  // Get user activity statistics
   getUserStats: async (user_id, days = 30) => {
     try {
       const response = await axios.get(
@@ -450,36 +415,10 @@ export const wizardEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching user stats:', error);
-=======
-  // Update existing wizard
-  updateWizard: async (wizardId, wizardData) => {
-    try {
-      const response = await axios.put(
-        `${BASE_URL}/wizards/${wizardId}`,
-        wizardData
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error updating wizard:', error);
-      throw error;
-    }
-  },
-  // Toggle status  wizard
-  toggleStatusWizard: async (wizardId, endpoint) => {
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/wizards/${wizardId}/${endpoint}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error updating wizard:', error);
->>>>>>> dev
       throw error;
     }
   },
 
-<<<<<<< HEAD
-  // Search logs
   searchLogs: async (query, limit = 10) => {
     try {
       const response = await axios.get(
@@ -493,7 +432,6 @@ export const wizardEndpoints = {
     }
   },
 
-  // Get log details by ID
   getLogById: async (id) => {
     try {
       const response = await axios.get(
@@ -502,15 +440,76 @@ export const wizardEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching log details:', error);
-=======
-  // Delete wizard
+      throw error;
+    }
+  },
+};
+
+// =============================
+// Wizard Endpoints
+// =============================
+export const wizardEndpoints = {
+  listWizards: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards`);
+      return response.data;
+    } catch (error) {
+      console.error('Error listing wizards:', error);
+      throw error;
+    }
+  },
+
+  createWizard: async (wizardData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/wizards`, wizardData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating wizard:', error);
+      throw error;
+    }
+  },
+
+  getWizard: async (wizardId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards/${wizardId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching wizard:', error);
+      throw error;
+    }
+  },
+
+  updateWizard: async (wizardId, wizardData) => {
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/wizards/${wizardId}`,
+        wizardData
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating wizard:', error);
+      throw error;
+    }
+  },
+
+  toggleStatusWizard: async (wizardId, endpoint) => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/wizards/${wizardId}/${endpoint}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error toggling wizard status:', error);
+      throw error;
+    }
+  },
+
   deleteWizard: async (wizardId) => {
     try {
       const response = await axios.delete(`${BASE_URL}/wizards/${wizardId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting wizard:', error);
->>>>>>> dev
       throw error;
     }
   },
