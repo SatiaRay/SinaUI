@@ -79,6 +79,14 @@ const Navbar = ({ onSidebarCollapse }) => {
     }
   };
 
+  function getBadgeLetters(name = '') {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    const first = parts[0]?.[0] || '';
+    const second = parts[1]?.[0] || '';
+    return (first + second).toUpperCase();
+  }
+
   const resetUIState = () => {
     setSidebarOpen(false);
     setDesktopSidebarCollapsed(false);
@@ -205,12 +213,12 @@ const Navbar = ({ onSidebarCollapse }) => {
           <footer className="p-2 flex border-t items-center justify-center border-gray-700  overflow-hidden">
             <div className="h-full w-full h-14 flex items-center gap-2">
               <span className="w-12 h-10 flex font-sans -mb-1 items-center justify-center font-bold text-white rounded-full bg-blue-500">
-                {toEnglishLetter(user?.first_name[0]) || 'u'}
-                {toEnglishLetter(user?.last_name[0]) || 'u'}
+                {getBadgeLetters(user?.name) || 'U'}
               </span>
+
               <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
                 <p className="text-white text-xs w-32 truncate">
-                  {user ? `${user.first_name} ${user.last_name}` : 'Guest'}
+                  {user ? `${user.name}` : 'Guest'}
                 </p>
                 <p className="text-white text-xs w-32 truncate">
                   {user?.email || 'example@example.com'}
@@ -300,12 +308,11 @@ const Navbar = ({ onSidebarCollapse }) => {
               <footer className="p-4 border-t border-gray-700 flex items-center justify-center">
                 <div className="h-full w-full h-14 flex items-center gap-2">
                   <span className="w-12 h-10 flex font-sans px-1 items-center justify-center font-bold text-white rounded-full bg-blue-500">
-                    {toEnglishLetter(user?.first_name[0]) || 'u'}
-                    {toEnglishLetter(user?.last_name[0]) || 'u'}
+                    {getBadgeLetters(user?.name) || 'U'}
                   </span>
                   <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
                     <p className="text-white text-xs w-32 truncate">
-                      {user ? `${user.first_name} ${user.last_name}` : 'Guest'}
+                      {user ? `${user.name}` : 'Guest'}
                     </p>
                     <p className="text-white text-xs w-32 truncate">
                       {user?.email || 'example@example.com'}

@@ -58,7 +58,7 @@ const DocumentIndex = () => {
         if (response?.data) {
           setState((prev) => {
             const docs = response.data.items;
-            
+
             const filteredDocs = prev.searchQuery
               ? docs.filter(
                   (doc) =>
@@ -195,7 +195,6 @@ const DocumentIndex = () => {
   };
 
   const handleCloseAddKnowledge = (newAgentType) => {
-    
     setState((prev) => {
       const updated = {
         ...prev,
