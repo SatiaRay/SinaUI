@@ -10,7 +10,7 @@ import TextInputWithBreaks from '../../ui/textArea';
 import Message from '../ui/chat/message/Message';
 import { useChat } from '../../contexts/ChatContext';
 import Swal from 'sweetalert2';
-import { 
+import {
   H2,
   ChatContainer,
   InitialLayoutContainer,
@@ -36,7 +36,7 @@ import {
   NormalLayoutSendButton,
   ActionButtonsContainer,
   ClearHistoryButton,
-  ErrorMessage
+  ErrorMessage,
 } from '../ui/common';
 
 const Chat = ({ services = null }) => {
@@ -401,9 +401,7 @@ const Chat = ({ services = null }) => {
         <InitialLayoutContainer>
           {/* عنوان خوشامدگویی */}
           <WelcomeSection>
-            <H2>
-              چطور می‌تونم کمکتون کنم؟ 😊🚀🌟
-            </H2>
+            <H2>چطور می‌تونم کمکتون کنم؟ 😊🚀🌟</H2>
             <WelcomeText>
               سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم
             </WelcomeText>
@@ -411,74 +409,60 @@ const Chat = ({ services = null }) => {
 
           {/* اینپوت در مرکز */}
           <InputContainer>
-            <InputWrapper>
-              <SendButton
-                onClick={() => sendMessageDecorator(question)}
-                onKeyDown={() => sendMessageDecorator(question)}
-                disabled={chatLoading || !question.trim()}
-              >
-                <svg
-                  fill="#2663eb"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                </svg>
-              </SendButton>
-              <TextInputWithBreaks
-                value={question}
-                onChange={setQuestion}
-                onSubmit={() => sendMessageDecorator(question)}
-                disabled={chatLoading}
-                placeholder="سوال خود را بپرسید..."
-                centerAlign={true}
-              />
-              <VoiceButtonContainer hidden={question.trim()}>
-                <VoiceBtn onTranscribe={setQuestion} />
-                {/* <button
+            <SendButton
+              onClick={() => sendMessageDecorator(question)}
+              onKeyDown={() => sendMessageDecorator(question)}
+              disabled={chatLoading || !question.trim()}
+            >
+              <svg fill="#2663eb" viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
+            </SendButton>
+            <TextInputWithBreaks
+              value={question}
+              onChange={setQuestion}
+              onSubmit={() => sendMessageDecorator(question)}
+              disabled={chatLoading}
+              placeholder="سوال خود را بپرسید..."
+              centerAlign={true}
+            />
+            <VoiceButtonContainer hidden={question.trim()}>
+              <VoiceBtn onTranscribe={setQuestion} />
+              {/* <button
                   onClick={() => navigate('/voice-agent')}
                 >
                   <LucideAudioLines size={22} />
                 </button> */}
-              </VoiceButtonContainer>
-            </InputWrapper>
-
-            {/* ویزارد باتن‌ها در زیر اینپوت */}
-            <WizardContainer>
-              <WizardButtons
-                onWizardSelect={handleWizardSelect}
-                wizards={currentWizards}
-              />
-            </WizardContainer>
+            </VoiceButtonContainer>
           </InputContainer>
+          {/* ویزارد باتن‌ها در زیر اینپوت */}
+          <WizardContainer>
+            <WizardButtons
+              onWizardSelect={handleWizardSelect}
+              wizards={currentWizards}
+            />
+          </WizardContainer>
         </InitialLayoutContainer>
       )}
 
       {/* حالت عادی - بعد از ارسال اولین پیام */}
       {!initialLayout && (
         <>
-          <ChatMessagesContainer
-            ref={chatContainerRef}
-          >
+          <ChatMessagesContainer ref={chatContainerRef}>
             {/* Loading indicator for chat history */}
             {historyLoading && (
               <LoadingIndicator>
                 <LoadingSpinner></LoadingSpinner>
-                <LoadingText>
-                  در حال بارگذاری تاریخچه...
-                </LoadingText>
+                <LoadingText>در حال بارگذاری تاریخچه...</LoadingText>
               </LoadingIndicator>
             )}
 
             {/* Empty state */}
             {history.ids.length === 0 && !historyLoading ? (
-              <EmptyState>
-                سوال خود را بپرسید تا گفتگو شروع شود
-              </EmptyState>
+              <EmptyState>سوال خود را بپرسید تا گفتگو شروع شود</EmptyState>
             ) : (
               history.ids.map((id) => (
-                <MessageContainer
-                  key={id}
-                >
+                <MessageContainer key={id}>
                   <Message messageId={id} data={history.entities[id]} />
                 </MessageContainer>
               ))
@@ -488,10 +472,12 @@ const Chat = ({ services = null }) => {
             {chatLoading && (
               <LoadingBotResponse>
                 <LoadingBotContainer>
-                  <LoadingCaption>
-                    {loadingCaption}
-                  </LoadingCaption>
-                  <BeatLoader size={9} color="#808080" style={{marginLeft: '0.25rem'}} />
+                  <LoadingCaption>{loadingCaption}</LoadingCaption>
+                  <BeatLoader
+                    size={9}
+                    color="#808080"
+                    style={{ marginLeft: '0.25rem' }}
+                  />
                   <BotIconContainer>
                     <FaRobot />
                   </BotIconContainer>
@@ -506,21 +492,22 @@ const Chat = ({ services = null }) => {
           {!optionMessageTriggered && (
             <>
               {/* Wizard buttons */}
-              <WizardButtons
-                onWizardSelect={handleWizardSelect}
-                wizards={currentWizards}
-              />
-              <NormalLayoutInputWrapper>
+              <div style={{
+                marginBottom: '10px'
+              }}>
+                <WizardButtons
+                  onWizardSelect={handleWizardSelect}
+                  wizards={currentWizards}
+                />
+              </div>
+              <InputContainer>
                 {/* دکمه ارسال */}
                 <NormalLayoutSendButton
                   onClick={() => sendMessageDecorator(question)}
                   onKeyDown={() => sendMessageDecorator(question)}
                   disabled={chatLoading || !question.trim()}
                 >
-                  <svg
-                    fill="#2663eb"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg fill="#2663eb" viewBox="0 0 24 24">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                   </svg>
                 </NormalLayoutSendButton>
@@ -535,9 +522,7 @@ const Chat = ({ services = null }) => {
                 />
 
                 {/* دکمه‌ها و VoiceBtn */}
-                <ActionButtonsContainer
-                  hidden={question.trim()}
-                >
+                <ActionButtonsContainer hidden={question.trim()}>
                   <ClearHistoryButton
                     onClick={handleClearHistory}
                     title="پاک کردن تاریخچه"
@@ -553,7 +538,7 @@ const Chat = ({ services = null }) => {
       <LucideAudioLines size={22} />
     </button> */}
                 </ActionButtonsContainer>
-              </NormalLayoutInputWrapper>
+              </InputContainer>
             </>
           )}
         </>
@@ -565,4 +550,3 @@ const Chat = ({ services = null }) => {
 };
 
 export default Chat;
-
