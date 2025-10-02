@@ -3,6 +3,7 @@ import CreateWizard from './CreateWizard';
 import ShowWizard from './ShowWizard';
 import WizardCard from './WizardCard';
 import UpdateWizard from './UpdateWizard';
+import { wizardEndpoints } from '../../../utils/apis';
 
 const WizardIndex = () => {
   const [wizards, setWizards] = useState([]);
@@ -18,14 +19,8 @@ const WizardIndex = () => {
 
   const fetchWizards = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/`
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت لیست ویزاردها');
-      }
-      const data = await response.json();
-      setWizards(data);
+      const resData = await wizardEndpoints.listWizards();
+      setWizards(resData);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,9 +40,15 @@ const WizardIndex = () => {
     setSelectedWizard(wizard);
   };
 
-  const freshWizard = (wizard) => {
+  const handleWizardUpdated = (updatedWizard) => {
     setWizards((prevWizards) =>
-      prevWizards.map((w) => (w.id === wizard.id ? wizard : w))
+      prevWizards.map((w) => (w.id === updatedWizard.id ? updatedWizard : w))
+    );
+  };
+
+  const handleWizardToggled = (updatedWizard) => {
+    setWizards((prevWizards) =>
+      prevWizards.map((w) => (w.id === updatedWizard.id ? updatedWizard : w))
     );
   };
 
@@ -62,10 +63,8 @@ const WizardIndex = () => {
       {selectedWizardForUpdate ? (
         <UpdateWizard
           wizard={selectedWizardForUpdate}
-          onClose={() => {
-            setSelectedWizardForEdit(null);
-          }}
-          onWizardUpdated={freshWizard}
+          onClose={() => setSelectedWizardForEdit(null)}
+          onWizardUpdated={handleWizardUpdated}
         />
       ) : (
         <div className="space-y-6 mx-auto w-full">
@@ -74,9 +73,7 @@ const WizardIndex = () => {
               پاسخ‌های ویزارد
             </h2>
             <button
-              onClick={() => {
-                setShowCreateWizard(true);
-              }}
+              onClick={() => setShowCreateWizard(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               ایجاد ویزارد جدید
@@ -85,9 +82,7 @@ const WizardIndex = () => {
 
           {showCreateWizard ? (
             <CreateWizard
-              onClose={() => {
-                setShowCreateWizard(false);
-              }}
+              onClose={() => setShowCreateWizard(false)}
               onWizardCreated={handleWizardCreated}
             />
           ) : loading ? (
@@ -136,6 +131,7 @@ const WizardIndex = () => {
                   onClickWizard={handleWizardClick}
                   onDeleteWizard={handleWizardDeleted}
                   selectedWizardForUpdate={setSelectedWizardForEdit}
+                  onToggleWizard={handleWizardToggled}
                 />
               ))}
             </div>

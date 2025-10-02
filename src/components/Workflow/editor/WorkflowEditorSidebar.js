@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import CustomDropdown from '../../../ui/dropdown';
 import {
   PlayIcon,
   PlusCircleIcon,
@@ -93,15 +94,24 @@ const WorkflowEditorSidebar = ({
           >
             نوع ربات
           </label>
-          <select
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+          <CustomDropdown
+            options={[
+              { value: 'both', label: 'همه' },
+              { value: 'text_agent', label: 'ربات متنی' },
+              { value: 'voice_agent', label: 'ربات صوتی' },
+            ]}
             value={agentType}
-            onChange={(e) => setAgentType(e.target.value)}
-          >
-            <option value="both">همه</option>
-            <option value="text_agent">ربات متنی</option>
-            <option value="voice_agent">ربات صوتی</option>
-          </select>
+            onChange={setAgentType}
+            placeholder="انتخاب نوع ربات"
+            parentStyle="w-full"
+            className="text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md"
+            style={{ height: '38px', lineHeight: '38px' }} // ارتفاع مشابه input
+          />
+
+
+
+
         </div>
         <hr className="border-gray-200 dark:border-gray-700 my-1" />
 

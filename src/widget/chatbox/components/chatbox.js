@@ -4,31 +4,23 @@ import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const Box = styled.div`
   position: fixed;
   bottom: 2vh;
-  right: 2vw;
-  width: 400px;
-  height: 700px;
+  left: 2vw;
+  width: 400px; /* 20% of viewport width */
+  height: 700px; /* 40% of viewport height */
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-family: Arial, sans-serif;
-  box-sizing: border-box;
-  direction: rtl;
+  font-family: Vazir !important;
   z-index: 1000;
-
-  @media (max-width: 480px) {
-    width: calc(100vw - 32px);
-    right: 16px;
-    bottom: 4vh;
-    height: 68vh;
-  }
 `;
 
 const FullscreenBox = styled(Box)`
@@ -86,6 +78,7 @@ const Messages = styled.div`
   padding: 0;
   background-color: #f9f9f9;
   overflow-y: auto;
+  font-size: 15px;
 `;
 
 const CloseBtn = styled.button`
@@ -108,12 +101,12 @@ const CloseBtn = styled.button`
 const ChatBoxTrigger = styled.button`
   position: fixed;
   bottom: 2vh;
-  right: 2vw;
+  left: 2vw;
   width: 70px;
   height: 70px;
-  z-index: 1001;
-  color: white;
-  background-color: #1d3557;
+  z-index: 100;
+  color: white !important;
+  background-color: #dc143c !important;
   border-radius: 100%;
   display: flex;
   justify-content: center;
@@ -131,9 +124,24 @@ const ChatBoxTrigger = styled.button`
 const FooterSpacer = styled.div``;
 
 const ChatBox = (props) => {
-  const isStatic = !!props['static'];
-  const fullscreen = !!props['fullscreen'];
-  const [isVisible, setIsVisible] = useState(!!isStatic);
+  const isStatic = props['static'];
+  const [fullscreen, setFullscreen] = useState(props['fullscreen']);
+  const [isVisible, setIsVisible] = useState(false);
+  let services = null;
+
+  if (props['token']) {
+    delete axios.defaults.headers.common['Authorization'];
+    axios.defaults.headers.common['Authorization'] = `Bearer ${props['token']}`;
+  }
+
+  if (props['satiaToken'] && props['satiaCustomer']) {
+    services = {
+      satia: {
+        token: props['satiaToken'],
+        customer: props['satiaCustomer'],
+      },
+    };
+  }
 
   const boxContent = (
     <>
@@ -155,16 +163,7 @@ const ChatBox = (props) => {
 
       <Messages>
         <ChatProvider>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              flex: '1 1 auto',
-              minHeight: 0,
-            }}
-          >
-            <Chat embedded={true} />
-          </div>
+          <Chat services={services} />
         </ChatProvider>
       </Messages>
 
@@ -173,7 +172,7 @@ const ChatBox = (props) => {
   );
 
   return (
-    <>
+    <div id="khan-chatbox">
       {isVisible || isStatic ? (
         fullscreen ? (
           <FullscreenBox>{boxContent}</FullscreenBox>
@@ -189,7 +188,7 @@ const ChatBox = (props) => {
           <SiChatbot size={28} />
         </ChatBoxTrigger>
       )}
-    </>
+    </div>
   );
 };
 
