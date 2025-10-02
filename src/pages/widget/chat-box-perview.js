@@ -1,4 +1,5 @@
 import ChatBox from '../../widget/chatbox/components/chatbox';
+import '../../widget/chatbox/chatbox.css';
 
 const ChatBoxPreview = () => {
   return (
