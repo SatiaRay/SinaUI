@@ -154,9 +154,10 @@ const VoiceBtn = ({ onTranscribe }) => {
 
   return (
     <button
-      className="flex items-center justify-center"
       onClick={handleVoiceClick}
       disabled={isLoading}
+      className="h-9 w-9 flex items-center justify-center rounded-full transition-colors duration-200
+               text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700 disabled:opacity-50"
     >
       {isLoading ? (
         <ScaleLoader
@@ -166,14 +167,13 @@ const VoiceBtn = ({ onTranscribe }) => {
           speedMultiplier={1}
           width={4}
           color="#06c"
-          className="mb-1 ml-0.5"
         />
       ) : state.isRecording ? (
-        <BounceLoader color="red" size={18} className="mb-1 ml-0.5" />
+        <BounceLoader color="red" size={18} />
       ) : (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6 text-blue-600 "
+          className="w-6 h-6"
           fill="currentColor"
           viewBox="0 0 24 24"
         >
