@@ -84,7 +84,6 @@ const TextInputWithBreaks = ({
         onFocus={handleFocus}
         onPaste={handlePaste}
         suppressContentEditableWarning={true}
-        placeholder={placeholder}
       />
       {isEmpty && <Placeholder>{placeholder}</Placeholder>}
     </InputWrapper>
