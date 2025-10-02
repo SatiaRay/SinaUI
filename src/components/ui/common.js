@@ -52,13 +52,16 @@ export const WelcomeText = styled.p`
 
 export const InputContainer = styled.div`
   width: 100%;
-  max-width: 32rem;
   margin-left: auto;
   margin-right: auto;
   display: flex;
   background-color: #f5f5f5;
   border-radius: 10px;
   border: 1px solid #d4d4d4 !important;
+  
+  .dark & {
+    background-color: inherit !important;
+  }
 `;
 
 export const InputWrapper = styled.div`
@@ -89,6 +92,7 @@ export const SendButton = styled.button`
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   background: transparent;
   border: none;
+  margin-right: 10px !important;
 
   &:disabled {
     color: #9ca3af;
@@ -269,6 +273,7 @@ export const NormalLayoutSendButton = styled.button`
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   background: transparent;
   border: none;
+  margin-right: 10px !important;
 
   &:disabled {
     color: #9ca3af;
@@ -653,24 +658,24 @@ export const WizardButtonStyled = styled.button`
   padding: 0.25rem 0.5rem; /* py-1 px-2 */
   font-size: 0.875rem; /* text-sm */
   font-weight: 500; /* font-medium */
-  background-color: #dbeafe !important; /* bg-blue-100 */
+  background-color: #dbeafe; /* bg-blue-100 */
   color: #1e40af; /* text-blue-800 */
   border-radius: 0.5rem; /* rounded-lg */
   transition: background-color 0.2s ease-in-out;
   box-sizing: border-box;
 
-  &:hover {
-    background-color: #bfdbfe; /* hover:bg-blue-200 */
-  }
+  // &:hover {
+  //   background-color: #bfdbfe; /* hover:bg-blue-200 */
+  // }
 
   /* Dark mode styles (triggered by .dark parent) */
   .dark & {
-    background-color: #1e3a8a; /* dark:bg-blue-900 */
+    background-color:rgba(30, 64, 175, 0.38) !important; /* bg-blue-100 */
     color: #93c5fd; /* dark:text-blue-300 */
 
-    &:hover {
-      background-color: #1e40af; /* dark:hover:bg-blue-800 */
-    }
+    // &:hover {
+    //   background-color: #1e40af; /* dark:hover:bg-blue-800 */
+    // }
   }
 `;
 
@@ -680,6 +685,7 @@ export const VoiceButtonStyled = styled.button`
   display: flex; /* flex */
   align-items: center; /* items-center */
   justify-content: center; /* justify-center */
+  margin-left: 10px !important;
 
   &:disabled {
     opacity: 0.6;
