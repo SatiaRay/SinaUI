@@ -118,7 +118,6 @@
   font-weight: inherit;
   line-height: inherit;
   letter-spacing: inherit;
-  color: inherit;
 }
 
 #khan-chatbox button,
@@ -131,8 +130,7 @@
 #khan-chatbox input[type='reset'],
 #khan-chatbox input[type='submit'] {
   -webkit-appearance: button;
-  background-color: transparent;
-  background-image: none;
+  background-color: inherit;
 }
 
 #khan-chatbox :-moz-focusring {
