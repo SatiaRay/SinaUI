@@ -53,7 +53,6 @@ const TextInputWithBreaks = ({
     onChange(textContent);
     setIsEmpty(!textContent);
 
-
     // Ensure RTL direction is maintained in Firefox
     if (inputRef.current) {
       inputRef.current.setAttribute('dir', 'rtl');
@@ -94,6 +93,7 @@ const TextInputWithBreaks = ({
                     focus:outline-none
                     focus:border-none
                     focus:ring-0
+                    text-right
                 "
         dir="rtl"
         contentEditable={!disabled}
@@ -109,7 +109,6 @@ const TextInputWithBreaks = ({
           style={{ direction: 'rtl' }}
         >
           {placeholder}
-
         </div>
       )}
     </div>

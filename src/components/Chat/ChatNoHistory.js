@@ -5,6 +5,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { v4 as uuidv4 } from 'uuid';
 import { getWebSocketUrl } from '../../utils/websocket';
+import { formatTimestamp } from '../../utils/helpers'; 
 
 // استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
@@ -283,7 +284,7 @@ const Chat = () => {
           type: msg.role === 'user' ? 'question' : 'answer',
           text: msg.role === 'user' ? msg.body : undefined,
           answer: msg.role === 'assistant' ? msg.body : undefined,
-          timestamp: new Date(msg.created_at),
+          created_at: msg.created_at, 
         }));
 
         const reversedMessages = [...transformedMessages].reverse();
@@ -314,7 +315,7 @@ const Chat = () => {
 
     setChatHistory((prev) => [
       ...prev,
-      { type: 'question', text: currentQuestion, timestamp: new Date() },
+      { type: 'question', text: currentQuestion, created_at: new Date().toISOString().slice(0, 19) },
     ]);
 
     try {
@@ -325,7 +326,7 @@ const Chat = () => {
           type: 'answer',
           answer: response.answer,
           sources: response.sources || [],
-          timestamp: new Date(),
+          created_at: new Date().toISOString().slice(0, 19),
         },
       ]);
     } catch (err) {
@@ -347,7 +348,7 @@ const Chat = () => {
     const userMessage = {
       type: 'question',
       text: currentQuestion,
-      timestamp: new Date(),
+      created_at: new Date().toISOString().slice(0, 19),
     };
     setChatHistory((prev) => [...prev, userMessage]);
 
@@ -401,7 +402,7 @@ const Chat = () => {
         type: 'answer',
         answer: '',
         sources: [],
-        timestamp: new Date(),
+        created_at: new Date().toISOString().slice(0, 19),
       };
       setChatHistory((prev) => [...prev, botMessage]);
       setChatLoading(false);
@@ -441,21 +442,19 @@ const Chat = () => {
   };
 
   const handleWizardSelect = (wizardData) => {
-    // Add the wizard's context as an answer to the chat history
     setChatHistory((prev) => [
       ...prev,
       {
         type: 'answer',
         answer: wizardData.context,
-        timestamp: new Date(),
+        created_at: new Date().toISOString().slice(0, 19),
       },
     ]);
 
-    // Update currentWizards based on whether the wizard has children
     if (wizardData.children && wizardData.children.length > 0) {
       setCurrentWizards(wizardData.children);
     } else {
-      setCurrentWizards(rootWizards); // Reset to root wizards if no children
+      setCurrentWizards(rootWizards);
     }
   };
 
@@ -468,13 +467,6 @@ const Chat = () => {
       setHistoryOffset(newOffset);
       fetchChatHistory(newOffset);
     }
-  };
-
-  const formatTimestamp = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString('fa-IR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   return (
@@ -510,7 +502,7 @@ const Chat = () => {
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-right">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {formatTimestamp(item.timestamp)}
+                          {formatTimestamp(item.created_at)}
                         </span>
                         <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
                           شما
@@ -525,7 +517,7 @@ const Chat = () => {
                     <div className="bg-white p-4 rounded-lg shadow dark:bg-gray-800">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {formatTimestamp(item.timestamp)}
+                          {formatTimestamp(item.created_at)}
                         </span>
                         <span className="text-xs font-medium text-green-600 dark:text-green-400">
                           چت‌بات

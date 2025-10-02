@@ -365,6 +365,7 @@ export const fileEndpoints = {
   },
 };
 
+<<<<<<< HEAD
 // Monitoring Endpoints
 export const monitoringEndpoints = {
   // Get recent logs (with filters & pagination)
@@ -392,10 +393,29 @@ export const monitoringEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching recent logs:', error);
+=======
+export const wizardEndpoints = {
+  listWizards: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards`);
+      return response.data;
+    } catch (error) {
+      console.error('Error listing workspace users:', error);
+      throw error;
+    }
+  },
+  createWizard: async (wizardData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/wizards`, wizardData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating wizard:', error);
+>>>>>>> dev
       throw error;
     }
   },
 
+<<<<<<< HEAD
   // Get tool usage statistics
   getToolStats: async (days = 7, top_n = 10) => {
     try {
@@ -406,10 +426,20 @@ export const monitoringEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching tool stats:', error);
+=======
+  // Get wizard by ID
+  getWizard: async (wizardId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards/${wizardId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching wizard:', error);
+>>>>>>> dev
       throw error;
     }
   },
 
+<<<<<<< HEAD
   // Get user activity statistics
   getUserStats: async (user_id, days = 30) => {
     try {
@@ -420,10 +450,35 @@ export const monitoringEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching user stats:', error);
+=======
+  // Update existing wizard
+  updateWizard: async (wizardId, wizardData) => {
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/wizards/${wizardId}`,
+        wizardData
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating wizard:', error);
+      throw error;
+    }
+  },
+  // Toggle status  wizard
+  toggleStatusWizard: async (wizardId, endpoint) => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/wizards/${wizardId}/${endpoint}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating wizard:', error);
+>>>>>>> dev
       throw error;
     }
   },
 
+<<<<<<< HEAD
   // Search logs
   searchLogs: async (query, limit = 10) => {
     try {
@@ -447,6 +502,15 @@ export const monitoringEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching log details:', error);
+=======
+  // Delete wizard
+  deleteWizard: async (wizardId) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/wizards/${wizardId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting wizard:', error);
+>>>>>>> dev
       throw error;
     }
   },

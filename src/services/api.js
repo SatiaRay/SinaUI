@@ -25,10 +25,52 @@ const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است')
     throw new Error(defaultMessage);
   }
 };
+export const formatAxiosError = (error) => {
+  if (error?.response?.data) {
+    const data = error.response.data;
+    const status = error.response.status;
+    const userMessage = data.message ?? null;
+    const fieldErrors = {};
+    if (data.errors && typeof data.errors === 'object') {
+      for (const key of Object.keys(data.errors)) {
+        const val = data.errors[key];
+        if (Array.isArray(val)) {
+          fieldErrors[key] = val;
+        } else if (typeof val === 'string') {
+          fieldErrors[key] = [val];
+        } else {
+          fieldErrors[key] = [JSON.stringify(val)];
+        }
+      }
+    }
+    return {
+      userMessage,
+      fieldErrors,
+      status,
+      raw: data,
+    };
+  }
+
+  if (error?.request) {
+    return {
+      userMessage: 'No response from server',
+      fieldErrors: {},
+      status: null,
+      raw: null,
+    };
+  }
+
+  return {
+    userMessage: error?.message || 'An error occurred',
+    fieldErrors: {},
+    status: null,
+    raw: null,
+  };
+};
 
 // تنظیم baseURL برای APIهای مختلف
-const API_URL = process.env.REACT_APP_API_URL;
-const PYTHON_APP_URL = process.env.REACT_APP_CHAT_API_URL;
+const API_URL = process.env.REACT_APP_IPD_SERVICE;
+const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
 
 // ایجاد نمونه axios با تنظیمات پیش‌فرض
 const axiosInstance = axios.create({
@@ -134,8 +176,14 @@ export const askQuestion = async (question) => {
   }
 };
 
-export const checkAuthorizationFetcher = (args) =>
-  axios.get(`${PYTHON_APP_URL}/auth/me`).then((res) => res.data);
+export const checkAuthorizationFetcher = async () => {
+  try {
+    const res = await axios.get(`${PYTHON_APP_URL}/whoami`);
+    return res.data;
+  } catch (err) {
+    console.error('Request failed:', err.response?.data || err.message);
+  }
+};
 
 export const getDomains = async () => {
   try {
@@ -244,7 +292,7 @@ export const uploadSystemImport = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await axios.post(`${API_URL}/system/import`, formData, {
+  const response = await axios.post(`${PYTHON_APP_URL}/system/import`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -289,32 +337,69 @@ export const importWorkflow = async (file) => {
 
 // Register new user
 export const register = async ({
-  first_name,
-  last_name,
+  name,
   email,
   password,
   phone,
+  password_confirmation,
 }) => {
   try {
-    const res = await axiosInstance.post(`/auth/register`, {
-      first_name,
-      last_name,
+    const res = await axiosInstance.post('/api/register', {
+      name,
       email,
       password,
+      password_confirmation,
       phone,
     });
-    return res.data; // ✅ return directly if success
+
+    return { success: true, data: res.data };
   } catch (err) {
-    handleAxiosError(err, 'خطا در ثبت نام');
+    if (err?.response?.data) {
+      const data = err.response.data;
+      return {
+        success: false,
+        error: data.message ?? null,
+        fieldErrors:
+          data.errors && typeof data.errors === 'object' ? data.errors : {},
+        status: err.response.status,
+        raw: data,
+      };
+    }
+    const formatted = formatAxiosError(err);
+    return {
+      success: false,
+      error: formatted.userMessage,
+      fieldErrors: formatted.fieldErrors,
+      status: formatted.status,
+      raw: formatted.raw,
+    };
   }
 };
 
 // Login
 export const login = async (email, password) => {
   try {
-    const res = await axiosInstance.post(`/auth/login`, { email, password });
-    return res.data;
+    const res = await axiosInstance.post('/api/login', { email, password });
+    return { success: true, data: res.data };
   } catch (err) {
-    handleAxiosError(err, 'خطا در ورود به سیستم');
+    if (err?.response?.data) {
+      const data = err.response.data;
+      return {
+        success: false,
+        error: data.message ?? null,
+        fieldErrors:
+          data.errors && typeof data.errors === 'object' ? data.errors : {},
+        status: err.response.status,
+        raw: data,
+      };
+    }
+    const formatted = formatAxiosError(err);
+    return {
+      success: false,
+      error: formatted.userMessage,
+      fieldErrors: formatted.fieldErrors,
+      status: formatted.status,
+      raw: formatted.raw,
+    };
   }
 };
