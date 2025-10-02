@@ -69,9 +69,8 @@ export const InputWrapper = styled.div`
   padding-right: 0.5rem;
   background-color: #f9fafb;
   gap: 0.5rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  position: relative;
+  border: 1px solid black;
 
   .dark & {
     background-color: #111827;
@@ -697,5 +696,49 @@ export const VoiceButtonStyled = styled.button`
   /* ✅ Dark mode */
   .dark & svg {
     color: #3b82f6; /* dark:text-blue-400 */
+  }
+`;
+
+export const EditableInput = styled.div`
+  width: 100%; /* w-full */
+  background-color: #f9fafb; /* bg-gray-50 */
+  color: #1f2937; /* text-gray-800 */
+  padding: 0.875rem 0; /* py-3.5 px-2 */
+  white-space: pre-wrap; /* whitespace-pre-wrap */
+  word-break: break-word; /* break-words */
+  border-radius: 0.5rem; /* rounded-lg */
+  min-height: 44px; /* min-h-[44px] */
+  max-height: 200px; /* max-h-[200px] */
+  overflow-y: auto; /* overflow-y-auto */
+  border: none; /* border-none */
+  outline: none; /* outline-none */
+  text-align: right; /* text-right */
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none; /* focus:outline-none */
+    border: none;  /* focus:border-none */
+    box-shadow: none; /* focus:ring-0 */
+  }
+
+  /* Dark mode styles */
+  .dark & {
+    background-color: #111827; /* dark:bg-gray-900 */
+    color: #f9fafb; /* dark:text-gray-100 */
+  }
+`;
+
+export const Placeholder = styled.div`
+  position: absolute;
+  top: 50%; /* top-1/2 */
+  right: 0.5rem; /* right-2 */
+  transform: translateY(-50%); /* -translate-y-1/2 */
+  color: #9ca3af; /* text-gray-400 */
+  pointer-events: none;
+  direction: rtl;
+
+  /* Dark mode */
+  .dark & {
+    color: #6b7280; /* dark:text-gray-500 */
   }
 `;
