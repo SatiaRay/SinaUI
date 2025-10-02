@@ -1,5 +1,10 @@
 /* Preflight (scoped to #khan-chatbox) */
 
+#khan-chatbox {
+  font-family: Vazir !important;
+  direction: rtl !important;
+}
+
 #khan-chatbox *,
 #khan-chatbox ::before,
 #khan-chatbox ::after {
