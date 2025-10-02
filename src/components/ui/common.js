@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
 export const H2 = styled.h2`
-  font-size: 24px;
+  font-size: 22px !important;
   font-weight: 600;
   color: #333;
-  margin-bottom: 10px;
+  margin-bottom: 10px !important;
 
   .dark & {
     color: #f9fafb;
@@ -33,7 +33,7 @@ export const InitialLayoutContainer = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
-  gap: 2rem;
+  gap: 1rem;
   transition: all 0.5s ease;
 `;
 
@@ -55,6 +55,10 @@ export const InputContainer = styled.div`
   max-width: 32rem;
   margin-left: auto;
   margin-right: auto;
+  display: flex;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  border: 1px solid #d4d4d4 !important;
 `;
 
 export const InputWrapper = styled.div`
@@ -67,10 +71,9 @@ export const InputWrapper = styled.div`
   min-height: 3rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  background-color: #f9fafb;
+  background-color: none !important;
   gap: 0.5rem;
   position: relative;
-  border: 1px solid black;
 
   .dark & {
     background-color: #111827;
@@ -79,7 +82,6 @@ export const InputWrapper = styled.div`
 
 export const SendButton = styled.button`
   padding: 0.5rem;
-  margin-bottom: 7px;
   color: ${props => props.disabled ? '#9ca3af' : '#2563eb'};
   border-radius: 0.5rem;
   font-weight: 500;
@@ -106,12 +108,16 @@ export const VoiceButtonContainer = styled.div`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  margin-bottom: 9px;
   ${props => props.hidden && 'display: none;'}
 `;
 
 export const WizardContainer = styled.div`
-  margin-top: 1.5rem;
+  display: flex;          /* flex */
+  width: 100%;            /* w-full */
+  gap: 0.5rem;            /* gap-2 */
+  padding-bottom: 1rem;   /* pb-4 */
+  align-items: center;    /* items-center */
+  justify-content: center; /* justify-center */
 `;
 
 export const ChatMessagesContainer = styled.div`
@@ -237,11 +243,11 @@ export const NormalLayoutInputWrapper = styled.div`
   min-height: 3rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  background-color: #f9fafb;
+  background-color: red !important;
   gap: 0.5rem;
   border-radius: 1.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  border: none;
   transition: all 0.5s ease;
 
   .dark & {
@@ -647,7 +653,7 @@ export const WizardButtonStyled = styled.button`
   padding: 0.25rem 0.5rem; /* py-1 px-2 */
   font-size: 0.875rem; /* text-sm */
   font-weight: 500; /* font-medium */
-  background-color: #dbeafe; /* bg-blue-100 */
+  background-color: #dbeafe !important; /* bg-blue-100 */
   color: #1e40af; /* text-blue-800 */
   border-radius: 0.5rem; /* rounded-lg */
   transition: background-color 0.2s ease-in-out;
@@ -701,7 +707,7 @@ export const VoiceButtonStyled = styled.button`
 
 export const EditableInput = styled.div`
   width: 100%; /* w-full */
-  background-color: #f9fafb; /* bg-gray-50 */
+  background-color: none !important; /* bg-gray-50 */
   color: #1f2937; /* text-gray-800 */
   padding: 0.875rem 0; /* py-3.5 px-2 */
   white-space: pre-wrap; /* whitespace-pre-wrap */
