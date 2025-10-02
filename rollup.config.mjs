@@ -29,6 +29,12 @@ export default {
       name: 'version',
       plugins: [terser()],
     },
+    {
+    file: 'build/bundle/chat-bundle.min.js',
+      format: 'iife',
+      name: 'version',
+      plugins: [terser()],
+    },
   ],
   plugins: [
     json(),
