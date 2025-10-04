@@ -47,6 +47,7 @@ const Chat = ({ services = null }) => {
   const processingMessageId = useRef(null);
   const initialResponseTimeoutRef = useRef(null);
   const deltaTimeoutRef = useRef(null);
+  const [isServiceUnavailable, setIsServiceUnabailable] = useState(false)
 
   // Internal variables (not stateful) - moved inside component
   const internalVarsRef = useRef({
@@ -81,6 +82,7 @@ const Chat = ({ services = null }) => {
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
+    disconnectChatSocket
   } = useChat();
 
   /**
@@ -252,19 +254,33 @@ const Chat = ({ services = null }) => {
     await sendMessage(text);
     setQuestion('');
     setError(null);
+    setChatLoading(true)
 
     // Clear any existing timers
     clearAllTimeouts();
 
     // Set fallback timeout for 1 minute
     initialResponseTimeoutRef.current = setTimeout(() => {
-      notify.error('مشکلی پیش آمده لطفا بعدا تلاش نمایید.', {
-        autoClose: 4000,
-        position: 'top-left',
-      });
+      sendExceptionMessage("مشکلی پیش آمده لطفا بعدا تلاش نمایید.")
+      setChatLoading(false)
+      setIsServiceUnabailable(true)
+      disconnectChatSocket()
       resetChatState();
-    }, 60000);
+    }, 15000);
   };
+
+  /**
+   * Push exception message to chat history
+   * @param {string} msg Exception message
+   */
+  const sendExceptionMessage = (msg = "مشکلی پیش آمده است !") => {
+    addNewMessage({
+      type: 'error',
+      body: msg,
+      role: 'assistant',
+      created_at: new Date().toISOString().slice(0, 19),
+    })
+  }
 
   /** Scroll chat to bottom */
   const scrollToBottom = () => {
@@ -489,7 +505,7 @@ const Chat = ({ services = null }) => {
           </ChatMessagesContainer>
 
           {/* Chat input */}
-          {!optionMessageTriggered && (
+          {!optionMessageTriggered && !isServiceUnavailable && (
             <>
               {/* Wizard buttons */}
               <div style={{

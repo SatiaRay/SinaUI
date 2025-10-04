@@ -51,6 +51,21 @@ export const ChatProvider = ({ children }) => {
   }, []);
 
   /**
+   * Disconnects socket channel through unset socket ref
+   */
+  const disconnectChatSocket = () => {
+    if (socketRef.current) {
+      // Gracefully close the socket connection
+      socketRef.current.disconnect?.(); // for Socket.IO
+      socketRef.current.close?.(); // for native WebSocket
+
+      // Clear the reference to avoid memory leaks
+      socketRef.current = null;
+
+      console.log('Chat socket disconnected.');
+    }
+  };
+  /**
    * Register handler for on open socket event
    *
    * @param {function} handler
@@ -408,6 +423,7 @@ export const ChatProvider = ({ children }) => {
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
+    disconnectChatSocket,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
