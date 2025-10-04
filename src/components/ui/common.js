@@ -467,7 +467,7 @@ export const TextMessageContent = styled.pre`
 `;
 
 export const ErrorMessageContent = styled.pre`
-  color: #1f2937;
+  color: white;
   background-color:rgb(255, 27, 27);
   display: flex;
   text-wrap: wrap;
@@ -477,10 +477,6 @@ export const ErrorMessageContent = styled.pre`
   direction: rtl;
   max-width: 20rem;
   border-radius: 10px;
-
-  .dark & {
-    color: white;
-  }
 `;
 
 export const CopyButton = styled.button`
