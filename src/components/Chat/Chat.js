@@ -10,6 +10,34 @@ import TextInputWithBreaks from '../../ui/textArea';
 import Message from '../ui/chat/message/Message';
 import { useChat } from '../../contexts/ChatContext';
 import Swal from 'sweetalert2';
+import {
+  H2,
+  ChatContainer,
+  InitialLayoutContainer,
+  WelcomeSection,
+  WelcomeText,
+  InputContainer,
+  InputWrapper,
+  SendButton,
+  VoiceButtonContainer,
+  WizardContainer,
+  ChatMessagesContainer,
+  LoadingIndicator,
+  LoadingSpinner,
+  LoadingText,
+  EmptyState,
+  MessageContainer,
+  LoadingBotResponse,
+  LoadingBotContainer,
+  LoadingCaption,
+  BotIconContainer,
+  ChatEndRef,
+  NormalLayoutInputWrapper,
+  NormalLayoutSendButton,
+  ActionButtonsContainer,
+  ClearHistoryButton,
+  ErrorMessage,
+} from '../ui/common';
 
 const Chat = ({ services = null }) => {
   const [question, setQuestion] = useState('');
@@ -19,6 +47,7 @@ const Chat = ({ services = null }) => {
   const processingMessageId = useRef(null);
   const initialResponseTimeoutRef = useRef(null);
   const deltaTimeoutRef = useRef(null);
+  const [isServiceUnavailable, setIsServiceUnabailable] = useState(false)
 
   // Internal variables (not stateful) - moved inside component
   const internalVarsRef = useRef({
@@ -53,6 +82,7 @@ const Chat = ({ services = null }) => {
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
+    disconnectChatSocket
   } = useChat();
 
   /**
@@ -224,19 +254,33 @@ const Chat = ({ services = null }) => {
     await sendMessage(text);
     setQuestion('');
     setError(null);
+    setChatLoading(true)
 
     // Clear any existing timers
     clearAllTimeouts();
 
     // Set fallback timeout for 1 minute
     initialResponseTimeoutRef.current = setTimeout(() => {
-      notify.error('مشکلی پیش آمده لطفا بعدا تلاش نمایید.', {
-        autoClose: 4000,
-        position: 'top-left',
-      });
+      sendExceptionMessage("مشکلی پیش آمده لطفا بعدا تلاش نمایید.")
+      setChatLoading(false)
+      setIsServiceUnabailable(true)
+      disconnectChatSocket()
       resetChatState();
     }, 60000);
   };
+
+  /**
+   * Push exception message to chat history
+   * @param {string} msg Exception message
+   */
+  const sendExceptionMessage = (msg = "مشکلی پیش آمده است !") => {
+    addNewMessage({
+      type: 'error',
+      body: msg,
+      role: 'assistant',
+      created_at: new Date().toISOString().slice(0, 19),
+    })
+  }
 
   /** Scroll chat to bottom */
   const scrollToBottom = () => {
@@ -367,147 +411,122 @@ const Chat = ({ services = null }) => {
   };
 
   return (
-    <div className="flex flex-col overflow-x-hidden pt-9 pb-7 px-2 h-full w-full max-w-[860px] mx-auto">
+    <ChatContainer>
       {/* حالت اولیه - قبل از ارسال اولین پیام */}
       {initialLayout && history.ids.length === 0 && !historyLoading && (
-        <div className="flex flex-col items-center justify-center h-full space-y-8 transition-all duration-500">
+        <InitialLayoutContainer>
           {/* عنوان خوشامدگویی */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-3">
-              چطور می‌تونم کمکتون کنم؟ 😊🚀🌟
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+          <WelcomeSection>
+            <H2>چطور می‌تونم کمکتون کنم؟ 😊🚀🌟</H2>
+            <WelcomeText>
               سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم
-            </p>
-          </div>
+            </WelcomeText>
+          </WelcomeSection>
 
           {/* اینپوت در مرکز */}
-          <div className="w-full max-w-2xl mx-auto">
-            <div className="flex items-end justify-center overflow-hidden w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border">
-              <button
-                onClick={() => sendMessageDecorator(question)}
-                onKeyDown={() => sendMessageDecorator(question)}
-                disabled={chatLoading || !question.trim()}
-                className="p-2 mb-[7px] text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
-              >
-                <svg
-                  className="w-6 h-6 bg-transparent"
-                  fill="#2663eb"
-                  viewBox="0 0 24 24"
+          <InputContainer>
+            <SendButton
+              onClick={() => sendMessageDecorator(question)}
+              onKeyDown={() => sendMessageDecorator(question)}
+              disabled={chatLoading || !question.trim()}
+            >
+              <svg fill="#2663eb" viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
+            </SendButton>
+            <TextInputWithBreaks
+              value={question}
+              onChange={setQuestion}
+              onSubmit={() => sendMessageDecorator(question)}
+              disabled={chatLoading}
+              placeholder="سوال خود را بپرسید..."
+              centerAlign={true}
+            />
+            <VoiceButtonContainer hidden={question.trim()}>
+              <VoiceBtn onTranscribe={setQuestion} />
+              {/* <button
+                  onClick={() => navigate('/voice-agent')}
                 >
-                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                </svg>
-              </button>
-              <TextInputWithBreaks
-                value={question}
-                onChange={setQuestion}
-                onSubmit={() => sendMessageDecorator(question)}
-                disabled={chatLoading}
-                placeholder="سوال خود را بپرسید..."
-                centerAlign={true}
-              />
-              <div
-                className={`max-w-60 flex items-center justify-center gap-2 mb-[9px] ${
-                  question.trim() ? 'hidden' : ''
-                }`}
-              >
-                <VoiceBtn onTranscribe={setQuestion} />
-                {/*<button*/}
-                {/*  onClick={() => navigate('/voice-agent')}*/}
-                {/*  className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"*/}
-                {/*>*/}
-                {/*  <LucideAudioLines size={22} />*/}
-                {/*</button>*/}
-              </div>
-            </div>
-
-            {/* ویزارد باتن‌ها در زیر اینپوت */}
-            <div className="mt-6">
-              <WizardButtons
-                onWizardSelect={handleWizardSelect}
-                wizards={currentWizards}
-              />
-            </div>
-          </div>
-        </div>
+                  <LucideAudioLines size={22} />
+                </button> */}
+            </VoiceButtonContainer>
+          </InputContainer>
+          {/* ویزارد باتن‌ها در زیر اینپوت */}
+          <WizardContainer>
+            <WizardButtons
+              onWizardSelect={handleWizardSelect}
+              wizards={currentWizards}
+            />
+          </WizardContainer>
+        </InitialLayoutContainer>
       )}
 
       {/* حالت عادی - بعد از ارسال اولین پیام */}
       {!initialLayout && (
         <>
-          <div
-            ref={chatContainerRef}
-            className="flex-1 scrollbar-hidden overflow-y-auto mb-4 space-y-4 transition-all duration-500"
-            style={{ height: 'calc(100vh - 200px)' }}
-          >
+          <ChatMessagesContainer ref={chatContainerRef}>
             {/* Loading indicator for chat history */}
             {historyLoading && (
-              <div className="flex items-center justify-center p-4">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-3"></div>
-                <p className="text-gray-600 dark:text-gray-300">
-                  در حال بارگذاری تاریخچه...
-                </p>
-              </div>
+              <LoadingIndicator>
+                <LoadingSpinner></LoadingSpinner>
+                <LoadingText>در حال بارگذاری تاریخچه...</LoadingText>
+              </LoadingIndicator>
             )}
 
             {/* Empty state */}
             {history.ids.length === 0 && !historyLoading ? (
-              <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-                سوال خود را بپرسید تا گفتگو شروع شود
-              </div>
+              <EmptyState>سوال خود را بپرسید تا گفتگو شروع شود</EmptyState>
             ) : (
               history.ids.map((id) => (
-                <div
-                  key={id}
-                  className="mb-4 transition-[height] duration-300 ease-in-out grid"
-                >
+                <MessageContainer key={id}>
                   <Message messageId={id} data={history.entities[id]} />
-                </div>
+                </MessageContainer>
               ))
             )}
 
             {/* Loading bot response */}
             {chatLoading && (
-              <div className="text-white grid justify-end text-end">
-                <div className="flex items-center justify-end p-1 gap-1 text-end">
-                  <small className="dark:text-gray-500 text-gray-400 mx-1 italic">
-                    {loadingCaption}
-                  </small>
-                  <BeatLoader size={9} color="#808080" className="ml-1" />
-                  <span className="p-1.5 rounded-lg shadow-lg dark:bg-[#202936] bg-white flex items-center justify-center">
-                    <FaRobot className="w-4 mb-1 dark:text-gray-300 text-gray-800" />
-                  </span>
-                </div>
-              </div>
+              <LoadingBotResponse>
+                <LoadingBotContainer>
+                  <LoadingCaption>{loadingCaption}</LoadingCaption>
+                  <BeatLoader
+                    size={9}
+                    color="#808080"
+                    style={{ marginLeft: '0.25rem' }}
+                  />
+                  <BotIconContainer>
+                    <FaRobot />
+                  </BotIconContainer>
+                </LoadingBotContainer>
+              </LoadingBotResponse>
             )}
 
-            <div ref={chatEndRef} />
-          </div>
+            <ChatEndRef ref={chatEndRef} />
+          </ChatMessagesContainer>
 
           {/* Chat input */}
-          {!optionMessageTriggered && (
+          {!optionMessageTriggered && !isServiceUnavailable && (
             <>
               {/* Wizard buttons */}
-              <WizardButtons
-                onWizardSelect={handleWizardSelect}
-                wizards={currentWizards}
-              />
-              <div className="flex items-center w-full max-h-[200vh] min-h-12 px-2 bg-gray-50 dark:bg-gray-900 gap-2 rounded-3xl shadow-lg border transition-all duration-500">
+              <div style={{
+                marginBottom: '10px'
+              }}>
+                <WizardButtons
+                  onWizardSelect={handleWizardSelect}
+                  wizards={currentWizards}
+                />
+              </div>
+              <InputContainer>
                 {/* دکمه ارسال */}
-                <button
+                <NormalLayoutSendButton
                   onClick={() => sendMessageDecorator(question)}
                   onKeyDown={() => sendMessageDecorator(question)}
                   disabled={chatLoading || !question.trim()}
-                  className="p-2 text-blue-600 disabled:text-gray-400 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
                 >
-                  <svg
-                    className="w-6 h-6 bg-transparent"
-                    fill="#2663eb"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg fill="#2663eb" viewBox="0 0 24 24">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                   </svg>
-                </button>
+                </NormalLayoutSendButton>
 
                 {/* اینپوت */}
                 <TextInputWithBreaks
@@ -516,42 +535,34 @@ const Chat = ({ services = null }) => {
                   onSubmit={() => sendMessageDecorator(question)}
                   disabled={chatLoading}
                   placeholder="سوال خود را بپرسید..."
-                  className="flex-1"
                 />
 
                 {/* دکمه‌ها و VoiceBtn */}
-                <div
-                  className={`flex items-center gap-2 ${
-                    question.trim() ? 'hidden' : ''
-                  }`}
-                >
-                  <button
+                <ActionButtonsContainer hidden={question.trim()}>
+                  <ClearHistoryButton
                     onClick={handleClearHistory}
-                    className="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
                     title="پاک کردن تاریخچه"
                   >
-                    <BrushCleaning className="h-5 w-5" />
-                  </button>
+                    <BrushCleaning />
+                  </ClearHistoryButton>
 
                   <VoiceBtn onTranscribe={setQuestion} />
 
                   {/* <button
       onClick={() => navigate("/voice-agent")}
-      className="bg-blue-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-blue-300 p-1.5 rounded-full"
     >
       <LucideAudioLines size={22} />
     </button> */}
-                </div>
-              </div>
+                </ActionButtonsContainer>
+              </InputContainer>
             </>
           )}
         </>
       )}
 
-      {error && <div className="text-red-500 mt-2 text-right">{error}</div>}
-    </div>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+    </ChatContainer>
   );
 };
 
 export default Chat;
-
