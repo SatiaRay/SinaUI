@@ -266,7 +266,7 @@ const Chat = ({ services = null }) => {
       setIsServiceUnabailable(true)
       disconnectChatSocket()
       resetChatState();
-    }, 15000);
+    }, 60000);
   };
 
   /**
