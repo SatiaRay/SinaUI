@@ -466,6 +466,23 @@ export const TextMessageContent = styled.pre`
   }
 `;
 
+export const ErrorMessageContent = styled.pre`
+  color: #1f2937;
+  background-color:rgb(255, 27, 27);
+  display: flex;
+  text-wrap: wrap;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+  unicode-bidi: plaintext;
+  direction: rtl;
+  max-width: 20rem;
+  border-radius: 10px;
+
+  .dark & {
+    color: white;
+  }
+`;
+
 export const CopyButton = styled.button`
   margin-top: 0.5rem;
   display: flex;
