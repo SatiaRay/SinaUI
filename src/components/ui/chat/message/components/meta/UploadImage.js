@@ -4,11 +4,6 @@ import Dropzone from '../../../../../../ui/Dropzone';
 import { fileEndpoints } from '../../../../../../utils/apis';
 import imageCompression from 'browser-image-compression';
 import styled from 'styled-components';
-import {
-  UploadErrorMessage,
-  UploadButtonContainer,
-  UploadButton,
-} from '../../../../common';
 
 const CancelButton = styled.button`
   pointer-events: all !important;
@@ -41,7 +36,7 @@ const CancelButton = styled.button`
 
 const SendButton = styled.button`
   padding: 0.5rem 1rem;
-  background-color: #dbeafe;
+  background-color: #dbeafe; 
   color: #1e40af;
   border: none;
   border-radius: 0.375rem;
@@ -60,8 +55,8 @@ const SendButton = styled.button`
   }
 
   &:disabled {
-    background-color: #f3f4f6 !important;
-    color: #9ca3af !important;
+    background-color: #f3f4f6 !important; 
+    color: #9ca3af !important; 
     cursor: not-allowed;
     transform: none !important;
   }
@@ -113,10 +108,7 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
       setImages([]);
     } catch (err) {
       setUploading(false);
-      const msg =
-        err?.message ||
-        err?.msg ||
-        (typeof err === 'string' ? err : 'خطای ارسال رخ داد');
+      const msg = err?.message || err?.msg || (typeof err === 'string' ? err : 'خطای ارسال رخ داد');
       setError(msg);
     }
   };
@@ -124,15 +116,20 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
   const handleCancel = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('Cancel button clicked', { images, isCanceling });
     if (isCanceling) return;
+    
     setIsCanceling(true);
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise(resolve => setTimeout(resolve, 150));
+    
     setImages([]);
     setError(null);
     setUploading(false);
+    
     if (typeof onCancel === 'function') {
       onCancel();
     }
+    
     setIsCanceling(false);
   };
 
@@ -153,7 +150,13 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
           'image/jpg': [],
         }}
       />
-      {error && <UploadErrorMessage>{error}</UploadErrorMessage>}
+
+      {error && (
+        <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+          {error}
+        </div>
+      )}
+
       <div className="flex justify-end gap-2 mt-4">
         <SendButton
           type="button"
@@ -166,32 +169,15 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
             'ارسال'
           )}
         </SendButton>
+
         <CancelButton
           type="button"
           onClick={handleCancel}
-          disabled={isCanceling || images.length === 0}
+          disabled={isCanceling} 
         >
-          {isCanceling ? 'در حال لغو...' : 'انصراف'}
+          {isCanceling ? '...در حال لغو' : 'انصراف'}
         </CancelButton>
       </div>
-
-      <UploadButtonContainer>
-        <UploadButton
-          type="button"
-          onClick={() => handleUpload(images)}
-          disabled={images.length === 0 || uploading || isLoading}
-        >
-          {uploading || isLoading ? (
-            <ClipLoader size={12} color="white" />
-          ) : (
-            'ارسال'
-          )}
-        </UploadButton>
-
-        <UploadButton type="button" onClick={handleCancel} variant="cancel">
-          انصراف
-        </UploadButton>
-      </UploadButtonContainer>
     </div>
   );
 };
