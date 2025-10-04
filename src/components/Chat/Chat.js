@@ -82,6 +82,7 @@ const Chat = ({ services = null }) => {
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
+    disconnectChatSocket
   } = useChat();
 
   /**
@@ -263,6 +264,7 @@ const Chat = ({ services = null }) => {
       sendExceptionMessage("مشکلی پیش آمده لطفا بعدا تلاش نمایید.")
       setChatLoading(false)
       setIsServiceUnabailable(true)
+      disconnectChatSocket()
       resetChatState();
     }, 15000);
   };
