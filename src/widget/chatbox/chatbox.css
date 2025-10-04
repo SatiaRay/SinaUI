@@ -1,5 +1,10 @@
 /* Preflight (scoped to #khan-chatbox) */
 
+#khan-chatbox {
+  font-family: Vazir !important;
+  direction: rtl !important;
+}
+
 #khan-chatbox *,
 #khan-chatbox ::before,
 #khan-chatbox ::after {
@@ -113,7 +118,6 @@
   font-weight: inherit;
   line-height: inherit;
   letter-spacing: inherit;
-  color: inherit;
 }
 
 #khan-chatbox button,
@@ -126,8 +130,7 @@
 #khan-chatbox input[type='reset'],
 #khan-chatbox input[type='submit'] {
   -webkit-appearance: button;
-  background-color: transparent;
-  background-image: none;
+  background-color: inherit;
 }
 
 #khan-chatbox :-moz-focusring {

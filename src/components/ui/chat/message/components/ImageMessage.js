@@ -1,4 +1,16 @@
 import { useEffect, useState } from 'react';
+import { 
+  ImageMessageContainer, 
+  ImageWrapper, 
+  ImagePlaceholder, 
+  ImageSpinner, 
+  ImageElement, 
+  ImageGrid, 
+  ImageOverlay, 
+  ImageOverlayText, 
+  FlexWrapper, 
+  FlexGapWrapper 
+} from '../../../common';
 
 const ImageMessage = ({ data }) => {
   const [images, setImages] = useState([]);
@@ -16,62 +28,59 @@ const ImageMessage = ({ data }) => {
   const displayedImages = images.length > 4 ? images.slice(0, 4) : images;
 
   const renderImageOrPlaceholder = (img, idx) => (
-    <div
-      key={idx}
-      className="relative rounded-lg overflow-hidden w-[181px] h-[181px] md:w-[211px] md:h-[211px]"
-    >
+    <ImageWrapper key={idx}>
       {!loadedImages[idx] && (
-        <div className="absolute inset-0 bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-white dark:border-gray-800 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <ImagePlaceholder>
+          <ImageSpinner />
+        </ImagePlaceholder>
       )}
-      <img
+      <ImageElement
         src={`${process.env.REACT_APP_CHAT_API_URL}${img.url}`}
         alt={img.filename}
-        className={`w-full h-full object-cover ${loadedImages[idx] ? 'block' : 'hidden'}`}
+        loaded={loadedImages[idx]}
         onLoad={() => handleLoad(idx)}
       />
-    </div>
+    </ImageWrapper>
   );
 
   return (
-    <div className="py-2 px-3 rounded-lg text-right bg-gray-100 dark:bg-gray-800 flex flex-wrap gap-1 max-w-full md:max-w-[450px]">
+    <ImageMessageContainer>
       {images.length === 1 && renderImageOrPlaceholder(images[0], 0)}
 
       {images.length === 2 && (
-        <div className="flex flex-wrap gap-1">
+        <FlexWrapper>
           {images.map((img, idx) => renderImageOrPlaceholder(img, idx))}
-        </div>
+        </FlexWrapper>
       )}
 
       {images.length === 3 && (
-        <div className="flex flex-wrap gap-1">
-          <div className="flex gap-1">
+        <FlexWrapper>
+          <FlexGapWrapper>
             {images
               .slice(0, 2)
               .map((img, idx) => renderImageOrPlaceholder(img, idx))}
-          </div>
+          </FlexGapWrapper>
           {renderImageOrPlaceholder(images[2], 2)}
-        </div>
+        </FlexWrapper>
       )}
 
       {images.length >= 4 && (
-        <div className="grid grid-cols-2 gap-1">
+        <ImageGrid>
           {displayedImages.map((img, idx) => (
-            <div key={idx} className="relative">
+            <div key={idx} style={{ position: 'relative' }}>
               {renderImageOrPlaceholder(img, idx)}
               {idx === 3 && images.length > 4 && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
-                  <span className="text-white text-xl font-bold">
+                <ImageOverlay>
+                  <ImageOverlayText>
                     +{images.length - 4}
-                  </span>
-                </div>
+                  </ImageOverlayText>
+                </ImageOverlay>
               )}
             </div>
           ))}
-        </div>
+        </ImageGrid>
       )}
-    </div>
+    </ImageMessageContainer>
   );
 };
 

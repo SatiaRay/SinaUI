@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { WizardButtonStyled } from '../../ui/common';
 
 const WizardButton = ({ wizard, onWizardClick }) => {
   const [error, setError] = useState(null);
@@ -19,15 +20,14 @@ const WizardButton = ({ wizard, onWizardClick }) => {
   };
 
   return (
-    <button
+    <WizardButtonStyled
       key={wizard.id}
       onClick={() => {
         handleWizardClick(wizard.id);
       }}
-      className="py-1 px-2 text-sm font-medium bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 transition-colors box-sizing:border-box"
     >
       {wizard.title}
-    </button>
+    </WizardButtonStyled>
   );
 };
 

@@ -3,17 +3,17 @@ import { Handle, Position } from 'reactflow';
 
 const ProcessNode = ({ data }) => {
   return (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-400">
+    <div className="px-4 py-2 shadow-md rounded-md bg-white dark:bg-black/50 border-2 border-blue-200 dark:border-blue-700">
       <Handle
         type="target"
         position={Position.Left}
-        className="w-16 !bg-blue-500"
+        className="w-3 h-3 !bg-blue-600 hover:!bg-blue-700 transition-colors"
       />
       <div className="flex items-center">
-        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-blue-100">
+        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-blue-50 dark:bg-blue-700">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-blue-500"
+            className="h-6 w-6 text-blue-600 dark:text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -27,9 +27,11 @@ const ProcessNode = ({ data }) => {
           </svg>
         </div>
         <div className="ml-2">
-          <div className="text-lg font-bold">{data.label}</div>
+          <div className="text-lg font-bold text-gray-900 dark:text-white">
+            {data.label}
+          </div>
           <div
-            className="text-gray-500 text-sm break-words"
+            className="text-gray-600 dark:text-gray-300 text-sm break-words"
             style={{ maxWidth: '250px' }}
           >
             {data.description}
@@ -39,7 +41,7 @@ const ProcessNode = ({ data }) => {
       <Handle
         type="source"
         position={Position.Right}
-        className="w-16 !bg-blue-500"
+        className="w-3 h-3 !bg-blue-600 hover:!bg-blue-700 transition-colors"
       />
     </div>
   );

@@ -61,6 +61,7 @@ const SendButton = styled.button`
     transform: none !important;
   }
 `;
+import { UploadErrorMessage, UploadButtonContainer, UploadButton } from '../../../../common';
 
 const MAX_SIZE_BYTES = 500 * 1024; // 500KB
 
@@ -146,9 +147,9 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
         }}
       />
       {error && (
-        <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+        <UploadErrorMessage>
           {error}
-        </div>
+        </UploadErrorMessage>
       )}
       <div className="flex justify-end gap-2 mt-4">
           <SendButton
@@ -170,6 +171,28 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
             {isCanceling ? 'در حال لغو...' : 'انصراف'}
           </CancelButton>
       </div>
+
+      <UploadButtonContainer>
+        <UploadButton
+          type="button"
+          onClick={() => handleUpload(images)}
+          disabled={images.length === 0 || uploading || isLoading}
+        >
+          {uploading || isLoading ? (
+            <ClipLoader size={12} color="white" />
+          ) : (
+            'ارسال'
+          )}
+        </UploadButton>
+
+        <UploadButton
+          type="button"
+          onClick={handleCancel}
+          variant="cancel"
+        >
+          انصراف
+        </UploadButton>
+      </UploadButtonContainer>
     </div>
   );
 };

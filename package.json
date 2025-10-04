@@ -61,8 +61,10 @@
     "zod": "<=3.25.67"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "craco start",
+    "start:widget": "REACT_APP_WIDGET=true craco start",
+    "build": "craco build && rollup -c",
+    "build:widget": "REACT_APP_WIDGET=true craco build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -85,6 +87,7 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
     "@rollup/plugin-replace": "^6.0.2",
     "autoprefixer": "^10.4.21",
     "dotenv": "^17.2.2",
