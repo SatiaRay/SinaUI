@@ -12,7 +12,7 @@ const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
   // State
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
   const [historyOffset, setHistoryOffset] = useState(0);
@@ -50,6 +50,21 @@ export const ChatProvider = ({ children }) => {
     }
   }, []);
 
+  /**
+   * Disconnects socket channel through unset socket ref
+   */
+  const disconnectChatSocket = () => {
+    if (socketRef.current) {
+      // Gracefully close the socket connection
+      socketRef.current.disconnect?.(); // for Socket.IO
+      socketRef.current.close?.(); // for native WebSocket
+
+      // Clear the reference to avoid memory leaks
+      socketRef.current = null;
+
+      console.log('Chat socket disconnected.');
+    }
+  };
   /**
    * Register handler for on open socket event
    *
@@ -174,7 +189,7 @@ export const ChatProvider = ({ children }) => {
     );
 
     socket.onopen = () => {
-      setIsConnected(true)
+      setIsConnected(true);
       if (handlersRef.current.open) handlersRef.current.open();
     };
 
@@ -230,7 +245,7 @@ export const ChatProvider = ({ children }) => {
         type: 'image',
         body: JSON.stringify(images),
         role: 'user',
-        timestamp: new Date(),
+        created_at: new Date().toISOString().split('.')[0],
       };
 
       setTimeout(() => {
@@ -269,7 +284,7 @@ export const ChatProvider = ({ children }) => {
         JSON.stringify({
           event: 'service',
           name,
-          credentials
+          credentials,
         })
       );
     }
@@ -408,6 +423,7 @@ export const ChatProvider = ({ children }) => {
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
+    disconnectChatSocket,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

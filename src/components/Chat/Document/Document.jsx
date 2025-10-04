@@ -262,8 +262,8 @@ const DocumentIndex = () => {
               {selectedFile
                 ? 'محتوای سند'
                 : selectedDomain
-                ? `فایل‌های دامنه: ${selectedDomain.domain}`
-                : 'مستندات'}
+                  ? `فایل‌های دامنه: ${selectedDomain.domain}`
+                  : 'مستندات'}
             </h2>
           </div>
 

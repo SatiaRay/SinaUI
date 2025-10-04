@@ -68,7 +68,6 @@ export const formatAxiosError = (error) => {
   };
 };
 
-
 // تنظیم baseURL برای APIهای مختلف
 const API_URL = process.env.REACT_APP_IPD_SERVICE;
 const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
@@ -182,7 +181,7 @@ export const checkAuthorizationFetcher = async () => {
     const res = await axios.get(`${PYTHON_APP_URL}/whoami`);
     return res.data;
   } catch (err) {
-    console.error("Request failed:", err.response?.data || err.message);
+    console.error('Request failed:', err.response?.data || err.message);
   }
 };
 
@@ -293,7 +292,7 @@ export const uploadSystemImport = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await axios.post(`${API_URL}/system/import`, formData, {
+  const response = await axios.post(`${PYTHON_APP_URL}/system/import`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -337,7 +336,13 @@ export const importWorkflow = async (file) => {
 };
 
 // Register new user
-export const register = async ({ name, email, password, phone, password_confirmation }) => {
+export const register = async ({
+  name,
+  email,
+  password,
+  phone,
+  password_confirmation,
+}) => {
   try {
     const res = await axiosInstance.post('/api/register', {
       name,
@@ -354,13 +359,20 @@ export const register = async ({ name, email, password, phone, password_confirma
       return {
         success: false,
         error: data.message ?? null,
-        fieldErrors: data.errors && typeof data.errors === 'object' ? data.errors : {},
+        fieldErrors:
+          data.errors && typeof data.errors === 'object' ? data.errors : {},
         status: err.response.status,
         raw: data,
       };
     }
     const formatted = formatAxiosError(err);
-    return { success: false, error: formatted.userMessage, fieldErrors: formatted.fieldErrors, status: formatted.status, raw: formatted.raw };
+    return {
+      success: false,
+      error: formatted.userMessage,
+      fieldErrors: formatted.fieldErrors,
+      status: formatted.status,
+      raw: formatted.raw,
+    };
   }
 };
 
@@ -375,12 +387,19 @@ export const login = async (email, password) => {
       return {
         success: false,
         error: data.message ?? null,
-        fieldErrors: data.errors && typeof data.errors === 'object' ? data.errors : {},
+        fieldErrors:
+          data.errors && typeof data.errors === 'object' ? data.errors : {},
         status: err.response.status,
         raw: data,
       };
     }
     const formatted = formatAxiosError(err);
-    return { success: false, error: formatted.userMessage, fieldErrors: formatted.fieldErrors, status: formatted.status, raw: formatted.raw };
+    return {
+      success: false,
+      error: formatted.userMessage,
+      fieldErrors: formatted.fieldErrors,
+      status: formatted.status,
+      raw: formatted.raw,
+    };
   }
 };

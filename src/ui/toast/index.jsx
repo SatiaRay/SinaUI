@@ -1,5 +1,5 @@
 // utils/notify.js
-import { toast } from "react-toastify";
+import { toast } from 'react-toastify';
 
 export const notify = {
   success: (message) =>
@@ -13,7 +13,11 @@ export const notify = {
           stroke="currentColor"
           strokeWidth={2}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
         </svg>
         <span className="font-medium">{message}</span>
       </div>
@@ -30,7 +34,11 @@ export const notify = {
           stroke="currentColor"
           strokeWidth={2}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
         <span className="font-medium">{message}</span>
       </div>

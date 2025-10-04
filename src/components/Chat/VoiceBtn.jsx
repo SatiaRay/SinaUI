@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { sockets } from '../../utils/sockets';
 import { BounceLoader, ScaleLoader } from 'react-spinners';
+import { VoiceButtonStyled } from '../ui/common';
 
 const VoiceBtn = ({ onTranscribe }) => {
   const recorderRef = useRef(null);
@@ -153,7 +154,8 @@ const VoiceBtn = ({ onTranscribe }) => {
   };
 
   return (
-    <button
+    <VoiceButtonStyled
+      className="flex items-center justify-center"
       onClick={handleVoiceClick}
       disabled={isLoading}
       className="h-9 w-9 flex items-center justify-center rounded-full transition-colors duration-200
@@ -180,7 +182,7 @@ const VoiceBtn = ({ onTranscribe }) => {
           <path d="M12 14a3.996 3.996 0 0 0 4-4V5a4 4 0 0 0-8 0v5a3.996 3.996 0 0 0 4 4zm5-4a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-4.08A7 7 0 0 0 19 10h-2z" />
         </svg>
       )}
-    </button>
+    </VoiceButtonStyled>
   );
 };
 

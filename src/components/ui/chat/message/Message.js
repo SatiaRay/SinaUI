@@ -4,6 +4,7 @@ import ImageMessage from './components/ImageMessage';
 import TextMessage from './components/TextMessage';
 import SentMessage from './SentMessage';
 import ReceivedMessage from './ReceivedMessage';
+import { ErrorMessage } from './ErrorMessage';
 
 const Message = ({ messageId, data }) => {
   // If created_at does not exist but timestamp exists
@@ -36,6 +37,8 @@ const Message = ({ messageId, data }) => {
             return <OptionMessage data={data} messageId={messageId} />;
           case 'image':
             return <ImageMessage data={data} messageId={messageId} />;
+          case 'error':
+            return <ErrorMessage data={data}/>
           default:
             return null;
         }

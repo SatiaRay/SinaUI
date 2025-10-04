@@ -3,9 +3,27 @@ export const formatTimestamp = (
   format = {
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
   }
 ) => {
-  return new Date(timestamp).toLocaleTimeString('fa-IR', format);
+  try {
+    if (!timestamp) {
+      return new Date().toLocaleTimeString('fa-IR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+    }
+    const date = new Date(timestamp.endsWith('Z') ? timestamp : `${timestamp}Z`);
+    if (isNaN(date.getTime())) {
+      console.error('Invalid timestamp:', timestamp);
+      return '--:--';
+    }
+    return date.toLocaleTimeString('fa-IR', format);
+  } catch (error) {
+    console.error('Error formatting timestamp:', error);
+    return '--:--';
+  }
 };
 
 export const copyToClipboard = (text) => {

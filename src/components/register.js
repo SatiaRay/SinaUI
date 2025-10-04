@@ -30,13 +30,15 @@ const Register = () => {
   };
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
-  const toggleRepeatPasswordVisibility = () => setShowRepeatPassword((prev) => !prev);
+  const toggleRepeatPasswordVisibility = () =>
+    setShowRepeatPassword((prev) => !prev);
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.first_name.trim()) newErrors.first_name = 'نام الزامی است';
-    if (!formData.last_name.trim()) newErrors.last_name = 'نام خانوادگی الزامی است';
+    if (!formData.last_name.trim())
+      newErrors.last_name = 'نام خانوادگی الزامی است';
 
     if (!formData.email) {
       newErrors.email = 'ایمیل الزامی است';
@@ -54,7 +56,10 @@ const Register = () => {
       newErrors.password = 'رمز عبور الزامی است';
     } else if (formData.password.length < 8) {
       newErrors.password = 'رمز عبور باید حداقل ۸ کاراکتر باشد';
-    } else if (!/[0-9]/.test(formData.password) || !/[A-Za-z]/.test(formData.password)) {
+    } else if (
+      !/[0-9]/.test(formData.password) ||
+      !/[A-Za-z]/.test(formData.password)
+    ) {
       newErrors.password = 'رمز عبور باید شامل حروف و عدد باشد';
     }
 
@@ -86,7 +91,9 @@ const Register = () => {
       if (res?.fieldErrors && Object.keys(res.fieldErrors).length > 0) {
         const serverErrors = {};
         Object.entries(res.fieldErrors).forEach(([field, messages]) => {
-          serverErrors[field] = Array.isArray(messages) ? messages.join(', ') : String(messages);
+          serverErrors[field] = Array.isArray(messages)
+            ? messages.join(', ')
+            : String(messages);
         });
         setErrors(serverErrors);
         const firstFieldMsg = Object.values(serverErrors)[0];
@@ -105,12 +112,18 @@ const Register = () => {
       if (serverErr?.errors) {
         const serverErrors = {};
         Object.entries(serverErr.errors).forEach(([field, messages]) => {
-          serverErrors[field] = Array.isArray(messages) ? messages.join(', ') : String(messages);
+          serverErrors[field] = Array.isArray(messages)
+            ? messages.join(', ')
+            : String(messages);
         });
         setErrors(serverErrors);
         notify.error(Object.values(serverErrors)[0]);
       } else {
-        notify.error(err?.response?.data?.message || err?.message || 'خطای غیرمنتظره در ثبت نام');
+        notify.error(
+          err?.response?.data?.message ||
+            err?.message ||
+            'خطای غیرمنتظره در ثبت نام'
+        );
       }
     } finally {
       setLoading(false);
@@ -159,7 +172,11 @@ const Register = () => {
                   value={formData.first_name}
                   onChange={handleChange}
                 />
-                {errors.first_name && <p className="text-red-400 text-xs mt-1">{errors.first_name}</p>}
+                {errors.first_name && (
+                  <p className="text-red-400 text-xs mt-1">
+                    {errors.first_name}
+                  </p>
+                )}
               </div>
 
               <div className="w-1/2">
@@ -173,7 +190,11 @@ const Register = () => {
                   value={formData.last_name}
                   onChange={handleChange}
                 />
-                {errors.last_name && <p className="text-red-400 text-xs mt-1">{errors.last_name}</p>}
+                {errors.last_name && (
+                  <p className="text-red-400 text-xs mt-1">
+                    {errors.last_name}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -188,7 +209,9 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
               />
-              {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -203,7 +226,9 @@ const Register = () => {
                 value={formData.phone}
                 onChange={handleChange}
               />
-              {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
+              {errors.phone && (
+                <p className="text-red-400 text-xs mt-1">{errors.phone}</p>
+              )}
             </div>
 
             <div className="relative">
@@ -228,7 +253,9 @@ const Register = () => {
                   <EyeIcon className="h-5 w-5 text-gray-400" />
                 )}
               </button>
-              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+              {errors.password && (
+                <p className="text-red-400 text-xs mt-1">{errors.password}</p>
+              )}
             </div>
 
             <div className="relative">
@@ -253,7 +280,11 @@ const Register = () => {
                   <EyeIcon className="h-5 w-5 text-gray-400" />
                 )}
               </button>
-              {errors.repeat_password && <p className="text-red-400 text-xs mt-1">{errors.repeat_password}</p>}
+              {errors.repeat_password && (
+                <p className="text-red-400 text-xs mt-1">
+                  {errors.repeat_password}
+                </p>
+              )}
             </div>
           </div>
 

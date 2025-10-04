@@ -107,9 +107,9 @@ const WorkflowEditorContent = () => {
             conditionTargets:
               step.type === 'decision'
                 ? (step.conditions || []).reduce((acc, c) => {
-                  acc[c.label] = c.next;
-                  return acc;
-                }, {})
+                    acc[c.label] = c.next;
+                    return acc;
+                  }, {})
                 : {},
             jsonConfig: null,
             pageConfig: {
