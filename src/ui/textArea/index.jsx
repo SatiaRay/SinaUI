@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { EditableInput, InputWrapper, Placeholder } from '../../components/ui/common';
+import {
+  EditableInput,
+  InputWrapper,
+  Placeholder,
+} from '../../components/ui/common';
 
 const TextInputWithBreaks = ({
   value,
@@ -93,7 +97,6 @@ const TextInputWithBreaks = ({
           {placeholder}
         </div>
       )}
-    </div>
       {isEmpty && <Placeholder>{placeholder}</Placeholder>}
     </InputWrapper>
   );

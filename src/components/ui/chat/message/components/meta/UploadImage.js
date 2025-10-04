@@ -4,6 +4,11 @@ import Dropzone from '../../../../../../ui/Dropzone';
 import { fileEndpoints } from '../../../../../../utils/apis';
 import imageCompression from 'browser-image-compression';
 import styled from 'styled-components';
+import {
+  UploadErrorMessage,
+  UploadButtonContainer,
+  UploadButton,
+} from '../../../../common';
 
 const CancelButton = styled.button`
   pointer-events: all !important;
@@ -36,7 +41,7 @@ const CancelButton = styled.button`
 
 const SendButton = styled.button`
   padding: 0.5rem 1rem;
-  background-color: #dbeafe; 
+  background-color: #dbeafe;
   color: #1e40af;
   border: none;
   border-radius: 0.375rem;
@@ -55,13 +60,12 @@ const SendButton = styled.button`
   }
 
   &:disabled {
-    background-color: #f3f4f6 !important; 
-    color: #9ca3af !important; 
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
     cursor: not-allowed;
     transform: none !important;
   }
 `;
-import { UploadErrorMessage, UploadButtonContainer, UploadButton } from '../../../../common';
 
 const MAX_SIZE_BYTES = 500 * 1024; // 500KB
 
@@ -109,7 +113,10 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
       setImages([]);
     } catch (err) {
       setUploading(false);
-      const msg = err?.message || err?.msg || (typeof err === 'string' ? err : 'خطای ارسال رخ داد');
+      const msg =
+        err?.message ||
+        err?.msg ||
+        (typeof err === 'string' ? err : 'خطای ارسال رخ داد');
       setError(msg);
     }
   };
@@ -119,7 +126,7 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
     e.stopPropagation();
     if (isCanceling) return;
     setIsCanceling(true);
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 150));
     setImages([]);
     setError(null);
     setUploading(false);
@@ -146,30 +153,26 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
           'image/jpg': [],
         }}
       />
-      {error && (
-        <UploadErrorMessage>
-          {error}
-        </UploadErrorMessage>
-      )}
+      {error && <UploadErrorMessage>{error}</UploadErrorMessage>}
       <div className="flex justify-end gap-2 mt-4">
-          <SendButton
-            type="button" 
-            onClick={() => handleUpload(images)}
-            disabled={images.length === 0 || uploading || isLoading}
-          >
-            {uploading || isLoading ? (
-              <ClipLoader size={16} color="#1e40af" />
-            ) : (
-              'ارسال'
-            )}
-          </SendButton>
-          <CancelButton
-            type="button"
-            onClick={handleCancel}
-            disabled={isCanceling || images.length === 0}
-          >
-            {isCanceling ? 'در حال لغو...' : 'انصراف'}
-          </CancelButton>
+        <SendButton
+          type="button"
+          onClick={() => handleUpload(images)}
+          disabled={images.length === 0 || uploading || isLoading}
+        >
+          {uploading || isLoading ? (
+            <ClipLoader size={16} color="#1e40af" />
+          ) : (
+            'ارسال'
+          )}
+        </SendButton>
+        <CancelButton
+          type="button"
+          onClick={handleCancel}
+          disabled={isCanceling || images.length === 0}
+        >
+          {isCanceling ? 'در حال لغو...' : 'انصراف'}
+        </CancelButton>
       </div>
 
       <UploadButtonContainer>
@@ -185,11 +188,7 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
           )}
         </UploadButton>
 
-        <UploadButton
-          type="button"
-          onClick={handleCancel}
-          variant="cancel"
-        >
+        <UploadButton type="button" onClick={handleCancel} variant="cancel">
           انصراف
         </UploadButton>
       </UploadButtonContainer>
