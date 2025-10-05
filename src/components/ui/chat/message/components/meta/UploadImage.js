@@ -36,7 +36,7 @@ const CancelButton = styled.button`
 
 const SendButton = styled.button`
   padding: 0.5rem 1rem;
-  background-color: #dbeafe; 
+  background-color: #dbeafe;
   color: #1e40af;
   border: none;
   border-radius: 0.375rem;
@@ -55,8 +55,8 @@ const SendButton = styled.button`
   }
 
   &:disabled {
-    background-color: #f3f4f6 !important; 
-    color: #9ca3af !important; 
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
     cursor: not-allowed;
     transform: none !important;
   }
@@ -108,7 +108,10 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
       setImages([]);
     } catch (err) {
       setUploading(false);
-      const msg = err?.message || err?.msg || (typeof err === 'string' ? err : 'خطای ارسال رخ داد');
+      const msg =
+        err?.message ||
+        err?.msg ||
+        (typeof err === 'string' ? err : 'خطای ارسال رخ داد');
       setError(msg);
     }
   };
@@ -118,18 +121,18 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
     e.stopPropagation();
     console.log('Cancel button clicked', { images, isCanceling });
     if (isCanceling) return;
-    
+
     setIsCanceling(true);
-    await new Promise(resolve => setTimeout(resolve, 150));
-    
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
     setImages([]);
     setError(null);
     setUploading(false);
-    
+
     if (typeof onCancel === 'function') {
       onCancel();
     }
-    
+
     setIsCanceling(false);
   };
 
@@ -173,7 +176,7 @@ const UploadImage = ({ onCancel, onUpload, isLoading }) => {
         <CancelButton
           type="button"
           onClick={handleCancel}
-          disabled={isCanceling} 
+          disabled={isCanceling}
         >
           {isCanceling ? '...در حال لغو' : 'انصراف'}
         </CancelButton>
