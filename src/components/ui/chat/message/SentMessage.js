@@ -1,12 +1,12 @@
 import { formatTimestamp } from '../../../../utils/helpers';
 import { SentMessageContainer, SentMessageHeader, SentMessageTimestamp, SentMessageLabel } from '../../common';
 
-const SentMessage = ({ children, created_at }) => {
+const SentMessage = ({ children, timestamp }) => {
   return (
     <SentMessageContainer>
       <SentMessageHeader>
         <SentMessageTimestamp>
-          {formatTimestamp(created_at)}
+          {formatTimestamp(timestamp)}
         </SentMessageTimestamp>
         <SentMessageLabel>
           شما
