@@ -47,13 +47,15 @@ const Chat = ({ services = null }) => {
   const processingMessageId = useRef(null);
   const initialResponseTimeoutRef = useRef(null);
   const deltaTimeoutRef = useRef(null);
-  const [isServiceUnavailable, setIsServiceUnabailable] = useState(false)
+  const [isServiceUnavailable, setIsServiceUnabailable] = useState(false);
 
-  // Internal variables (not stateful) - moved inside component
   const internalVarsRef = useRef({
-    inCompatibleMessage: '',
-    bufferedTable: '',
+    prefixHtml: '',
+    tableOpenTag: '',
+    tableBuffer: '',
+    flushedRows: [],
     isInsideTable: false,
+    lastPreview: '',
   });
 
   const initialMessageAddedRef = useRef(false);
@@ -82,7 +84,7 @@ const Chat = ({ services = null }) => {
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
-    disconnectChatSocket
+    disconnectChatSocket,
   } = useChat();
 
   /**
@@ -115,29 +117,35 @@ const Chat = ({ services = null }) => {
   /** Reset chat state to initial values */
   const resetChatState = () => {
     setChatLoading(false);
-
-    // Handle buffered table if chat was in middle of a table
-    if (
-      internalVarsRef.current.isInsideTable &&
-      internalVarsRef.current.bufferedTable
-    ) {
-      const lastMessageId = history.ids[history.ids.length - 1];
-      if (lastMessageId) {
-        updateMessage(lastMessageId, {
-          body: internalVarsRef.current.inCompatibleMessage,
-        });
+    if (processingMessageId.current) {
+      try {
+        const internal = internalVarsRef.current;
+        let finalBody = internal.prefixHtml;
+        if (internal.isInsideTable) {
+          finalBody +=
+            (internal.tableOpenTag || '<table>') +
+            '<tbody>' +
+            internal.flushedRows.join('') +
+            internal.tableBuffer +
+            '</tbody></table>';
+        } else {
+          finalBody += internal.tableBuffer;
+        }
+        updateMessage(processingMessageId.current, { body: finalBody });
+      } catch (err) {
+        console.error('resetChatState flush error', err);
       }
     }
-
-    // Reset internal variables
     internalVarsRef.current = {
-      inCompatibleMessage: '',
-      bufferedTable: '',
+      prefixHtml: '',
+      tableOpenTag: '',
+      tableBuffer: '',
+      flushedRows: [],
       isInsideTable: false,
+      lastPreview: '',
     };
+    processingMessageId.current = null;
     initialMessageAddedRef.current = false;
-
-    // Clear any pending timers
     clearAllTimeouts();
   };
 
@@ -254,17 +262,13 @@ const Chat = ({ services = null }) => {
     await sendMessage(text);
     setQuestion('');
     setError(null);
-    setChatLoading(true)
-
-    // Clear any existing timers
+    setChatLoading(true);
     clearAllTimeouts();
-
-    // Set fallback timeout for 1 minute
     initialResponseTimeoutRef.current = setTimeout(() => {
-      sendExceptionMessage("مشکلی پیش آمده لطفا بعدا تلاش نمایید.")
-      setChatLoading(false)
-      setIsServiceUnabailable(true)
-      disconnectChatSocket()
+      sendExceptionMessage('مشکلی پیش آمده لطفا بعدا تلاش نمایید.');
+      setChatLoading(false);
+      setIsServiceUnabailable(true);
+      disconnectChatSocket();
       resetChatState();
     }, 60000);
   };
@@ -273,14 +277,14 @@ const Chat = ({ services = null }) => {
    * Push exception message to chat history
    * @param {string} msg Exception message
    */
-  const sendExceptionMessage = (msg = "مشکلی پیش آمده است !") => {
+  const sendExceptionMessage = (msg = 'مشکلی پیش آمده است !') => {
     addNewMessage({
       type: 'error',
       body: msg,
       role: 'assistant',
       created_at: new Date().toISOString().slice(0, 19),
-    })
-  }
+    });
+  };
 
   /** Scroll chat to bottom */
   const scrollToBottom = () => {
@@ -307,77 +311,136 @@ const Chat = ({ services = null }) => {
    * @returns null|object
    */
   const handleDeltaResponse = (data) => {
-    if (!processingMessageId.current) {
-      processingMessageId.current = addNewMessage({
-        type: 'text',
-        body: '',
-        role: 'assistant',
-        created_at: new Date().toISOString().slice(0, 19),
-      });
-    }
-
-    // Reset 10-second delta timeout on each delta
-    if (deltaTimeoutRef.current) clearTimeout(deltaTimeoutRef.current);
-    deltaTimeoutRef.current = setTimeout(() => {
-      resetChatState();
-    }, 10000);
-
-    const delta = data.message;
-    internalVarsRef.current.inCompatibleMessage += delta;
-
-    if (internalVarsRef.current.inCompatibleMessage.includes('<table')) {
-      internalVarsRef.current.isInsideTable = true;
-      internalVarsRef.current.bufferedTable += delta;
-    } else if (internalVarsRef.current.isInsideTable) {
-      internalVarsRef.current.bufferedTable += delta;
-    } else {
-      updateMessage(processingMessageId.current, {
-        body: internalVarsRef.current.inCompatibleMessage,
-      });
-      return;
-    }
-
-    if (internalVarsRef.current.isInsideTable) {
-      const openTableTags = (
-        internalVarsRef.current.bufferedTable.match(/<table/g) || []
-      ).length;
-      const closeTableTags = (
-        internalVarsRef.current.bufferedTable.match(/<\/table>/g) || []
-      ).length;
-
-      if (openTableTags === closeTableTags && openTableTags > 0) {
-        updateMessage(processingMessageId.current, {
-          body: internalVarsRef.current.inCompatibleMessage,
+    try {
+      if (!processingMessageId.current) {
+        processingMessageId.current = addNewMessage({
+          type: 'text',
+          body: '',
+          role: 'assistant',
+          created_at: new Date().toISOString().slice(0, 19),
         });
-        internalVarsRef.current.bufferedTable = '';
-        internalVarsRef.current.isInsideTable = false;
       }
+      if (deltaTimeoutRef.current) clearTimeout(deltaTimeoutRef.current);
+      deltaTimeoutRef.current = setTimeout(() => {
+        resetChatState();
+      }, 10000);
+      const delta = data.message || '';
+      const internal = internalVarsRef.current;
+      if (!internal.isInsideTable) {
+        internal.prefixHtml += delta;
+        const tableOpenMatch = internal.prefixHtml.match(/<table[^>]*>/i);
+        if (tableOpenMatch) {
+          const idx = internal.prefixHtml.search(/<table[^>]*>/i);
+          internal.tableOpenTag = tableOpenMatch[0];
+          internal.tableBuffer = internal.prefixHtml.slice(
+            idx + internal.tableOpenTag.length
+          );
+          internal.prefixHtml = internal.prefixHtml.slice(0, idx);
+          internal.isInsideTable = true;
+        } else {
+          if (processingMessageId.current) {
+            const preview = internal.prefixHtml;
+            if (internal.lastPreview !== preview) {
+              updateMessage(processingMessageId.current, { body: preview });
+              internal.lastPreview = preview;
+            }
+          }
+          return;
+        }
+      } else {
+        internal.tableBuffer += delta;
+      }
+      const trRegex = /<tr[\s\S]*?<\/tr>/gi;
+      let match;
+      let lastIndex = 0;
+      const rows = [];
+      while ((match = trRegex.exec(internal.tableBuffer)) !== null) {
+        rows.push(match[0]);
+        lastIndex = trRegex.lastIndex;
+      }
+      if (rows.length > 0) {
+        internal.flushedRows.push(...rows);
+        internal.tableBuffer = internal.tableBuffer.slice(lastIndex);
+      }
+      const tableClosed = /<\/table>/i.test(internal.tableBuffer);
+      let previewHtml =
+        internal.prefixHtml +
+        (internal.tableOpenTag || '<table>') +
+        '<tbody>' +
+        internal.flushedRows.join('');
+      if (tableClosed) {
+        const beforeClose = internal.tableBuffer.replace(
+          /<\/table>[\s\S]*$/i,
+          ''
+        );
+        previewHtml += beforeClose + '</tbody></table>';
+      } else {
+        previewHtml += internal.tableBuffer + '</tbody></table>';
+      }
+      if (processingMessageId.current && internal.lastPreview !== previewHtml) {
+        updateMessage(processingMessageId.current, { body: previewHtml });
+        internal.lastPreview = previewHtml;
+      }
+    } catch (err) {
+      console.error('handleDeltaResponse error', err);
     }
   };
 
   /** Finalize assistant message */
   const finishMessageHandler = () => {
     setChatLoading(false);
-
-    if (
-      internalVarsRef.current.isInsideTable &&
-      internalVarsRef.current.bufferedTable
-    ) {
-      updateMessage(processingMessageId.current, {
-        body: internalVarsRef.current.inCompatibleMessage,
-      });
-      internalVarsRef.current.bufferedTable = '';
-      internalVarsRef.current.isInsideTable = false;
+    try {
+      const internal = internalVarsRef.current;
+      if (processingMessageId.current) {
+        if (!internal.isInsideTable) {
+          updateMessage(processingMessageId.current, {
+            body: internal.prefixHtml,
+          });
+        } else {
+          const trRegex = /<tr[\s\S]*?<\/tr>/gi;
+          let match;
+          let lastIndex = 0;
+          const extraRows = [];
+          while ((match = trRegex.exec(internal.tableBuffer)) !== null) {
+            extraRows.push(match[0]);
+            lastIndex = trRegex.lastIndex;
+          }
+          if (extraRows.length) {
+            internal.flushedRows.push(...extraRows);
+            internal.tableBuffer = internal.tableBuffer.slice(lastIndex);
+          }
+          const remainingBeforeClose = internal.tableBuffer.replace(
+            /<\/table>[\s\S]*$/i,
+            ''
+          );
+          const finalHtml =
+            internal.prefixHtml +
+            (internal.tableOpenTag || '<table>') +
+            '<tbody>' +
+            internal.flushedRows.join('') +
+            remainingBeforeClose +
+            '</tbody></table>';
+          updateMessage(processingMessageId.current, { body: finalHtml });
+        }
+      }
+    } catch (err) {
+      console.error('finishMessageHandler error', err);
+    } finally {
+      processingMessageId.current = null;
+      internalVarsRef.current = {
+        prefixHtml: '',
+        tableOpenTag: '',
+        tableBuffer: '',
+        flushedRows: [],
+        isInsideTable: false,
+        lastPreview: '',
+      };
+      clearAllTimeouts();
     }
-
-    processingMessageId.current = null;
-    internalVarsRef.current.inCompatibleMessage = '';
-    clearAllTimeouts();
   };
 
   const handleClearHistory = async () => {
     if (history.ids.length === 0) return;
-
     const result = await Swal.fire({
       title: 'آیا مطمئن هستید؟',
       text: 'آیا از پاک کردن تمام تاریخچه چت مطمئن هستید؟ این عمل قابل بازگشت نیست.',
@@ -393,7 +456,6 @@ const Chat = ({ services = null }) => {
       },
       buttonsStyling: false,
     });
-
     if (result.isConfirmed) {
       clearHistory();
       setInitialLayout(true); // اگر خواستید صفحه اولیه دوباره بیاد
@@ -508,9 +570,11 @@ const Chat = ({ services = null }) => {
           {!optionMessageTriggered && !isServiceUnavailable && (
             <>
               {/* Wizard buttons */}
-              <div style={{
-                marginBottom: '10px'
-              }}>
+              <div
+                style={{
+                  marginBottom: '10px',
+                }}
+              >
                 <WizardButtons
                   onWizardSelect={handleWizardSelect}
                   wizards={currentWizards}
