@@ -256,7 +256,7 @@ const DocumentIndex = () => {
             id="pageSize"
             value={state.pageSize}
             onChange={handlePageSizeChange}
-            className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
           >
             {PAGE_SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
@@ -269,10 +269,10 @@ const DocumentIndex = () => {
           <button
             onClick={() => handlePageChange(state.currentPage - 1)}
             disabled={state.currentPage === 1}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-black dark:border-gray-600 ${
               state.currentPage === 1
-                ? 'bg-gray-200 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
+                ? 'dark:text-gray-600 text-gray-400'
+                : 'dark:text-white text-black'
             }`}
           >
             قبلی
@@ -283,10 +283,10 @@ const DocumentIndex = () => {
           <button
             onClick={() => handlePageChange(state.currentPage + 1)}
             disabled={state.currentPage === state.totalPages}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-black dark:border-gray-600 ${
               state.currentPage === state.totalPages
-                ? 'bg-gray-200 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
+                ? 'dark:text-gray-600 text-gray-400'
+                : 'dark:text-white text-black'
             }`}
           >
             بعدی
