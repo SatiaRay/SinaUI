@@ -130,8 +130,7 @@
 #khan-chatbox input[type='reset'],
 #khan-chatbox input[type='submit'] {
   -webkit-appearance: button;
-  background-color: inherit;
-}
+} 
 
 #khan-chatbox :-moz-focusring {
   outline: auto;
