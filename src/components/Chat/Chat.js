@@ -1,5 +1,5 @@
 import { BrushCleaning, LucideAudioLines } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { FaRobot } from 'react-icons/fa';
 import { BeatLoader } from 'react-spinners';
 import { notify } from '../../ui/toast';
@@ -58,7 +58,7 @@ class StableTableParser {
     this.updateCallbacks = [];
     this.rafId = null;
     this.lastUpdateTime = 0;
-    this.updateThreshold = 100; // ms between updates
+    this.updateThreshold = 0; // ms between updates
   }
 
   reset() {
@@ -304,6 +304,16 @@ const Chat = ({ services = null }) => {
 
   const initialMessageAddedRef = useRef(false);
 
+  const autoScrollStateRef = useRef({
+    autoEnabled: true,
+    streaming: false,
+    threshold: 120,
+  });
+
+  // رف برای کنترل اسکرول اولیه
+  const initialScrollDoneRef = useRef(false);
+  const chatStartRef = useRef(null);
+
   const {
     isConnected,
     addNewMessage,
@@ -370,6 +380,8 @@ const Chat = ({ services = null }) => {
     processingMessageId.current = null;
     initialMessageAddedRef.current = false;
     clearAllTimeouts();
+    autoScrollStateRef.current.streaming = false;
+    autoScrollStateRef.current.autoEnabled = true;
   };
 
   /** Setup table parser callbacks */
@@ -423,6 +435,19 @@ const Chat = ({ services = null }) => {
       stabilizer.stabilizeTimer = setTimeout(() => {
         stabilizer.isUserScrolling = false;
       }, 100);
+
+      const distanceFromBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight;
+
+      if (distanceFromBottom > 20) {
+        autoScrollStateRef.current.autoEnabled = false;
+      } else if (distanceFromBottom <= 60) {
+        autoScrollStateRef.current.autoEnabled = true;
+        if (autoScrollStateRef.current.streaming) {
+          // user returned to bottom while stream is active -> follow stream
+          smartScrollToBottom();
+        }
+      }
     };
 
     container.addEventListener('scroll', handleScroll, { passive: true });
@@ -430,17 +455,26 @@ const Chat = ({ services = null }) => {
   }, []);
 
   /** Smart scroll to bottom */
+  const forceScrollToBottomImmediate = () => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight - container.clientHeight;
+  };
+
   const smartScrollToBottom = () => {
     const container = chatContainerRef.current;
     const stabilizer = scrollStabilizerRef.current;
-    if (!container || stabilizer.isUserScrolling) return;
+    if (!container) return;
 
-    const threshold = 120; // فاصله حساس از پایین
+    const threshold = autoScrollStateRef.current.threshold; // فاصله حساس از پایین
     const distanceFromBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight;
 
-    // فقط وقتی نزدیک پایین هستیم اسکرول کن
-    if (distanceFromBottom > threshold) return;
+    if (distanceFromBottom > threshold) return; // only scroll when near bottom
+
+    if (!autoScrollStateRef.current.autoEnabled) return;
+
+    if (stabilizer.isUserScrolling) return;
 
     const start = container.scrollTop;
     const end = container.scrollHeight - container.clientHeight;
@@ -461,6 +495,131 @@ const Chat = ({ services = null }) => {
     requestAnimationFrame(animate);
   };
 
+  // اسکرول نرم به آخرین پیام هنگام بارگذاری اولیه
+  const smoothScrollToBottom = () => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const start = container.scrollTop;
+    const end = container.scrollHeight - container.clientHeight;
+
+    // اگر محتوایی برای اسکرول وجود ندارد، برگرد
+    if (end <= 0) return;
+
+    const duration = 800; // افزایش مدت زمان انیمیشن
+    const startTime = performance.now();
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    const animate = (time) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(progress);
+      container.scrollTop = start + (end - start) * eased;
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // وقتی انیمیشن تمام شد، مطمئن شو که دقیقاً به پایین اسکرول شده
+        container.scrollTop = container.scrollHeight - container.clientHeight;
+      }
+    };
+
+    requestAnimationFrame(animate);
+  };
+
+  // Effect برای اسکرول به ابتدا هنگام بارگذاری اولیه و سپس اسکرول نرم به انتها
+  useEffect(() => {
+    if (
+      !historyLoading &&
+      history.ids.length > 0 &&
+      !initialScrollDoneRef.current
+    ) {
+      console.log('Starting initial scroll sequence...');
+
+      const container = chatContainerRef.current;
+      if (!container) {
+        console.log('Container not found, retrying...');
+        return;
+      }
+
+      // ابتدا به بالا اسکرول کنید
+      console.log('Scrolling to top...');
+      container.scrollTop = 0;
+
+      // چندین تایمر با تاخیرهای مختلف برای اطمینان از اجرا
+      const timer1 = setTimeout(() => {
+        console.log('First scroll attempt after 300ms');
+        smoothScrollToBottom();
+      }, 300);
+
+      const timer2 = setTimeout(() => {
+        console.log('Second scroll attempt after 800ms');
+        smoothScrollToBottom();
+        initialScrollDoneRef.current = true;
+      }, 800);
+
+      const timer3 = setTimeout(() => {
+        console.log('Final scroll attempt after 1500ms');
+        forceScrollToBottomImmediate();
+        initialScrollDoneRef.current = true;
+      }, 1500);
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+      };
+    }
+  }, [historyLoading, history.ids.length]);
+
+  // Effect جایگزین برای مواقعی که effect اصلی کار نمی‌کند
+  useEffect(() => {
+    if (
+      !historyLoading &&
+      history.ids.length > 0 &&
+      !initialScrollDoneRef.current
+    ) {
+      console.log('Alternative scroll effect triggered');
+
+      const attemptScroll = (attempt = 1) => {
+        const container = chatContainerRef.current;
+        if (container && container.scrollHeight > container.clientHeight) {
+          console.log(`Scroll attempt ${attempt}, container ready`);
+
+          // ابتدا به بالا
+          container.scrollTop = 0;
+
+          // سپس با تاخیر به پایین
+          setTimeout(() => {
+            smoothScrollToBottom();
+            initialScrollDoneRef.current = true;
+          }, 500);
+        } else if (attempt < 5) {
+          // اگر هنوز آماده نیست، دوباره تلاش کن
+          console.log(
+            `Container not ready, retrying in 200ms (attempt ${attempt})`
+          );
+          setTimeout(() => attemptScroll(attempt + 1), 200);
+        } else {
+          // اگر بعد از 5 بار تلاش نشد، مستقیم به پایین برو
+          console.log('Max attempts reached, forcing scroll to bottom');
+          forceScrollToBottomImmediate();
+          initialScrollDoneRef.current = true;
+        }
+      };
+
+      attemptScroll();
+    }
+  }, [historyLoading, history.ids.length]);
+
+  // Effect برای ریست کردن وضعیت اسکرول اولیه وقتی تاریخچه پاک می‌شود
+  useEffect(() => {
+    if (history.ids.length === 0) {
+      initialScrollDoneRef.current = false;
+    }
+  }, [history.ids.length]);
+
   /** Update chat links to open in new tab */
   useEffect(() => {
     return renderMessageLinks();
@@ -469,7 +628,13 @@ const Chat = ({ services = null }) => {
   /** Scroll chat to bottom when loading changes */
   useEffect(() => {
     if (chatLoading) {
+      autoScrollStateRef.current.streaming = true;
       setTimeout(smartScrollToBottom, 50);
+    } else {
+      // when streaming stops, ensure we land at bottom and re-enable auto
+      autoScrollStateRef.current.streaming = false;
+      autoScrollStateRef.current.autoEnabled = true;
+      setTimeout(forceScrollToBottomImmediate, 50);
     }
   }, [chatLoading]);
 
@@ -484,8 +649,20 @@ const Chat = ({ services = null }) => {
    * Trigger scroll to button function on history loading or change history length
    */
   useEffect(() => {
-    if (!historyLoading && history.ids.length > 0) {
-      setTimeout(smartScrollToBottom, 100);
+    if (
+      !historyLoading &&
+      history.ids.length > 0 &&
+      initialScrollDoneRef.current
+    ) {
+      // For discrete updates (not streaming) always force immediate scroll
+      if (!chatLoading) {
+        setTimeout(() => {
+          forceScrollToBottomImmediate();
+        }, 100);
+      } else {
+        // If stream is active, respect autoEnabled/threshold logic
+        setTimeout(smartScrollToBottom, 100);
+      }
     }
   }, [historyLoading, history.ids.length]);
 
@@ -511,6 +688,8 @@ const Chat = ({ services = null }) => {
     };
     addNewMessage(optionMessage);
     setOptionMessageTriggered(true);
+    // discrete message -> force scroll
+    setTimeout(forceScrollToBottomImmediate, 20);
   };
 
   /** Handle incoming WebSocket messages */
@@ -553,7 +732,7 @@ const Chat = ({ services = null }) => {
     resetChatState();
   };
 
-  /** Send message through socket and set 1-minute fallback timeout */
+  /** Send message through socket and set 2-minute fallback timeout */
   const sendMessageDecorator = async (text) => {
     await sendMessage(text);
     setQuestion('');
@@ -566,7 +745,7 @@ const Chat = ({ services = null }) => {
       setIsServiceUnabailable(true);
       disconnectChatSocket();
       resetChatState();
-    }, 60000);
+    }, 120000);
   };
 
   /**
@@ -580,6 +759,8 @@ const Chat = ({ services = null }) => {
       role: 'assistant',
       created_at: new Date().toISOString().slice(0, 19),
     });
+    // discrete message -> force scroll to show error
+    setTimeout(forceScrollToBottomImmediate, 20);
   };
 
   /**
@@ -612,6 +793,8 @@ const Chat = ({ services = null }) => {
       tableParserRef.current.processDelta(delta);
 
       // Scroll stabilization
+      // during streaming we only auto-scroll when near bottom and autoEnabled
+      autoScrollStateRef.current.streaming = true;
       smartScrollToBottom();
     } catch (err) {
       console.error('handleDeltaResponse error', err);
@@ -636,6 +819,10 @@ const Chat = ({ services = null }) => {
       processingMessageId.current = null;
       tableParserRef.current.reset();
       clearAllTimeouts();
+      // stream finished -> ensure we show final content
+      autoScrollStateRef.current.streaming = false;
+      autoScrollStateRef.current.autoEnabled = true;
+      setTimeout(forceScrollToBottomImmediate, 50);
     }
   };
 
@@ -669,6 +856,8 @@ const Chat = ({ services = null }) => {
         },
         buttonsStyling: false,
       });
+      // after clearing history ensure bottom
+      setTimeout(forceScrollToBottomImmediate, 50);
     }
   };
 
@@ -728,11 +917,15 @@ const Chat = ({ services = null }) => {
             {history.ids.length === 0 && !historyLoading ? (
               <EmptyState>سوال خود را بپرسید تا گفتگو شروع شود</EmptyState>
             ) : (
-              history.ids.map((id) => (
-                <MessageContainer key={id}>
-                  <Message messageId={id} data={history.entities[id]} />
-                </MessageContainer>
-              ))
+              <>
+                {/* رفرنس برای ابتدای چت */}
+                <div ref={chatStartRef} style={{ height: 0, width: '100%' }} />
+                {history.ids.map((id) => (
+                  <MessageContainer key={id}>
+                    <Message messageId={id} data={history.entities[id]} />
+                  </MessageContainer>
+                ))}
+              </>
             )}
 
             {chatLoading && (
