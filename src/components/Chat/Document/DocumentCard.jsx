@@ -1,7 +1,6 @@
-// DocumentCard.js
 import { useState } from 'react';
-import { FaTrash } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { FaTrash, FaMicrophone, FaKeyboard, FaRobot } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import { toggleDocumentVectorStatus } from '../../../services/api';
 import { notify } from '../../../ui/toast';
 
@@ -26,10 +25,47 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
     }
   };
 
+  const renderAgentBadge = () => {
+    const baseClasses = 'flex items-center gap-2 py-1 px-3 rounded-bl-xl absolute top-0 right-0 text-xs font-semibold';
+
+    if (document.agent_type === 'text_agent') {
+      return (
+        <div className={`${baseClasses} bg-primary-50 text-primary-800 border border-primary-300 dark:bg-primary-700 dark:text-white dark:border-primary-600 shadow-sm`}>
+          <FaKeyboard className="w-4 h-4" />
+          <span>ربات متنی</span>
+        </div>
+      );
+    }
+
+    if (document.agent_type === 'voice_agent') {
+      return (
+        <div className={`${baseClasses} bg-teal-50 text-teal-800 border border-teal-300 dark:bg-teal-600 dark:text-white dark:border-teal-500 shadow-sm`}>
+          <FaMicrophone className="w-4 h-4" />
+          <span>ربات صوتی</span>
+        </div>
+      );
+    }
+
+    if (document.agent_type === 'both') {
+      return (
+        <div className={`${baseClasses} bg-violet-50 text-violet-800 border border-violet-300 dark:bg-violet-600 dark:text-white dark:border-violet-500 shadow-sm`}>
+          <FaRobot className="w-4 h-4" />
+          <span>هردو</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`${baseClasses} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200`}>
+        -
+      </div>
+    );
+  };
+
   return (
     <div
       onClick={() => navigate(`/document/edit/${document.id}`)}
-      className="bg-white relative dark:bg-black/50 rounded-xl overflow-hidden dark:shadow-white/10 shadow-lg px-4 pt-9 pb-5  hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700"
+      className="bg-white relative dark:bg-black/50 rounded-xl overflow-hidden dark:shadow-white/10 shadow-lg px-4 pt-9 pb-5 hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700"
     >
       <div className="flex items-center justify-between">
         <h5 className="text-lg font-medium w-2/3 text-gray-900 dark:text-white truncate">
@@ -95,25 +131,14 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
             {new Date(document.updated_at).toLocaleDateString('fa-IR')}
           </span>
           <FaTrash
-            className="text-red-500 dark:text-red-700 pb-1 box-content  px-1"
+            className="text-red-500 dark:text-red-700 pb-1 box-content px-1"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete(document.id);
             }}
           />
         </div>
-        <div className="flex items-center gap-2 py-1 rounded-bl-xl absolute top-0 right-0 px-4 dark:bg-neutral-100 bg-gray-800">
-          <span className="text-xs text-neutral-50 dark:text-gray-800">
-            نوع ربات:{' '}
-            {document.agent_type === 'text_agent'
-              ? 'ربات متنی'
-              : document.agent_type === 'voice_agent'
-                ? 'ربات صوتی'
-                : document.agent_type === 'both'
-                  ? 'هردو'
-                  : '-'}
-          </span>
-        </div>
+        {renderAgentBadge()}
       </div>
     </div>
   );
