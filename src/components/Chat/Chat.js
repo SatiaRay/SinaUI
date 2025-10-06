@@ -300,6 +300,13 @@ const Chat = ({ services = null }) => {
     lastScrollTop: 0,
     isUserScrolling: false,
     stabilizeTimer: null,
+  const internalVarsRef = useRef({
+    prefixHtml: '',
+    tableOpenTag: '',
+    tableBuffer: '',
+    flushedRows: [],
+    isInsideTable: false,
+    lastPreview: '',
   });
 
   const initialMessageAddedRef = useRef(false);
@@ -377,6 +384,32 @@ const Chat = ({ services = null }) => {
       }
     }
     tableParserRef.current.reset();
+      try {
+        const internal = internalVarsRef.current;
+        let finalBody = internal.prefixHtml;
+        if (internal.isInsideTable) {
+          finalBody +=
+            (internal.tableOpenTag || '<table>') +
+            '<tbody>' +
+            internal.flushedRows.join('') +
+            internal.tableBuffer +
+            '</tbody></table>';
+        } else {
+          finalBody += internal.tableBuffer;
+        }
+        updateMessage(processingMessageId.current, { body: finalBody });
+      } catch (err) {
+        console.error('resetChatState flush error', err);
+      }
+    }
+    internalVarsRef.current = {
+      prefixHtml: '',
+      tableOpenTag: '',
+      tableBuffer: '',
+      flushedRows: [],
+      isInsideTable: false,
+      lastPreview: '',
+    };
     processingMessageId.current = null;
     initialMessageAddedRef.current = false;
     clearAllTimeouts();
@@ -783,7 +816,6 @@ const Chat = ({ services = null }) => {
           created_at: new Date().toISOString().slice(0, 19),
         });
       }
-
       if (deltaTimeoutRef.current) clearTimeout(deltaTimeoutRef.current);
       deltaTimeoutRef.current = setTimeout(() => {
         resetChatState();
@@ -796,6 +828,62 @@ const Chat = ({ services = null }) => {
       // during streaming we only auto-scroll when near bottom and autoEnabled
       autoScrollStateRef.current.streaming = true;
       smartScrollToBottom();
+      const internal = internalVarsRef.current;
+      if (!internal.isInsideTable) {
+        internal.prefixHtml += delta;
+        const tableOpenMatch = internal.prefixHtml.match(/<table[^>]*>/i);
+        if (tableOpenMatch) {
+          const idx = internal.prefixHtml.search(/<table[^>]*>/i);
+          internal.tableOpenTag = tableOpenMatch[0];
+          internal.tableBuffer = internal.prefixHtml.slice(
+            idx + internal.tableOpenTag.length
+          );
+          internal.prefixHtml = internal.prefixHtml.slice(0, idx);
+          internal.isInsideTable = true;
+        } else {
+          if (processingMessageId.current) {
+            const preview = internal.prefixHtml;
+            if (internal.lastPreview !== preview) {
+              updateMessage(processingMessageId.current, { body: preview });
+              internal.lastPreview = preview;
+            }
+          }
+          return;
+        }
+      } else {
+        internal.tableBuffer += delta;
+      }
+      const trRegex = /<tr[\s\S]*?<\/tr>/gi;
+      let match;
+      let lastIndex = 0;
+      const rows = [];
+      while ((match = trRegex.exec(internal.tableBuffer)) !== null) {
+        rows.push(match[0]);
+        lastIndex = trRegex.lastIndex;
+      }
+      if (rows.length > 0) {
+        internal.flushedRows.push(...rows);
+        internal.tableBuffer = internal.tableBuffer.slice(lastIndex);
+      }
+      const tableClosed = /<\/table>/i.test(internal.tableBuffer);
+      let previewHtml =
+        internal.prefixHtml +
+        (internal.tableOpenTag || '<table>') +
+        '<tbody>' +
+        internal.flushedRows.join('');
+      if (tableClosed) {
+        const beforeClose = internal.tableBuffer.replace(
+          /<\/table>[\s\S]*$/i,
+          ''
+        );
+        previewHtml += beforeClose + '</tbody></table>';
+      } else {
+        previewHtml += internal.tableBuffer + '</tbody></table>';
+      }
+      if (processingMessageId.current && internal.lastPreview !== previewHtml) {
+        updateMessage(processingMessageId.current, { body: previewHtml });
+        internal.lastPreview = previewHtml;
+      }
     } catch (err) {
       console.error('handleDeltaResponse error', err);
     }
@@ -812,6 +900,38 @@ const Chat = ({ services = null }) => {
           updateMessage(processingMessageId.current, { body: finalHTML });
         }
         tableParserRef.current.forceUpdate();
+      const internal = internalVarsRef.current;
+      if (processingMessageId.current) {
+        if (!internal.isInsideTable) {
+          updateMessage(processingMessageId.current, {
+            body: internal.prefixHtml,
+          });
+        } else {
+          const trRegex = /<tr[\s\S]*?<\/tr>/gi;
+          let match;
+          let lastIndex = 0;
+          const extraRows = [];
+          while ((match = trRegex.exec(internal.tableBuffer)) !== null) {
+            extraRows.push(match[0]);
+            lastIndex = trRegex.lastIndex;
+          }
+          if (extraRows.length) {
+            internal.flushedRows.push(...extraRows);
+            internal.tableBuffer = internal.tableBuffer.slice(lastIndex);
+          }
+          const remainingBeforeClose = internal.tableBuffer.replace(
+            /<\/table>[\s\S]*$/i,
+            ''
+          );
+          const finalHtml =
+            internal.prefixHtml +
+            (internal.tableOpenTag || '<table>') +
+            '<tbody>' +
+            internal.flushedRows.join('') +
+            remainingBeforeClose +
+            '</tbody></table>';
+          updateMessage(processingMessageId.current, { body: finalHtml });
+        }
       }
     } catch (err) {
       console.error('finishMessageHandler error', err);
@@ -823,6 +943,15 @@ const Chat = ({ services = null }) => {
       autoScrollStateRef.current.streaming = false;
       autoScrollStateRef.current.autoEnabled = true;
       setTimeout(forceScrollToBottomImmediate, 50);
+      internalVarsRef.current = {
+        prefixHtml: '',
+        tableOpenTag: '',
+        tableBuffer: '',
+        flushedRows: [],
+        isInsideTable: false,
+        lastPreview: '',
+      };
+      clearAllTimeouts();
     }
   };
 
@@ -949,7 +1078,12 @@ const Chat = ({ services = null }) => {
 
           {!optionMessageTriggered && !isServiceUnavailable && (
             <>
-              <div style={{ marginBottom: '10px' }}>
+              {/* Wizard buttons */}
+              <div
+                style={{
+                  marginBottom: '10px',
+                }}
+              >
                 <WizardButtons
                   onWizardSelect={handleWizardSelect}
                   wizards={currentWizards}

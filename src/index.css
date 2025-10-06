@@ -3,11 +3,16 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-gray-50 text-gray-900;
-    direction: rtl;
-  }
+    body {
+        @apply bg-gray-50 text-gray-900 !important;
+        direction: rtl;
+    }
+
+    .dark body {
+        @apply bg-gray-900 text-gray-100 !important;
+    }
 }
+
 
 body {
   margin: 0;
@@ -321,7 +326,7 @@ code {
 }
 
 .swal2-popup {
-  font-family: 'IRANSans', sans-serif !important;
+  font-family: 'Vazir', sans-serif !important;
   border-radius: 0.5rem !important;
   box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.1),
