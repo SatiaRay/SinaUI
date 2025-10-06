@@ -61,8 +61,8 @@
 }
 
 #khan-chatbox a {
-  color: inherit;
-  text-decoration: inherit;
+  color: rgb(37, 37, 255);
+  text-decoration: rgb(37, 37, 255) underline;
 }
 
 #khan-chatbox b,
