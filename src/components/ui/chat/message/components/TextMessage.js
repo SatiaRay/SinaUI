@@ -32,12 +32,17 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
         console.error('Failed to copy:', err);
       });
   };
+  const formattedHtml = data.body
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong><br>')
+    .replace(/([^>\n])<strong>/g, '$1<br><strong>')
+    .replace(/(^|\n|\r)\s*---+\s*(\n|\r|$)/g, '<hr>')
+    .replace(/(<br\s*\/?>\s*){2,}/g, '<br>');
 
   return (
     <>
       <TextMessageContent
         ref={textRef}
-        dangerouslySetInnerHTML={{ __html: data.body }}
+        dangerouslySetInnerHTML={{ __html: formattedHtml }}
       />
       {enableCopy && (
         <CopyButton

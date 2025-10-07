@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 export const H2 = styled.h2`
   font-size: 22px !important;
@@ -58,7 +58,7 @@ export const InputContainer = styled.div`
   background-color: #f5f5f5;
   border-radius: 10px;
   border: 1px solid #d4d4d4 !important;
-  
+
   .dark & {
     background-color: inherit !important;
   }
@@ -85,11 +85,11 @@ export const InputWrapper = styled.div`
 
 export const SendButton = styled.button`
   padding: 0.5rem;
-  color: ${props => props.disabled ? '#9ca3af' : '#2563eb'};
+  color: ${(props) => (props.disabled ? '#9ca3af' : '#2563eb')};
   border-radius: 0.5rem;
   font-weight: 500;
   transition: colors 0.2s ease;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
   background: transparent;
   border: none;
   margin-right: 10px !important;
@@ -112,15 +112,15 @@ export const VoiceButtonContainer = styled.div`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  ${props => props.hidden && 'display: none;'}
+  ${(props) => props.hidden && 'display: none;'}
 `;
 
 export const WizardContainer = styled.div`
-  display: flex;          /* flex */
-  width: 100%;            /* w-full */
-  gap: 0.5rem;            /* gap-2 */
-  padding-bottom: 1rem;   /* pb-4 */
-  align-items: center;    /* items-center */
+  display: flex; /* flex */
+  width: 100%; /* w-full */
+  gap: 0.5rem; /* gap-2 */
+  padding-bottom: 1rem; /* pb-4 */
+  align-items: center; /* items-center */
   justify-content: center; /* justify-center */
 `;
 
@@ -216,7 +216,9 @@ export const LoadingCaption = styled.small`
 export const BotIconContainer = styled.span`
   padding: 0.375rem;
   border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   background-color: white;
   display: flex;
   align-items: center;
@@ -250,7 +252,9 @@ export const NormalLayoutInputWrapper = styled.div`
   background-color: red !important;
   gap: 0.5rem;
   border-radius: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   border: none;
   transition: all 0.5s ease;
 
@@ -266,11 +270,11 @@ export const NormalLayoutInputWrapper = styled.div`
 
 export const NormalLayoutSendButton = styled.button`
   padding: 0.5rem;
-  color: ${props => props.disabled ? '#9ca3af' : '#2563eb'};
+  color: ${(props) => (props.disabled ? '#9ca3af' : '#2563eb')};
   border-radius: 0.5rem;
   font-weight: 500;
   transition: colors 0.2s ease;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
   background: transparent;
   border: none;
   margin-right: 10px !important;
@@ -291,7 +295,7 @@ export const ActionButtonsContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  ${props => props.hidden && 'display: none;'}
+  ${(props) => props.hidden && 'display: none;'}
 `;
 
 export const ClearHistoryButton = styled.button`
@@ -398,77 +402,232 @@ export const ReceivedMessageContainer = styled.div`
   }
 `;
 
-export const TextMessageContent = styled.pre`
-  color: #1f2937;
-  display: flex;
-  text-wrap: wrap;
-  flex-wrap: wrap;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  padding-top: 0.5rem;
-  unicode-bidi: plaintext;
+export const TextMessageContent = styled.div`
+  /* ===== پایه ===== */
+  @apply text-gray-800 dark:text-gray-100;
+  line-height: 1.9;
+  padding: 0.75rem;
   direction: rtl;
+  unicode-bidi: isolate;
+  text-align: justify;
+  font-size: 0.95rem;
 
-  .dark & {
-    color: white;
+  /* ===== پاراگراف ===== */
+  p {
+    margin: 0.75rem 0;
+    white-space: normal;
   }
 
-  /* Table styling */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+  /* ===== فاصله بین br ===== */
+  br {
+    display: block;
+    margin-bottom: 0.4rem; /* فاصله طبیعی‌تر بین خطوط */
+    content: '';
   }
 
-  th {
-    background-color: white;
-    color: black;
-    padding: 0.5rem;
-    border: 1px solid #e5e7eb;
+  /* ===== لیست‌ها ===== */
+  ul,
+  ol {
+    @apply pr-6 my-3;
+    direction: rtl;
+    list-style-position: inside;
+  }
+
+  li {
+    margin: 0.35rem 0;
+    line-height: 1.8;
+  }
+
+  ul li::marker {
+    color: #2563eb;
+  }
+
+  .dark ul li::marker {
+    color: #60a5fa;
+  }
+
+  /* ===== تیترها ===== */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    margin: 1rem 0 0.5rem;
     text-align: right;
-
-    .dark & {
-      background-color: white;
-      color: black;
-      border-color: #374151;
-    }
   }
 
-  td {
-    padding: 0.5rem;
-    border: 1px solid #e5e7eb;
-    text-align: right;
-
-    .dark & {
-      color: white;
-      border-color: #374151;
-    }
+  h1 {
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  h3 {
+    font-size: 1.1rem;
   }
 
-  /* Link styling */
+  /* ===== لینک‌ها ===== */
   a {
     color: #2563eb;
     text-decoration: underline;
-    word-break: break-all;
+    overflow-wrap: anywhere;
+    transition: color 0.2s ease-in-out;
 
     &:hover {
       color: #1d4ed8;
     }
+  }
 
-    .dark & {
-      color: #60a5fa;
+  .dark a {
+    color: #60a5fa;
 
-      &:hover {
-        color: #93c5fd;
-      }
+    &:hover {
+      color: #93c5fd;
     }
+  }
+
+  /* ===== جدول‌ها ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+    direction: rtl;
+  }
+
+  th,
+  td {
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem;
+    text-align: right;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .dark th {
+    background-color: #374151;
+    color: #f9fafb;
+  }
+
+  .dark td {
+    border-color: #4b5563;
+  }
+
+  /* ===== جداکننده ===== */
+  /* ===== جداکننده ===== */
+  hr {
+    border: none;
+    border-top: 1px solid rgba(156, 163, 175, 0.2); /* خاکستری نرم‌تر */
+    margin: 0.75rem 0; /* کمی جمع‌تر برای فاصله طبیعی‌تر */
+  }
+
+  .dark hr {
+    border-top: 1px solid rgba(255, 255, 255, 0.08); /* نازک و ظریف در دارک مود */
+  }
+
+  /* ===== بلوک کد ===== */
+  code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+  }
+
+  .dark code {
+    background-color: #374151;
+  }
+
+  pre {
+    background-color: #f3f4f6;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .dark pre {
+    background-color: #1f2937;
+  }
+
+  /* ===== نقل‌قول ===== */
+  blockquote {
+    border-right: 3px solid #2563eb;
+    padding-right: 0.75rem;
+    margin: 1rem 0;
+    color: #4b5563;
+  }
+
+  .dark blockquote {
+    border-color: #60a5fa;
+    color: #d1d5db;
+  }
+
+  /* ===== متن برجسته ===== */
+  /* گزینه C — diagonal gradient + thin offset */
+  /* گزینه C — نسخه تقویت‌شده برای لایت مود */
+  strong,
+  b {
+    display: inline-block;
+    padding: 0.12rem 0.34rem;
+    border-radius: 0.35rem;
+    color: #2563eb;
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.18) 0%,
+      rgba(37, 99, 235, 0.06) 65%
+    );
+    box-shadow:
+      -3px 3px 10px rgba(37, 99, 235, 0.15),
+      inset 1px -1px 4px rgba(255, 255, 255, 0.3); /* هایلایت لطیف داخل برای حجم بیشتر */
+    transition:
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  /* دارک مود با شدت نرم‌تر چون پس‌زمینه خودش تیره است */
+  .dark strong,
+  .dark b {
+    color: #60a5fa;
+    background: linear-gradient(
+      135deg,
+      rgba(96, 165, 250, 0.2) 0%,
+      rgba(96, 165, 250, 0.07) 65%
+    );
+    box-shadow:
+      -3px 3px 12px rgba(96, 165, 250, 0.2),
+      inset 1px -1px 3px rgba(255, 255, 255, 0.08);
+  }
+
+  /* ===== تصاویر ===== */
+  img {
+    max-width: 100%;
+    border-radius: 0.5rem;
+    margin: 0.75rem 0;
+  }
+
+  /* ===== جداول در دارک مود ===== */
+  .dark table {
+    border-color: #4b5563;
+  }
+
+  /* ===== متن‌های LTR ===== */
+  [dir='ltr'] {
+    text-align: left;
+    direction: ltr;
   }
 `;
 
 export const ErrorMessageContent = styled.pre`
   color: white;
-  background-color:rgb(255, 27, 27);
+  background-color: rgb(255, 27, 27);
   display: flex;
   text-wrap: wrap;
   flex-wrap: wrap;
@@ -490,7 +649,7 @@ export const CopyButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
-  color: ${props => props.copied ? '#3dc909' : '#444'};
+  color: ${(props) => (props.copied ? '#3dc909' : '#444')};
 
   &:hover {
     background-color: #f3f4f6;
@@ -582,7 +741,7 @@ export const ImageElement = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: ${props => props.loaded ? 'block' : 'none'};
+  display: ${(props) => (props.loaded ? 'block' : 'none')};
 `;
 
 export const ImageGrid = styled.div`
@@ -647,14 +806,14 @@ export const UploadButton = styled.button`
   color: white;
   border: none;
   cursor: pointer;
-  background-color: ${props => {
+  background-color: ${(props) => {
     if (props.disabled) return '#9ca3af';
     if (props.variant === 'cancel') return '#d97706';
     return '#2563eb';
   }};
 
   &:hover {
-    background-color: ${props => {
+    background-color: ${(props) => {
       if (props.disabled) return '#9ca3af';
       if (props.variant === 'cancel') return '#b45309';
       return '#1d4ed8';
@@ -665,7 +824,6 @@ export const UploadButton = styled.button`
     cursor: not-allowed;
   }
 `;
-
 
 export const WizardButtonStyled = styled.button`
   padding: 0.25rem 0.5rem; /* py-1 px-2 */
@@ -683,7 +841,7 @@ export const WizardButtonStyled = styled.button`
 
   /* Dark mode styles (triggered by .dark parent) */
   .dark & {
-    background-color:rgba(30, 64, 175, 0.38) !important; /* bg-blue-100 */
+    background-color: rgba(30, 64, 175, 0.38) !important; /* bg-blue-100 */
     color: #93c5fd; /* dark:text-blue-300 */
 
     // &:hover {
@@ -691,8 +849,6 @@ export const WizardButtonStyled = styled.button`
     // }
   }
 `;
-
-
 
 export const VoiceButtonStyled = styled.button`
   display: flex; /* flex */
@@ -708,12 +864,12 @@ export const VoiceButtonStyled = styled.button`
   /* Loader spacing */
   .loader {
     margin-bottom: 0.25rem; /* mb-1 */
-    margin-left: 0.125rem;  /* ml-0.5 */
+    margin-left: 0.125rem; /* ml-0.5 */
   }
 
   /* Icon */
   svg {
-    width: 1.5rem;  /* w-6 */
+    width: 1.5rem; /* w-6 */
     height: 1.5rem; /* h-6 */
     color: #2563eb; /* text-blue-600 */
   }
@@ -742,7 +898,7 @@ export const EditableInput = styled.div`
 
   &:focus {
     outline: none; /* focus:outline-none */
-    border: none;  /* focus:border-none */
+    border: none; /* focus:border-none */
     box-shadow: none; /* focus:ring-0 */
   }
 
