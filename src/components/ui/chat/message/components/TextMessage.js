@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { copyToClipboard } from '../../../../../utils/helpers';
 import { notify } from '../../../../../ui/toast';
 import { TextMessageContent, CopyButton } from '../../../common';
+import { marked } from 'marked';
 
 const TextMessage = ({ data, messageId, enableCopy = true }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
@@ -9,9 +10,6 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
 
   /**
    * Copy answer message text to device clipboard
-   *
-   * @param {string} textToCopy
-   * @param {int} messageId
    */
   const handleCopyAnswer = (textToCopy, messageId) => {
     const temp = document.createElement('div');
@@ -25,18 +23,30 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
           autoClose: 1000,
           position: 'top-left',
         });
-
         setTimeout(() => setCopiedMessageId(null), 4000);
       })
-      .catch((err) => {
-        console.error('Failed to copy:', err);
-      });
+      .catch((err) => console.error('Failed to copy:', err));
   };
-  const formattedHtml = data.body
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong><br>')
-    .replace(/([^>\n])<strong>/g, '$1<br><strong>')
-    .replace(/(^|\n|\r)\s*---+\s*(\n|\r|$)/g, '<hr>')
-    .replace(/(<br\s*\/?>\s*){2,}/g, '<br>');
+
+  console.log(data.body);
+
+  let safeBody = data.body.replace(/^(\d+)\.\s+\*\*/gm, '**$1. ');
+  let formattedHtml = marked.parse(safeBody);
+  formattedHtml = String(marked.parse(safeBody));
+
+  formattedHtml = formattedHtml.replace(
+    /<strong>/g,
+    (match, offset, fullString) => {
+      fullString = String(fullString);
+      const before = fullString.slice(0, offset);
+      const lastPart = before.slice(-50);
+      if (/<hr\b[^>]*>/i.test(lastPart)) {
+        return match;
+      }
+
+      return '<hr>' + match;
+    }
+  );
 
   return (
     <>
