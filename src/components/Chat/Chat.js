@@ -624,7 +624,7 @@ const Chat = ({ services = null }) => {
         </>
       )}
 
-      {error && <ErrorMessage>{error}</ErrorMessage>}
+      {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
     </ChatContainer>
   );
 };
