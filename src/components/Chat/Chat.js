@@ -1,7 +1,6 @@
 import { BrushCleaning, LucideAudioLines } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { FaRobot } from 'react-icons/fa';
-// import { useNavigate } from 'react-router-dom';
 import { BeatLoader } from 'react-spinners';
 import { notify } from '../../ui/toast';
 import VoiceBtn from './VoiceBtn';
@@ -39,28 +38,281 @@ import {
   ErrorMessage,
 } from '../ui/common';
 
+// Optimized table parser with DOM stability
+class StableTableParser {
+  constructor() {
+    this.state = {
+      prefix: '',
+      tableOpenTag: '',
+      completedRows: [],
+      currentRow: '',
+      currentCell: '',
+      isInCell: false,
+      isInRow: false,
+      isInTable: false,
+      buffer: '',
+      lastStableHTML: '',
+      finalHTML: '', // اضافه کردن برای نگهداری HTML نهایی
+    };
+
+    this.updateCallbacks = [];
+    this.rafId = null;
+    this.lastUpdateTime = 0;
+    this.updateThreshold = 0; // ms between updates
+  }
+
+  reset() {
+    this.state = {
+      prefix: '',
+      tableOpenTag: '',
+      completedRows: [],
+      currentRow: '',
+      currentCell: '',
+      isInCell: false,
+      isInRow: false,
+      isInTable: false,
+      buffer: '',
+      lastStableHTML: '',
+      finalHTML: '',
+    };
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  processDelta(delta) {
+    this.state.buffer += delta;
+
+    let processed = '';
+    let i = 0;
+
+    while (i < this.state.buffer.length) {
+      const char = this.state.buffer[i];
+
+      if (char === '<') {
+        // Handle HTML tags
+        const tagEnd = this.state.buffer.indexOf('>', i);
+        if (tagEnd === -1) break; // Incomplete tag
+
+        const fullTag = this.state.buffer.slice(i, tagEnd + 1);
+        i = tagEnd + 1;
+
+        if (this.handleTag(fullTag)) {
+          processed += fullTag;
+        } else {
+          // Tag was handled internally, don't add to processed
+          continue;
+        }
+      } else {
+        // Handle text content
+        if (this.state.isInCell) {
+          this.state.currentCell += char;
+        } else if (!this.state.isInTable) {
+          this.state.prefix += char;
+        }
+        processed += char;
+        i++;
+      }
+    }
+
+    this.state.buffer = this.state.buffer.slice(i);
+    this.scheduleStableUpdate();
+  }
+
+  handleTag(tag) {
+    const lowerTag = tag.toLowerCase();
+
+    if (lowerTag.startsWith('<table')) {
+      this.state.isInTable = true;
+      this.state.tableOpenTag = tag;
+      return false; // Don't add to processed
+    } else if (lowerTag === '</table>') {
+      this.finalizeCurrentRow();
+      this.state.isInTable = false;
+      // ذخیره HTML نهایی وقتی جدول کامل شد
+      this.state.finalHTML = this.getCompleteHTML();
+      this.scheduleStableUpdate();
+      return true;
+    } else if (lowerTag.startsWith('<tr')) {
+      this.finalizeCurrentRow();
+      this.state.isInRow = true;
+      this.state.currentRow = tag;
+      return false;
+    } else if (lowerTag === '</tr>') {
+      this.state.currentRow += '</tr>';
+      this.state.completedRows.push(this.state.currentRow);
+      this.state.currentRow = '';
+      this.state.isInRow = false;
+      this.scheduleStableUpdate();
+      return false;
+    } else if (lowerTag.startsWith('<td') || lowerTag.startsWith('<th')) {
+      if (this.state.currentCell) {
+        this.state.currentRow +=
+          this.state.currentCell +
+          `</${this.state.currentCell.startsWith('<td') ? 'td' : 'th'}>`;
+      }
+      this.state.currentCell = tag;
+      this.state.isInCell = true;
+      return false;
+    } else if (lowerTag === '</td>' || lowerTag === '</th>') {
+      this.state.currentCell += tag;
+      this.state.currentRow += this.state.currentCell;
+      this.state.currentCell = '';
+      this.state.isInCell = false;
+      this.scheduleStableUpdate();
+      return false;
+    } else {
+      // Other tags
+      if (this.state.isInCell) {
+        this.state.currentCell += tag;
+      } else if (this.state.isInRow) {
+        this.state.currentRow += tag;
+      } else if (this.state.isInTable) {
+        // Ignore other table-related tags for now
+      } else {
+        this.state.prefix += tag;
+      }
+      return true;
+    }
+  }
+
+  finalizeCurrentRow() {
+    if (this.state.currentCell) {
+      this.state.currentRow +=
+        this.state.currentCell +
+        `</${this.state.currentCell.startsWith('<td') ? 'td' : 'th'}>`;
+      this.state.currentCell = '';
+      this.state.isInCell = false;
+    }
+    if (this.state.currentRow) {
+      if (!this.state.currentRow.endsWith('</tr>')) {
+        this.state.currentRow += '</tr>';
+      }
+      this.state.completedRows.push(this.state.currentRow);
+      this.state.currentRow = '';
+      this.state.isInRow = false;
+    }
+  }
+
+  getStableHTML() {
+    // اگر HTML نهایی وجود دارد، از آن استفاده کن
+    if (this.state.finalHTML) {
+      return this.state.finalHTML;
+    }
+
+    let html = this.state.prefix;
+
+    if (this.state.isInTable) {
+      html += this.state.tableOpenTag + '<tbody>';
+      html += this.state.completedRows.join('');
+
+      if (this.state.currentRow) {
+        html += this.state.currentRow;
+        if (this.state.currentCell) {
+          html += this.state.currentCell;
+        }
+      }
+
+      html += '</tbody></table>';
+    }
+
+    return html;
+  }
+
+  // تابع جدید برای گرفتن HTML کامل
+  getCompleteHTML() {
+    let html = this.state.prefix;
+
+    if (this.state.tableOpenTag) {
+      html += this.state.tableOpenTag + '<tbody>';
+      html += this.state.completedRows.join('');
+
+      // اضافه کردن ردیف جاری اگر وجود دارد
+      if (this.state.currentRow) {
+        html += this.state.currentRow;
+        if (this.state.currentCell) {
+          html +=
+            this.state.currentCell +
+            `</${this.state.currentCell.startsWith('<td') ? 'td' : 'th'}>`;
+        }
+        if (!this.state.currentRow.endsWith('</tr>')) {
+          html += '</tr>';
+        }
+      }
+
+      html += '</tbody></table>';
+    }
+
+    return html;
+  }
+
+  scheduleStableUpdate() {
+    const now = Date.now();
+    if (now - this.lastUpdateTime < this.updateThreshold) {
+      return;
+    }
+
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+    }
+
+    this.rafId = requestAnimationFrame(() => {
+      const currentHTML = this.getStableHTML();
+      if (currentHTML !== this.state.lastStableHTML) {
+        this.updateCallbacks.forEach((callback) => callback(currentHTML));
+        this.state.lastStableHTML = currentHTML;
+        this.lastUpdateTime = Date.now();
+      }
+      this.rafId = null;
+    });
+  }
+
+  onUpdate(callback) {
+    this.updateCallbacks.push(callback);
+  }
+
+  forceUpdate() {
+    const html = this.getStableHTML();
+    this.updateCallbacks.forEach((callback) => callback(html));
+    this.state.lastStableHTML = html;
+  }
+
+  // تابع جدید برای گرفتن HTML نهایی
+  getFinalHTML() {
+    return this.state.finalHTML || this.getCompleteHTML();
+  }
+}
+
 const Chat = ({ services = null }) => {
   const [question, setQuestion] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [loadingCaption, setLoadingCaption] = useState('null');
-  const [initialLayout, setInitialLayout] = useState(true); // حالت جدید برای کنترل چیدمان اولیه
+  const [initialLayout, setInitialLayout] = useState(true);
   const processingMessageId = useRef(null);
   const initialResponseTimeoutRef = useRef(null);
   const deltaTimeoutRef = useRef(null);
   const [isServiceUnavailable, setIsServiceUnabailable] = useState(false);
 
-  const internalVarsRef = useRef({
-    prefixHtml: '',
-    tableOpenTag: '',
-    tableBuffer: '',
-    flushedRows: [],
-    isInsideTable: false,
-    lastPreview: '',
+  // استفاده از parser بهینه شده
+  const tableParserRef = useRef(new StableTableParser());
+  const scrollStabilizerRef = useRef({
+    lastScrollTop: 0,
+    isUserScrolling: false,
+    stabilizeTimer: null,
   });
 
   const initialMessageAddedRef = useRef(false);
 
-  // const navigate = useNavigate();
+  const autoScrollStateRef = useRef({
+    autoEnabled: true,
+    streaming: false,
+    threshold: 120,
+  });
+
+  // رف برای کنترل اسکرول اولیه
+  const initialScrollDoneRef = useRef(false);
+  const chatStartRef = useRef(null);
 
   const {
     isConnected,
@@ -118,36 +370,41 @@ const Chat = ({ services = null }) => {
   const resetChatState = () => {
     setChatLoading(false);
     if (processingMessageId.current) {
-      try {
-        const internal = internalVarsRef.current;
-        let finalBody = internal.prefixHtml;
-        if (internal.isInsideTable) {
-          finalBody +=
-            (internal.tableOpenTag || '<table>') +
-            '<tbody>' +
-            internal.flushedRows.join('') +
-            internal.tableBuffer +
-            '</tbody></table>';
-        } else {
-          finalBody += internal.tableBuffer;
-        }
-        updateMessage(processingMessageId.current, { body: finalBody });
-      } catch (err) {
-        console.error('resetChatState flush error', err);
+      // استفاده از HTML نهایی قبل از ریست
+      const finalHTML = tableParserRef.current.getFinalHTML();
+      if (finalHTML) {
+        updateMessage(processingMessageId.current, { body: finalHTML });
       }
     }
-    internalVarsRef.current = {
-      prefixHtml: '',
-      tableOpenTag: '',
-      tableBuffer: '',
-      flushedRows: [],
-      isInsideTable: false,
-      lastPreview: '',
-    };
+    tableParserRef.current.reset();
     processingMessageId.current = null;
     initialMessageAddedRef.current = false;
     clearAllTimeouts();
+    autoScrollStateRef.current.streaming = false;
+    autoScrollStateRef.current.autoEnabled = true;
   };
+
+  /** Setup table parser callbacks */
+  useEffect(() => {
+    const parser = tableParserRef.current;
+
+    const handleParserUpdate = (html) => {
+      if (processingMessageId.current) {
+        // استفاده از microtask برای کاهش layout thrashing
+        Promise.resolve().then(() => {
+          updateMessage(processingMessageId.current, { body: html });
+        });
+      }
+    };
+
+    parser.onUpdate(handleParserUpdate);
+
+    return () => {
+      parser.updateCallbacks = parser.updateCallbacks.filter(
+        (cb) => cb !== handleParserUpdate
+      );
+    };
+  }, []);
 
   /** Register custom WebSocket event handlers */
   useEffect(() => {
@@ -155,8 +412,213 @@ const Chat = ({ services = null }) => {
     registerSocketOnMessageHandler(socketOnMessageHandler);
     registerSocketOnErrorHandler(socketOnErrorHandler);
 
-    return () => clearAllTimeouts();
+    return () => {
+      clearAllTimeouts();
+      tableParserRef.current.reset();
+    };
   }, []);
+
+  /** Scroll stabilization */
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const stabilizer = scrollStabilizerRef.current;
+      stabilizer.lastScrollTop = container.scrollTop;
+      stabilizer.isUserScrolling = true;
+
+      if (stabilizer.stabilizeTimer) {
+        clearTimeout(stabilizer.stabilizeTimer);
+      }
+
+      stabilizer.stabilizeTimer = setTimeout(() => {
+        stabilizer.isUserScrolling = false;
+      }, 100);
+
+      const distanceFromBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight;
+
+      if (distanceFromBottom > 20) {
+        autoScrollStateRef.current.autoEnabled = false;
+      } else if (distanceFromBottom <= 60) {
+        autoScrollStateRef.current.autoEnabled = true;
+        if (autoScrollStateRef.current.streaming) {
+          // user returned to bottom while stream is active -> follow stream
+          smartScrollToBottom();
+        }
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  /** Smart scroll to bottom */
+  const forceScrollToBottomImmediate = () => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight - container.clientHeight;
+  };
+
+  const smartScrollToBottom = () => {
+    const container = chatContainerRef.current;
+    const stabilizer = scrollStabilizerRef.current;
+    if (!container) return;
+
+    const threshold = autoScrollStateRef.current.threshold; // فاصله حساس از پایین
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+
+    if (distanceFromBottom > threshold) return; // only scroll when near bottom
+
+    if (!autoScrollStateRef.current.autoEnabled) return;
+
+    if (stabilizer.isUserScrolling) return;
+
+    const start = container.scrollTop;
+    const end = container.scrollHeight - container.clientHeight;
+    const duration = 400; // مدت زمان انیمیشن (میلی‌ثانیه)
+    const startTime = performance.now();
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    const animate = (time) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(progress);
+      container.scrollTop = start + (end - start) * eased;
+
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
+  };
+
+  // اسکرول نرم به آخرین پیام هنگام بارگذاری اولیه
+  const smoothScrollToBottom = () => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const start = container.scrollTop;
+    const end = container.scrollHeight - container.clientHeight;
+
+    // اگر محتوایی برای اسکرول وجود ندارد، برگرد
+    if (end <= 0) return;
+
+    const duration = 800; // افزایش مدت زمان انیمیشن
+    const startTime = performance.now();
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    const animate = (time) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(progress);
+      container.scrollTop = start + (end - start) * eased;
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // وقتی انیمیشن تمام شد، مطمئن شو که دقیقاً به پایین اسکرول شده
+        container.scrollTop = container.scrollHeight - container.clientHeight;
+      }
+    };
+
+    requestAnimationFrame(animate);
+  };
+
+  // Effect برای اسکرول به ابتدا هنگام بارگذاری اولیه و سپس اسکرول نرم به انتها
+  useEffect(() => {
+    if (
+      !historyLoading &&
+      history.ids.length > 0 &&
+      !initialScrollDoneRef.current
+    ) {
+      console.log('Starting initial scroll sequence...');
+
+      const container = chatContainerRef.current;
+      if (!container) {
+        console.log('Container not found, retrying...');
+        return;
+      }
+
+      // ابتدا به بالا اسکرول کنید
+      console.log('Scrolling to top...');
+      container.scrollTop = 0;
+
+      // چندین تایمر با تاخیرهای مختلف برای اطمینان از اجرا
+      const timer1 = setTimeout(() => {
+        console.log('First scroll attempt after 300ms');
+        smoothScrollToBottom();
+      }, 300);
+
+      const timer2 = setTimeout(() => {
+        console.log('Second scroll attempt after 800ms');
+        smoothScrollToBottom();
+        initialScrollDoneRef.current = true;
+      }, 800);
+
+      const timer3 = setTimeout(() => {
+        console.log('Final scroll attempt after 1500ms');
+        forceScrollToBottomImmediate();
+        initialScrollDoneRef.current = true;
+      }, 1500);
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+      };
+    }
+  }, [historyLoading, history.ids.length]);
+
+  // Effect جایگزین برای مواقعی که effect اصلی کار نمی‌کند
+  useEffect(() => {
+    if (
+      !historyLoading &&
+      history.ids.length > 0 &&
+      !initialScrollDoneRef.current
+    ) {
+      console.log('Alternative scroll effect triggered');
+
+      const attemptScroll = (attempt = 1) => {
+        const container = chatContainerRef.current;
+        if (container && container.scrollHeight > container.clientHeight) {
+          console.log(`Scroll attempt ${attempt}, container ready`);
+
+          // ابتدا به بالا
+          container.scrollTop = 0;
+
+          // سپس با تاخیر به پایین
+          setTimeout(() => {
+            smoothScrollToBottom();
+            initialScrollDoneRef.current = true;
+          }, 500);
+        } else if (attempt < 5) {
+          // اگر هنوز آماده نیست، دوباره تلاش کن
+          console.log(
+            `Container not ready, retrying in 200ms (attempt ${attempt})`
+          );
+          setTimeout(() => attemptScroll(attempt + 1), 200);
+        } else {
+          // اگر بعد از 5 بار تلاش نشد، مستقیم به پایین برو
+          console.log('Max attempts reached, forcing scroll to bottom');
+          forceScrollToBottomImmediate();
+          initialScrollDoneRef.current = true;
+        }
+      };
+
+      attemptScroll();
+    }
+  }, [historyLoading, history.ids.length]);
+
+  // Effect برای ریست کردن وضعیت اسکرول اولیه وقتی تاریخچه پاک می‌شود
+  useEffect(() => {
+    if (history.ids.length === 0) {
+      initialScrollDoneRef.current = false;
+    }
+  }, [history.ids.length]);
 
   /** Update chat links to open in new tab */
   useEffect(() => {
@@ -165,17 +627,16 @@ const Chat = ({ services = null }) => {
 
   /** Scroll chat to bottom when loading changes */
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatLoading]);
-
-  /** Add scroll listener to chat container */
-  useEffect(() => {
-    const container = chatContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
+    if (chatLoading) {
+      autoScrollStateRef.current.streaming = true;
+      setTimeout(smartScrollToBottom, 50);
+    } else {
+      // when streaming stops, ensure we land at bottom and re-enable auto
+      autoScrollStateRef.current.streaming = false;
+      autoScrollStateRef.current.autoEnabled = true;
+      setTimeout(forceScrollToBottomImmediate, 50);
     }
-  }, [historyLoading, hasMoreHistory, historyOffset]);
+  }, [chatLoading]);
 
   /**
    * Reset loadingCaption state on chatLoading state change
@@ -185,11 +646,23 @@ const Chat = ({ services = null }) => {
   }, [chatLoading]);
 
   /**
-   * Trigger scroll to button fuction on history loading or change history length
+   * Trigger scroll to button function on history loading or change history length
    */
   useEffect(() => {
-    if (!historyLoading && history.ids.length > 0) {
-      setTimeout(scrollToBottom, 100);
+    if (
+      !historyLoading &&
+      history.ids.length > 0 &&
+      initialScrollDoneRef.current
+    ) {
+      // For discrete updates (not streaming) always force immediate scroll
+      if (!chatLoading) {
+        setTimeout(() => {
+          forceScrollToBottomImmediate();
+        }, 100);
+      } else {
+        // If stream is active, respect autoEnabled/threshold logic
+        setTimeout(smartScrollToBottom, 100);
+      }
     }
   }, [historyLoading, history.ids.length]);
 
@@ -215,6 +688,8 @@ const Chat = ({ services = null }) => {
     };
     addNewMessage(optionMessage);
     setOptionMessageTriggered(true);
+    // discrete message -> force scroll
+    setTimeout(forceScrollToBottomImmediate, 20);
   };
 
   /** Handle incoming WebSocket messages */
@@ -257,7 +732,7 @@ const Chat = ({ services = null }) => {
     resetChatState();
   };
 
-  /** Send message through socket and set 1-minute fallback timeout */
+  /** Send message through socket and set 2-minute fallback timeout */
   const sendMessageDecorator = async (text) => {
     await sendMessage(text);
     setQuestion('');
@@ -270,7 +745,7 @@ const Chat = ({ services = null }) => {
       setIsServiceUnabailable(true);
       disconnectChatSocket();
       resetChatState();
-    }, 60000);
+    }, 120000);
   };
 
   /**
@@ -284,17 +759,8 @@ const Chat = ({ services = null }) => {
       role: 'assistant',
       created_at: new Date().toISOString().slice(0, 19),
     });
-  };
-
-  /** Scroll chat to bottom */
-  const scrollToBottom = () => {
-    if (chatEndRef.current)
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  /** Handle scroll event on chat container */
-  const handleScroll = () => {
-    if (!chatContainerRef.current || historyLoading || !hasMoreHistory) return;
+    // discrete message -> force scroll to show error
+    setTimeout(forceScrollToBottomImmediate, 20);
   };
 
   /**
@@ -305,10 +771,7 @@ const Chat = ({ services = null }) => {
   };
 
   /**
-   * Handles delta response buffers
-   *
-   * @param {object}
-   * @returns null|object
+   * Optimized delta response handler
    */
   const handleDeltaResponse = (data) => {
     try {
@@ -324,63 +787,14 @@ const Chat = ({ services = null }) => {
       deltaTimeoutRef.current = setTimeout(() => {
         resetChatState();
       }, 10000);
+
       const delta = data.message || '';
-      const internal = internalVarsRef.current;
-      if (!internal.isInsideTable) {
-        internal.prefixHtml += delta;
-        const tableOpenMatch = internal.prefixHtml.match(/<table[^>]*>/i);
-        if (tableOpenMatch) {
-          const idx = internal.prefixHtml.search(/<table[^>]*>/i);
-          internal.tableOpenTag = tableOpenMatch[0];
-          internal.tableBuffer = internal.prefixHtml.slice(
-            idx + internal.tableOpenTag.length
-          );
-          internal.prefixHtml = internal.prefixHtml.slice(0, idx);
-          internal.isInsideTable = true;
-        } else {
-          if (processingMessageId.current) {
-            const preview = internal.prefixHtml;
-            if (internal.lastPreview !== preview) {
-              updateMessage(processingMessageId.current, { body: preview });
-              internal.lastPreview = preview;
-            }
-          }
-          return;
-        }
-      } else {
-        internal.tableBuffer += delta;
-      }
-      const trRegex = /<tr[\s\S]*?<\/tr>/gi;
-      let match;
-      let lastIndex = 0;
-      const rows = [];
-      while ((match = trRegex.exec(internal.tableBuffer)) !== null) {
-        rows.push(match[0]);
-        lastIndex = trRegex.lastIndex;
-      }
-      if (rows.length > 0) {
-        internal.flushedRows.push(...rows);
-        internal.tableBuffer = internal.tableBuffer.slice(lastIndex);
-      }
-      const tableClosed = /<\/table>/i.test(internal.tableBuffer);
-      let previewHtml =
-        internal.prefixHtml +
-        (internal.tableOpenTag || '<table>') +
-        '<tbody>' +
-        internal.flushedRows.join('');
-      if (tableClosed) {
-        const beforeClose = internal.tableBuffer.replace(
-          /<\/table>[\s\S]*$/i,
-          ''
-        );
-        previewHtml += beforeClose + '</tbody></table>';
-      } else {
-        previewHtml += internal.tableBuffer + '</tbody></table>';
-      }
-      if (processingMessageId.current && internal.lastPreview !== previewHtml) {
-        updateMessage(processingMessageId.current, { body: previewHtml });
-        internal.lastPreview = previewHtml;
-      }
+      tableParserRef.current.processDelta(delta);
+
+      // Scroll stabilization
+      // during streaming we only auto-scroll when near bottom and autoEnabled
+      autoScrollStateRef.current.streaming = true;
+      smartScrollToBottom();
     } catch (err) {
       console.error('handleDeltaResponse error', err);
     }
@@ -390,52 +804,24 @@ const Chat = ({ services = null }) => {
   const finishMessageHandler = () => {
     setChatLoading(false);
     try {
-      const internal = internalVarsRef.current;
       if (processingMessageId.current) {
-        if (!internal.isInsideTable) {
-          updateMessage(processingMessageId.current, {
-            body: internal.prefixHtml,
-          });
-        } else {
-          const trRegex = /<tr[\s\S]*?<\/tr>/gi;
-          let match;
-          let lastIndex = 0;
-          const extraRows = [];
-          while ((match = trRegex.exec(internal.tableBuffer)) !== null) {
-            extraRows.push(match[0]);
-            lastIndex = trRegex.lastIndex;
-          }
-          if (extraRows.length) {
-            internal.flushedRows.push(...extraRows);
-            internal.tableBuffer = internal.tableBuffer.slice(lastIndex);
-          }
-          const remainingBeforeClose = internal.tableBuffer.replace(
-            /<\/table>[\s\S]*$/i,
-            ''
-          );
-          const finalHtml =
-            internal.prefixHtml +
-            (internal.tableOpenTag || '<table>') +
-            '<tbody>' +
-            internal.flushedRows.join('') +
-            remainingBeforeClose +
-            '</tbody></table>';
-          updateMessage(processingMessageId.current, { body: finalHtml });
+        // استفاده از HTML نهایی قبل از ریست
+        const finalHTML = tableParserRef.current.getFinalHTML();
+        if (finalHTML) {
+          updateMessage(processingMessageId.current, { body: finalHTML });
         }
+        tableParserRef.current.forceUpdate();
       }
     } catch (err) {
       console.error('finishMessageHandler error', err);
     } finally {
       processingMessageId.current = null;
-      internalVarsRef.current = {
-        prefixHtml: '',
-        tableOpenTag: '',
-        tableBuffer: '',
-        flushedRows: [],
-        isInsideTable: false,
-        lastPreview: '',
-      };
+      tableParserRef.current.reset();
       clearAllTimeouts();
+      // stream finished -> ensure we show final content
+      autoScrollStateRef.current.streaming = false;
+      autoScrollStateRef.current.autoEnabled = true;
+      setTimeout(forceScrollToBottomImmediate, 50);
     }
   };
 
@@ -458,7 +844,7 @@ const Chat = ({ services = null }) => {
     });
     if (result.isConfirmed) {
       clearHistory();
-      setInitialLayout(true); // اگر خواستید صفحه اولیه دوباره بیاد
+      setInitialLayout(true);
       Swal.fire({
         title: 'پاک شد!',
         text: 'تاریخچه چت با موفقیت پاک شد.',
@@ -469,6 +855,8 @@ const Chat = ({ services = null }) => {
         },
         buttonsStyling: false,
       });
+      // after clearing history ensure bottom
+      setTimeout(forceScrollToBottomImmediate, 50);
     }
   };
 
@@ -477,7 +865,6 @@ const Chat = ({ services = null }) => {
       {/* حالت اولیه - قبل از ارسال اولین پیام */}
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <InitialLayoutContainer>
-          {/* عنوان خوشامدگویی */}
           <WelcomeSection>
             <H2>چطور می‌تونم کمکتون کنم؟ 😊🚀🌟</H2>
             <WelcomeText>
@@ -485,11 +872,9 @@ const Chat = ({ services = null }) => {
             </WelcomeText>
           </WelcomeSection>
 
-          {/* اینپوت در مرکز */}
           <InputContainer>
             <SendButton
               onClick={() => sendMessageDecorator(question)}
-              onKeyDown={() => sendMessageDecorator(question)}
               disabled={chatLoading || !question.trim()}
             >
               <svg fill="#2663eb" viewBox="0 0 24 24">
@@ -506,14 +891,8 @@ const Chat = ({ services = null }) => {
             />
             <VoiceButtonContainer hidden={question.trim()}>
               <VoiceBtn onTranscribe={setQuestion} />
-              {/* <button
-                  onClick={() => navigate('/voice-agent')}
-                >
-                  <LucideAudioLines size={22} />
-                </button> */}
             </VoiceButtonContainer>
           </InputContainer>
-          {/* ویزارد باتن‌ها در زیر اینپوت */}
           <WizardContainer>
             <WizardButtons
               onWizardSelect={handleWizardSelect}
@@ -527,7 +906,6 @@ const Chat = ({ services = null }) => {
       {!initialLayout && (
         <>
           <ChatMessagesContainer ref={chatContainerRef}>
-            {/* Loading indicator for chat history */}
             {historyLoading && (
               <LoadingIndicator>
                 <LoadingSpinner></LoadingSpinner>
@@ -535,18 +913,20 @@ const Chat = ({ services = null }) => {
               </LoadingIndicator>
             )}
 
-            {/* Empty state */}
             {history.ids.length === 0 && !historyLoading ? (
               <EmptyState>سوال خود را بپرسید تا گفتگو شروع شود</EmptyState>
             ) : (
-              history.ids.map((id) => (
-                <MessageContainer key={id}>
-                  <Message messageId={id} data={history.entities[id]} />
-                </MessageContainer>
-              ))
+              <>
+                {/* رفرنس برای ابتدای چت */}
+                <div ref={chatStartRef} style={{ height: 0, width: '100%' }} />
+                {history.ids.map((id) => (
+                  <MessageContainer key={id}>
+                    <Message messageId={id} data={history.entities[id]} />
+                  </MessageContainer>
+                ))}
+              </>
             )}
 
-            {/* Loading bot response */}
             {chatLoading && (
               <LoadingBotResponse>
                 <LoadingBotContainer>
@@ -566,7 +946,6 @@ const Chat = ({ services = null }) => {
             <ChatEndRef ref={chatEndRef} />
           </ChatMessagesContainer>
 
-          {/* Chat input */}
           {!optionMessageTriggered && !isServiceUnavailable && (
             <>
               {/* Wizard buttons */}
@@ -581,10 +960,8 @@ const Chat = ({ services = null }) => {
                 />
               </div>
               <InputContainer>
-                {/* دکمه ارسال */}
                 <NormalLayoutSendButton
                   onClick={() => sendMessageDecorator(question)}
-                  onKeyDown={() => sendMessageDecorator(question)}
                   disabled={chatLoading || !question.trim()}
                 >
                   <svg fill="#2663eb" viewBox="0 0 24 24">
@@ -592,7 +969,6 @@ const Chat = ({ services = null }) => {
                   </svg>
                 </NormalLayoutSendButton>
 
-                {/* اینپوت */}
                 <TextInputWithBreaks
                   value={question}
                   onChange={setQuestion}
@@ -601,7 +977,6 @@ const Chat = ({ services = null }) => {
                   placeholder="سوال خود را بپرسید..."
                 />
 
-                {/* دکمه‌ها و VoiceBtn */}
                 <ActionButtonsContainer hidden={question.trim()}>
                   <ClearHistoryButton
                     onClick={handleClearHistory}
@@ -609,14 +984,7 @@ const Chat = ({ services = null }) => {
                   >
                     <BrushCleaning />
                   </ClearHistoryButton>
-
                   <VoiceBtn onTranscribe={setQuestion} />
-
-                  {/* <button
-      onClick={() => navigate("/voice-agent")}
-    >
-      <LucideAudioLines size={22} />
-    </button> */}
                 </ActionButtonsContainer>
               </InputContainer>
             </>
