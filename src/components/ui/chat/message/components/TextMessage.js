@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { copyToClipboard } from '../../../../../utils/helpers';
 import { notify } from '../../../../../ui/toast';
+import { TextMessageContent, CopyButton } from '../../../common';
+import { marked } from 'marked';
 
 const TextMessage = ({ data, messageId, enableCopy = true }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
@@ -8,9 +10,6 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
 
   /**
    * Copy answer message text to device clipboard
-   *
-   * @param {string} textToCopy
-   * @param {int} messageId
    */
   const handleCopyAnswer = (textToCopy, messageId) => {
     const temp = document.createElement('div');
@@ -24,32 +23,41 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
           autoClose: 1000,
           position: 'top-left',
         });
-
         setTimeout(() => setCopiedMessageId(null), 4000);
       })
-      .catch((err) => {
-        console.error('Failed to copy:', err);
-      });
+      .catch((err) => console.error('Failed to copy:', err));
   };
+
+  console.log(data.body);
+
+  let safeBody = data.body.replace(/^(\d+)\.\s+\*\*/gm, '**$1. ');
+  let formattedHtml = marked.parse(safeBody);
+  formattedHtml = String(marked.parse(safeBody));
+
+  formattedHtml = formattedHtml.replace(
+    /<strong>/g,
+    (match, offset, fullString) => {
+      fullString = String(fullString);
+      const before = fullString.slice(0, offset);
+      const lastPart = before.slice(-50);
+      if (/<hr\b[^>]*>/i.test(lastPart)) {
+        return match;
+      }
+
+      return '<hr>' + match;
+    }
+  );
 
   return (
     <>
-      <pre
+      <TextMessageContent
         ref={textRef}
-        style={{
-          unicodeBidi: 'plaintext',
-          direction: 'rtl',
-        }}
-        className="text-gray-800 flex text-wrap flex-wrap px-2 pt-2 dark:text-white [&_table]:w-full [&_table]:border-collapse [&_table]:my-4 [&_th]:bg-white [&_th]:text-black [&_th]:p-2 [&_th]:border [&_th]:border-gray-200 [&_th]:text-right dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_th]:border-gray-700 [&_td]:p-2 [&_td]:border [&_td]:border-gray-200 [&_td]:text-right dark:[&_td]:text-white dark:[&_td]:border-gray-700 [&_a]:text-blue-600 [&_a]:hover:text-blue-700 [&_a]:underline [&_a]:break-all dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
-        dangerouslySetInnerHTML={{ __html: data.body }}
+        dangerouslySetInnerHTML={{ __html: formattedHtml }}
       />
       {enableCopy && (
-        <button
+        <CopyButton
           onClick={() => handleCopyAnswer(data.body, messageId)}
-          className="mt-2 flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-          style={{
-            color: copiedMessageId === messageId ? '#3dc909' : '#444',
-          }}
+          copied={copiedMessageId === messageId}
         >
           {copiedMessageId === messageId ? (
             <svg
@@ -58,7 +66,6 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -77,7 +84,6 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="dark:text-gray-100"
             >
               <g transform="scale(-1,1) translate(-24,0)">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
@@ -85,7 +91,7 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
               </g>
             </svg>
           )}
-        </button>
+        </CopyButton>
       )}
     </>
   );

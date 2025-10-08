@@ -24,7 +24,7 @@ const MetaMessage = ({ messageId, metadata }) => {
               case 'image':
                 return (
                   <UploadImage
-                    onCacnel={cancel}
+                    onCancel={cancel}
                     onUpload={upload}
                     isLoading={isLoading}
                   />

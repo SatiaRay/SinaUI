@@ -232,7 +232,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                   ? `/document/domain/${document.domain_id}`
                   : '/document/manuals'
               }
-              className="px-6 py-3 max-md:w-1/3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300"
+              className="px-6 py-3 max-md:w-1/3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               بازگشت
             </Link>

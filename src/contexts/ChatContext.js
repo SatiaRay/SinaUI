@@ -7,6 +7,7 @@ import {
   packFile,
   stripHtmlTags,
 } from '../utils/helpers';
+import { useAuth } from './AuthContext';
 
 const ChatContext = createContext();
 
@@ -22,6 +23,7 @@ export const ChatProvider = ({ children }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const [optionMessageTriggered, setOptionMessageTriggered] = useState(false);
   const [history, setHistory] = useState({ ids: [], entities: {} });
+  const {token} = useAuth()
 
   // custom socket handlers
   const [handlers, setHandlers] = useState({});
@@ -50,6 +52,21 @@ export const ChatProvider = ({ children }) => {
     }
   }, []);
 
+  /**
+   * Disconnects socket channel through unset socket ref
+   */
+  const disconnectChatSocket = () => {
+    if (socketRef.current) {
+      // Gracefully close the socket connection
+      socketRef.current.disconnect?.(); // for Socket.IO
+      socketRef.current.close?.(); // for native WebSocket
+
+      // Clear the reference to avoid memory leaks
+      socketRef.current = null;
+
+      console.log('Chat socket disconnected.');
+    }
+  };
   /**
    * Register handler for on open socket event
    *
@@ -170,7 +187,7 @@ export const ChatProvider = ({ children }) => {
    */
   const connectSocket = (sessionId) => {
     const socket = new window.WebSocket(
-      getWebSocketUrl(`/ws/ask?session_id=${sessionId}`)
+      getWebSocketUrl(`/ws/ask?session_id=${sessionId}&token=${token}`)
     );
 
     socket.onopen = () => {
@@ -408,6 +425,7 @@ export const ChatProvider = ({ children }) => {
     registerSocketOnCloseHandler,
     registerSocketOnErrorHandler,
     registerSocketOnMessageHandler,
+    disconnectChatSocket,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

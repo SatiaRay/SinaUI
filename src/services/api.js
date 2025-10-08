@@ -182,6 +182,7 @@ export const checkAuthorizationFetcher = async () => {
     return res.data;
   } catch (err) {
     console.error('Request failed:', err.response?.data || err.message);
+    throw err;
   }
 };
 
