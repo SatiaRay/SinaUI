@@ -834,10 +834,11 @@ export const WizardButtonStyled = styled.button`
   border-radius: 0.5rem; /* rounded-lg */
   transition: background-color 0.2s ease-in-out;
   box-sizing: border-box;
+  margin-right: 0.125rem;
 
-  // &:hover {
-  //   background-color: #bfdbfe; /* hover:bg-blue-200 */
-  // }
+  &:hover {
+    background-color: #bfdbfe; /* hover:bg-blue-200 */
+  }
 
   /* Dark mode styles (triggered by .dark parent) */
   .dark & {
