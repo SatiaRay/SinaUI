@@ -5,6 +5,7 @@ import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
 import { useState } from 'react';
 import axios from 'axios';
+import { AuthProvider, useAuth } from '../../../contexts/AuthContext';
 
 const Box = styled.div`
   position: fixed;
@@ -132,6 +133,15 @@ const ChatBoxTrigger = styled.button`
 const ChatBox = (props) => {
   const isStatic = props['static'];
   const [isVisible, setIsVisible] = useState(false);
+
+  if(!props['accessToken']){
+    console.error("Khan access token is null !")
+
+    return
+  }
+
+  localStorage.setItem('khan-access-token', props['accessToken'])
+
   let services = null;
 
   if (props['token']) {
@@ -159,9 +169,11 @@ const ChatBox = (props) => {
         <Title>چت‌بات خان 🤖</Title>
       </Header>
       <Messages>
-        <ChatProvider>
-          <Chat services={services} />
-        </ChatProvider>
+        <AuthProvider>
+          <ChatProvider>
+            <Chat services={services}/>
+          </ChatProvider>
+        </AuthProvider>
       </Messages>
     </>
   );
