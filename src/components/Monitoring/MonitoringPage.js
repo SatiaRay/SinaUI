@@ -69,18 +69,18 @@ export default MonitoringPage;
 {
   /** 
       {
-        id: 'userStats',
-        title: 'آمار کاربران',
-        desc: 'فعالیت کاربران در سامانه',
+        id: "userStats",
+        title: "آمار کاربران",
+        desc: "فعالیت کاربران در سامانه",
         icon: <UserCheck className="text-purple-500 dark:text-purple-400" />,
-        path: '/monitoring/users',
+        path: "/monitoring/users",
       },
       {
-        id: 'searchLogs',
-        title: 'جستجوی لاگ‌ها',
-        desc: 'یافتن لاگ‌ها بر اساس متن',
+        id: "searchLogs",
+        title: "جستجوی لاگ‌ها",
+        desc: "یافتن لاگ‌ها بر اساس متن",
         icon: <Search className="text-pink-500 dark:text-pink-400" />,
-        path: '/monitoring/search',
+        path: "/monitoring/search",
       },
     */
 }

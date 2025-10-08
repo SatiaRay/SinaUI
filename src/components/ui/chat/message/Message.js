@@ -38,7 +38,7 @@ const Message = ({ messageId, data }) => {
           case 'image':
             return <ImageMessage data={data} messageId={messageId} />;
           case 'error':
-            return <ErrorMessage data={data}/>
+            return <ErrorMessage data={data} />;
           default:
             return null;
         }

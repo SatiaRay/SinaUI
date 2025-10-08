@@ -175,7 +175,9 @@ const LogSearchPage = () => {
       setLogData(data);
     } catch (err) {
       console.error('Error fetching log details:', err);
-      setError('خطا در دریافت اطلاعات لاگ اگر از صحت شناسه مطمن هستید اتصال اینترنت و سرور را چک کنید ');
+      setError(
+        'خطا در دریافت اطلاعات لاگ اگر از صحت شناسه مطمن هستید اتصال اینترنت و سرور را چک کنید '
+      );
       setLogData(null);
     } finally {
       setLoading(false);
@@ -235,7 +237,7 @@ const LogSearchPage = () => {
                 onChange={(e) => {
                   const val = e.target.value;
                   if (/^\d*$/.test(val)) {
-                    if (val === '' || (/^[1-9]\d*$/.test(val))) {
+                    if (val === '' || /^[1-9]\d*$/.test(val)) {
                       setLogId(val);
                     }
                   }
@@ -248,7 +250,6 @@ const LogSearchPage = () => {
            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
            transition-all duration-200 shadow-sm"
               />
-
             </div>
             <button
               onClick={handleSearch}

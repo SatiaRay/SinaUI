@@ -195,8 +195,8 @@ export default function ToolUsageStats() {
     return () => {
       mo.disconnect();
       mm &&
-      mm.removeEventListener &&
-      mm.removeEventListener('change', onPrefChange);
+        mm.removeEventListener &&
+        mm.removeEventListener('change', onPrefChange);
     };
   }, [getIsDark]);
 
@@ -327,7 +327,7 @@ export default function ToolUsageStats() {
         <ErrorAlert message={error} onRetry={fetchToolStats} />
       )}
 
-      {/* Cards — note: added mb-6 so cards don't stick to the chart below */}
+      {/* Cards — note: added mb-6 so cards don"t stick to the chart below */}
       <div className={`grid ${gridClasses()} gap-4 mb-6`}>
         {toolStats.map((tool) => (
           <StatCard key={tool.key} tool={tool} loading={loading} />

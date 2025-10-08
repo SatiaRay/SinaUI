@@ -17,18 +17,18 @@
 body {
   margin: 0;
   font-family:
-    'Iran Sans',
+    "Iran Sans",
     Vazir,
     -apple-system,
     BlinkMacSystemFont,
-    'Segoe UI',
-    'Roboto',
-    'Oxygen',
-    'Ubuntu',
-    'Cantarell',
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -86,7 +86,7 @@ body {
   border-color: #374151 !important;
 }
 
-.dark .ck.ck-icon :not([fill='none']) {
+.dark .ck.ck-icon :not([fill="none"]) {
   fill: white !important;
 }
 pre {
@@ -96,18 +96,18 @@ pre {
 body {
   margin: 0;
   font-family:
-    'Iran Sans',
+    "Iran Sans",
     Vazir,
     -apple-system,
     BlinkMacSystemFont,
-    'Segoe UI',
-    'Roboto',
-    'Oxygen',
-    'Ubuntu',
-    'Cantarell',
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -156,7 +156,7 @@ body {
   border-color: #374151 !important;
 }
 
-.dark .ck.ck-icon :not([fill='none']) {
+.dark .ck.ck-icon :not([fill="none"]) {
   fill: white !important;
 }
 pre {
@@ -227,14 +227,14 @@ body {
     Vazir,
     -apple-system,
     BlinkMacSystemFont,
-    'Segoe UI',
-    'Roboto',
-    'Oxygen',
-    'Ubuntu',
-    'Cantarell',
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -242,7 +242,7 @@ body {
 
 code {
   font-family:
-    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 /* RTL overrides for Material-UI components */
@@ -326,7 +326,7 @@ code {
 }
 
 .swal2-popup {
-  font-family: 'Vazir', sans-serif !important;
+  font-family: "Vazir", sans-serif !important;
   border-radius: 0.5rem !important;
   box-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.1),

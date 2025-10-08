@@ -33,7 +33,7 @@ axios.interceptors.response.use(
           window.location.href = '/login';
           break;
         case 403:
-          // Forbidden - user doesn't have permission
+          // Forbidden - user doesn"t have permission
           console.error('Access forbidden:', error);
           break;
         case 404:

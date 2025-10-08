@@ -86,9 +86,9 @@ function AppContent() {
         className={`transition-all duration-300 h-screen bg-red-300 ${
           showNavbar
             ? sidebarCollapsed
-              ? 'md:mr-0'
-              : 'md:mr-64'
-            : 'flex items-center justify-center'
+              ? "md:mr-0"
+              : "md:mr-64"
+            : "flex items-center justify-center"
         }`}
       > */}
       {privateRoutes()}
