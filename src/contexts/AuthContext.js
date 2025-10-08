@@ -12,13 +12,11 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem('khan-user-info');
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const [token, setToken] = useState(() => {
-    return localStorage.getItem('token');
-  });
+  const [token, setToken] = useState(localStorage.getItem('khan-access-token'));
 
   // Revalidate authorization every minute
   const { error: authorization_error } = useSwr(
@@ -34,16 +32,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      localStorage.setItem('token', token);
+      localStorage.setItem('khan-access-token', token);
     } else {
       delete axios.defaults.headers.common['Authorization'];
-      localStorage.removeItem('token');
+      localStorage.removeItem('khan-access-token');
     }
 
     if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('khan-user-info', JSON.stringify(user));
     } else {
-      localStorage.removeItem('user');
+      localStorage.removeItem('khan-user-info');
     }
   }, [token, user]);
 
@@ -203,8 +201,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem('khan-user-info');
+    localStorage.removeItem('khan-access-token');
     delete axios.defaults.headers.common['Authorization'];
   };
 
@@ -213,7 +211,7 @@ export const AuthProvider = ({ children }) => {
   const updateUser = (updates) => {
     setUser((prev) => {
       const newUser = { ...prev, ...updates };
-      localStorage.setItem('user', JSON.stringify(newUser));
+      localStorage.setItem('khan-user-info', JSON.stringify(newUser));
       return newUser;
     });
   };
@@ -223,6 +221,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         token,
+        setToken,
         check,
         login,
         register,
