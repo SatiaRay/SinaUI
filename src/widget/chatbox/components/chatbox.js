@@ -21,27 +21,64 @@ const Box = styled.div`
   font-family: Vazir !important;
   z-index: 1000;
   transition: all 0.3s ease-in-out;
+  max-width: 400px;
+  max-height: 600px;
 
-  /* 📱 Phones */
-  @media (max-width: 600px) {
-    width: 90vw;
-    height: 80vh;
-    left: 5vw;
+  /* 📱 Phones - Portrait */
+  @media (max-width: 480px) {
+    width: 95vw;
+    height: 85vh;
+    left: 2.5vw;
     bottom: 2vh;
     border-radius: 12px;
+    max-width: none;
+    max-height: none;
+  }
+
+  /* 📱 Phones - Landscape */
+  @media (max-width: 896px) and (orientation: landscape) {
+    width: 85vw;
+    height: 90vh;
+    left: 7.5vw;
+    bottom: 2vh;
+    max-width: none;
+    max-height: none;
+  }
+
+  /* 📟 Small Tablets */
+  @media (min-width: 481px) and (max-width: 768px) {
+    width: 80vw;
+    height: 75vh;
+    left: 10vw;
+    bottom: 2vh;
+    max-width: 500px;
+    max-height: 550px;
   }
 
   /* 📟 Tablets */
-  @media (min-width: 601px) and (max-width: 1024px) {
-    width: 60vw;
-    height: 75vh;
+  @media (min-width: 769px) and (max-width: 1024px) {
+    width: 65vw;
+    height: 72vh;
     left: 5vw;
+    bottom: 2vh;
+    max-width: 500px;
+    max-height: 550px;
   }
 
   /* 💻 Small laptops */
   @media (min-width: 1025px) and (max-width: 1440px) {
-    width: 35vw;
-    height: 70vh;
+    width: 32vw;
+    height: 68vh;
+    max-width: 450px;
+    max-height: 580px;
+  }
+
+  /* 🖥️ Large screens */
+  @media (min-width: 1441px) {
+    width: 26vw;
+    height: 65vh;
+    max-width: 450px;
+    max-height: 600px;
   }
 `;
 
@@ -51,51 +88,97 @@ const FullscreenBox = styled(Box)`
   bottom: 0 !important;
   left: 0 !important;
   border-radius: 0;
+  max-width: none !important;
+  max-height: none !important;
 `;
 
 const Header = styled.div`
   background-color: rgb(220, 20, 53);
   color: white;
-  padding: 15px;
+  padding: 16px 20px;
   font-weight: bold;
   text-align: center;
   position: relative;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  @media (max-width: 600px) {
-    padding: 12px;
+  @media (max-width: 480px) {
+    padding: 14px 16px;
+    font-size: 1rem;
+    min-height: 55px;
+  }
+
+  @media (max-width: 896px) and (orientation: landscape) {
+    padding: 12px 16px;
+    min-height: 50px;
     font-size: 0.95rem;
   }
 `;
 
 const Title = styled.div`
   font-family: Vazir;
+  font-size: 1.1rem;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 const Messages = styled.div`
   flex: 1;
-  padding: 12px;
+  padding: 16px;
   background-color: #f9f9f9;
   overflow-y: auto;
   font-size: 15px;
 
-  @media (max-width: 600px) {
-    padding: 8px;
+  @media (max-width: 480px) {
+    padding: 12px;
     font-size: 14px;
+  }
+
+  @media (max-width: 896px) and (orientation: landscape) {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  @media (min-width: 1441px) {
+    padding: 20px;
+    font-size: 16px;
   }
 `;
 
 const Close = styled.div`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  @media (max-width: 480px) {
+    right: 12px;
+    width: 28px;
+    height: 28px;
+  }
 `;
 
 const ChatBoxTrigger = styled.button`
   position: fixed;
-  bottom: 2vh;
-  left: 2vw;
+  bottom: 3vh;
+  left: 3vw;
   width: 70px;
   height: 70px;
   z-index: 100;
@@ -106,18 +189,29 @@ const ChatBoxTrigger = styled.button`
   justify-content: center;
   align-items: center;
   border: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-  transition: transform 0.2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
 
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   }
 
-  @media (max-width: 600px) {
+  /* 📱 Mobile */
+  @media (max-width: 768px) {
     width: 60px;
     height: 60px;
-    bottom: 3vh;
-    left: 3vw;
+    bottom: 4vh;
+    left: 4vw;
+  }
+
+  /* 📱 Small Mobile */
+  @media (max-width: 480px) {
+    width: 56px;
+    height: 56px;
+    bottom: 5vh;
+    left: 5vw;
   }
 `;
 
@@ -146,7 +240,7 @@ const ChatBox = (props) => {
       <Header>
         {!isStatic && (
           <Close onClick={() => setIsVisible(false)}>
-            <IoClose size={22} />
+            <IoClose size={20} />
           </Close>
         )}
         <Title>چت‌بات خان 🤖</Title>
@@ -169,7 +263,7 @@ const ChatBox = (props) => {
         )
       ) : (
         <ChatBoxTrigger onClick={() => setIsVisible(true)}>
-          <SiChatbot size={30} />
+          <SiChatbot size={28} />
         </ChatBoxTrigger>
       )}
     </div>
