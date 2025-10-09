@@ -825,7 +825,15 @@ export const UploadButton = styled.button`
   }
 `;
 
+export const WizardButtonsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; /* allow buttons to move to a new line */
+  gap: 0.25rem; /* optional, controls spacing between buttons */
+`
+
 export const WizardButtonStyled = styled.button`
+  flex-grow: 1;
   padding: 0.25rem 0.5rem; /* py-1 px-2 */
   font-size: 0.875rem; /* text-sm */
   font-weight: 500; /* font-medium */
