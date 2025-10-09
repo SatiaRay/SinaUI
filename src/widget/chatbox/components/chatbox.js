@@ -10,8 +10,8 @@ const Box = styled.div`
   position: fixed;
   bottom: 2vh;
   left: 2vw;
-  width: 400px;
-  height: 700px;
+  width: 450px;
+  height: 750px;
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
