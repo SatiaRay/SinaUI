@@ -10,8 +10,8 @@ const Box = styled.div`
   position: fixed;
   bottom: 2vh;
   left: 2vw;
-  width: 28vw;
-  height: 70vh;
+  width: 400px;
+  height: 700px;
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
@@ -21,75 +21,21 @@ const Box = styled.div`
   font-family: Vazir !important;
   z-index: 1000;
   transition: all 0.3s ease-in-out;
-  max-width: 400px;
-  max-height: 600px;
 
-  /* 📱 Phones - Portrait */
-  @media (max-width: 480px) {
-    width: 95vw;
-    height: 85vh;
-    left: 2.5vw;
-    bottom: 2vh;
-    border-radius: 12px;
-    max-width: none;
-    max-height: none;
+  @media (max-width: 450px) {
+    width: 100vw !important;
+    height: 100vh !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    border-radius: 0;
   }
-
-  /* 📱 Phones - Landscape */
-  @media (max-width: 896px) and (orientation: landscape) {
-    width: 85vw;
-    height: 90vh;
-    left: 7.5vw;
-    bottom: 2vh;
-    max-width: none;
-    max-height: none;
+  @media (max-height: 750px) {
+    width: 100vw !important;
+    height: 100vh !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    border-radius: 0;
   }
-
-  /* 📟 Small Tablets */
-  @media (min-width: 481px) and (max-width: 768px) {
-    width: 80vw;
-    height: 75vh;
-    left: 10vw;
-    bottom: 2vh;
-    max-width: 500px;
-    max-height: 550px;
-  }
-
-  /* 📟 Tablets */
-  @media (min-width: 769px) and (max-width: 1024px) {
-    width: 65vw;
-    height: 72vh;
-    left: 5vw;
-    bottom: 2vh;
-    max-width: 500px;
-    max-height: 550px;
-  }
-
-  /* 💻 Small laptops */
-  @media (min-width: 1025px) and (max-width: 1440px) {
-    width: 32vw;
-    height: 68vh;
-    max-width: 450px;
-    max-height: 580px;
-  }
-
-  /* 🖥️ Large screens */
-  @media (min-width: 1441px) {
-    width: 26vw;
-    height: 65vh;
-    max-width: 450px;
-    max-height: 600px;
-  }
-`;
-
-const FullscreenBox = styled(Box)`
-  width: 100vw !important;
-  height: 100vh !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  border-radius: 0;
-  max-width: none !important;
-  max-height: none !important;
 `;
 
 const Header = styled.div`
@@ -105,26 +51,14 @@ const Header = styled.div`
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 480px) {
-    padding: 14px 16px;
-    font-size: 1rem;
-    min-height: 55px;
-  }
-
-  @media (max-width: 896px) and (orientation: landscape) {
-    padding: 12px 16px;
-    min-height: 50px;
-    font-size: 0.95rem;
+  @media (max-width: 768px) {
+    padding: 20px;
+    font-size: 1.2rem;
   }
 `;
 
 const Title = styled.div`
   font-family: Vazir;
-  font-size: 1.1rem;
-
-  @media (max-width: 480px) {
-    font-size: 1rem;
-  }
 `;
 
 const Messages = styled.div`
@@ -134,19 +68,8 @@ const Messages = styled.div`
   overflow-y: auto;
   font-size: 15px;
 
-  @media (max-width: 480px) {
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  @media (max-width: 896px) and (orientation: landscape) {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  @media (min-width: 1441px) {
+  @media (max-width: 768px) {
     padding: 20px;
-    font-size: 16px;
   }
 `;
 
@@ -168,10 +91,10 @@ const Close = styled.div`
     background-color: rgba(255, 255, 255, 0.2);
   }
 
-  @media (max-width: 480px) {
-    right: 12px;
-    width: 28px;
-    height: 28px;
+  @media (max-width: 768px) {
+    right: 20px;
+    width: 36px;
+    height: 36px;
   }
 `;
 
@@ -198,26 +121,16 @@ const ChatBoxTrigger = styled.button`
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   }
 
-  /* 📱 Mobile */
   @media (max-width: 768px) {
     width: 60px;
     height: 60px;
     bottom: 4vh;
     left: 4vw;
   }
-
-  /* 📱 Small Mobile */
-  @media (max-width: 480px) {
-    width: 56px;
-    height: 56px;
-    bottom: 5vh;
-    left: 5vw;
-  }
 `;
 
 const ChatBox = (props) => {
   const isStatic = props['static'];
-  const [fullscreen, setFullscreen] = useState(props['fullscreen']);
   const [isVisible, setIsVisible] = useState(false);
   let services = null;
 
@@ -256,11 +169,7 @@ const ChatBox = (props) => {
   return (
     <div id="khan-chatbox">
       {isVisible || isStatic ? (
-        fullscreen ? (
-          <FullscreenBox>{boxContent}</FullscreenBox>
-        ) : (
-          <Box>{boxContent}</Box>
-        )
+        <Box>{boxContent}</Box>
       ) : (
         <ChatBoxTrigger onClick={() => setIsVisible(true)}>
           <SiChatbot size={28} />
