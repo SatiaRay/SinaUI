@@ -12,6 +12,7 @@ const ChatBoxPreview = () => {
             'eyJTZXJpYWwiOjIyMDEwLCJNb2JpbGUiOiIwOTE4OTU1NzQ2NyIsIkFkc2xUZWwiOiIwODYzMzI4Mzg2MiIsIk5hbWUiOiLYudmE24wg2LnZhNmI24wg2KrYqNin2LEiLCJDdXN0b21lclR5cGUiOiJBIiwiU21zQ29kZSI6IjE3NTciLCJUeXBlIjoiQURTTCIsInN0YXR1cyI6W3siU2VyaWFsIjo2LCJOYW1lIjoi2KjZh9ix2Ycg2KjYsdiv2KfYsduMIiwiQnJhbmNoUmVmIjoiMSIsInBpdm90Ijp7IkN1c3RvbWVyUmVmIjoiMjIwMTAiLCJTdGF0dXNSZWYiOiI2IiwiQWN0aXZlIjoiMSIsIkRhdGUiOiIyMDI0LTA0LTE2IDAwOjAwOjAwIiwiQ29tbWVudCI6IkF1dG8ifX1dfQ==',
         },
       }}
+      accessToken={process.env.REACT_APP_WIDGET_ACCESS_TOKEN}
     />
   );
 };
