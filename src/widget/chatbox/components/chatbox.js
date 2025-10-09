@@ -1,4 +1,4 @@
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
@@ -7,19 +7,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { AuthProvider } from '../../../contexts/AuthContext';
 
-const GlobalStyle = createGlobalStyle`
-  body.chatbox-open {
-    overflow: hidden;
-    height: 100%;
-    overscroll-behavior: contain;
-    touch-action: none;
-  }
-`;
-
 const Box = styled.div`
   position: fixed;
-  bottom: 2vh;
-  left: 2vw;
+  bottom: 0;
+  left: 0;
   width: 450px;
   height: 750px;
   background-color: #fff;
@@ -28,81 +19,69 @@ const Box = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-family: Vazir !important;
+  font-family: Vazir, sans-serif !important;
   z-index: 1000;
   transition: all 0.3s ease-in-out;
 
   @media (max-width: 768px) {
-    width: 100vw !important;
-    height: 100dvh !important;
-    bottom: 0 !important;
-    left: 0 !important;
+    width: 100vw;
+    height: 100dvh;
     border-radius: 0;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    margin: 0;
+    padding: 0;
   }
 `;
 
 const Header = styled.div`
   background-color: rgb(220, 20, 53);
   color: white;
-  padding: 16px 20px;
   font-weight: bold;
   text-align: center;
-  position: sticky;
-  top: 0;
-  font-size: 1.1rem;
-  min-height: 60px;
+  height: 55px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
-
-  @media (max-width: 768px) {
-    padding: 20px;
-    font-size: 1.2rem;
-  }
+  position: relative;
+  flex-shrink: 0;
 `;
 
 const Title = styled.div`
-  font-family: Vazir;
+  font-family: Vazir, sans-serif;
+`;
+
+const MessagesWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 `;
 
 const Messages = styled.div`
   flex: 1;
-  padding: 16px;
-  background-color: #f9f9f9;
   overflow-y: auto;
-  font-size: 15px;
   -webkit-overflow-scrolling: touch;
-
-  @media (max-width: 768px) {
-    padding: 20px;
-  }
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
 `;
 
 const Close = styled.div`
   position: absolute;
   top: 50%;
-  right: 15px;
+  right: 12px;
   transform: translateY(-50%);
   cursor: pointer;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
   border-radius: 50%;
   transition: background-color 0.2s ease;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
-  }
-
-  @media (max-width: 768px) {
-    right: 20px;
-    width: 36px;
-    height: 36px;
   }
 `;
 
@@ -140,19 +119,21 @@ const ChatBoxTrigger = styled.button`
 const ChatBox = (props) => {
   const isStatic = props['static'];
   const [isVisible, setIsVisible] = useState(false);
+  const [fullscreen, setFullscreen] = useState(props['fullscreen'] || false);
 
-  if(!props['accessToken']){
-    console.error("Khan access token is null !")
-
-    return
-  }
-
-  localStorage.setItem('khan-access-token', props['accessToken'])
-
-  let services = null;
-
-  // اگر accessToken وجود نداشت، فقط UI هشدار نشون بده، نه return قبل از هوک‌ها
   const hasAccessToken = !!props['accessToken'];
+
+  // Disable body scroll when chatbox is open
+  useEffect(() => {
+    if (isVisible || fullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isVisible, fullscreen]);
 
   if (hasAccessToken) {
     localStorage.setItem('khan-access-token', props['accessToken']);
@@ -163,6 +144,7 @@ const ChatBox = (props) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${props['token']}`;
   }
 
+  let services = null;
   if (props['satiaToken'] && props['satiaCustomer']) {
     services = {
       satia: {
@@ -172,41 +154,49 @@ const ChatBox = (props) => {
     };
   }
 
-  const boxContent = (
-    <>
-      <GlobalStyle />
-      <Header>
-        {!isStatic && (
-          <Close
-            onClick={() => {
-              setIsVisible(false);
-              setFullscreen(false);
-            }}
-          >
-            <IoClose size={20} />
-          </Close>
-        )}
-        <Title>چت‌بات خان 🤖</Title>
-      </Header>
-      <Messages>
-        <AuthProvider>
-          <ChatProvider>
-            <Chat services={services}/>
-          </ChatProvider>
-        </AuthProvider>
-      </Messages>
-    </>
-  );
-
   return (
     <div id="khan-chatbox">
-      {isVisible || isStatic || fullscreen ? (
-        <Box>{boxContent}</Box>
-      ) : (
+      <Box
+        style={{
+          display: isVisible || isStatic || fullscreen ? 'flex' : 'none',
+        }}
+      >
+        <Header>
+          {!isStatic && (
+            <Close
+              onClick={() => {
+                setIsVisible(false);
+                setFullscreen(false);
+              }}
+            >
+              <IoClose size={20} />
+            </Close>
+          )}
+          <Title>چت‌بات خان 🤖</Title>
+        </Header>
+
+        <MessagesWrapper>
+          <Messages>
+            {hasAccessToken ? (
+              <AuthProvider>
+                <ChatProvider>
+                  <Chat services={services} />
+                </ChatProvider>
+              </AuthProvider>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                Access token not found 🚫
+              </div>
+            )}
+          </Messages>
+        </MessagesWrapper>
+      </Box>
+
+      {!(isVisible || isStatic || fullscreen) && (
         <ChatBoxTrigger
           onClick={() => {
             setIsVisible(true);
-            setFullscreen(true);
+            if (window.innerWidth <= 768) setFullscreen(true);
           }}
         >
           <SiChatbot size={28} />
