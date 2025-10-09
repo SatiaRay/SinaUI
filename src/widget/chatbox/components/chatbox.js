@@ -1,17 +1,27 @@
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { AuthProvider } from '../../../contexts/AuthContext';
+
+const GlobalStyle = createGlobalStyle`
+  body.chatbox-open {
+    overflow: hidden;
+    height: 100%;
+    overscroll-behavior: contain;
+    touch-action: none;
+  }
+`;
 
 const Box = styled.div`
   position: fixed;
   bottom: 2vh;
   left: 2vw;
-  width: 400px;
-  height: 700px;
+  width: 450px;
+  height: 750px;
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
@@ -22,19 +32,14 @@ const Box = styled.div`
   z-index: 1000;
   transition: all 0.3s ease-in-out;
 
-  @media (max-width: 450px) {
+  @media (max-width: 768px) {
     width: 100vw !important;
-    height: 100vh !important;
+    height: 100dvh !important;
     bottom: 0 !important;
     left: 0 !important;
     border-radius: 0;
-  }
-  @media (max-height: 750px) {
-    width: 100vw !important;
-    height: 100vh !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    border-radius: 0;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 `;
 
@@ -44,12 +49,14 @@ const Header = styled.div`
   padding: 16px 20px;
   font-weight: bold;
   text-align: center;
-  position: relative;
+  position: sticky;
+  top: 0;
   font-size: 1.1rem;
   min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
 
   @media (max-width: 768px) {
     padding: 20px;
@@ -67,6 +74,7 @@ const Messages = styled.div`
   background-color: #f9f9f9;
   overflow-y: auto;
   font-size: 15px;
+  -webkit-overflow-scrolling: touch;
 
   @media (max-width: 768px) {
     padding: 20px;
@@ -131,8 +139,33 @@ const ChatBoxTrigger = styled.button`
 
 const ChatBox = (props) => {
   const isStatic = props['static'];
+  const [fullscreen, setFullscreen] = useState(props['fullscreen'] || false);
   const [isVisible, setIsVisible] = useState(false);
+
+  // useEffect باید همیشه اجرا بشه (بدون شرط بیرونی)
+  useEffect(() => {
+    if (isVisible || fullscreen) {
+      document.body.classList.add('chatbox-open');
+      setTimeout(() => {
+        window.scrollTo(0, 1);
+        document.documentElement.scrollTop = 1;
+      }, 300);
+    } else {
+      document.body.classList.remove('chatbox-open');
+    }
+
+    return () => document.body.classList.remove('chatbox-open');
+  }, [isVisible, fullscreen]);
+
+  // بقیه متغیرها
   let services = null;
+
+  // اگر accessToken وجود نداشت، فقط UI هشدار نشون بده، نه return قبل از هوک‌ها
+  const hasAccessToken = !!props['accessToken'];
+
+  if (hasAccessToken) {
+    localStorage.setItem('khan-access-token', props['accessToken']);
+  }
 
   if (props['token']) {
     delete axios.defaults.headers.common['Authorization'];
@@ -150,28 +183,47 @@ const ChatBox = (props) => {
 
   const boxContent = (
     <>
+      <GlobalStyle />
       <Header>
         {!isStatic && (
-          <Close onClick={() => setIsVisible(false)}>
+          <Close
+            onClick={() => {
+              setIsVisible(false);
+              setFullscreen(false);
+            }}
+          >
             <IoClose size={20} />
           </Close>
         )}
         <Title>چت‌بات خان 🤖</Title>
       </Header>
       <Messages>
-        <ChatProvider>
-          <Chat services={services} />
-        </ChatProvider>
+        {hasAccessToken ? (
+          <AuthProvider>
+            <ChatProvider>
+              <Chat services={services} />
+            </ChatProvider>
+          </AuthProvider>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            توکن دسترسی معتبر یافت نشد 🚫
+          </div>
+        )}
       </Messages>
     </>
   );
 
   return (
     <div id="khan-chatbox">
-      {isVisible || isStatic ? (
+      {isVisible || isStatic || fullscreen ? (
         <Box>{boxContent}</Box>
       ) : (
-        <ChatBoxTrigger onClick={() => setIsVisible(true)}>
+        <ChatBoxTrigger
+          onClick={() => {
+            setIsVisible(true);
+            setFullscreen(true);
+          }}
+        >
           <SiChatbot size={28} />
         </ChatBoxTrigger>
       )}
