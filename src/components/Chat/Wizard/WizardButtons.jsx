@@ -1,9 +1,10 @@
 import React from 'react';
+import { WizardButtonsContainer } from '../../ui/common';
 import WizardButton from './WizardButton';
 
 const WizardButtons = ({ wizards, onWizardSelect }) => {
   return (
-    <div className="flex w-full gap-2 pb-4 items-center justify-center">
+    <WizardButtonsContainer>
       {wizards.map((wizard) => (
         <WizardButton
           key={wizard.id}
@@ -11,7 +12,7 @@ const WizardButtons = ({ wizards, onWizardSelect }) => {
           onWizardClick={onWizardSelect}
         />
       ))}
-    </div>
+    </WizardButtonsContainer>
   );
 };
 

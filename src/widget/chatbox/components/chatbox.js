@@ -139,25 +139,16 @@ const ChatBoxTrigger = styled.button`
 
 const ChatBox = (props) => {
   const isStatic = props['static'];
-  const [fullscreen, setFullscreen] = useState(props['fullscreen'] || false);
   const [isVisible, setIsVisible] = useState(false);
 
-  // useEffect باید همیشه اجرا بشه (بدون شرط بیرونی)
-  useEffect(() => {
-    if (isVisible || fullscreen) {
-      document.body.classList.add('chatbox-open');
-      setTimeout(() => {
-        window.scrollTo(0, 1);
-        document.documentElement.scrollTop = 1;
-      }, 300);
-    } else {
-      document.body.classList.remove('chatbox-open');
-    }
+  if(!props['accessToken']){
+    console.error("Khan access token is null !")
 
-    return () => document.body.classList.remove('chatbox-open');
-  }, [isVisible, fullscreen]);
+    return
+  }
 
-  // بقیه متغیرها
+  localStorage.setItem('khan-access-token', props['accessToken'])
+
   let services = null;
 
   // اگر accessToken وجود نداشت، فقط UI هشدار نشون بده، نه return قبل از هوک‌ها
@@ -198,17 +189,11 @@ const ChatBox = (props) => {
         <Title>چت‌بات خان 🤖</Title>
       </Header>
       <Messages>
-        {hasAccessToken ? (
-          <AuthProvider>
-            <ChatProvider>
-              <Chat services={services} />
-            </ChatProvider>
-          </AuthProvider>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            توکن دسترسی معتبر یافت نشد 🚫
-          </div>
-        )}
+        <AuthProvider>
+          <ChatProvider>
+            <Chat services={services}/>
+          </ChatProvider>
+        </AuthProvider>
       </Messages>
     </>
   );
