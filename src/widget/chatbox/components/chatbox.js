@@ -22,7 +22,7 @@ const Box = styled.div`
   z-index: 1000;
   transition: all 0.3s ease-in-out;
 
-  /* 📱 موبایل‌ها */
+  /* 📱 Phones */
   @media (max-width: 600px) {
     width: 90vw;
     height: 80vh;
@@ -31,14 +31,14 @@ const Box = styled.div`
     border-radius: 12px;
   }
 
-  /* 📟 تبلت‌ها */
+  /* 📟 Tablets */
   @media (min-width: 601px) and (max-width: 1024px) {
     width: 60vw;
     height: 75vh;
     left: 5vw;
   }
 
-  /* 💻 لپ‌تاپ‌های کوچک */
+  /* 💻 Small laptops */
   @media (min-width: 1025px) and (max-width: 1440px) {
     width: 35vw;
     height: 70vh;
