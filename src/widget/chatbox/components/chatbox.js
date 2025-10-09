@@ -3,30 +3,53 @@ import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
 const Box = styled.div`
   position: fixed;
   bottom: 2vh;
   left: 2vw;
-  width: 400px; /* 20% of viewport width */
-  height: 700px; /* 40% of viewport height */
+  width: 28vw;
+  height: 70vh;
   background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   font-family: Vazir !important;
   z-index: 1000;
+  transition: all 0.3s ease-in-out;
+
+  /* 📱 موبایل‌ها */
+  @media (max-width: 600px) {
+    width: 90vw;
+    height: 80vh;
+    left: 5vw;
+    bottom: 2vh;
+    border-radius: 12px;
+  }
+
+  /* 📟 تبلت‌ها */
+  @media (min-width: 601px) and (max-width: 1024px) {
+    width: 60vw;
+    height: 75vh;
+    left: 5vw;
+  }
+
+  /* 💻 لپ‌تاپ‌های کوچک */
+  @media (min-width: 1025px) and (max-width: 1440px) {
+    width: 35vw;
+    height: 70vh;
+  }
 `;
 
 const FullscreenBox = styled(Box)`
   width: 100vw !important;
   height: 100vh !important;
   bottom: 0 !important;
-  right: 0 !important;
+  left: 0 !important;
   border-radius: 0;
 `;
 
@@ -37,11 +60,16 @@ const Header = styled.div`
   font-weight: bold;
   text-align: center;
   position: relative;
+  font-size: 1rem;
+
+  @media (max-width: 600px) {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
 `;
 
 const Title = styled.div`
-  justify-self: center;
-  font-family: vazir;
+  font-family: Vazir;
 `;
 
 const Messages = styled.div`
@@ -50,6 +78,11 @@ const Messages = styled.div`
   background-color: #f9f9f9;
   overflow-y: auto;
   font-size: 15px;
+
+  @media (max-width: 600px) {
+    padding: 8px;
+    font-size: 14px;
+  }
 `;
 
 const Close = styled.div`
@@ -72,6 +105,20 @@ const ChatBoxTrigger = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 600px) {
+    width: 60px;
+    height: 60px;
+    bottom: 3vh;
+    left: 3vw;
+  }
 `;
 
 const ChatBox = (props) => {
@@ -99,10 +146,10 @@ const ChatBox = (props) => {
       <Header>
         {!isStatic && (
           <Close onClick={() => setIsVisible(false)}>
-            <IoClose size={20} />
+            <IoClose size={22} />
           </Close>
         )}
-        <Title>چت بات خان 🤖</Title>
+        <Title>چت‌بات خان 🤖</Title>
       </Header>
       <Messages>
         <ChatProvider>
