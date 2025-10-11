@@ -23,7 +23,7 @@ const Box = styled.div`
   z-index: 1000;
   transition: all 0.3s ease-in-out;
 
-  @media (max-width: 768px) {
+  @media (max-width: 768px), (max-height: 750px) {
     width: 100vw;
     height: 100dvh;
     border-radius: 0;
