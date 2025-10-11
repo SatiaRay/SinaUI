@@ -43,8 +43,7 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
       if (/<hr\b[^>]*>/i.test(lastPart)) {
         return match;
       }
-
-      return '<hr>' + match;
+      return match;
     }
   );
 

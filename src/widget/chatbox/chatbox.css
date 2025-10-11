@@ -175,7 +175,7 @@
 #khan-chatbox h4,
 #khan-chatbox h5,
 #khan-chatbox h6,
-#khan-chatbox hr,
+/*#khan-chatbox hr,*/ /* its commited for hr in chat  */
 #khan-chatbox figure,
 #khan-chatbox p,
 #khan-chatbox pre {
