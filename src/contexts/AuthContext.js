@@ -52,7 +52,6 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       localStorage.setItem('khan-access-token', token);
     } else {
-      console.log('delete axios default headers');
       delete axios.defaults.headers.common['Authorization'];
       localStorage.removeItem('khan-access-token');
     }
