@@ -8,6 +8,23 @@ import {
 } from '../services/api';
 import useSwr from 'swr';
 
+// Middleware to delay the first request
+function delayMiddleware(useSWRNext) {
+  return (key, fetcher, config) => {
+    // Create a wrapper fetcher that delays the initial request
+    const delayedFetcher = (...args) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          fetcher(...args).then(resolve).catch(reject);
+        }, 2000); // Delay in milliseconds (e.g., 2000ms = 2 seconds)
+      });
+    };
+
+    // Use the delayed fetcher for the SWR hook
+    return useSWRNext(key, delayedFetcher, config);
+  };
+}
+
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -18,13 +35,14 @@ export const AuthProvider = ({ children }) => {
 
   const [token, setToken] = useState(localStorage.getItem('khan-access-token'));
 
-  // Revalidate authorization every minute
+  // Revalidate authorization every minute with initial delay
   const { error: authorization_error } = useSwr(
     token ? 'check_authorization' : null,
     checkAuthorizationFetcher,
     {
       onError: () => logout(),
       refreshInterval: 60000,
+      use: [delayMiddleware], // Apply delay middleware
     }
   );
 
