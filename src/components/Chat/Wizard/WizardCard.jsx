@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShowWizard, UpdateWizard } from './index';
 import { wizardEndpoints } from '../../../utils/apis';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 
 const WizardCard = ({
   wizard,
@@ -29,28 +29,28 @@ const WizardCard = ({
   };
 
   const submitDelete = async (wizard) => {
-      const result = await Swal.fire({
-        title: `آیا از حذف ${wizard.title} مطمئن هستید؟`,
-        text: "این عملیات قابل بازگشت نیست.",
-        icon: "warning",
-        showCancelButton: true,
-        cancelButtonText: "لغو",
-        confirmButtonText: "بله، حذف کن!",
-      });
-        if (result.isConfirmed) {
-          try{
-            await wizardEndpoints.deleteWizard(wizard.id);
-            await Swal.fire({
-              title: "حذف شد!",
-              text: `${wizard.title} با موفقیت حذف شد.`,
-              icon: "success",
-            });
-      onDeleteWizard(wizard.id);
-      }catch(error){
+    const result = await Swal.fire({
+      title: `آیا از حذف ${wizard.title} مطمئن هستید؟`,
+      text: 'این عملیات قابل بازگشت نیست.',
+      icon: 'warning',
+      showCancelButton: true,
+      cancelButtonText: 'لغو',
+      confirmButtonText: 'بله، حذف کن!',
+    });
+    if (result.isConfirmed) {
+      try {
+        await wizardEndpoints.deleteWizard(wizard.id);
         await Swal.fire({
-          title: "خطا!",
-          text: "خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.",
-          icon: "error",
+          title: 'حذف شد!',
+          text: `${wizard.title} با موفقیت حذف شد.`,
+          icon: 'success',
+        });
+        onDeleteWizard(wizard.id);
+      } catch (error) {
+        await Swal.fire({
+          title: 'خطا!',
+          text: 'خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.',
+          icon: 'error',
         });
       }
     }
