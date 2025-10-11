@@ -9,8 +9,8 @@ import { AuthProvider } from '../../../contexts/AuthContext';
 
 const Box = styled.div`
   position: fixed;
-  bottom: 0;
-  left: 0;
+  bottom: 30px;
+  left: 30px;
   width: 450px;
   height: 750px;
   background-color: #fff;
@@ -23,12 +23,14 @@ const Box = styled.div`
   z-index: 1000;
   transition: all 0.3s ease-in-out;
 
-  @media (max-width: 768px), (max-height: 750px) {
+  @media (max-width: 768px), (max-height: 780px) {
     width: 100vw;
     height: 100dvh;
     border-radius: 0;
     margin: 0;
     padding: 0;
+    bottom: 0px !important;
+    left: 0px !important;
   }
 `;
 
@@ -87,8 +89,8 @@ const Close = styled.div`
 
 const ChatBoxTrigger = styled.button`
   position: fixed;
-  bottom: 3vh;
-  left: 3vw;
+  bottom: 30px;
+  left: 30px;
   width: 70px;
   height: 70px;
   z-index: 100;
