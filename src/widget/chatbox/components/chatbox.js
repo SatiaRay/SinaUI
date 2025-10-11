@@ -65,7 +65,7 @@ const Messages = styled.div`
   display: flex;
   flex-direction: column;
   margin: 0;
-  padding: 0;
+  padding: 0 10px;
 `;
 
 const Close = styled.div`
