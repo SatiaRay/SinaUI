@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import CrawlUrl from '../CrawlUrl';
 import CreateDocument from './CreateDocument';
+import { documentEndpoints } from '../../../utils/apis';
 
 // استایل‌های سراسری برای جداول در Markdown و CKEditor
 const globalStyles = `
@@ -75,18 +76,7 @@ const DocumentIndex = () => {
     setDomainsLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/domains`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت لیست دامنه‌ها');
-      }
-      const data = await response.json();
+      const data = await documentEndpoints.getDomains();
       setDomains(data);
     } catch (err) {
       setError(err.message);
@@ -100,18 +90,7 @@ const DocumentIndex = () => {
     setFilesLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/documents?domain_id=${domain.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت فایل‌های دامنه');
-      }
-      const data = await response.json();
+      const data = await documentEndpoints.getDocumentsByDomain(domain.id);
       setDomainFiles(data);
       setSelectedDomain(domain);
     } catch (err) {
@@ -126,18 +105,7 @@ const DocumentIndex = () => {
     setFileContentLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/documents/${file.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت محتوای فایل');
-      }
-      const data = await response.json();
+      const data = await documentEndpoints.getDocumentContent(file.id);
       setFileContent(data);
       setSelectedFile(file);
     } catch (err) {
@@ -152,22 +120,10 @@ const DocumentIndex = () => {
     setDomainsLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/documents/manual?limit=${pagination.limit}&offset=${pagination.offset}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت لیست اسناد');
-      }
-      const data = await response.json();
-      setManualDocumentIndex(data);
-      const total = response.headers.get('X-Total-Count');
-      if (total) {
-        setPagination((prev) => ({ ...prev, total: parseInt(total) }));
+      const result = await documentEndpoints.getManualDocuments(pagination.limit, pagination.offset);
+      setManualDocumentIndex(result.data);
+      if (result.totalCount) {
+        setPagination((prev) => ({ ...prev, total: parseInt(result.totalCount) }));
       }
     } catch (err) {
       setError(err.message);

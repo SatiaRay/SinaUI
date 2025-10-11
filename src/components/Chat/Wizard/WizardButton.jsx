@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import { WizardButtonStyled } from '../../ui/common';
+import { wizardEndpoints } from '../../../utils/apis';
 
 const WizardButton = ({ wizard, onWizardClick }) => {
   const [error, setError] = useState(null);
 
   const handleWizardClick = async (wizardId) => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/${wizardId}?enable_only=true`
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت محتوای ویزارد');
-      }
-      const data = await response.json();
+      const data = await wizardEndpoints.getWizardEnabled(wizardId);
       onWizardClick(data);
     } catch (err) {
       setError(err.message);

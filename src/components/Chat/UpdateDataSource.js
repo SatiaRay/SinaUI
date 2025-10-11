@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { documentEndpoints } from '../../utils/apis';
 
 const UpdateDataSource = (props) => {
   const { document_id, previousTab, onBack } = props;
@@ -18,13 +19,7 @@ const UpdateDataSource = (props) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/document/vector/${document_id}`
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت اطلاعات سند');
-      }
-      const data = await response.json();
+      const data = await documentEndpoints.getDocumentVector(document_id);
       setDocumentData(data);
       setEditedContent(data.html || '');
     } catch (err) {
@@ -44,26 +39,13 @@ const UpdateDataSource = (props) => {
     setUpdating(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/document/${documentData.id}?update_vector=true`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title: documentData.title,
-            html: editedContent,
-            markdown: documentData.markdown,
-            uri: documentData.uri,
-            domain_id: documentData.domain_id,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('خطا در بروزرسانی سند');
-      }
+      await documentEndpoints.updateDocumentWithVector(documentData.id, {
+        title: documentData.title,
+        html: editedContent,
+        markdown: documentData.markdown,
+        uri: documentData.uri,
+        domain_id: documentData.domain_id,
+      });
 
       alert('سند با موفقیت بروزرسانی شد');
     } catch (err) {

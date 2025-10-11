@@ -8,6 +8,7 @@ import {
   stripHtmlTags,
 } from '../utils/helpers';
 import { useAuth } from './AuthContext';
+import { wizardEndpoints, chatEndpoints } from '../utils/apis';
 
 const ChatContext = createContext();
 
@@ -123,18 +124,7 @@ export const ChatProvider = ({ children }) => {
    */
   const loadRootWizards = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/hierarchy/roots`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت ویزاردها');
-      }
-      const data = await response.json();
+      const data = await wizardEndpoints.getRootWizards();
       setRootWizards(data);
       setCurrentWizards(data);
     } catch (err) {
@@ -151,18 +141,7 @@ export const ChatProvider = ({ children }) => {
   const loadHistory = async (sessionId, offset = 0, limit = 20) => {
     setHistoryLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (response.status !== 200) {
-        return;
-      }
-      const messages = await response.json();
+      const messages = await chatEndpoints.getChatHistory(sessionId, offset, limit);
 
       if (Array.isArray(messages)) {
         const reversedMessages = dataNormalizer([...messages].reverse());

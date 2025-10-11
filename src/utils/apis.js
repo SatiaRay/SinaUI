@@ -294,6 +294,22 @@ export const workspaceEndpoints = {
   },
 };
 
+// Chat Endpoints
+export const chatEndpoints = {
+  // Get chat history
+  getChatHistory: async (sessionId, offset = 0, limit = 20) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
+      throw error;
+    }
+  },
+};
+
 export const documentEndpoints = {
   // add document manuallay
   addDocumentManually: async (data) => {
@@ -316,6 +332,80 @@ export const documentEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error deleting document:', error);
+      throw error;
+    }
+  },
+
+  // Get document content by ID
+  getDocumentContent: async (documentId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/documents/${documentId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching document content:', error);
+      throw error;
+    }
+  },
+
+  // Get domains
+  getDomains: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/domains`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching domains:', error);
+      throw error;
+    }
+  },
+
+  // Get documents by domain ID
+  getDocumentsByDomain: async (domainId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/documents?domain_id=${domainId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching documents by domain:', error);
+      throw error;
+    }
+  },
+
+  // Get manual documents with pagination
+  getManualDocuments: async (limit = 10, offset = 0) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/documents/manual?limit=${limit}&offset=${offset}`
+      );
+      return {
+        data: response.data,
+        totalCount: response.headers['x-total-count']
+      };
+    } catch (error) {
+      console.error('Error fetching manual documents:', error);
+      throw error;
+    }
+  },
+
+  // Get document vector
+  getDocumentVector: async (documentId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/document/vector/${documentId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching document vector:', error);
+      throw error;
+    }
+  },
+
+  // Update document with vector update
+  updateDocumentWithVector: async (documentId, documentData) => {
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/document/${documentId}?update_vector=true`,
+        documentData
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating document with vector:', error);
       throw error;
     }
   },
@@ -392,6 +482,28 @@ export const wizardEndpoints = {
       return response.data;
     } catch (error) {
       console.error('Error fetching wizard:', error);
+      throw error;
+    }
+  },
+
+  // Get wizard by ID with enable_only parameter
+  getWizardEnabled: async (wizardId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards/${wizardId}?enable_only=true`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching enabled wizard:', error);
+      throw error;
+    }
+  },
+
+  // Get root wizards hierarchy
+  getRootWizards: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards/hierarchy/roots`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching root wizards:', error);
       throw error;
     }
   },
