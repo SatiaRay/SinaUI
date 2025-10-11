@@ -141,12 +141,8 @@ const ChatBox = (props) => {
     localStorage.setItem('khan-access-token', props['accessToken']);
   }
 
-  if (props['token']) {
-    delete axios.defaults.headers.common['Authorization'];
-    axios.defaults.headers.common['Authorization'] = `Bearer ${props['token']}`;
-  }
-
   let services = null;
+
   if (props['satiaToken'] && props['satiaCustomer']) {
     services = {
       satia: {
