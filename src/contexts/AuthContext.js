@@ -34,6 +34,8 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [token, setToken] = useState(localStorage.getItem('khan-access-token'));
+  if(token) 
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
   // Revalidate authorization every minute with initial delay
   const { error: authorization_error } = useSwr(
