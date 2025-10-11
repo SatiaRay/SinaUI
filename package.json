@@ -54,7 +54,7 @@
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dotenv": "^0.5.1",
     "styled-components": "^6.1.19",
-    "sweetalert2": "^11.23.0",
+    "sweetalert2": "^11.26.1",
     "sweetalert2-react-content": "^5.1.0",
     "swr": "^2.3.4",
     "three": "^0.176.0",
