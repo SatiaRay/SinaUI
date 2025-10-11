@@ -144,11 +144,6 @@ const ChatBox = (props) => {
 
   let services = null;
 
-  if (props['token']) {
-    delete axios.defaults.headers.common['Authorization'];
-    axios.defaults.headers.common['Authorization'] = `Bearer ${props['token']}`;
-  }
-
   if (props['satiaToken'] && props['satiaCustomer']) {
     services = {
       satia: {
