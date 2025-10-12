@@ -597,7 +597,7 @@ const Chat = () => {
             <span> ارسال</span>
           </button>
         </div>
-        {error && <div className="text-red-500 mt-2">{error}</div>}
+        {/* {error && <div className="text-red-500 mt-2">{error}</div>} */}
       </div>
     </>
   );

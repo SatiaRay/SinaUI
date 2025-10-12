@@ -79,7 +79,7 @@ const WizardCard = ({
                   selectedWizardForUpdate(wizard);
                 }}
                 disabled={updatingStatus[wizard.id]}
-                className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-blue-200`}
+                className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800`}
               >
                 ویرایش
               </button>
@@ -90,7 +90,7 @@ const WizardCard = ({
                   submitDelete();
                 }}
                 disabled={updatingStatus[wizard.id]}
-                className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-red-200`}
+                className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-red-200 dark:bg-red-900 dark:hover:bg-red-800`}
               >
                 حذف
               </button>

@@ -61,8 +61,8 @@
 }
 
 #khan-chatbox a {
-  color: inherit;
-  text-decoration: inherit;
+  color: rgb(37, 37, 255);
+  text-decoration: rgb(37, 37, 255) underline;
 }
 
 #khan-chatbox b,
@@ -130,8 +130,7 @@
 #khan-chatbox input[type='reset'],
 #khan-chatbox input[type='submit'] {
   -webkit-appearance: button;
-  background-color: inherit;
-}
+} 
 
 #khan-chatbox :-moz-focusring {
   outline: auto;

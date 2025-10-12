@@ -7,6 +7,7 @@ import {
   packFile,
   stripHtmlTags,
 } from '../utils/helpers';
+import { useAuth } from './AuthContext';
 
 const ChatContext = createContext();
 
@@ -22,6 +23,8 @@ export const ChatProvider = ({ children }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const [optionMessageTriggered, setOptionMessageTriggered] = useState(false);
   const [history, setHistory] = useState({ ids: [], entities: {} });
+  const auth = useAuth();
+  const token = auth?.token;
 
   // custom socket handlers
   const [handlers, setHandlers] = useState({});
@@ -185,7 +188,7 @@ export const ChatProvider = ({ children }) => {
    */
   const connectSocket = (sessionId) => {
     const socket = new window.WebSocket(
-      getWebSocketUrl(`/ws/ask?session_id=${sessionId}`)
+      getWebSocketUrl(`/ws/ask?session_id=${sessionId}&token=${token}`)
     );
 
     socket.onopen = () => {
