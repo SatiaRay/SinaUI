@@ -123,10 +123,6 @@ const ChatBox = (props) => {
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(props['fullscreen'] || false);
 
-  if (!props['accessToken']) console.error('Access token not found');
-
-  localStorage.setItem('khan-access-token', props['accessToken']);
-
   // Disable body scroll when chatbox is open
   useEffect(() => {
     if (isVisible || fullscreen) {
@@ -138,6 +134,14 @@ const ChatBox = (props) => {
       document.body.style.overflow = '';
     };
   }, [isVisible, fullscreen]);
+
+  if (!props['accessToken']){
+    console.error('Access token not found');
+
+    return;
+  } 
+
+  localStorage.setItem('khan-access-token', props['accessToken']);
 
   let services = null;
 
