@@ -23,7 +23,8 @@ export const ChatProvider = ({ children }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const [optionMessageTriggered, setOptionMessageTriggered] = useState(false);
   const [history, setHistory] = useState({ ids: [], entities: {} });
-  const { token } = useAuth();
+  const auth = useAuth();
+  const token = auth?.token;
 
   // custom socket handlers
   const [handlers, setHandlers] = useState({});
