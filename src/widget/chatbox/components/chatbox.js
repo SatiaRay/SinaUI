@@ -4,7 +4,6 @@ import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { AuthProvider } from '../../../contexts/AuthContext';
 
 const Box = styled.div`
@@ -29,8 +28,8 @@ const Box = styled.div`
     border-radius: 0;
     margin: 0;
     padding: 0;
-    bottom: 0px !important;
-    left: 0px !important;
+    bottom: 0 !important;
+    left: 0 !important;
   }
 `;
 
@@ -119,13 +118,21 @@ const ChatBoxTrigger = styled.button`
 `;
 
 const ChatBox = (props) => {
-  const isStatic = props['static'];
-  const [isVisible, setIsVisible] = useState(false);
-  const [fullscreen, setFullscreen] = useState(props['fullscreen'] || false);
+  const {
+    static: isStatic,
+    fullscreen: fullscreenProp,
+    accessToken,
+    satiaToken,
+    satiaCustomer,
+    headeroff,
+    triggeroff,
+  } = props;
 
-  const hasAccessToken = !!props['accessToken'];
+  const [isVisible, setIsVisible] = useState(!!triggeroff);
+  const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
+  const hasAccessToken = !!accessToken;
 
-  // Disable body scroll when chatbox is open
+  // disable body scroll when chat is open
   useEffect(() => {
     if (isVisible || fullscreen) {
       document.body.style.overflow = 'hidden';
@@ -138,18 +145,12 @@ const ChatBox = (props) => {
   }, [isVisible, fullscreen]);
 
   if (hasAccessToken) {
-    localStorage.setItem('khan-access-token', props['accessToken']);
+    localStorage.setItem('khan-access-token', accessToken);
   }
 
   let services = null;
-
-  if (props['satiaToken'] && props['satiaCustomer']) {
-    services = {
-      satia: {
-        token: props['satiaToken'],
-        customer: props['satiaCustomer'],
-      },
-    };
+  if (satiaToken && satiaCustomer) {
+    services = { satia: { token: satiaToken, customer: satiaCustomer } };
   }
 
   return (
@@ -159,19 +160,26 @@ const ChatBox = (props) => {
           display: isVisible || isStatic || fullscreen ? 'flex' : 'none',
         }}
       >
-        <Header>
-          {!isStatic && (
-            <Close
-              onClick={() => {
-                setIsVisible(false);
-                setFullscreen(false);
-              }}
-            >
-              <IoClose size={20} />
-            </Close>
-          )}
-          <Title>چت‌بات خان 🤖</Title>
-        </Header>
+        {!headeroff && (
+          <Header>
+            {!isStatic && (
+              <Close
+                onClick={() => {
+                  if (triggeroff) {
+                    window.parent?.postMessage('closeChat', '*');
+                  } else {
+                    setIsVisible(false);
+                    setFullscreen(false);
+                    window.parent?.postMessage('closeChat', '*');
+                  }
+                }}
+              >
+                <IoClose size={20} />
+              </Close>
+            )}
+            <Title>چت‌بات خان 🤖</Title>
+          </Header>
+        )}
 
         <MessagesWrapper>
           <Messages>
@@ -190,7 +198,7 @@ const ChatBox = (props) => {
         </MessagesWrapper>
       </Box>
 
-      {!(isVisible || isStatic || fullscreen) && (
+      {!triggeroff && !(isVisible || isStatic || fullscreen) && (
         <ChatBoxTrigger
           onClick={() => {
             setIsVisible(true);
