@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ShowWizard, UpdateWizard } from './index';
 import { wizardEndpoints } from '../../../utils/apis';
 import Swal from 'sweetalert2';
-import { notify } from '../../../ui/toast'; 
+import { notify } from '../../../ui/toast';
 
 const WizardCard = ({
   wizard,
@@ -36,22 +36,22 @@ const WizardCard = ({
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6', 
+      cancelButtonColor: '#3085d6',
       cancelButtonText: 'لغو',
       confirmButtonText: 'بله، حذف کن!',
       customClass: {
         confirmButton: 'swal2-confirm-btn',
         cancelButton: 'swal2-cancel-btn',
       },
-      buttonsStyling: false, 
+      buttonsStyling: false,
     });
     if (result.isConfirmed) {
       try {
         await wizardEndpoints.deleteWizard(wizard.id);
-        notify.success(`${wizard.title} با موفقیت حذف شد.`); 
+        notify.success(`${wizard.title} با موفقیت حذف شد.`);
         onDeleteWizard(wizard.id);
       } catch (error) {
-        notify.error('خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.'); 
+        notify.error('خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.');
       }
     }
   };
