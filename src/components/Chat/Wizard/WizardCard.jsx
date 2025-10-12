@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ShowWizard, UpdateWizard } from './index';
 import { wizardEndpoints } from '../../../utils/apis';
 import Swal from 'sweetalert2';
+import { notify } from '../../../ui/toast'; 
 
 const WizardCard = ({
   wizard,
@@ -30,28 +31,27 @@ const WizardCard = ({
 
   const submitDelete = async (wizard) => {
     const result = await Swal.fire({
-      title: `آیا از حذف ${wizard.title} مطمئن هستید؟`,
-      text: 'این عملیات قابل بازگشت نیست.',
+      title: `آیا مطمئن هستید؟`,
+      text: ` آیا از حذف ${wizard.title} مطمئن هستید؟ این عملیات قابل بازگشت نیست.`,
       icon: 'warning',
       showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6', 
       cancelButtonText: 'لغو',
       confirmButtonText: 'بله، حذف کن!',
+      customClass: {
+        confirmButton: 'swal2-confirm-btn',
+        cancelButton: 'swal2-cancel-btn',
+      },
+      buttonsStyling: false, 
     });
     if (result.isConfirmed) {
       try {
         await wizardEndpoints.deleteWizard(wizard.id);
-        await Swal.fire({
-          title: 'حذف شد!',
-          text: `${wizard.title} با موفقیت حذف شد.`,
-          icon: 'success',
-        });
+        notify.success(`${wizard.title} با موفقیت حذف شد.`); 
         onDeleteWizard(wizard.id);
       } catch (error) {
-        await Swal.fire({
-          title: 'خطا!',
-          text: 'خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.',
-          icon: 'error',
-        });
+        notify.error('خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.'); 
       }
     }
   };
