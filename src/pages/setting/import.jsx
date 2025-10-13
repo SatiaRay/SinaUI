@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { uploadSystemImport } from '../../services/api';
+import { systemEndpoints } from '../../utils/apis';
 import { notify } from '../../ui/toast';
 
 export const Import = () => {
@@ -11,7 +11,7 @@ export const Import = () => {
     if (!file) return;
 
     try {
-      await uploadSystemImport(file);
+      await systemEndpoints.uploadSystemImport(file);
       notify.success(' آپلود با موفقیت انجام شد');
       setStatusType('success');
     } catch (error) {
