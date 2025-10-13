@@ -23,22 +23,19 @@ export const AuthProvider = ({ children }) => {
     }
   );
 
-  // Keep axios + localStorage synced
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      localStorage.setItem('khan-access-token', token);
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-      localStorage.removeItem('khan-access-token');
-    }
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    localStorage.setItem('khan-access-token', token);
+  } else {
+    delete axios.defaults.headers.common['Authorization'];
+    localStorage.removeItem('khan-access-token');
+  }
 
-    if (user) {
-      localStorage.setItem('khan-user-info', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('khan-user-info');
-    }
-  }, [token, user]);
+  if (user) {
+    localStorage.setItem('khan-user-info', JSON.stringify(user));
+  } else {
+    localStorage.removeItem('khan-user-info');
+  }
 
   const check = () => !!user && !!token;
 
@@ -114,8 +111,9 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      const nameFromFields =
-        `${(formData.first_name ?? '').trim()} ${(formData.last_name ?? '').trim()}`.trim();
+      const nameFromFields = `${(formData.first_name ?? '').trim()} ${(
+        formData.last_name ?? ''
+      ).trim()}`.trim();
       const name = (formData.name ?? '').trim() || nameFromFields;
 
       // Validation: همه فیلدها اجباری
