@@ -135,6 +135,43 @@ export const workflowEndpoints = {
       throw error;
     }
   },
+
+  // Export workflow schema
+  exportWorkflow: async (workflow_id) => {
+    try {
+      const res = await axios.get(
+        `${IPD_SERVICE_URL}/workflows/${workflow_id}/export`,
+        {
+          responseType: 'blob',
+        }
+      );
+      return res.data;
+    } catch (err) {
+      handleAxiosError(err, 'خطا در دریافت خروجی');
+    }
+  },
+
+  // Import workflow schema
+  importWorkflow: async (file) => {
+    if (!file) throw new Error('فایل الزامی است');
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await axios.post(
+        `${PYTHON_APP_URL}/workflows/import`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      return res.data;
+    } catch (err) {
+      handleAxiosError(err, 'خطا در بارگذاری گردش کار');
+    }
+  }
 };
 
 export const getVersion = async () => {
@@ -363,6 +400,18 @@ export const workspaceEndpoints = {
   },
 };
 
+export const domainEndpoints = {
+  getDomains: async () => {
+    try {
+      const res = await axios.get(`${PYTHON_APP_URL}/domains`);
+      return res;
+    } catch (err) {
+      console.error(err.message);
+      return null;
+    }
+  },
+};
+
 export const documentEndpoints = {
   // add document manuallay
   addDocumentManually: async (data) => {
@@ -388,6 +437,78 @@ export const documentEndpoints = {
       throw error;
     }
   },
+  getDocument: async (document_id) => {
+    try {
+      return await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
+    } catch (err) {
+      console.error('Error fetching document:', err.message);
+      throw err;
+    }
+  },
+  getDocuments: async (
+    manualType = false,
+    agentType = null,
+    page = 1,
+    size = 10
+  ) => {
+    let url;
+    if (manualType) {
+      url = `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}`;
+      if (agentType && typeof agentType === 'string') {
+        url += `&agent_type=${agentType}`;
+      }
+    } else {
+      url = `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
+    }
+    try {
+      return await axios.get(url);
+    } catch (err) {
+      console.error(err.message);
+      return null;
+    }
+  },
+  getDomainDocuments: async (domain_id, page = 1, size = 10) => {
+    const url = `${PYTHON_APP_URL}/documents/domain/${domain_id}?page=${page}&size=${size}`;
+    try {
+      return await axios.get(url);
+    } catch (err) {
+      console.error(err.message);
+      return null;
+    }
+  },
+  toggleDocumentVectorStatus: async (document_id) => {
+    try {
+      return await axios.post(
+        `${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`
+      );
+    } catch (err) {
+      console.error('Error fetching document:', err.message);
+      throw err;
+    }
+  },
+  crawlUrl: async (url, recursive = false, store_in_vector = false) => {
+    try {
+      return await axios.post(`${PYTHON_APP_URL}/crawl`, {
+        url: url,
+        recursive: recursive,
+        store_in_vector: store_in_vector,
+      });
+    } catch (err) {
+      console.error('Error fetching document:', err.message);
+      throw err;
+    }
+  },
+  vectorizeDocument: async (document_id, document) => {
+    try {
+      return await axios.post(
+        `${PYTHON_APP_URL}/documents/${document_id}/vectorize`,
+        document
+      );
+    } catch (err) {
+      console.error('Error vectorizing document:', err.message);
+      throw err;
+    }
+  }
 };
 
 export const voiceAgentEndpoints = {
@@ -571,7 +692,10 @@ export const authEndpoints = {
   },
   login: async (email, password) => {
     try {
-      const res = await axios.post(`${IPD_SERVICE_URL}/api/login`, { email, password });
+      const res = await axios.post(`${IPD_SERVICE_URL}/api/login`, {
+        email,
+        password,
+      });
       return { success: true, data: res.data };
     } catch (err) {
       if (err?.response?.data) {
@@ -597,101 +721,6 @@ export const authEndpoints = {
   },
 };
 
-export const domainEndpoints = {
-  getDomains: async () => {
-    try {
-      const res = await axios.get(`${PYTHON_APP_URL}/domains`);
-      return res;
-    } catch (err) {
-      console.error(err.message);
-      return null;
-    }
-  },
-};
-
-// extend existing documentEndpoints with more methods
-documentEndpoints.getDocuments = async (
-  manualType = false,
-  agentType = null,
-  page = 1,
-  size = 10
-) => {
-  let url;
-  if (manualType) {
-    url = `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}`;
-    if (agentType && typeof agentType === 'string') {
-      url += `&agent_type=${agentType}`;
-    }
-  } else {
-    url = `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
-  }
-  try {
-    return await axios.get(url);
-  } catch (err) {
-    console.error(err.message);
-    return null;
-  }
-};
-
-documentEndpoints.getDomainDocuments = async (domain_id, page = 1, size = 10) => {
-  const url = `${PYTHON_APP_URL}/documents/domain/${domain_id}?page=${page}&size=${size}`;
-  try {
-    return await axios.get(url);
-  } catch (err) {
-    console.error(err.message);
-    return null;
-  }
-};
-
-documentEndpoints.getDocument = async (document_id) => {
-  try {
-    return await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
-  } catch (err) {
-    console.error('Error fetching document:', err.message);
-    throw err;
-  }
-};
-
-documentEndpoints.toggleDocumentVectorStatus = async (document_id) => {
-  try {
-    return await axios.post(
-      `${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`
-    );
-  } catch (err) {
-    console.error('Error fetching document:', err.message);
-    throw err;
-  }
-};
-
-documentEndpoints.crawlUrl = async (
-  url,
-  recursive = false,
-  store_in_vector = false
-) => {
-  try {
-    return await axios.post(`${PYTHON_APP_URL}/crawl`, {
-      url: url,
-      recursive: recursive,
-      store_in_vector: store_in_vector,
-    });
-  } catch (err) {
-    console.error('Error fetching document:', err.message);
-    throw err;
-  }
-};
-
-documentEndpoints.vectorizeDocument = async (document_id, document) => {
-  try {
-    return await axios.post(
-      `${PYTHON_APP_URL}/documents/${document_id}/vectorize`,
-      document
-    );
-  } catch (err) {
-    console.error('Error vectorizing document:', err.message);
-    throw err;
-  }
-};
-
 export const systemEndpoints = {
   downloadSystemExport: async () => {
     try {
@@ -706,44 +735,15 @@ export const systemEndpoints = {
   uploadSystemImport: async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await axios.post(`${PYTHON_APP_URL}/system/import`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  },
-};
-
-// augment workflowEndpoints with export/import helpers
-workflowEndpoints.exportWorkflow = async (workflow_id) => {
-  try {
-    const res = await axios.get(`${IPD_SERVICE_URL}/workflows/${workflow_id}/export`, {
-      responseType: 'blob',
-    });
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, 'خطا در دریافت خروجی');
-  }
-};
-
-workflowEndpoints.importWorkflow = async (file) => {
-  if (!file) throw new Error('فایل الزامی است');
-  const formData = new FormData();
-  formData.append('file', file);
-  try {
-    const res = await axios.post(
-      `${PYTHON_APP_URL}/workflows/import`,
+    const response = await axios.post(
+      `${PYTHON_APP_URL}/system/import`,
       formData,
       {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       }
     );
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err, 'خطا در بارگذاری گردش کار');
-  }
+    return response.data;
+  },
 };
