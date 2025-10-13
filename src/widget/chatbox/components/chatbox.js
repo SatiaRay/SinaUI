@@ -125,10 +125,9 @@ const ChatBox = (props) => {
     satiaToken,
     satiaCustomer,
     headeroff,
-    triggeroff,
   } = props;
 
-  const [isVisible, setIsVisible] = useState(!!triggeroff);
+  const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
   const hasAccessToken = !!accessToken;
 
@@ -165,13 +164,8 @@ const ChatBox = (props) => {
             {!isStatic && (
               <Close
                 onClick={() => {
-                  if (triggeroff) {
-                    window.parent?.postMessage('closeChat', '*');
-                  } else {
-                    setIsVisible(false);
-                    setFullscreen(false);
-                    window.parent?.postMessage('closeChat', '*');
-                  }
+                  setIsVisible(false);
+                  setFullscreen(false);
                 }}
               >
                 <IoClose size={20} />
@@ -198,7 +192,7 @@ const ChatBox = (props) => {
         </MessagesWrapper>
       </Box>
 
-      {!triggeroff && !(isVisible || isStatic || fullscreen) && (
+      {!isVisible && !isStatic && !fullscreen && (
         <ChatBoxTrigger
           onClick={() => {
             setIsVisible(true);
