@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { askQuestion } from '../../services/api';
+import { chatEndpoints } from '../../utils/apis';
 import { WizardButtons, WizardButton } from './Wizard/';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -319,7 +319,7 @@ const Chat = () => {
     ]);
 
     try {
-      const response = await askQuestion(currentQuestion);
+      const response = await chatEndpoints.askQuestion(currentQuestion);
       setChatHistory((prev) => [
         ...prev,
         {
