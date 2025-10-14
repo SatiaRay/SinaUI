@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaTrash, FaMicrophone, FaKeyboard, FaRobot } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { toggleDocumentVectorStatus } from '../../../services/api';
+import { documentEndpoints } from '../../../utils/apis';
 import { notify } from '../../../ui/toast';
 
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
@@ -11,7 +11,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const toggleVectorStatus = async () => {
     try {
       setIsLoading(true);
-      const response = await toggleDocumentVectorStatus(document.id);
+      const response = await documentEndpoints.toggleDocumentVectorStatus(document.id);
 
       if (response.status === 200) {
         onStatusChange(document.id, response.data.vector_id, true);

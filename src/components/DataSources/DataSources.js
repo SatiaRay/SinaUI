@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDataSources } from '../../services/api';
+import { dataSourceEndpoints } from '../../utils/apis';
 
 const DataSources = () => {
   const [sources, setSources] = useState([]);
@@ -9,7 +9,7 @@ const DataSources = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getDataSources();
+        const data = await dataSourceEndpoints.getDataSources();
         setSources(data.sources);
         setLoading(false);
       } catch (err) {

@@ -1,11 +1,6 @@
 import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
-import {
-  checkAuthorizationFetcher,
-  login as loginApi,
-  register as registerApi,
-  formatAxiosError,
-} from '../services/api';
+import { authEndpoints, formatAxiosError } from '../utils/apis';
 import useSwr from 'swr';
 
 export const AuthContext = createContext(null);
@@ -21,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   // Revalidate authorization every minute
   const { error: authorization_error } = useSwr(
     token ? 'check_authorization' : null,
-    checkAuthorizationFetcher,
+    authEndpoints.checkAuthorizationFetcher,
     {
       onError: () => logout(),
       refreshInterval: 60000,
@@ -49,7 +44,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await loginApi(email, password);
+      const res = await authEndpoints.login(email, password);
 
       if ((res && res.success) || (res.user && res.token)) {
         const receivedToken =
@@ -149,7 +144,7 @@ export const AuthProvider = ({ children }) => {
         phone: String(formData.phone).trim(),
       };
 
-      const res = await registerApi(payload);
+      const res = await authEndpoints.register(payload);
 
       if (res && res.success) {
         const receivedToken = res.data?.access_token ?? res.data?.token ?? null;

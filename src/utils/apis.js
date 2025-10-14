@@ -2,6 +2,75 @@ import axios from '../contexts/axios';
 
 // API Base URL
 const BASE_URL = process.env.REACT_APP_CHAT_API_URL;
+const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
+const IPD_SERVICE_URL = process.env.REACT_APP_IPD_SERVICE;
+
+// Errors helpers (moved from services/api.js)
+const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است') => {
+  console.error('Axios error:', {
+    message: error.message,
+    response: error.response?.data,
+    status: error.response?.status,
+    config: {
+      url: error.config?.url,
+      method: error.config?.method,
+      headers: error.config?.headers,
+    },
+  });
+
+  if (error.response) {
+    throw new Error(`${defaultMessage} (کد خطا: ${error.response.status})`);
+  } else if (error.request) {
+    throw new Error(
+      'سرور پاسخ نمی‌دهد. لطفاً اتصال اینترنت و سرور را بررسی کنید.'
+    );
+  } else {
+    throw new Error(defaultMessage);
+  }
+};
+
+export const formatAxiosError = (error) => {
+  if (error?.response?.data) {
+    const data = error.response.data;
+    const status = error.response.status;
+    const userMessage = data.message ?? null;
+    const fieldErrors = {};
+    if (data.errors && typeof data.errors === 'object') {
+      for (const key of Object.keys(data.errors)) {
+        const val = data.errors[key];
+        if (Array.isArray(val)) {
+          fieldErrors[key] = val;
+        } else if (typeof val === 'string') {
+          fieldErrors[key] = [val];
+        } else {
+          fieldErrors[key] = [JSON.stringify(val)];
+        }
+      }
+    }
+    return {
+      userMessage,
+      fieldErrors,
+      status,
+      raw: data,
+    };
+  }
+
+  if (error?.request) {
+    return {
+      userMessage: 'No response from server',
+      fieldErrors: {},
+      status: null,
+      raw: null,
+    };
+  }
+
+  return {
+    userMessage: error?.message || 'An error occurred',
+    fieldErrors: {},
+    status: null,
+    raw: null,
+  };
+};
 
 // =============================
 // Workflow Endpoints
@@ -61,6 +130,43 @@ export const workflowEndpoints = {
     } catch (error) {
       console.error('Error listing workflows:', error);
       throw error;
+    }
+  },
+
+  // Export workflow schema
+  exportWorkflow: async (workflow_id) => {
+    try {
+      const res = await axios.get(
+        `${IPD_SERVICE_URL}/workflows/${workflow_id}/export`,
+        {
+          responseType: 'blob',
+        }
+      );
+      return res.data;
+    } catch (err) {
+      handleAxiosError(err, 'خطا در دریافت خروجی');
+    }
+  },
+
+  // Import workflow schema
+  importWorkflow: async (file) => {
+    if (!file) throw new Error('فایل الزامی است');
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await axios.post(
+        `${PYTHON_APP_URL}/workflows/import`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      return res.data;
+    } catch (err) {
+      handleAxiosError(err, 'خطا در بارگذاری گردش کار');
     }
   },
 };
@@ -284,9 +390,18 @@ export const workspaceEndpoints = {
   },
 };
 
-// =============================
-// Document Endpoints
-// =============================
+export const domainEndpoints = {
+  getDomains: async () => {
+    try {
+      const res = await axios.get(`${PYTHON_APP_URL}/domains`);
+      return res;
+    } catch (err) {
+      console.error(err.message);
+      return null;
+    }
+  },
+};
+
 export const documentEndpoints = {
   addDocumentManually: async (data) => {
     try {
@@ -309,6 +424,78 @@ export const documentEndpoints = {
     } catch (error) {
       console.error('Error deleting document:', error);
       throw error;
+    }
+  },
+  getDocument: async (document_id) => {
+    try {
+      return await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
+    } catch (err) {
+      console.error('Error fetching document:', err.message);
+      throw err;
+    }
+  },
+  getDocuments: async (
+    manualType = false,
+    agentType = null,
+    page = 1,
+    size = 10
+  ) => {
+    let url;
+    if (manualType) {
+      url = `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}`;
+      if (agentType && typeof agentType === 'string') {
+        url += `&agent_type=${agentType}`;
+      }
+    } else {
+      url = `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
+    }
+    try {
+      return await axios.get(url);
+    } catch (err) {
+      console.error(err.message);
+      return null;
+    }
+  },
+  getDomainDocuments: async (domain_id, page = 1, size = 10) => {
+    const url = `${PYTHON_APP_URL}/documents/domain/${domain_id}?page=${page}&size=${size}`;
+    try {
+      return await axios.get(url);
+    } catch (err) {
+      console.error(err.message);
+      return null;
+    }
+  },
+  toggleDocumentVectorStatus: async (document_id) => {
+    try {
+      return await axios.post(
+        `${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`
+      );
+    } catch (err) {
+      console.error('Error fetching document:', err.message);
+      throw err;
+    }
+  },
+  crawlUrl: async (url, recursive = false, store_in_vector = false) => {
+    try {
+      return await axios.post(`${PYTHON_APP_URL}/crawl`, {
+        url: url,
+        recursive: recursive,
+        store_in_vector: store_in_vector,
+      });
+    } catch (err) {
+      console.error('Error fetching document:', err.message);
+      throw err;
+    }
+  },
+  vectorizeDocument: async (document_id, document) => {
+    try {
+      return await axios.post(
+        `${PYTHON_APP_URL}/documents/${document_id}/vectorize`,
+        document
+      );
+    } catch (err) {
+      console.error('Error vectorizing document:', err.message);
+      throw err;
     }
   },
 };
@@ -512,5 +699,129 @@ export const wizardEndpoints = {
       console.error('Error deleting wizard:', error);
       throw error;
     }
+  },
+};
+
+// ============ Grouped endpoints (moved from services/api.js) ============
+
+export const dataSourceEndpoints = {
+  getDataSources: async () => {
+    try {
+      const response = await axios.get(`${PYTHON_APP_URL}/data_sources/`);
+      return response.data;
+    } catch (error) {
+      handleAxiosError(error, 'خطا در دریافت منابع داده');
+    }
+  },
+};
+
+export const chatEndpoints = {
+  askQuestion: async (question) => {
+    try {
+      const response = await axios.post(`${PYTHON_APP_URL}/ask`, { question });
+      return response.data;
+    } catch (error) {
+      handleAxiosError(error, 'خطا در دریافت پاسخ');
+    }
+  },
+};
+
+export const authEndpoints = {
+  checkAuthorizationFetcher: async () => {
+    try {
+      const res = await axios.get(`${PYTHON_APP_URL}/whoami`);
+      return res.data;
+    } catch (err) {
+      console.error('Request failed:', err.response?.data || err.message);
+      throw err;
+    }
+  },
+  register: async ({ name, email, password, phone, password_confirmation }) => {
+    try {
+      const res = await axios.post(`${IPD_SERVICE_URL}/api/register`, {
+        name,
+        email,
+        password,
+        password_confirmation,
+        phone,
+      });
+      return { success: true, data: res.data };
+    } catch (err) {
+      if (err?.response?.data) {
+        const data = err.response.data;
+        return {
+          success: false,
+          error: data.message ?? null,
+          fieldErrors:
+            data.errors && typeof data.errors === 'object' ? data.errors : {},
+          status: err.response.status,
+          raw: data,
+        };
+      }
+      const formatted = formatAxiosError(err);
+      return {
+        success: false,
+        error: formatted.userMessage,
+        fieldErrors: formatted.fieldErrors,
+        status: formatted.status,
+        raw: formatted.raw,
+      };
+    }
+  },
+  login: async (email, password) => {
+    try {
+      const res = await axios.post(`${IPD_SERVICE_URL}/api/login`, {
+        email,
+        password,
+      });
+      return { success: true, data: res.data };
+    } catch (err) {
+      if (err?.response?.data) {
+        const data = err.response.data;
+        return {
+          success: false,
+          error: data.message ?? null,
+          fieldErrors:
+            data.errors && typeof data.errors === 'object' ? data.errors : {},
+          status: err.response.status,
+          raw: data,
+        };
+      }
+      const formatted = formatAxiosError(err);
+      return {
+        success: false,
+        error: formatted.userMessage,
+        fieldErrors: formatted.fieldErrors,
+        status: formatted.status,
+        raw: formatted.raw,
+      };
+    }
+  },
+};
+
+export const systemEndpoints = {
+  downloadSystemExport: async () => {
+    try {
+      const res = await axios.get(`${PYTHON_APP_URL}/system/export`, {
+        responseType: 'blob',
+      });
+      return res.data;
+    } catch (err) {
+      handleAxiosError(err, 'خطا در دریافت فایل پشتیبان');
+    }
+  },
+  uploadSystemImport: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axios.post(
+      `${PYTHON_APP_URL}/system/import`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
   },
 };
