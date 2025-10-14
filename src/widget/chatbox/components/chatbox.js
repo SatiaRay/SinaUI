@@ -123,8 +123,6 @@ const ChatBox = (props) => {
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(props['fullscreen'] || false);
 
-  const hasAccessToken = !!props['accessToken'];
-
   // Disable body scroll when chatbox is open
   useEffect(() => {
     if (isVisible || fullscreen) {
@@ -137,9 +135,13 @@ const ChatBox = (props) => {
     };
   }, [isVisible, fullscreen]);
 
-  if (hasAccessToken) {
-    localStorage.setItem('khan-access-token', props['accessToken']);
+  if (!props['accessToken']) {
+    console.error('Khan access token not found');
+
+    return;
   }
+
+  localStorage.setItem('khan-access-token', props['accessToken']);
 
   let services = null;
 
@@ -175,17 +177,11 @@ const ChatBox = (props) => {
 
         <MessagesWrapper>
           <Messages>
-            {hasAccessToken ? (
-              <AuthProvider>
-                <ChatProvider>
-                  <Chat services={services} />
-                </ChatProvider>
-              </AuthProvider>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px' }}>
-                Access token not found 🚫
-              </div>
-            )}
+            <AuthProvider>
+              <ChatProvider>
+                <Chat services={services} />
+              </ChatProvider>
+            </AuthProvider>
           </Messages>
         </MessagesWrapper>
       </Box>
