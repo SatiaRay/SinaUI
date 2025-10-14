@@ -131,7 +131,6 @@ const ChatBox = (props) => {
 
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
-  const hasAccessToken = !!accessToken;
 
   useEffect(() => {
     if (isVisible || fullscreen) document.body.style.overflow = 'hidden';
@@ -139,7 +138,13 @@ const ChatBox = (props) => {
     return () => (document.body.style.overflow = '');
   }, [isVisible, fullscreen]);
 
-  if (hasAccessToken) localStorage.setItem('khan-access-token', accessToken);
+  if (!accessToken) {
+    console.error('Khan access token not found');
+
+    return;
+  }
+
+  localStorage.setItem('khan-access-token', accessToken);
 
   let services = null;
   if (satiaToken && satiaCustomer)
@@ -170,17 +175,11 @@ const ChatBox = (props) => {
         )}
         <MessagesWrapper>
           <Messages>
-            {hasAccessToken ? (
-              <AuthProvider>
-                <ChatProvider>
-                  <Chat services={services} />
-                </ChatProvider>
-              </AuthProvider>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px' }}>
-                Access token not found 🚫
-              </div>
-            )}
+            <AuthProvider>
+              <ChatProvider>
+                <Chat services={services} />
+              </ChatProvider>
+            </AuthProvider>
           </Messages>
         </MessagesWrapper>
       </Box>

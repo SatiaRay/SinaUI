@@ -5,7 +5,7 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { getWebSocketUrl } from '../../../utils/websocket';
 import { Link, useParams } from 'react-router-dom';
-import { getDocument, vectorizeDocument } from '../../../services/api';
+import { documentEndpoints } from '../../../utils/apis';
 
 const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
   const { document_id } = useParams();
@@ -45,7 +45,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
   useEffect(() => {
     const loadDocument = async () => {
       try {
-        const response = await getDocument(document_id);
+        const response = await documentEndpoints.getDocument(document_id);
 
         if (response?.data) {
           setDocument(response.data);
@@ -141,7 +141,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
         },
       };
 
-      const vectorizeResponse = await vectorizeDocument(
+      const vectorizeResponse = await documentEndpoints.vectorizeDocument(
         document.id,
         documentData
       );

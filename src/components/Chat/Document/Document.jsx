@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import CrawlUrl from '../CrawlUrl';
 import CreateDocument from './CreateDocument';
+import { domainEndpoints } from '../../../utils/apis';
 
 // استایل‌های سراسری برای جداول در Markdown و CKEditor
 const globalStyles = `
@@ -75,18 +76,7 @@ const DocumentIndex = () => {
     setDomainsLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/domains`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت لیست دامنه‌ها');
-      }
-      const data = await response.json();
+      const data = await domainEndpoints.getDomains()
       setDomains(data);
     } catch (err) {
       setError(err.message);

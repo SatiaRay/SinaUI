@@ -3,7 +3,7 @@ import CreateDocument from './CreateDocument';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getDocuments } from '../../../services/api';
+import { documentEndpoints } from '../../../../utils/apis';
 
 const ManualIndex = () => {
   const [documents, setDocuments] = useState([]);
@@ -23,7 +23,7 @@ const ManualIndex = () => {
     const fetchDocuments = async () => {
       setLoading(true);
       try {
-        const response = await getDocuments(true, currentPage, pageSize); // isManual = true برای اسناد دستی
+        const response = await documentEndpoints.getDocuments(true, currentPage, pageSize); // isManual = true برای اسناد دستی
         if (response && response.data) {
           setDocuments(response.data.items);
           setTotalPages(response.data.pages);

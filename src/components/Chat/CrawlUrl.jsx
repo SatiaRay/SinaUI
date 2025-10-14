@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getWebSocketUrl } from '../../utils/websocket';
 import { Link } from 'react-router-dom';
-import { crawlUrl, getDocument } from '../../services/api';
+import { documentEndpoints } from '../../utils/apis';
 import {
   ArrowPathIcon,
   CloudArrowDownIcon,
@@ -34,7 +34,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
     setCrawling(true);
     setError(null);
     try {
-      const response = await crawlUrl(url, crawlRecursive, storeInVector);
+      const response = await documentEndpoints.crawlUrl(url, crawlRecursive, storeInVector);
       const data = response.data;
 
       setActiveJobs((prev) => ({
@@ -166,7 +166,7 @@ const CrawlUrl = ({ onClose, onDocClick }) => {
   const handleDocsCreated = async (jobId, data) => {
     const docPromises = data.doc_ids.map(async (docId) => {
       try {
-        const response = await getDocument(docId);
+        const response = await documentEndpoints.getDocument(docId);
         const doc = response.data;
         return {
           id: doc.id,
