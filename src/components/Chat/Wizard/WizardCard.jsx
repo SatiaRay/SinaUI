@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ShowWizard, UpdateWizard } from './index';
 import { wizardEndpoints } from '../../../utils/apis';
+import Swal from 'sweetalert2';
+import { notify } from '../../../ui/toast';
 
 const WizardCard = ({
   wizard,
@@ -27,13 +29,30 @@ const WizardCard = ({
     }
   };
 
-  const submitDelete = async () => {
-    try {
-      await wizardEndpoints.deleteWizard(wizard.id);
-      onDeleteWizard(wizard.id);
-    } catch (error) {
-      console.error('Error deleting wizard:', error);
-      alert('خطا در حذف ویزارد');
+  const submitDelete = async (wizard) => {
+    const result = await Swal.fire({
+      title: `آیا مطمئن هستید؟`,
+      text: ` آیا از حذف ${wizard.title} مطمئن هستید؟ این عملیات قابل بازگشت نیست.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      cancelButtonText: 'لغو',
+      confirmButtonText: 'بله، حذف کن!',
+      customClass: {
+        confirmButton: 'swal2-confirm-btn',
+        cancelButton: 'swal2-cancel-btn',
+      },
+      buttonsStyling: false,
+    });
+    if (result.isConfirmed) {
+      try {
+        await wizardEndpoints.deleteWizard(wizard.id);
+        notify.success(`${wizard.title} با موفقیت حذف شد.`);
+        onDeleteWizard(wizard.id);
+      } catch (error) {
+        notify.error('خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.');
+      }
     }
   };
 
@@ -87,7 +106,7 @@ const WizardCard = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  submitDelete();
+                  submitDelete(wizard);
                 }}
                 disabled={updatingStatus[wizard.id]}
                 className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-red-200 dark:bg-red-900 dark:hover:bg-red-800`}
