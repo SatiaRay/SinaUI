@@ -119,6 +119,82 @@ const ChatBoxTrigger = styled.button`
   }
 `;
 
+// اسکلت لودینگ استایل‌ها - پایه‌ای
+const SkeletonContainer = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  gap: 20px;
+  direction: rtl;
+`;
+
+const SkeletonBubbleWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+  width: 100%;
+`;
+
+const SkeletonMessageBubble = styled.div`
+  max-width: 90%;
+  min-width: 250px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  background-color: ${props => props.isUser ? '#f0f0f0' : '#e0e0e0'};
+  animation: pulse 1.5s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  @keyframes pulse {
+    0% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
+`;
+
+const SkeletonTextLine = styled.div`
+  height: 14px;
+  border-radius: 7px;
+  background-color: ${props => props.isUser ? '#f0f0f0' : '#e0e0e0'};
+  width: ${props => props.width || '100%'};
+  
+  &:last-child {
+    width: ${props => props.lastWidth || '70%'};
+  }
+`;
+
+// کامپوننت اسکلت لودینگ پایه‌ای
+const ChatSkeletonLoader = () => {
+  return (
+    <SkeletonContainer>
+      {/* پیام AI پایه‌ای */}
+      <SkeletonBubbleWrapper>
+        <SkeletonMessageBubble isUser={false}>
+          <SkeletonTextLine isUser={false} width="95%" />
+          <SkeletonTextLine isUser={false} width="90%" />
+          <SkeletonTextLine isUser={false} width="85%" lastWidth="75%" />
+        </SkeletonMessageBubble>
+      </SkeletonBubbleWrapper>
+
+      {/* پیام کاربر پایه‌ای */}
+      <SkeletonBubbleWrapper>
+        <SkeletonMessageBubble isUser={true}>
+          <SkeletonTextLine isUser={true} width="90%" />
+          <SkeletonTextLine isUser={true} width="80%" lastWidth="70%" />
+        </SkeletonMessageBubble>
+      </SkeletonBubbleWrapper>
+    </SkeletonContainer>
+  );
+};
+
 const ChatBox = (props) => {
   const {
     static: isStatic,
@@ -131,6 +207,7 @@ const ChatBox = (props) => {
 
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
 
   useEffect(() => {
     if (isVisible || fullscreen) document.body.style.overflow = 'hidden';
@@ -138,9 +215,19 @@ const ChatBox = (props) => {
     return () => (document.body.style.overflow = '');
   }, [isVisible, fullscreen]);
 
+  // منطق ساده نمایش اسکلت
+  useEffect(() => {
+    if ((isVisible || isStatic || fullscreen) && !showSkeleton) {
+      setShowSkeleton(true);
+      const timer = setTimeout(() => {
+        setShowSkeleton(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, isStatic, fullscreen]);
+
   if (!accessToken) {
     console.error('Khan access token not found');
-
     return;
   }
 
@@ -175,11 +262,15 @@ const ChatBox = (props) => {
         )}
         <MessagesWrapper>
           <Messages>
-            <AuthProvider>
-              <ChatProvider>
-                <Chat services={services} />
-              </ChatProvider>
-            </AuthProvider>
+            {showSkeleton ? (
+              <ChatSkeletonLoader />
+            ) : (
+              <AuthProvider>
+                <ChatProvider>
+                  <Chat services={services} />
+                </ChatProvider>
+              </AuthProvider>
+            )}
           </Messages>
         </MessagesWrapper>
       </Box>
