@@ -11,7 +11,8 @@ export const H2 = styled.h2`
   }
 `;
 
-// Chat Container Components
+// ChatContainer — main wrapper for the chat interface
+// Uses dvh to avoid scroll jumps when browser address bar appears/disappears on mobile.
 export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -20,11 +21,21 @@ export const ChatContainer = styled.div`
   padding-bottom: 1.75rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  height: 100%;
+  height: 100dvh; /* ✅ Dynamic viewport height (fixes Android browser bar jump) */
+  max-height: 100dvh;
   width: 100%;
   max-width: 860px;
   margin-left: auto;
   margin-right: auto;
+
+  overscroll-behavior: none; /* Prevent bounce/overscroll on mobile */
+  -webkit-overflow-scrolling: touch; /* Smooth native scroll on iOS */
+
+  /* ✅ Fallback for older browsers that don't support dvh */
+  @supports not (height: 100dvh) {
+    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
+  }
 
   @media (max-width: 768px) {
     padding-top: 0.5rem;
@@ -128,20 +139,30 @@ export const WizardContainer = styled.div`
   align-items: center; /* items-center */
   justify-content: center; /* justify-center */
 `;
-
+// ChatMessagesContainer — scrollable area for chat messages
+// Uses dvh instead of vh to avoid layout jump when mobile browser UI toggles.
 export const ChatMessagesContainer = styled.div`
   flex: 1;
   overflow-y: auto;
   margin-bottom: 1rem;
   gap: 1rem;
   transition: all 0.5s ease;
-  height: calc(100vh - 200px);
+  height: calc(
+    100dvh - 200px
+  ); /* ✅ Prevents jump caused by 100vh on Android */
+  overscroll-behavior: contain; /* Prevent scroll chaining */
+  -webkit-overflow-scrolling: touch; /* Enables momentum scrolling on iOS */
 
   /* Hide scrollbar */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE */
   &::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome/Safari */
+  }
+
+  /* ✅ Fallback for older browsers */
+  @supports not (height: 100dvh) {
+    height: 100vh;
   }
 `;
 
