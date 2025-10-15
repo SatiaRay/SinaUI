@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { chatEndpoints } from '../../utils/apis';
+import { chatEndpoints, wizardEndpoints } from '../../utils/apis';
 import { WizardButtons, WizardButton } from './Wizard/';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -240,18 +240,7 @@ const Chat = () => {
 
   const fetchRootWizards = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/wizards/hierarchy/roots`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error('خطا در دریافت ویزاردها');
-      }
-      const data = await response.json();
+      const data = await wizardEndpoints.getRootWizards()
       setRootWizards(data); // Store root wizards
       setCurrentWizards(data); // Set initial current wizards
     } catch (err) {
@@ -264,20 +253,7 @@ const Chat = () => {
 
     setHistoryLoading(true);
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
-
-      if (response.status !== 200) {
-        return;
-      }
-
-      const messages = await response.json();
+      const messages = await chatEndpoints.getChatHistory(sessionId, offset, limit)
 
       if (Array.isArray(messages)) {
         const transformedMessages = messages.map((msg) => ({

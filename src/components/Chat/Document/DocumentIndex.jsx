@@ -115,18 +115,8 @@ const DocumentIndex = () => {
         selectedDocument: document,
       }));
 
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/documents/${document.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
 
-      if (!response.ok) throw new Error('دریافت محتوای سند ناموفق بود');
-
-      const data = await response.json();
+      const data = await documentEndpoints.getDocument(document.id)
       setState((prev) => ({
         ...prev,
         documentContent: data,

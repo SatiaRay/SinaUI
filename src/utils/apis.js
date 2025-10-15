@@ -636,6 +636,15 @@ export const monitoringEndpoints = {
 // Wizard Endpoints
 // =============================
 export const wizardEndpoints = {
+  getRootWizards: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/wizards/hierarchy/roots`);
+      return response.data;
+    } catch (error) {
+      console.error('Error listing root wizards:', error);
+      throw error;
+    }
+  },
   listWizards: async () => {
     try {
       const response = await axios.get(`${BASE_URL}/wizards`);
@@ -656,9 +665,10 @@ export const wizardEndpoints = {
     }
   },
 
-  getWizard: async (wizardId) => {
+  // Get wizard by ID
+  getWizard: async (wizardId, enableOnly= true) => {
     try {
-      const response = await axios.get(`${BASE_URL}/wizards/${wizardId}`);
+      const response = await axios.get(`${BASE_URL}/wizards/${wizardId}?enable_only=${enableOnly ? 'true' : 'false'}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching wizard:', error);
@@ -724,6 +734,14 @@ export const chatEndpoints = {
       handleAxiosError(error, 'خطا در دریافت پاسخ');
     }
   },
+  getChatHistory: async (sessionId, offset, limit) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`);
+      return response.data;
+    } catch (error) {
+      handleAxiosError(error, 'خطا در دریافت پاسخ');
+    }
+  }
 };
 
 export const authEndpoints = {
