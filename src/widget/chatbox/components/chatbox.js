@@ -119,7 +119,6 @@ const ChatBoxTrigger = styled.button`
   }
 `;
 
-// اسکلت لودینگ استایل‌ها - پایه‌ای
 const SkeletonContainer = styled.div`
   flex: 1;
   display: flex;
@@ -171,25 +170,99 @@ const SkeletonTextLine = styled.div`
   }
 `;
 
-// کامپوننت اسکلت لودینگ پایه‌ای
+const SkeletonIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  justify-content: flex-start;
+  direction: rtl;
+`;
+
+const SkeletonAvatar = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: ${props => props.isUser ? '#f0f0f0' : '#e0e0e0'};
+  flex-shrink: 0;
+`;
+
+const SkeletonName = styled.div`
+  height: 12px;
+  border-radius: 6px;
+  background-color: #e0e0e0;
+  width: 80px;
+`;
+
 const ChatSkeletonLoader = () => {
   return (
     <SkeletonContainer>
-      {/* پیام AI پایه‌ای */}
       <SkeletonBubbleWrapper>
-        <SkeletonMessageBubble isUser={false}>
-          <SkeletonTextLine isUser={false} width="95%" />
-          <SkeletonTextLine isUser={false} width="90%" />
-          <SkeletonTextLine isUser={false} width="85%" lastWidth="75%" />
-        </SkeletonMessageBubble>
+        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <SkeletonIndicator>
+            <SkeletonAvatar isUser={false} />
+            <SkeletonName />
+          </SkeletonIndicator>
+          <SkeletonMessageBubble isUser={false}>
+            <SkeletonTextLine isUser={false} width="98%" />
+            <SkeletonTextLine isUser={false} width="95%" />
+            <SkeletonTextLine isUser={false} width="92%" />
+            <SkeletonTextLine isUser={false} width="85%" />
+            <SkeletonTextLine isUser={false} width="78%" lastWidth="70%" />
+          </SkeletonMessageBubble>
+        </div>
       </SkeletonBubbleWrapper>
-
-      {/* پیام کاربر پایه‌ای */}
       <SkeletonBubbleWrapper>
-        <SkeletonMessageBubble isUser={true}>
-          <SkeletonTextLine isUser={true} width="90%" />
-          <SkeletonTextLine isUser={true} width="80%" lastWidth="70%" />
-        </SkeletonMessageBubble>
+        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <SkeletonIndicator>
+            <SkeletonAvatar isUser={true} />
+            <SkeletonName />
+          </SkeletonIndicator>
+          <SkeletonMessageBubble isUser={true}>
+            <SkeletonTextLine isUser={true} width="95%" />
+            <SkeletonTextLine isUser={true} width="88%" />
+            <SkeletonTextLine isUser={true} width="75%" lastWidth="65%" />
+          </SkeletonMessageBubble>
+        </div>
+      </SkeletonBubbleWrapper>
+      <SkeletonBubbleWrapper>
+        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <SkeletonIndicator>
+            <SkeletonAvatar isUser={false} />
+            <SkeletonName />
+          </SkeletonIndicator>
+          <SkeletonMessageBubble isUser={false}>
+            <SkeletonTextLine isUser={false} width="90%" />
+            <SkeletonTextLine isUser={false} width="85%" />
+            <SkeletonTextLine isUser={false} width="80%" />
+            <SkeletonTextLine isUser={false} width="72%" lastWidth="60%" />
+          </SkeletonMessageBubble>
+        </div>
+      </SkeletonBubbleWrapper>
+      <SkeletonBubbleWrapper>
+        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <SkeletonIndicator>
+            <SkeletonAvatar isUser={true} />
+            <SkeletonName />
+          </SkeletonIndicator>
+          <SkeletonMessageBubble isUser={true}>
+            <SkeletonTextLine isUser={true} width="92%" />
+            <SkeletonTextLine isUser={true} width="85%" />
+            <SkeletonTextLine isUser={true} width="78%" lastWidth="55%" />
+          </SkeletonMessageBubble>
+        </div>
+      </SkeletonBubbleWrapper>
+      <SkeletonBubbleWrapper>
+        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <SkeletonIndicator>
+            <SkeletonAvatar isUser={false} />
+            <SkeletonName />
+          </SkeletonIndicator>
+          <SkeletonMessageBubble isUser={false}>
+            <SkeletonTextLine isUser={false} width="80%" />
+            <SkeletonTextLine isUser={false} width="70%" lastWidth="65%" />
+          </SkeletonMessageBubble>
+        </div>
       </SkeletonBubbleWrapper>
     </SkeletonContainer>
   );
@@ -207,6 +280,7 @@ const ChatBox = (props) => {
 
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
 
   useEffect(() => {
@@ -215,13 +289,16 @@ const ChatBox = (props) => {
     return () => (document.body.style.overflow = '');
   }, [isVisible, fullscreen]);
 
-  // منطق ساده نمایش اسکلت
   useEffect(() => {
-    if ((isVisible || isStatic || fullscreen) && !showSkeleton) {
+    if ((isVisible || isStatic || fullscreen) && !isLoading) {
+      setIsLoading(true);
       setShowSkeleton(true);
+      
       const timer = setTimeout(() => {
-        setShowSkeleton(false);
-      }, 1500);
+        setIsLoading(false);
+        setTimeout(() => setShowSkeleton(false), 200);
+      }, 800);
+
       return () => clearTimeout(timer);
     }
   }, [isVisible, isStatic, fullscreen]);
