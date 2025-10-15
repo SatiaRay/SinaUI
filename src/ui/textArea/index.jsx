@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { EditableInput, InputWrapper, Placeholder } from '../../components/ui/common';
+import {
+  EditableInput,
+  InputWrapper,
+  Placeholder,
+} from '../../components/ui/common';
 
 const TextInputWithBreaks = ({
   value,
@@ -34,7 +38,10 @@ const TextInputWithBreaks = ({
         }, 0);
       } else {
         e.preventDefault();
-        if (!disabled && value.trim()) onSubmit();
+        if (!disabled && value.trim()) {
+          const plainText = value.replace(/<\/?[^>]+(>|$)/g, '');
+          onSubmit(plainText);
+        }
       }
     }
   };
@@ -67,12 +74,14 @@ const TextInputWithBreaks = ({
       placeCaretAtEnd(inputRef.current);
     }
   };
+
   // Handle paste → force plain text (strip formatting like GPT)
   const handlePaste = (e) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain'); // only plain text
     document.execCommand('insertText', false, text); // insert clean text
   };
+
   return (
     <InputWrapper>
       <EditableInput
