@@ -65,10 +65,11 @@ const TextInputWithBreaks = ({
         } else {
           e.preventDefault();
           if (!disabled && value.trim()) onSubmit();
-        e.preventDefault();
-        if (!disabled && value.trim()) {
-          const plainText = value.replace(/<\/?[^>]+(>|$)/g, '');
-          onSubmit(plainText);
+          e.preventDefault();
+          if (!disabled && value.trim()) {
+            const plainText = value.replace(/<\/?[^>]+(>|$)/g, '');
+            onSubmit(plainText);
+          }
         }
       }
     }
