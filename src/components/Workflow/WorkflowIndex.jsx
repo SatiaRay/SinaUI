@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { workflowEndpoints } from '../../utils/apis';
-import { exportWorkflow, importWorkflow } from '../../services/api';
 import CustomDropdown from '../../ui/dropdown';
 
 const WorkflowIndex = () => {
@@ -72,7 +71,7 @@ const WorkflowIndex = () => {
     if (!workflowId) return;
 
     try {
-      const blob = await exportWorkflow(workflowId);
+      const blob = await workflowEndpoints.exportWorkflow(workflowId);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -100,7 +99,7 @@ const WorkflowIndex = () => {
     }
 
     try {
-      const result = await importWorkflow(file);
+      const result = await workflowEndpoints.importWorkflow(file);
       console.log('Import success:', result);
       setStatus((prev) => ({
         ...prev,

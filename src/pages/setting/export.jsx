@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { downloadSystemExport } from '../../services/api';
+import { systemEndpoints } from '../../utils/apis';
 import { notify } from '../../ui/toast';
 
 export const Export = () => {
@@ -7,7 +7,7 @@ export const Export = () => {
 
   const handleDownload = async () => {
     try {
-      const blob = await downloadSystemExport();
+      const blob = await systemEndpoints.downloadSystemExport();
       if (!blob) throw new Error('فایل دریافت نشد');
 
       const url = window.URL.createObjectURL(blob);

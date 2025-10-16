@@ -25,6 +25,11 @@ export const ChatContainer = styled.div`
   max-width: 860px;
   margin-left: auto;
   margin-right: auto;
+
+  @media (max-width: 768px) {
+    padding-top: 0.5rem;
+    padding-bottom: 0.75rem;
+  }
 `;
 
 export const InitialLayoutContainer = styled.div`
@@ -375,7 +380,7 @@ export const SentMessageLabel = styled.span`
 `;
 
 export const ReceivedMessageContainer = styled.div`
-  background-color: #f9fafb;
+  //background-color: #f9fafb;
   line-height: 2;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -825,7 +830,15 @@ export const UploadButton = styled.button`
   }
 `;
 
+export const WizardButtonsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; /* allow buttons to move to a new line */
+  gap: 0.25rem; /* optional, controls spacing between buttons */
+`;
+
 export const WizardButtonStyled = styled.button`
+  flex-grow: 1;
   padding: 0.25rem 0.5rem; /* py-1 px-2 */
   font-size: 0.875rem; /* text-sm */
   font-weight: 500; /* font-medium */
@@ -856,6 +869,15 @@ export const VoiceButtonStyled = styled.button`
   align-items: center; /* items-center */
   justify-content: center; /* justify-center */
   margin-left: 10px !important;
+  padding: 0.5rem;
+  color: #2563eb;
+  border-radius: 0.5rem;
+  transition:
+    background-color 0.2s ease,
+    colors 0.2s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 
   &:disabled {
     opacity: 0.6;
@@ -870,9 +892,17 @@ export const VoiceButtonStyled = styled.button`
 
   /* Icon */
   svg {
-    width: 1.5rem; /* w-6 */
-    height: 1.5rem; /* h-6 */
+    width: 1.25rem; /* w-6 */
+    height: 1.25rem; /* h-6 */
     color: #2563eb; /* text-blue-600 */
+  }
+
+  &:hover {
+    background-color: #dbeafe;
+  }
+
+  .dark &:hover {
+    background-color: #374151;
   }
 
   /* ✅ Dark mode */

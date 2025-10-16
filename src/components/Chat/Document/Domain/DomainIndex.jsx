@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getDomains } from '../../../../services/api';
+import { documentEndpoints } from '../../../../utils/apis';
 
 const DomainIndex = () => {
   const [domains, setDomains] = useState([]);
@@ -8,7 +8,7 @@ const DomainIndex = () => {
   useEffect(() => {
     const fetchDomains = async () => {
       try {
-        const domains = await getDomains();
+        const domains = await documentEndpoints.getDomains();
 
         setDomains(domains.data);
       } catch (err) {}

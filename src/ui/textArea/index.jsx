@@ -65,6 +65,10 @@ const TextInputWithBreaks = ({
         } else {
           e.preventDefault();
           if (!disabled && value.trim()) onSubmit();
+        e.preventDefault();
+        if (!disabled && value.trim()) {
+          const plainText = value.replace(/<\/?[^>]+(>|$)/g, '');
+          onSubmit(plainText);
         }
       }
     }
@@ -98,12 +102,14 @@ const TextInputWithBreaks = ({
       placeCaretAtEnd(inputRef.current);
     }
   };
+
   // Handle paste → force plain text (strip formatting like GPT)
   const handlePaste = (e) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain'); // only plain text
     document.execCommand('insertText', false, text); // insert clean text
   };
+
   return (
     <InputWrapper>
       <EditableInput

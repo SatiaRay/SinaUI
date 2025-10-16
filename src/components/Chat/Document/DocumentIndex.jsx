@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { getDocuments, getDomainDocuments } from '../../../services/api';
 import { documentEndpoints } from '../../../utils/apis';
 import DocumentCard from './DocumentCard';
 import CreateDocument from './CreateDocument';
@@ -41,7 +40,7 @@ const DocumentIndex = () => {
         setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         const response = isManualRoute
-          ? await getDocuments(
+          ? await documentEndpoints.getDocuments(
               true,
               customState.agentType === 'text_agent'
                 ? 'text_agent'
@@ -49,7 +48,7 @@ const DocumentIndex = () => {
               customState.currentPage,
               customState.pageSize
             )
-          : await getDomainDocuments(
+          : await documentEndpoints.getDomainDocuments(
               domain_id,
               customState.currentPage,
               customState.pageSize
@@ -116,18 +115,8 @@ const DocumentIndex = () => {
         selectedDocument: document,
       }));
 
-      const response = await fetch(
-        `${process.env.REACT_APP_CHAT_API_URL}/documents/${document.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      );
 
-      if (!response.ok) throw new Error('دریافت محتوای سند ناموفق بود');
-
-      const data = await response.json();
+      const data = await documentEndpoints.getDocument(document.id)
       setState((prev) => ({
         ...prev,
         documentContent: data,

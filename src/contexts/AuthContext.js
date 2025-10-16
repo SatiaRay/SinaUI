@@ -1,57 +1,47 @@
 import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
-import {
-  checkAuthorizationFetcher,
-  login as loginApi,
-  register as registerApi,
-  formatAxiosError,
-} from '../services/api';
+import { authEndpoints, formatAxiosError } from '../utils/apis';
 import useSwr from 'swr';
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem('khan-user-info');
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const [token, setToken] = useState(() => {
-    return localStorage.getItem('token');
-  });
+  const [token, setToken] = useState(localStorage.getItem('khan-access-token'));
 
   // Revalidate authorization every minute
   const { error: authorization_error } = useSwr(
     token ? 'check_authorization' : null,
-    checkAuthorizationFetcher,
+    authEndpoints.checkAuthorizationFetcher,
     {
       onError: () => logout(),
       refreshInterval: 60000,
     }
   );
 
-  // Keep axios + localStorage synced
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      localStorage.setItem('token', token);
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-      localStorage.removeItem('token');
-    }
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    localStorage.setItem('khan-access-token', token);
+  } else {
+    delete axios.defaults.headers.common['Authorization'];
+    localStorage.removeItem('khan-access-token');
+  }
 
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
-    }
-  }, [token, user]);
+  if (user) {
+    localStorage.setItem('khan-user-info', JSON.stringify(user));
+  } else {
+    localStorage.removeItem('khan-user-info');
+  }
 
   const check = () => !!user && !!token;
 
   const login = async (email, password) => {
     try {
-      const res = await loginApi(email, password);
+      const res = await authEndpoints.login(email, password);
 
       if ((res && res.success) || (res.user && res.token)) {
         const receivedToken =
@@ -121,8 +111,9 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      const nameFromFields =
-        `${(formData.first_name ?? '').trim()} ${(formData.last_name ?? '').trim()}`.trim();
+      const nameFromFields = `${(formData.first_name ?? '').trim()} ${(
+        formData.last_name ?? ''
+      ).trim()}`.trim();
       const name = (formData.name ?? '').trim() || nameFromFields;
 
       // Validation: همه فیلدها اجباری
@@ -151,7 +142,7 @@ export const AuthProvider = ({ children }) => {
         phone: String(formData.phone).trim(),
       };
 
-      const res = await registerApi(payload);
+      const res = await authEndpoints.register(payload);
 
       if (res && res.success) {
         const receivedToken = res.data?.access_token ?? res.data?.token ?? null;
@@ -203,8 +194,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem('khan-user-info');
+    localStorage.removeItem('khan-access-token');
     delete axios.defaults.headers.common['Authorization'];
   };
 
@@ -213,7 +204,7 @@ export const AuthProvider = ({ children }) => {
   const updateUser = (updates) => {
     setUser((prev) => {
       const newUser = { ...prev, ...updates };
-      localStorage.setItem('user', JSON.stringify(newUser));
+      localStorage.setItem('khan-user-info', JSON.stringify(newUser));
       return newUser;
     });
   };
@@ -223,6 +214,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         token,
+        setToken,
         check,
         login,
         register,
