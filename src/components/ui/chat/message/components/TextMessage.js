@@ -28,8 +28,6 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
       .catch((err) => console.error('Failed to copy:', err));
   };
 
-  console.log(data.body);
-
   let safeBody = data.body.replace(/^(\d+)\.\s+\*\*/gm, '**$1. ');
   let formattedHtml = marked.parse(safeBody);
   formattedHtml = String(marked.parse(safeBody));

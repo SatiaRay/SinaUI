@@ -745,7 +745,7 @@ const Chat = ({ services = null }) => {
       setIsServiceUnabailable(true);
       disconnectChatSocket();
       resetChatState();
-    }, 12);
+    }, 120000); // it's for test
   };
 
   /**
@@ -758,6 +758,7 @@ const Chat = ({ services = null }) => {
       body: msg,
       role: 'assistant',
       created_at: new Date().toISOString().slice(0, 19),
+      onSubmit: () => sendMessageDecorator(),
     });
     // discrete message -> force scroll to show error
     setTimeout(forceScrollToBottomImmediate, 20);
@@ -996,5 +997,4 @@ const Chat = ({ services = null }) => {
     </ChatContainer>
   );
 };
-
 export default Chat;

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FiRefreshCw } from 'react-icons/fi';
+import { useChat } from '../../../../contexts/ChatContext';
 
 export const ErrorMessageContent = styled.pre`
   display: flex;
@@ -134,9 +135,28 @@ const MessageText = styled.span`
   white-space: nowrap;
 `;
 
-export const ErrorMessage = ({ data, onRetry }) => {
+export const ErrorMessage = ({ data }) => {
+  const { setError, history, removeMessage } = useChat();
+
+  const handleRetry = () => {
+    setError(null);
+    if (!history.ids.length) return;
+    const lastMessageId = history.ids[history.ids.length - 1];
+    removeMessage(lastMessageId);
+    const prevMessageId = history.ids[history.ids.length - 2];
+    const prevMessage = history.entities[prevMessageId];
+    if (!prevMessage) return;
+    removeMessage(prevMessageId);
+
+    if (data?.onSubmit) {
+      data.onSubmit();
+    } else if (prevMessage.type === 'text') {
+      data.onSubmit(prevMessage.body);
+    }
+  };
+
   return (
-    <div align={'center'}>
+    <div align="center">
       <ErrorMessageContent>
         <ErrorRow>
           <LeftGroup>
@@ -160,11 +180,13 @@ export const ErrorMessage = ({ data, onRetry }) => {
                 d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
               />
             </svg>
-            <MessageText title={typeof data.body === 'string' ? data.body : ''}>
-              {data.body}
+            <MessageText
+              title={typeof data?.body === 'string' ? data.body : ''}
+            >
+              {data?.body}
             </MessageText>
           </LeftGroup>
-          <RetryButton onClick={onRetry} aria-label="تلاش مجدد">
+          <RetryButton onClick={handleRetry} aria-label="تلاش مجدد">
             <FiRefreshCw aria-hidden />
             تلاش مجدد
           </RetryButton>
