@@ -745,7 +745,7 @@ const Chat = ({ services = null }) => {
       setIsServiceUnabailable(true);
       disconnectChatSocket();
       resetChatState();
-    }, 120000);
+    }, 12);
   };
 
   /**
@@ -753,20 +753,14 @@ const Chat = ({ services = null }) => {
    * @param {string} msg Exception message
    */
   const sendExceptionMessage = (msg = 'مشکلی پیش آمده است !') => {
-    const messageId = addNewMessage({
+    addNewMessage({
       type: 'error',
       body: msg,
       role: 'assistant',
       created_at: new Date().toISOString().slice(0, 19),
     });
-
+    // discrete message -> force scroll to show error
     setTimeout(forceScrollToBottomImmediate, 20);
-
-    setTimeout(() => {
-      updateMessage(messageId, { body: '', type: 'removed' });
-      setChatLoading(false);
-      setIsServiceUnabailable(false);
-    }, 30000);
   };
 
   /**

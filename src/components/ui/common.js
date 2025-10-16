@@ -631,16 +631,44 @@ export const TextMessageContent = styled.div`
 `;
 
 export const ErrorMessageContent = styled.pre`
-  color: white;
-  background-color: rgb(255, 27, 27);
   display: flex;
-  text-wrap: wrap;
   flex-wrap: wrap;
-  padding: 0.5rem;
-  unicode-bidi: plaintext;
-  direction: rtl;
-  max-width: 20rem;
-  border-radius: 10px;
+  align-items: center;
+  gap: 0.5rem;
+  word-wrap: break-word;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  max-width: 100%;
+  text-align: right;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  /* Light mode */
+  color: #7f1d1d !important;
+  background-color: #fee2e2 !important;
+  border: 1px solid #f87171 !important;
+
+  svg {
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+    color: #b91c1c !important;
+  }
+
+  @media (min-width: 768px) {
+    max-width: 450px;
+  }
+
+  /* Dark mode مشابه ImageMessageContainer */
+  .dark & {
+    background-color: rgba(220, 38, 38, 0.5) !important;
+    color: #fca5a5 !important;
+    border: 1px solid #f87171 !important;
+
+    svg {
+      color: #fca5a5 !important;
+    }
+  }
 `;
 
 export const CopyButton = styled.button`
