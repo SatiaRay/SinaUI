@@ -897,6 +897,15 @@ export const VoiceButtonStyled = styled.button`
   align-items: center; /* items-center */
   justify-content: center; /* justify-center */
   margin-left: 10px !important;
+  padding: 0.5rem;
+  color: #2563eb;
+  border-radius: 0.5rem;
+  transition:
+    background-color 0.2s ease,
+    colors 0.2s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 
   &:disabled {
     opacity: 0.6;
@@ -911,9 +920,17 @@ export const VoiceButtonStyled = styled.button`
 
   /* Icon */
   svg {
-    width: 1.5rem; /* w-6 */
-    height: 1.5rem; /* h-6 */
+    width: 1.25rem; /* w-6 */
+    height: 1.25rem; /* h-6 */
     color: #2563eb; /* text-blue-600 */
+  }
+
+  &:hover {
+    background-color: #dbeafe;
+  }
+
+  .dark &:hover {
+    background-color: #374151;
   }
 
   /* ✅ Dark mode */

@@ -4,17 +4,18 @@ import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { AuthProvider } from '../../../contexts/AuthContext';
 
 const Box = styled.div`
   position: fixed;
-  bottom: 30px;
-  left: 30px;
-  width: 450px;
-  height: 750px;
+  top: ${(props) => (props.fullscreen ? '0' : 'auto')};
+  bottom: ${(props) => (props.fullscreen ? '0' : '30px')};
+  left: ${(props) => (props.fullscreen ? '0' : '30px')};
+  right: ${(props) => (props.fullscreen ? '0' : 'auto')};
+  width: ${(props) => (props.fullscreen ? '100vw' : '450px')};
+  height: ${(props) => (props.fullscreen ? '100dvh' : '750px')};
   background-color: #fff;
-  border-radius: 16px;
+  border-radius: ${(props) => (props.fullscreen ? '0' : '16px')};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
@@ -27,10 +28,10 @@ const Box = styled.div`
     width: 100vw;
     height: 100dvh;
     border-radius: 0;
-    margin: 0;
-    padding: 0;
-    bottom: 0px !important;
-    left: 0px !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
   }
 `;
 
@@ -119,78 +120,71 @@ const ChatBoxTrigger = styled.button`
 `;
 
 const ChatBox = (props) => {
-  const isStatic = props['static'];
+  const {
+    static: isStatic,
+    fullscreen: fullscreenProp,
+    accessToken,
+    satiaToken,
+    satiaCustomer,
+    headeroff,
+  } = props;
+
   const [isVisible, setIsVisible] = useState(false);
-  const [fullscreen, setFullscreen] = useState(props['fullscreen'] || false);
+  const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
 
-  const hasAccessToken = !!props['accessToken'];
-
-  // Disable body scroll when chatbox is open
   useEffect(() => {
-    if (isVisible || fullscreen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    if (isVisible || fullscreen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => (document.body.style.overflow = '');
   }, [isVisible, fullscreen]);
 
-  if (hasAccessToken) {
-    localStorage.setItem('khan-access-token', props['accessToken']);
+  if (!accessToken) {
+    console.error('Khan access token not found');
+
+    return;
   }
+
+  localStorage.setItem('khan-access-token', accessToken);
 
   let services = null;
-
-  if (props['satiaToken'] && props['satiaCustomer']) {
-    services = {
-      satia: {
-        token: props['satiaToken'],
-        customer: props['satiaCustomer'],
-      },
-    };
-  }
+  if (satiaToken && satiaCustomer)
+    services = { satia: { token: satiaToken, customer: satiaCustomer } };
 
   return (
     <div id="khan-chatbox">
       <Box
+        fullscreen={fullscreen}
         style={{
           display: isVisible || isStatic || fullscreen ? 'flex' : 'none',
         }}
       >
-        <Header>
-          {!isStatic && (
-            <Close
-              onClick={() => {
-                setIsVisible(false);
-                setFullscreen(false);
-              }}
-            >
-              <IoClose size={20} />
-            </Close>
-          )}
-          <Title>چت‌بات خان 🤖</Title>
-        </Header>
-
+        {!headeroff && (
+          <Header>
+            {!isStatic && (
+              <Close
+                onClick={() => {
+                  setIsVisible(false);
+                  setFullscreen(false);
+                }}
+              >
+                <IoClose size={20} />
+              </Close>
+            )}
+            <Title>چت‌بات خان 🤖</Title>
+          </Header>
+        )}
         <MessagesWrapper>
           <Messages>
-            {hasAccessToken ? (
-              <AuthProvider>
-                <ChatProvider>
-                  <Chat services={services} />
-                </ChatProvider>
-              </AuthProvider>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px' }}>
-                Access token not found 🚫
-              </div>
-            )}
+            <AuthProvider>
+              <ChatProvider>
+                <Chat services={services} />
+              </ChatProvider>
+            </AuthProvider>
           </Messages>
         </MessagesWrapper>
       </Box>
 
-      {!(isVisible || isStatic || fullscreen) && (
+      {!isVisible && !isStatic && !fullscreen && (
         <ChatBoxTrigger
           onClick={() => {
             setIsVisible(true);

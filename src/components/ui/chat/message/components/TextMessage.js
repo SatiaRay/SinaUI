@@ -8,9 +8,6 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const textRef = useRef(null);
 
-  /**
-   * Copy answer message text to device clipboard
-   */
   const handleCopyAnswer = (textToCopy, messageId) => {
     const temp = document.createElement('div');
     temp.innerHTML = textToCopy;
@@ -28,31 +25,41 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
       .catch((err) => console.error('Failed to copy:', err));
   };
 
-  let safeBody = data.body.replace(/^(\d+)\.\s+\*\*/gm, '**$1. ');
-  let formattedHtml = marked.parse(safeBody);
-  formattedHtml = String(marked.parse(safeBody));
+  let contentToRender = '';
+  if (data.role === 'assistant') {
+    let safeBody = data.body.replace(/^(\d+)\.\s+\*\*/gm, '**$1. ');
+    let formattedHtml = marked.parse(safeBody);
+    formattedHtml = String(formattedHtml);
 
-  formattedHtml = formattedHtml.replace(
-    /<strong>/g,
-    (match, offset, fullString) => {
-      fullString = String(fullString);
-      const before = fullString.slice(0, offset);
-      const lastPart = before.slice(-50);
-      if (/<hr\b[^>]*>/i.test(lastPart)) {
-        return match;
+    formattedHtml = formattedHtml.replace(
+      /<strong>/g,
+      (match, offset, fullString) => {
+        fullString = String(fullString);
+        const before = fullString.slice(0, offset);
+        const lastPart = before.slice(-50);
+        if (/<hr\b[^>]*>/i.test(lastPart)) {
+          return match;
+        }
+        return '<hr>' + match;
       }
+    );
 
-      return '<hr>' + match;
-    }
-  );
-
-  return (
-    <>
+    contentToRender = (
       <TextMessageContent
         ref={textRef}
         dangerouslySetInnerHTML={{ __html: formattedHtml }}
       />
-      {enableCopy && (
+    );
+  } else {
+    contentToRender = (
+      <TextMessageContent ref={textRef}>{data.body}</TextMessageContent>
+    );
+  }
+
+  return (
+    <>
+      {contentToRender}
+      {enableCopy && data.role === 'assistant' && (
         <CopyButton
           onClick={() => handleCopyAnswer(data.body, messageId)}
           copied={copiedMessageId === messageId}

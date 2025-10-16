@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { EditableInput, InputWrapper, Placeholder } from '../../components/ui/common';
+import {
+  EditableInput,
+  InputWrapper,
+  Placeholder,
+} from '../../components/ui/common';
 
 const TextInputWithBreaks = ({
   value,
@@ -10,6 +14,29 @@ const TextInputWithBreaks = ({
 }) => {
   const inputRef = useRef(null);
   const [isEmpty, setIsEmpty] = useState(!value);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+    const isIPhone = /iPhone/i.test(ua);
+    const isIPod = /iPod/i.test(ua);
+    const isIPadLegacy = /iPad/i.test(ua);
+    const isIPadModern =
+      navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    const isAndroid = /Android/i.test(ua);
+    const isMobileOrTablet = /Mobi|Tablet/i.test(ua);
+
+    const isMobileDevice =
+      isIPhone ||
+      isIPod ||
+      isIPadLegacy ||
+      isIPadModern ||
+      isAndroid ||
+      isMobileOrTablet;
+
+    setIsMobile(isMobileDevice);
+  }, []);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -33,8 +60,17 @@ const TextInputWithBreaks = ({
           }
         }, 0);
       } else {
-        e.preventDefault();
-        if (!disabled && value.trim()) onSubmit();
+        if (isMobile) {
+          return;
+        } else {
+          e.preventDefault();
+          if (!disabled && value.trim()) onSubmit();
+          e.preventDefault();
+          if (!disabled && value.trim()) {
+            const plainText = value.replace(/<\/?[^>]+(>|$)/g, '');
+            onSubmit(plainText);
+          }
+        }
       }
     }
   };
@@ -67,12 +103,14 @@ const TextInputWithBreaks = ({
       placeCaretAtEnd(inputRef.current);
     }
   };
+
   // Handle paste → force plain text (strip formatting like GPT)
   const handlePaste = (e) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain'); // only plain text
     document.execCommand('insertText', false, text); // insert clean text
   };
+
   return (
     <InputWrapper>
       <EditableInput
