@@ -51,25 +51,18 @@ const TextInputWithBreaks = ({
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {
-        // Allow the default behavior for Shift+Enter
         setTimeout(() => {
           if (inputRef.current) {
-            // Set explicit RTL direction for Firefox compatibility
             inputRef.current.setAttribute('dir', 'rtl');
             placeCaretAtEnd(inputRef.current);
           }
         }, 0);
       } else {
-        if (isMobile) {
-          return;
-        } else {
-          e.preventDefault();
-          if (!disabled && value.trim()) onSubmit();
-          e.preventDefault();
-          if (!disabled && value.trim()) {
-            const plainText = value.replace(/<\/?[^>]+(>|$)/g, '');
-            onSubmit(plainText);
-          }
+        if (isMobile) return;
+        e.preventDefault();
+        if (!disabled && value.trim()) {
+          const plainText = value.replace(/<\/?[^>]+(>|$)/g, '');
+          onSubmit(plainText);
         }
       }
     }
