@@ -5,6 +5,7 @@ import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
 import { useState, useEffect } from 'react';
 import { AuthProvider } from '../../../contexts/AuthContext';
+import ChatSkeletonLoader from './chatSkeletonLoader';
 
 const Box = styled.div`
   position: fixed;
@@ -14,7 +15,7 @@ const Box = styled.div`
   right: ${(props) => (props.fullscreen ? '0' : 'auto')};
   width: ${(props) => (props.fullscreen ? '100vw' : '450px')};
   height: ${(props) => (props.fullscreen ? '100dvh' : '750px')};
-  background-color: #fff;
+  background-color: ${(props) => (props.theme === 'dark' ? '#1a1a1a' : '#fff')};
   border-radius: ${(props) => (props.fullscreen ? '0' : '16px')};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   display: flex;
@@ -67,6 +68,15 @@ const Messages = styled.div`
   flex-direction: column;
   margin: 0;
   padding: 0 10px;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+
+  &.fade-in {
+    opacity: 1;
+  }
+  &.fade-out {
+    opacity: 0;
+  }
 `;
 
 const Close = styled.div`
@@ -88,7 +98,7 @@ const Close = styled.div`
   }
 `;
 
-const ChatBoxTrigger = styled.button`
+const ChatBoxTrigger = styled.div`
   position: fixed;
   bottom: 30px;
   left: 30px;
@@ -119,155 +129,6 @@ const ChatBoxTrigger = styled.button`
   }
 `;
 
-const SkeletonContainer = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 12px;
-  gap: 20px;
-  direction: rtl;
-`;
-
-const SkeletonBubbleWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 20px;
-  width: 100%;
-`;
-
-const SkeletonMessageBubble = styled.div`
-  max-width: 90%;
-  min-width: 250px;
-  padding: 16px 20px;
-  border-radius: 20px;
-  background-color: ${props => props.isUser ? '#f0f0f0' : '#e0e0e0'};
-  animation: pulse 1.5s ease-in-out infinite;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  
-  @keyframes pulse {
-    0% {
-      opacity: 0.6;
-    }
-    50% {
-      opacity: 0.3;
-    }
-    100% {
-      opacity: 0.6;
-    }
-  }
-`;
-
-const SkeletonTextLine = styled.div`
-  height: 14px;
-  border-radius: 7px;
-  background-color: ${props => props.isUser ? '#f0f0f0' : '#e0e0e0'};
-  width: ${props => props.width || '100%'};
-  
-  &:last-child {
-    width: ${props => props.lastWidth || '70%'};
-  }
-`;
-
-const SkeletonIndicator = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  justify-content: flex-start;
-  direction: rtl;
-`;
-
-const SkeletonAvatar = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: ${props => props.isUser ? '#f0f0f0' : '#e0e0e0'};
-  flex-shrink: 0;
-`;
-
-const SkeletonName = styled.div`
-  height: 12px;
-  border-radius: 6px;
-  background-color: #e0e0e0;
-  width: 80px;
-`;
-
-const ChatSkeletonLoader = () => {
-  return (
-    <SkeletonContainer>
-      <SkeletonBubbleWrapper>
-        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <SkeletonIndicator>
-            <SkeletonAvatar isUser={false} />
-            <SkeletonName />
-          </SkeletonIndicator>
-          <SkeletonMessageBubble isUser={false}>
-            <SkeletonTextLine isUser={false} width="98%" />
-            <SkeletonTextLine isUser={false} width="95%" />
-            <SkeletonTextLine isUser={false} width="92%" />
-            <SkeletonTextLine isUser={false} width="85%" />
-            <SkeletonTextLine isUser={false} width="78%" lastWidth="70%" />
-          </SkeletonMessageBubble>
-        </div>
-      </SkeletonBubbleWrapper>
-      <SkeletonBubbleWrapper>
-        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <SkeletonIndicator>
-            <SkeletonAvatar isUser={true} />
-            <SkeletonName />
-          </SkeletonIndicator>
-          <SkeletonMessageBubble isUser={true}>
-            <SkeletonTextLine isUser={true} width="95%" />
-            <SkeletonTextLine isUser={true} width="88%" />
-            <SkeletonTextLine isUser={true} width="75%" lastWidth="65%" />
-          </SkeletonMessageBubble>
-        </div>
-      </SkeletonBubbleWrapper>
-      <SkeletonBubbleWrapper>
-        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <SkeletonIndicator>
-            <SkeletonAvatar isUser={false} />
-            <SkeletonName />
-          </SkeletonIndicator>
-          <SkeletonMessageBubble isUser={false}>
-            <SkeletonTextLine isUser={false} width="90%" />
-            <SkeletonTextLine isUser={false} width="85%" />
-            <SkeletonTextLine isUser={false} width="80%" />
-            <SkeletonTextLine isUser={false} width="72%" lastWidth="60%" />
-          </SkeletonMessageBubble>
-        </div>
-      </SkeletonBubbleWrapper>
-      <SkeletonBubbleWrapper>
-        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <SkeletonIndicator>
-            <SkeletonAvatar isUser={true} />
-            <SkeletonName />
-          </SkeletonIndicator>
-          <SkeletonMessageBubble isUser={true}>
-            <SkeletonTextLine isUser={true} width="92%" />
-            <SkeletonTextLine isUser={true} width="85%" />
-            <SkeletonTextLine isUser={true} width="78%" lastWidth="55%" />
-          </SkeletonMessageBubble>
-        </div>
-      </SkeletonBubbleWrapper>
-      <SkeletonBubbleWrapper>
-        <div style={{ maxWidth: '90%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <SkeletonIndicator>
-            <SkeletonAvatar isUser={false} />
-            <SkeletonName />
-          </SkeletonIndicator>
-          <SkeletonMessageBubble isUser={false}>
-            <SkeletonTextLine isUser={false} width="80%" />
-            <SkeletonTextLine isUser={false} width="70%" lastWidth="65%" />
-          </SkeletonMessageBubble>
-        </div>
-      </SkeletonBubbleWrapper>
-    </SkeletonContainer>
-  );
-};
-
 const ChatBox = (props) => {
   const {
     static: isStatic,
@@ -276,6 +137,7 @@ const ChatBox = (props) => {
     satiaToken,
     satiaCustomer,
     headeroff,
+    theme = 'light',
   } = props;
 
   const [isVisible, setIsVisible] = useState(false);
@@ -293,10 +155,10 @@ const ChatBox = (props) => {
     if ((isVisible || isStatic || fullscreen) && !isLoading) {
       setIsLoading(true);
       setShowSkeleton(true);
-      
+
       const timer = setTimeout(() => {
         setIsLoading(false);
-        setTimeout(() => setShowSkeleton(false), 200);
+        setTimeout(() => setShowSkeleton(false), 300);
       }, 800);
 
       return () => clearTimeout(timer);
@@ -305,7 +167,7 @@ const ChatBox = (props) => {
 
   if (!accessToken) {
     console.error('Khan access token not found');
-    return;
+    return null;
   }
 
   localStorage.setItem('khan-access-token', accessToken);
@@ -318,6 +180,7 @@ const ChatBox = (props) => {
     <div id="khan-chatbox">
       <Box
         fullscreen={fullscreen}
+        theme={theme}
         style={{
           display: isVisible || isStatic || fullscreen ? 'flex' : 'none',
         }}
@@ -338,9 +201,12 @@ const ChatBox = (props) => {
           </Header>
         )}
         <MessagesWrapper>
-          <Messages>
+          <Messages className={showSkeleton ? 'fade-out' : 'fade-in'}>
             {showSkeleton ? (
-              <ChatSkeletonLoader />
+              <ChatSkeletonLoader
+                theme={theme}
+                className={isLoading ? '' : 'fade-out'}
+              />
             ) : (
               <AuthProvider>
                 <ChatProvider>
