@@ -63,8 +63,7 @@ const TextInputWithBreaks = ({
         if (isMobile) {
           return;
         } else {
-          e.preventDefault();
-          if (!disabled && value.trim()) onSubmit();
+          if (isMobile) return;
           e.preventDefault();
           if (!disabled && value.trim()) {
             const plainText = value.replace(/<\/?[^>]+(>|$)/g, '');
