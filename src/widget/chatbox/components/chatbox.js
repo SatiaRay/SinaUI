@@ -3,7 +3,7 @@ import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AuthProvider } from '../../../contexts/AuthContext';
 import ChatSkeletonLoader from './chatSkeletonLoader';
 
@@ -68,15 +68,14 @@ const Messages = styled.div`
   flex-direction: column;
   margin: 0;
   padding: 0 10px;
-  opacity: 1;
-  transition: opacity 0.3s ease-in-out;
+`;
 
-  &.fade-in {
-    opacity: 1;
-  }
-  &.fade-out {
-    opacity: 0;
-  }
+const ContentTransition = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.6s ease-in-out;
+  opacity: ${(props) => (props.isVisible ? 1 : 0)};
 `;
 
 const Close = styled.div`
@@ -106,7 +105,7 @@ const ChatBoxTrigger = styled.div`
   height: 70px;
   z-index: 100;
   color: white !important;
-  background-color: #dc143c !important;
+  background-color: #dc1435 !important;
   border-radius: 100%;
   display: flex;
   justify-content: center;
@@ -142,8 +141,9 @@ const ChatBox = (props) => {
 
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showSkeleton, setShowSkeleton] = useState(false);
+  const [isSkeletonActive, setIsSkeletonActive] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
+  const skeletonTimerRef = useRef(null);
 
   useEffect(() => {
     if (isVisible || fullscreen) document.body.style.overflow = 'hidden';
@@ -152,21 +152,42 @@ const ChatBox = (props) => {
   }, [isVisible, fullscreen]);
 
   useEffect(() => {
-    if ((isVisible || isStatic || fullscreen) && !isLoading) {
-      setIsLoading(true);
-      setShowSkeleton(true);
+    console.log('useEffect triggered:', {
+      isVisible,
+      isStatic,
+      fullscreen,
+      isSkeletonActive,
+    });
+    if (isVisible || isStatic || fullscreen) {
+      if (!isSkeletonActive) {
+        setIsSkeletonActive(true);
+        setContentVisible(true);
 
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-        setTimeout(() => setShowSkeleton(false), 300);
-      }, 800);
+        if (skeletonTimerRef.current) {
+          clearTimeout(skeletonTimerRef.current);
+        }
 
-      return () => clearTimeout(timer);
+        skeletonTimerRef.current = setTimeout(() => {
+          setContentVisible(false);
+
+          setTimeout(() => {
+            setIsSkeletonActive(false);
+            setContentVisible(true);
+            skeletonTimerRef.current = null;
+          }, 600);
+        }, 1200);
+      }
+
+      return () => {
+        if (skeletonTimerRef.current) {
+          clearTimeout(skeletonTimerRef.current);
+          skeletonTimerRef.current = null;
+        }
+      };
     }
   }, [isVisible, isStatic, fullscreen]);
 
   if (!accessToken) {
-    console.error('Khan access token not found');
     return null;
   }
 
@@ -201,19 +222,18 @@ const ChatBox = (props) => {
           </Header>
         )}
         <MessagesWrapper>
-          <Messages className={showSkeleton ? 'fade-out' : 'fade-in'}>
-            {showSkeleton ? (
-              <ChatSkeletonLoader
-                theme={theme}
-                className={isLoading ? '' : 'fade-out'}
-              />
-            ) : (
-              <AuthProvider>
-                <ChatProvider>
-                  <Chat services={services} />
-                </ChatProvider>
-              </AuthProvider>
-            )}
+          <Messages>
+            <ContentTransition isVisible={contentVisible}>
+              {isSkeletonActive ? (
+                <ChatSkeletonLoader theme={theme} />
+              ) : (
+                <AuthProvider>
+                  <ChatProvider>
+                    <Chat services={services} />
+                  </ChatProvider>
+                </AuthProvider>
+              )}
+            </ContentTransition>
           </Messages>
         </MessagesWrapper>
       </Box>
