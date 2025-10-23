@@ -21,8 +21,10 @@ import {
   FaCog,
   FaFileAlt,
   FaLink,
-  FaFolderOpen,
+  FaFolderOpen 
 } from 'react-icons/fa';
+
+import { LuBrainCircuit, LuBotMessageSquare  } from "react-icons/lu";
 
 import { IoDocuments } from 'react-icons/io5';
 import { toEnglishLetter } from '../utils/translate';
@@ -57,18 +59,13 @@ const Navbar = ({ onSidebarCollapse }) => {
   const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
 
   const navItems = [
-    { path: '/chat', label: 'چت', icon: FaRobot },
+    { path: '/chat', label: 'چت', icon: LuBotMessageSquare },
+    { path: '/document', label: 'پایگاه دانش', icon: LuBrainCircuit },
     { path: '/wizard', label: 'پاسخ‌های هوشمند', icon: FaMagic },
     { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
     { path: '/instructions', label: 'دستورالعمل‌ها', icon: FaBook },
   ];
 
-  const documentItems = [
-    { path: '/document/manuals', label: 'مستندات دستی ', icon: FaBook },
-    { path: '/document', label: 'مستندات', icon: FaFileAlt },
-    { path: '/crawl-url', label: 'جمع‌آوری URL', icon: FaLink },
-    { path: '/processes', label: 'فرایندها', icon: FaProjectDiagram },
-  ];
   const handleLogout = async () => {
     try {
       resetUIState();
@@ -174,33 +171,7 @@ const Navbar = ({ onSidebarCollapse }) => {
 
           <nav className="flex-1 p-2 overflow-hidden">
             <NavList items={navItems} onNavigate={navigate} />
-            <div className="mt-2">
-              <button
-                onClick={toggleDocumentsDropdown}
-                className="flex items-center gap-2 w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
-                aria-expanded={documentsDropdownOpen}
-                aria-controls="documents-dropdown"
-              >
-                <FaFolderOpen className="w-4 h-4 text-gray-300 group-hover:text-white" />
 
-                <p>اسناد</p>
-                <ChevronDownIcon
-                  className={`h-4 w-4 mr-2 transition-transform duration-200 ${
-                    documentsDropdownOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              <div
-                id="documents-dropdown"
-                className={`mr-4 overflow-hidden transition-all duration-200 ${
-                  documentsDropdownOpen
-                    ? 'max-h-48 opacity-100'
-                    : 'max-h-0 opacity-0'
-                }`}
-              >
-                <NavList items={documentItems} onNavigate={navigate} />
-              </div>
-            </div>
             <button
               onClick={() => navigate('/setting')}
               className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
@@ -283,18 +254,7 @@ const Navbar = ({ onSidebarCollapse }) => {
                       }`}
                     />
                   </button>
-                  {documentsDropdownOpen && (
-                    <ul
-                      id="mobile-documents-dropdown"
-                      className="mr-4 space-y-1"
-                    >
-                      <NavList
-                        items={documentItems}
-                        onNavigate={navigate}
-                        closeSidebar={closeSidebar}
-                      />
-                    </ul>
-                  )}
+                 
                 </div>
                 <button
                   onClick={() => navigate('/setting')}
