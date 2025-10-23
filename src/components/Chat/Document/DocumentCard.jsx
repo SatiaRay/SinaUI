@@ -34,7 +34,7 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
     >
       <div className="flex items-center justify-between">
         <h5 className="text-lg font-medium w-2/3 text-gray-900 dark:text-white truncate">
-          {document.vector_data.metadata.title}
+          {document.title}
         </h5>
         <div className="flex items-center gap-2">
           <button
