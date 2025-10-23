@@ -24,7 +24,7 @@ export const knowledgeApi = createApi({
 
   endpoints: (builder) => ({
     getAll: builder.query({
-      query: () => `/`,
+      query: ({perpage, page}) => `/?perpage=${perpage}&page=${page}`,
     }),
   }),
 });
