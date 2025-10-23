@@ -8,129 +8,23 @@ import CreateDocument from './CreateDocument';
 import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import SearchDocument from './searchDocument/SearchDocument'; // Import the separate search component
+import { knowledgeApi } from '../../../store/api/knowledgeApi';
 
 const DocumentIndex = () => {
+  const { data, isLoading, isSuccess, isError, error } =
+    knowledgeApi.useGetAllQuery();
+
   const [state, setState] = useState({
-    isLoading: false,
-    documentContentLoading: false,
-    error: null,
-    documentContent: null,
-    selectedDocument: null,
-    documents: [],
-    filteredDocuments: [],
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
-    agentType: '',
-    searchQuery: '',
   });
 
   const location = useLocation();
-  const { domain_id } = useParams();
 
   const PAGE_SIZE_OPTIONS = [20, 50, 100];
-  const isManualRoute = location.pathname.endsWith('/manuals');
-
-  // 🔧 تابع fetchDocuments جدید با قابلیت دریافت state سفارشی
-  const fetchDocuments = useCallback(
-    async (customState = state) => {
-      try {
-        setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
-        const response = isManualRoute
-          ? await documentEndpoints.getDocuments(
-              true,
-              customState.agentType === 'text_agent'
-                ? 'text_agent'
-                : customState.agentType,
-              customState.currentPage,
-              customState.pageSize
-            )
-          : await documentEndpoints.getDomainDocuments(
-              domain_id,
-              customState.currentPage,
-              customState.pageSize
-            );
-
-        if (response?.data) {
-          setState((prev) => {
-            const docs = response.data.items;
-
-            const filteredDocs = prev.searchQuery
-              ? docs.filter(
-                  (doc) =>
-                    doc.name?.includes(prev.searchQuery) ||
-                    doc.metadata?.title?.includes(prev.searchQuery)
-                )
-              : docs;
-
-            return {
-              ...prev,
-              documents: docs,
-              filteredDocuments: filteredDocs,
-              totalPages: response.data.pages,
-              totalItems: response.data.total,
-              isLoading: false,
-            };
-          });
-        }
-      } catch (err) {
-        setState((prev) => ({
-          ...prev,
-          error: err.message || 'دریافت اسناد با خطا مواجه شد',
-          isLoading: false,
-        }));
-        console.error('Document fetch error:', err);
-      }
-    },
-    [
-      isManualRoute,
-      state.agentType,
-      state.currentPage,
-      state.pageSize,
-      domain_id,
-    ]
-  );
-
-  useEffect(() => {
-    fetchDocuments();
-  }, [fetchDocuments]);
-
-  const handleSearchResults = useCallback((filteredDocuments) => {
-    setState((prev) => ({ ...prev, filteredDocuments }));
-  }, []);
-
-  const handleSearchChange = useCallback((searchQuery) => {
-    setState((prev) => ({ ...prev, searchQuery }));
-  }, []);
-
-  const fetchDocumentContent = async (document) => {
-    try {
-      setState((prev) => ({
-        ...prev,
-        documentContentLoading: true,
-        error: null,
-        selectedDocument: document,
-      }));
-
-
-      const data = await documentEndpoints.getDocument(document.id)
-      setState((prev) => ({
-        ...prev,
-        documentContent: data,
-        documentContentLoading: false,
-      }));
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        error: err.message,
-        documentContentLoading: false,
-      }));
-      console.error('Document content fetch error:', err);
-    }
-  };
 
   const handlePageChange = (newPage) => {
     setState((prev) => ({ ...prev, currentPage: newPage }));
@@ -146,37 +40,11 @@ const DocumentIndex = () => {
   };
 
   const handleDelete = async (documentId) => {
-    if (!window.confirm('آیا مطمئن هستید که می‌خواهید این سند را حذف کنید؟'))
-      return;
-
-    try {
-      await documentEndpoints.deleteDocument(documentId);
-      notify.success('سند با موفقیت حذف شد');
-      fetchDocuments();
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        error: `حذف ناموفق بود: ${err.message || 'خطای ناشناخته'}`,
-      }));
-      console.error('Document deletion error:', err);
-    }
+    //
   };
 
   const handleStatusChange = async (documentId, newVectorId) => {
-    try {
-      setState((prev) => ({
-        ...prev,
-        documents: prev.documents.map((doc) =>
-          doc.id === documentId ? { ...doc, vector_id: newVectorId } : doc
-        ),
-      }));
-      await fetchDocuments();
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        error: err.message || 'به‌روزرسانی وضعیت ناموفق بود',
-      }));
-    }
+    //
   };
 
   const handleAddKnowledge = () => {
@@ -191,45 +59,46 @@ const DocumentIndex = () => {
         agentType: newAgentType || prev.agentType,
         currentPage: 1,
       };
-      fetchDocuments(updated);
       return updated;
     });
   };
 
   const renderContent = () => {
-    if (state.isLoading && !state.documents.length) {
-      return <div className="text-center">در حال بارگذاری اسناد...</div>;
-    }
+    // if (state.isLoading && !state.documents.length) {
+    //   return <div className="text-center">در حال بارگذاری اسناد...</div>;
+    // }
 
-    if (state.error) {
-      return <div className="text-red-500 text-center">خطا: {state.error}</div>;
-    }
+    // if (state.error) {
+    //   return <div className="text-red-500 text-center">خطا: {state.error}</div>;
+    // }
 
-    if (!state.filteredDocuments.length && state.searchQuery) {
-      return (
-        <div className="text-center">
-          هیچ سندی با عنوان "{state.searchQuery}" یافت نشد.
-        </div>
-      );
-    }
+    // if (!state.filteredDocuments.length && state.searchQuery) {
+    //   return (
+    //     <div className="text-center">
+    //       هیچ سندی با عنوان "{state.searchQuery}" یافت نشد.
+    //     </div>
+    //   );
+    // }
 
-    if (!state.filteredDocuments.length) {
-      return <div className="text-center">هیچ سندی یافت نشد.</div>;
-    }
+    // if (!state.filteredDocuments.length) {
+    //   return <div className="text-center">هیچ سندی یافت نشد.</div>;
+    // }
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-        {state.filteredDocuments.map((document) => (
+        {data.map((document) => (
           <DocumentCard
             key={document.id}
             document={document}
             onStatusChange={handleStatusChange}
-            onClick={() => fetchDocumentContent(document)}
+            onClick={() => {}}
             handleDelete={handleDelete}
           />
         ))}
       </div>
     );
+
+    return <h1>Listing Documents</h1>;
   };
 
   const renderPagination = () => {
@@ -298,38 +167,43 @@ const DocumentIndex = () => {
         )}
         <SearchDocument
           documents={state.documents}
-          onSearchResults={handleSearchResults}
+          onSearchResults={() => {}}
           searchQuery={state.searchQuery}
-          onSearchChange={handleSearchChange}
+          onSearchChange={() => {}}
           placeholder="جستجو در عنوان اسناد..."
         />
-        {isManualRoute && (
-          <>
-            <button
-              onClick={handleAddKnowledge}
-              className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
-            >
-              افزودن دانش
-            </button>
+        <>
+          <button
+            onClick={handleAddKnowledge}
+            className="px-6 py-3 rounded-lg font-medium transition-all bg-green-500 text-white hover:bg-green-600"
+          >
+            افزودن دانش
+          </button>
 
-            <CustomDropdown
-              options={[
-                { value: '', label: 'همه' },
-                { value: 'both', label: 'هردو' },
-                { value: 'text_agent', label: 'ربات متنی' },
-                { value: 'voice_agent', label: 'ربات صوتی' },
-              ]}
-              value={state.agentType}
-              onChange={(val) =>
-                setState((prev) => ({ ...prev, agentType: val }))
-              }
-              placeholder="انتخاب نوع ربات"
-            />
-          </>
-        )}
+          <CustomDropdown
+            options={[
+              { value: '', label: 'همه' },
+              { value: 'both', label: 'هردو' },
+              { value: 'text_agent', label: 'ربات متنی' },
+              { value: 'voice_agent', label: 'ربات صوتی' },
+            ]}
+            value={state.agentType}
+            onChange={(val) =>
+              setState((prev) => ({ ...prev, agentType: val }))
+            }
+            placeholder="انتخاب نوع ربات"
+          />
+        </>
       </div>
-      {renderContent()}
-      {renderPagination()}
+
+      {isLoading ? (
+        <h1 className='text-center my-3'>Loading ....</h1>
+      ) : (
+        <>
+          {renderContent()}
+          {renderPagination()}
+        </>
+      )}
 
       {state.showAddKnowledge && (
         <div
