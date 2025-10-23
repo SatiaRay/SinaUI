@@ -163,25 +163,10 @@ function privateRoutes() {
             </PrivateRoute>
           }
         >
-          <Route path="" element={<Navigate to="domains" />} />
+        
           <Route
-            path="domains"
-            element={
-              <PrivateRoute>
-                <DomainIndex />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="domain/:domain_id"
-            element={
-              <PrivateRoute>
-                <DocumentIndex />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="manuals"
+            index
+            path=""
             element={
               <PrivateRoute>
                 <DocumentIndex />
