@@ -17,9 +17,17 @@ const DocumentIndex = () => {
   if(isLoading)
     return (
       <div className="text-center">
-        <SkeletonLoading rows={height / 150 - 2} cols={ !isDesktop ? 1 : (isLargeDisplay ? 3: 2)} height={150} />
+        <SkeletonLoading rows={(height / 150)} cols={ !isDesktop ? 1 : (isLargeDisplay ? 3: 2)} height={110} />
       </div>
     );
+
+  return (
+    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
+      {data.documents.map((document) => (
+        <DocumentCard document={document}/>
+      ))}
+    </div>
+  )
 };
 
 DocumentIndex.propTypes = {};
