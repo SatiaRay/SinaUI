@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 // Define the knowledge backend service using a base URL and expected endpoints
-export const knowledgeApi = createApi({
+const knowledgeApi = createApi({
   reducerPath: 'khan-knowledge',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_KNOWLEDGE_SERVICE || 'http://127.0.0.1:8050',
@@ -41,4 +41,6 @@ export const knowledgeApi = createApi({
   }),
 });
 
-export const { useGetAllDocumentsQuery, useUpdateDocumentMutation } = knowledgeApi;
+export default knowledgeApi;
+
+export const { useGetAllDocumentsQuery, useGetDocumentQuery, useUpdateDocumentMutation } = knowledgeApi;

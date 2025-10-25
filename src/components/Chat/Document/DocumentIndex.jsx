@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import DocumentCard from './DocumentCard';
 import { Sppiner } from '../../ui/sppiner';
 import SearchDocument from './searchDocument/SearchDocument'; // Import the separate search component
-import { knowledgeApi } from '../../../store/api/knowledgeApi';
+import knowledgeApi from '../../../store/api/knowledgeApi';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
 import { Pagination } from '../../ui/pagination';

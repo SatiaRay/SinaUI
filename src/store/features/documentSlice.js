@@ -1,5 +1,5 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
-import { knowledgeApi } from '../api/knowledgeApi';
+import knowledgeApi from '../api/knowledgeApi';
 
 const documentAdapter = createEntityAdapter();
 

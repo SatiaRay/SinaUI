@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { knowledgeApi } from './api/knowledgeApi';
+import knowledgeApi from './api/knowledgeApi';
 import documentSlice from './features/documentSlice';
 
 const store = configureStore({
