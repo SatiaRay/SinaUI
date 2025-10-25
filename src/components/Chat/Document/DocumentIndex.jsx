@@ -16,7 +16,7 @@ const DocumentIndex = () => {
   const perpage = 20
 
   const { data, isLoading, isSuccess, isError, error } =
-    knowledgeApi.useGetAllQuery({ page, perpage});
+    knowledgeApi.useGetAllDocumentsQuery({ page, perpage});
 
   if (isLoading)
     return (

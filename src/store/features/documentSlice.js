@@ -13,7 +13,7 @@ const documentSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addMatcher(
-      knowledgeApi.endpoints.getAll.matchFulfilled,
+      knowledgeApi.endpoints.getAllDocuments.matchFulfilled,
       (state, action) => {
         documentAdapter.setAll(state, action.payload);
         state.status = 'success';

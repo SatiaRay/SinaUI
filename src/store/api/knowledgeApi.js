@@ -21,12 +21,24 @@ export const knowledgeApi = createApi({
       return headers;
     },
   }),
-
+  tagTypes: ['Document'],
   endpoints: (builder) => ({
-    getAll: builder.query({
+    getAllDocuments: builder.query({
       query: ({perpage, page}) => `/?perpage=${perpage}&page=${page}`,
+      providesTags: (result, error, arg) =>
+        result
+          ? [...result.documents.map(({ id }) => ({ type: 'Document', page: arg.page, perpage: arg.perpage, id })), 'Document']
+          : ['Document'],
     }),
+    updateDocument: builder.mutation({
+      query: ({id, ...data}) => ({
+        url: `/${id}`,
+        method: 'PUT',
+        body: data
+      }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Document', id: arg.id }, 'Document'],
+    })
   }),
 });
 
-export const { useGetAllQuery } = knowledgeApi;
+export const { useGetAllDocumentsQuery, useUpdateDocumentMutation } = knowledgeApi;
