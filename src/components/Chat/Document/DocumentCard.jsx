@@ -9,14 +9,23 @@ import { useUpdateDocumentMutation } from '../../../store/api/knowledgeApi';
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   const navigate = useNavigate();
 
+  const [localStatus , setLocalStatus] = useState(document.status)
+
   const [updateDocument, result] = useUpdateDocumentMutation()
 
   const isLoading = result.isLoading ?? false
 
   const toggleVectorStatus = async () => {
+      setLocalStatus(!localStatus)
+
       const data = {...document, status: !document.status}
 
-      updateDocument(data)
+      try {
+        await updateDocument(data).unwrap();
+      } catch (err) {
+        setLocalStatus(document.status); // Rollback if error
+        notify.error('خطا در تغییر وضعیت سند!');
+      }
   };
 
   return (
@@ -37,16 +46,12 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
               }
             }}
             className={`px-2 py-1 w-20 text-xs font-semibold rounded-full cursor-pointer flex items-center gap-1 justify-center ${
-              isLoading
-                ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                : document.status
+               localStatus
                   ? 'bg-green-100 text-green-800 dark:bg-green-500 dark:text-white'
                   : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
             }`}
           >
-            {isLoading ? (
-              <PulseLoader size={5}/>
-            ) : document.status ? (
+            { localStatus ? (
               'فعال'
             ) : (
               'غیر فعال'
