@@ -13,10 +13,6 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
 
   const isLoading = result.isLoading ?? false
 
-  console.log(result);
-  
-
-
   const toggleVectorStatus = async () => {
       const data = {...document, status: !document.status}
 
