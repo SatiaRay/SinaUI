@@ -6,7 +6,7 @@ import { notify } from '../../../ui/toast';
 import {PulseLoader} from "react-spinners"
 import { useUpdateDocumentMutation } from '../../../store/api/knowledgeApi';
 
-const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
+const DocumentCard = ({ document,  handleDelete }) => {
   const navigate = useNavigate();
 
   const [localStatus , setLocalStatus] = useState(document.status)
