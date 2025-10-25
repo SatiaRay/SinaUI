@@ -4,27 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import { documentEndpoints } from '../../../utils/apis';
 import { notify } from '../../../ui/toast';
 import {PulseLoader} from "react-spinners"
+import { useUpdateDocumentMutation } from '../../../store/api/knowledgeApi';
 
 const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const [updateDocument, result] = useUpdateDocumentMutation()
+
+  const isLoading = result.isLoading ?? false
+
+  console.log(result);
+  
 
 
   const toggleVectorStatus = async () => {
-    try {
-      setIsLoading(true);
-      const response = await documentEndpoints.toggleDocumentVectorStatus(document.id);
+      const data = {...document, status: !document.status}
 
-      if (response.status === 200) {
-        onStatusChange(document.id, response.data.vector_id, true);
-
-        notify.success('وضعیت سند با موفقیت تغییر کرد!');
-      }
-    } catch (error) {
-      notify.error('خطا در تغییر وضعیت سند. دوباره تلاش کنید.');
-    } finally {
-      setIsLoading(false);
-    }
+      updateDocument(data)
   };
 
   return (
