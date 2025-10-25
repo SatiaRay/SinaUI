@@ -27,8 +27,13 @@ const knowledgeApi = createApi({
       query: ({perpage, page}) => `/?perpage=${perpage}&page=${page}`,
       providesTags: (result, error, arg) =>
         result
-          ? [...result.documents.map(({ id }) => ({ type: 'Document', page: arg.page, perpage: arg.perpage, id })), 'Document']
-          : ['Document'],
+          ? [...result.documents.map(({ id }) => ({ type: 'Document', id })), { type: 'Document', page: arg.page, perpage: arg.perpage}]
+          : [{ type: 'Document', page: arg.page, perpage: arg.perpage}],
+    }),
+    getDocument: builder.query({
+      query: ({id}) => `/${id}`,
+      providesTags: (result, error, arg) =>
+        [{ type: 'Document', id: result.id }]
     }),
     updateDocument: builder.mutation({
       query: ({id, ...data}) => ({
