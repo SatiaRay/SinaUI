@@ -6,7 +6,6 @@ const knowledgeApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_KNOWLEDGE_SERVICE || 'http://127.0.0.1:8050',
 
-    // 👇 Add default headers here
     prepareHeaders: (headers, { getState }) => {
       // Example: get token from Redux state (adjust to your store shape)
       const token = localStorage.getItem('khan-access-token')
@@ -42,10 +41,17 @@ const knowledgeApi = createApi({
         body: data
       }),
       invalidatesTags: (result, error, arg) => [{ type: 'Document', id: arg.id }, 'Document'],
-    })
+    }),
+    deleteDocument: builder.mutation({
+      query: (id) => ({
+        url: `/${id}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: ['Document'],
+    }),
   }),
 });
 
 export default knowledgeApi;
 
-export const { useGetAllDocumentsQuery, useGetDocumentQuery, useUpdateDocumentMutation } = knowledgeApi;
+export const { useGetAllDocumentsQuery, useGetDocumentQuery, useUpdateDocumentMutation, useDeleteDocumentMutation } = knowledgeApi;
