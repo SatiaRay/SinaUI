@@ -5,7 +5,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { v4 as uuidv4 } from 'uuid';
 import { getWebSocketUrl } from '../../utils/websocket';
-import { formatTimestamp } from '../../utils/helpers'; 
+import { formatTimestamp } from '../../utils/helpers';
 
 // استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
@@ -260,7 +260,7 @@ const Chat = () => {
           type: msg.role === 'user' ? 'question' : 'answer',
           text: msg.role === 'user' ? msg.body : undefined,
           answer: msg.role === 'assistant' ? msg.body : undefined,
-          created_at: msg.created_at, 
+          created_at: msg.created_at,
         }));
 
         const reversedMessages = [...transformedMessages].reverse();
@@ -291,7 +291,11 @@ const Chat = () => {
 
     setChatHistory((prev) => [
       ...prev,
-      { type: 'question', text: currentQuestion, created_at: new Date().toISOString().slice(0, 19) },
+      {
+        type: 'question',
+        text: currentQuestion,
+        created_at: new Date().toISOString().slice(0, 19),
+      },
     ]);
 
     try {

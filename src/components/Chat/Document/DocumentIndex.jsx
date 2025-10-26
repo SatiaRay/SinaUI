@@ -23,7 +23,7 @@ const DocumentIndex = () => {
     totalItems: 0,
     pageSize: 20,
     showAddKnowledge: false,
-    agentType: '',
+    agentType: '', // 🔧 مقدار اولیه درست شد
     searchQuery: '',
   });
 

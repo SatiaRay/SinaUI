@@ -33,7 +33,9 @@ const EndNode = ({ data }) => {
           </svg>
         </div>
         <div className="ml-2">
-          <div className="text-lg font-bold text-gray-900 dark:text-white">{data.label}</div>
+          <div className="text-lg font-bold text-gray-900 dark:text-white">
+            {data.label}
+          </div>
           <div
             className="text-gray-600 dark:text-gray-300 text-sm break-words"
             style={{ maxWidth: '250px' }}

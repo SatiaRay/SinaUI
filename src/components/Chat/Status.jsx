@@ -13,7 +13,7 @@ import JobDetailsModal from './JobDetailsModal';
 const Status = () => {
   const [activeJobs, setActiveJobs] = useState({});
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('active'); // 'active' or 'finished'
+  const [filter, setFilter] = useState('active'); // "active" or "finished"
   const [selectedJobId, setSelectedJobId] = useState(null);
   const socketRefs = useRef({});
 
