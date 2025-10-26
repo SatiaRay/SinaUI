@@ -35,7 +35,7 @@ const knowledgeApi = createApi({
         [{ type: 'Document', id: result.id }]
     }),
     updateDocument: builder.mutation({
-      query: ({id, ...data}) => ({
+      query: ({id, data}) => ({
         url: `/${id}`,
         method: 'PUT',
         body: data
