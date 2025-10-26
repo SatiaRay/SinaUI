@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
-import { 
-  ImageMessageContainer, 
-  ImageWrapper, 
-  ImagePlaceholder, 
-  ImageSpinner, 
-  ImageElement, 
-  ImageGrid, 
-  ImageOverlay, 
-  ImageOverlayText, 
-  FlexWrapper, 
-  FlexGapWrapper 
+import {
+  ImageMessageContainer,
+  ImageWrapper,
+  ImagePlaceholder,
+  ImageSpinner,
+  ImageElement,
+  ImageGrid,
+  ImageOverlay,
+  ImageOverlayText,
+  FlexWrapper,
+  FlexGapWrapper,
 } from '../../../common';
 
 const ImageMessage = ({ data }) => {
@@ -71,9 +71,7 @@ const ImageMessage = ({ data }) => {
               {renderImageOrPlaceholder(img, idx)}
               {idx === 3 && images.length > 4 && (
                 <ImageOverlay>
-                  <ImageOverlayText>
-                    +{images.length - 4}
-                  </ImageOverlayText>
+                  <ImageOverlayText>+{images.length - 4}</ImageOverlayText>
                 </ImageOverlay>
               )}
             </div>

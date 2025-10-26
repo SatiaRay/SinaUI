@@ -31,8 +31,11 @@ import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
-import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
+import MonitoringPage from './components/Monitoring/MonitoringPage';
+import RecentLogsPage from './components/Monitoring/RecentLogsPage';
+import ToolUsageStats from './components/Monitoring/ToolUsageStats';
+import LogSearchPage from './components/Monitoring/LogSearchPage';
 
 function App() {
   return (
@@ -83,9 +86,9 @@ function AppContent() {
         className={`transition-all duration-300 h-screen bg-red-300 ${
           showNavbar
             ? sidebarCollapsed
-              ? 'md:mr-0'
-              : 'md:mr-64'
-            : 'flex items-center justify-center'
+              ? "md:mr-0"
+              : "md:mr-64"
+            : "flex items-center justify-center"
         }`}
       > */}
       {privateRoutes()}
@@ -128,6 +131,40 @@ function privateRoutes() {
             element={
               <PrivateRoute>
                 <VoiceAgentConversation />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+        <Route path="/monitoring">
+          <Route
+            path=""
+            element={
+              <PrivateRoute>
+                <MonitoringPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="logs"
+            element={
+              <PrivateRoute>
+                <RecentLogsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="log-by-id"
+            element={
+              <PrivateRoute>
+                <LogSearchPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="tools"
+            element={
+              <PrivateRoute>
+                <ToolUsageStats />
               </PrivateRoute>
             }
           />
@@ -268,15 +305,6 @@ function privateRoutes() {
           }
         />
       </Route>
-      {/* Widget  */}
-      <Route
-        path="widget/chat"
-        element={
-          <PrivateRoute>
-            <ChatBoxPreview />
-          </PrivateRoute>
-        }
-      />
     </Routes>
   );
 }

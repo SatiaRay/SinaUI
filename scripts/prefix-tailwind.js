@@ -44,14 +44,14 @@ function walkDirectory(dirPath, onFile) {
 
 function shouldPrefixToken(token) {
   if (!token) return false;
-  // Don't touch already prefixed utilities
+  // Don"t touch already prefixed utilities
   if (token.startsWith(PREFIX)) return false;
   // Tokens may contain variants like md:hover:text-white
   const parts = token.split(':');
   const base = parts[parts.length - 1];
   if (!base) return false;
   if (base.startsWith(PREFIX)) return false;
-  // Heuristic: Tailwind utilities almost always contain '-' or brackets or are known singletons (e.g., flex, grid, block, hidden)
+  // Heuristic: Tailwind utilities almost always contain "-" or brackets or are known singletons (e.g., flex, grid, block, hidden)
   const singletonUtilities = new Set([
     // display/layout
     'flex',
@@ -119,9 +119,9 @@ function transformClassAttributeContent(content) {
     }
   );
   content = content.replace(
-    /\b(class|className)\s*=\s*'([^']*)'/g,
+    /\b(class|className)\s*=\s*"([^"]*)"/g,
     (m, attr, val) => {
-      return `${attr}='${transformClassList(val)}'`;
+      return `${attr}="${transformClassList(val)}"`;
     }
   );
   // Template literal without expressions or with expressions preserved:
