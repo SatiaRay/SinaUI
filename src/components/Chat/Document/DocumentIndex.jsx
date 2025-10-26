@@ -66,15 +66,16 @@ const DocumentIndex = () => {
     });
   };
 
+
   /**
    * Show skeleton loading
    */
   if (isLoading)
     return (
-      <div className="text-center">
+      <div className="text-center container mx-auto">
         <SkeletonLoading
           rows={height / 150}
-          cols={!isDesktop ? 1 : isLargeDisplay ? 3 : 2}
+          cols={!isLargeDisplay ? 1 : 3}
           height={110}
         />
       </div>
@@ -95,7 +96,7 @@ const DocumentIndex = () => {
    */
   return (
     <div className="h-full flex flex-col justify-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 flex-1 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 flex-1 items-start">
         {documents.map((document) => (
           <DocumentCard
             document={document}

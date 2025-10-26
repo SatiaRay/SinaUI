@@ -74,7 +74,7 @@ function AppContent() {
     >
       {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
-      <div className="container mx-auto md:px-10 lg:px-0 lg:w-[90%] xl:w-[85%]  xxl:w-[1400px]">{privateRoutes()}</div>
+      <div className="container mx-auto md:px-10 md:py-3 lg:px-0 lg:w-[90%] xl:w-[85%] xxl:w-[1400px]">{privateRoutes()}</div>
 
       {publicRoutes()}
 
