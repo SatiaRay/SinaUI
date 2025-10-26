@@ -6,18 +6,58 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { getWebSocketUrl } from '../../../utils/websocket';
 import { Link, useParams } from 'react-router-dom';
 import { documentEndpoints } from '../../../utils/apis';
+import { useGetDocumentQuery } from '../../../store/api/knowledgeApi';
+import Tagify from '@yaireo/tagify'
 
-const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
+const EditDocument = () => {
+  /**
+   * Distruct document_id from uri
+   */
   const { document_id } = useParams();
-  const [document, setDocument] = useState(null);
-  const [selectedDomain, setSelectedDomain] = useState(initialSelectedDomain);
-  const [storingVector, setStoringVector] = useState(false);
-  const [error, setError] = useState(null);
-  const [vectorizationStatus, setVectorizationStatus] = useState(null);
-  const socketRef = useRef(null);
-  const [ckEditorContent, setCkEditorContent] = useState('');
+
+  /**
+   * Document's title state prop
+   */
   const [editedTitle, setEditedTitle] = useState('');
 
+  /**
+   * Document's text state prop
+   */
+  const [ckEditorContent, setCkEditorContent] = useState('');
+
+  /**
+   * Document's tag state prop
+   */
+  const [tag, setTag] = useState('');
+
+  /**
+   * Tag input ref
+   */
+  const tagInputRef = useRef(null);
+
+  /**
+   * Fetching Document data usign RTK Query hook
+   */
+  const { data, isSuccess, isLoading, isError, error } = useGetDocumentQuery({
+    id: document_id,
+  });
+
+  /**
+   * Set state props value after successful fetching
+   */
+  useEffect(() => {
+    if (isSuccess && data) {
+      setEditedTitle(data.title);
+      setCkEditorContent(data.text)
+      var tagify = new Tagify(tagInputRef.current)
+      setTag(data.tag)
+    }
+  }, [isSuccess, data]);
+
+
+  /**
+   * CKEditor modules
+   */
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -29,6 +69,9 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
     ],
   };
 
+  /**
+   * CKEditor text formats
+   */
   const formats = [
     'header',
     'bold',
@@ -42,157 +85,6 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
     'image',
   ];
 
-  useEffect(() => {
-    const loadDocument = async () => {
-      try {
-        const response = await documentEndpoints.getDocument(document_id);
-
-        if (response?.data) {
-          setDocument(response.data);
-          setEditedTitle(response.data.title);
-          if (response.data.html) {
-            setCkEditorContent(response.data.html);
-          }
-        } else {
-          console.error('Invalid document response:', response);
-          setError('سند با ساختار نامعتبر دریافت شد');
-        }
-      } catch (err) {
-        console.error('Error loading document:', err);
-        setError('خطا در بارگذاری سند');
-      }
-    };
-
-    loadDocument();
-  }, [document_id]);
-
-  const connectToVectorizationSocket = (jobId) => {
-    const wsUrl = getWebSocketUrl(`/ws/documents/vectorize/${jobId}`);
-
-    const socket = new WebSocket(wsUrl);
-
-    socket.onopen = () => {
-      console.log(`Connected to vectorization socket: ${jobId}`);
-    };
-
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-
-        switch (data.event) {
-          case 'change_progress':
-            handleProgressChange(data);
-            break;
-          case 'finished':
-            handleVectorizationFinished(data);
-            break;
-          default:
-            console.log('Unknown event:', data);
-        }
-      } catch (err) {
-        console.error('Error parsing socket message:', err);
-      }
-    };
-
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setError('خطا در ارتباط با سرور');
-    };
-
-    socket.onclose = () => {
-      console.log(`Vectorization socket closed: ${jobId}`);
-    };
-
-    socketRef.current = socket;
-  };
-
-  const handleProgressChange = (data) => {
-    const progressMsg = data.progress?.msg || '';
-    setVectorizationStatus({
-      status: data.status,
-      message: progressMsg,
-    });
-  };
-
-  const handleVectorizationFinished = (data) => {
-    setVectorizationStatus({
-      status: 'finished',
-      message: 'تکمیل شده',
-    });
-    setStoringVector(false);
-    alert('سند با موفقیت در پایگاه دانش هوش مصنوعی ذخیره شد');
-  };
-
-  const handleStoreVector = async () => {
-    if (!document) return;
-
-    setStoringVector(true);
-    setError(null);
-    try {
-      const documentData = {
-        title: editedTitle,
-        html: ckEditorContent,
-        metadata: {
-          source: document.domain
-            ? `https://${document.domain.domain}${document.uri}`
-            : null,
-          author: 'خزش شده',
-          date: new Date(document.created_at).toISOString().split('T')[0],
-        },
-      };
-
-      const vectorizeResponse = await documentEndpoints.vectorizeDocument(
-        document.id,
-        documentData
-      );
-
-      if (vectorizeResponse.status !== 200) {
-        throw new Error('خطا در ذخیره در پایگاه داده برداری');
-      }
-
-      const vectorizeData = vectorizeResponse.data;
-
-      if (!vectorizeData.job_id) {
-        throw new Error('خطا در ذخیره در پایگاه داده برداری');
-      }
-
-      connectToVectorizationSocket(vectorizeData.job_id);
-    } catch (err) {
-      setError(err.message);
-      console.error('Error in vectorization process:', err);
-      setStoringVector(false);
-    }
-  };
-
-  const getButtonText = () => {
-    if (!storingVector) return 'ذخیره در پایگاه داده برداری';
-
-    if (!vectorizationStatus) return 'در حال ارسال...';
-
-    switch (vectorizationStatus.status) {
-      case 'started':
-        if (vectorizationStatus.message.includes('Queued')) {
-          return 'در صف پردازش';
-        } else if (vectorizationStatus.message.includes('html to markdown')) {
-          return 'درحال آماده سازی';
-        } else if (vectorizationStatus.message.includes('Storing data')) {
-          return 'در حال ذخیره در پایگاه داده';
-        }
-        return 'در حال پردازش';
-      case 'finished':
-        return 'تکمیل شده';
-      default:
-        return 'در حال پردازش';
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-    };
-  }, []);
 
   if (!document) {
     return (
@@ -203,7 +95,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-screen overflow-hidden w-full">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full">
       <div className="flex-1 flex flex-col p-8 pt-10">
         <div className="flex justify-between md:items-center mb-4 max-md:flex-col max-md:gap-2">
           <div className="flex items-center gap-4">
@@ -213,25 +105,14 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
           </div>
           <div className="flex gap-2 max-md:justify-between">
             <button
-              onClick={handleStoreVector}
-              disabled={storingVector}
+              onClick={() => {}}
+              disabled={false}
               className="px-4 py-2 flex items-center justify-center max-md:w-2/3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
-              {storingVector ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  {getButtonText()}
-                </>
-              ) : (
-                'ذخیره در پایگاه داده برداری'
-              )}
+              در حال ذخیره سازی
             </button>
             <Link
-              to={
-                document.domain_id
-                  ? `/document/domain/${document.domain_id}`
-                  : '/document/manuals'
-              }
+              to={'/document'}
               className="px-6 py-3 max-md:w-1/3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               بازگشت
@@ -239,7 +120,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
           </div>
         </div>
         <div className="flex-1 flex flex-col min-h-0">
-          <div>
+          <div className='my-2 md:my-3'>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               عنوان:
             </h3>
@@ -251,29 +132,33 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
               placeholder="عنوان سند"
             />
           </div>
-          <div className="mt-4">
+
+          <div className='my-2 md:my-3'>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              آدرس:
+              تگ ها:
             </h3>
-            {document.domain && document.uri ? (
-              <a
-                href={`https://${document.domain.domain}${document.uri}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all"
-              >
-                {`https://${document.domain.domain}${document.uri}`}
-              </a>
-            ) : (
-              <span className="text-gray-400">بدون آدرس دامنه</span>
-            )}
+            <input
+              type="text"
+              value={tag}
+              onChange={(e) => {
+                try{
+                  let tags = JSON.parse(e.target.value).map(tag => tag.value)
+                  tags = tags.join(',')
+                } catch{
+                  setTag(e.target.value)
+                }
+              }}
+              ref={tagInputRef}
+              className="w-full px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              placeholder="تگ ها"
+            />
           </div>
 
-          <div className="mt-8 h-1/2 flex flex-col overflow-y-scroll">
+          <div className="my-2 md:my-3 h-1/2 flex flex-col">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               متن:
             </h3>
-            <div className="min-h-0 max-h-[900px] overflow-y-scroll">
+            <div className="min-h-0 max-h-[900px] overflow-y-auto">
               <CKEditor
                 editor={ClassicEditor}
                 data={ckEditorContent}
@@ -346,7 +231,7 @@ const EditDocument = ({ selectedDomain: initialSelectedDomain, onBack }) => {
                     ],
                   },
                 }}
-                style={{ direction: 'rtl', textAlign: 'right' }}
+                style={{ direction: 'rtl', textAlign: 'right', overflow: 'auto' }}
               />
             </div>
           </div>
