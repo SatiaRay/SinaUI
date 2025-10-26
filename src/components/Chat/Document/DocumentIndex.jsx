@@ -36,7 +36,7 @@ const DocumentIndex = () => {
     knowledgeApi.useGetAllDocumentsQuery({ page, perpage });
 
   /**
-   * Store documents from request response data for optimistic mutation
+   * Store documents from request response data to state prop for optimistic mutation
    */
   if (isSuccess && !documents) setDocuments(data.documents);
 
