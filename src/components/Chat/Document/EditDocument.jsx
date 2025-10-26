@@ -6,8 +6,11 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { getWebSocketUrl } from '../../../utils/websocket';
 import { Link, useParams } from 'react-router-dom';
 import { documentEndpoints } from '../../../utils/apis';
-import { useGetDocumentQuery } from '../../../store/api/knowledgeApi';
-import Tagify from '@yaireo/tagify'
+import {
+  useGetDocumentQuery,
+  useUpdateDocumentMutation,
+} from '../../../store/api/knowledgeApi';
+import Tagify from '@yaireo/tagify';
 
 const EditDocument = () => {
   /**
@@ -16,19 +19,13 @@ const EditDocument = () => {
   const { document_id } = useParams();
 
   /**
-   * Document's title state prop
+   * Document object state prop
    */
-  const [editedTitle, setEditedTitle] = useState('');
-
-  /**
-   * Document's text state prop
-   */
-  const [ckEditorContent, setCkEditorContent] = useState('');
-
-  /**
-   * Document's tag state prop
-   */
-  const [tag, setTag] = useState('');
+  const [document, setDocument] = useState({
+    title: null,
+    text: null,
+    tag: null,
+  })
 
   /**
    * Tag input ref
@@ -47,44 +44,22 @@ const EditDocument = () => {
    */
   useEffect(() => {
     if (isSuccess && data) {
-      setEditedTitle(data.title);
-      setCkEditorContent(data.text)
-      var tagify = new Tagify(tagInputRef.current)
-      setTag(data.tag)
+      setDocument(data)
+      new Tagify(tagInputRef.current);
     }
   }, [isSuccess, data]);
 
+  /**
+   * Update document request hook
+   */
+  const [updateDocument, result] = useUpdateDocumentMutation();
 
   /**
-   * CKEditor modules
+   * Update document handler
    */
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ align: [] }],
-      ['link', 'image'],
-      ['clean'],
-    ],
-  };
+  const handleUpdateDocument = () => {
 
-  /**
-   * CKEditor text formats
-   */
-  const formats = [
-    'header',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'list',
-    'bullet',
-    'align',
-    'link',
-    'image',
-  ];
-
+  }
 
   if (!document) {
     return (
@@ -105,11 +80,11 @@ const EditDocument = () => {
           </div>
           <div className="flex gap-2 max-md:justify-between">
             <button
-              onClick={() => {}}
+              onClick={handleUpdateDocument}
               disabled={false}
               className="px-4 py-2 flex items-center justify-center max-md:w-2/3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
-              در حال ذخیره سازی
+              ذخیره
             </button>
             <Link
               to={'/document'}
@@ -120,32 +95,32 @@ const EditDocument = () => {
           </div>
         </div>
         <div className="flex-1 flex flex-col min-h-0">
-          <div className='my-2 md:my-3'>
+          <div className="my-2 md:my-3">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               عنوان:
             </h3>
             <input
               type="text"
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
+              value={document.title}
+              onChange={(e) => setDocument({...document, title: e.target.value})}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               placeholder="عنوان سند"
             />
           </div>
 
-          <div className='my-2 md:my-3'>
+          <div className="my-2 md:my-3">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               تگ ها:
             </h3>
             <input
               type="text"
-              value={tag}
+              value={document.tag}
               onChange={(e) => {
-                try{
-                  let tags = JSON.parse(e.target.value).map(tag => tag.value)
-                  tags = tags.join(',')
-                } catch{
-                  setTag(e.target.value)
+                try {
+                  let tags = JSON.parse(e.target.value).map((tag) => tag.value);
+                  setDocument({...document, tag: tags.join(',')});
+                } catch {
+                  setDocument({...document, tag: e.target.value});
                 }
               }}
               ref={tagInputRef}
@@ -161,10 +136,10 @@ const EditDocument = () => {
             <div className="min-h-0 max-h-[900px] overflow-y-auto">
               <CKEditor
                 editor={ClassicEditor}
-                data={ckEditorContent}
+                data={document.text}
                 onChange={(event, editor) => {
-                  const data = editor.getData();
-                  setCkEditorContent(data);
+                  const value = editor.getData();
+                  setDocument({...document, text: value})
                 }}
                 config={{
                   language: 'fa',
@@ -231,7 +206,11 @@ const EditDocument = () => {
                     ],
                   },
                 }}
-                style={{ direction: 'rtl', textAlign: 'right', overflow: 'auto' }}
+                style={{
+                  direction: 'rtl',
+                  textAlign: 'right',
+                  overflow: 'auto',
+                }}
               />
             </div>
           </div>
