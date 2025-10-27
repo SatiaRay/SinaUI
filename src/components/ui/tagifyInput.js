@@ -6,11 +6,15 @@ export const TagifyInput = ({
   whitelist,
   onChange,
 }) => {
+  
   /**
    * Tag input ref
    */
   const tagInputRef = useRef(null);
 
+  /**
+   * Tagify instance state prop
+   */
   const [tagify, setTagify] = useState(null)
 
   /**
@@ -22,17 +26,17 @@ export const TagifyInput = ({
   }, []);
 
   /**
-   * Set event handlers
+   * Add default tags
    */
   useEffect(() => {
     if(tagify)
-        tagify.on('change', (e) => onChange(e));
+      tagify.addTags(defaultValue.split(','))
   }, [tagify])
 
   return (
     <input
       type="text"
-      defaultValue={defaultValue}
+      onChange={onChange}
       ref={tagInputRef}
       className="w-full px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
       placeholder="تگ ها"

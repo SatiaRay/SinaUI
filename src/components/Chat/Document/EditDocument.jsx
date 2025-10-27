@@ -24,6 +24,11 @@ const EditDocument = () => {
   const { document_id } = useParams();
 
   /**
+   * Navigator
+   */
+  const navigate = useNavigate();
+
+  /**
    * Fetching Document data usign RTK Query hook
    */
   const { data, isSuccess, isLoading, isError, error } = useGetDocumentQuery({
@@ -31,18 +36,18 @@ const EditDocument = () => {
   });
 
   /**
-   * Navigator
-   */
-  const navigate = useNavigate();
-
-  /**
    * Document object state prop
    */
-  const [document, setDocument] = useState({
-    title: null,
-    text: null,
-    tag: null,
-  });
+  const [document, setDocument] = useState(null);
+
+  useEffect(() => {
+    if (isSuccess && data)
+      setDocument({
+        title: data.title,
+        text: data.text,
+        tag: data.tag,
+      });
+  }, [isSuccess, data]);
 
   /**
    * Update document request hook
@@ -79,8 +84,7 @@ const EditDocument = () => {
   /**
    * Display loading page on loading state
    */
-  if(isLoading)
-    return <EditDocumentLoading/>
+  if (isLoading || !document) return <EditDocumentLoading />;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full">
@@ -114,7 +118,7 @@ const EditDocument = () => {
             </h3>
             <input
               type="text"
-              value={data?.title ?? ''}
+              value={document.title}
               onChange={(e) =>
                 setDocument({ ...document, title: e.target.value })
               }
@@ -128,7 +132,7 @@ const EditDocument = () => {
               تگ ها:
             </h3>
             <TagifyInput
-              defaultValue={data?.tag ?? ''}
+              defaultValue={document.tag}
               onChange={(e) => {
                 {
                   try {
@@ -151,7 +155,7 @@ const EditDocument = () => {
             <div className="min-h-0 max-h-[900px] overflow-y-auto">
               <CKEditor
                 editor={ClassicEditor}
-                data={data?.text ?? ''}
+                data={document.text ?? ''}
                 onChange={(event, editor) => {
                   const value = editor.getData();
                   setDocument({ ...document, text: value });
