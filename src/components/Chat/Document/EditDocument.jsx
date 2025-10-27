@@ -1,36 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { TagifyInput } from '../../ui/tagifyInput';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { getWebSocketUrl } from '../../../utils/websocket';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { documentEndpoints } from '../../../utils/apis';
+import { notify } from '../../../ui/toast';
 import {
   useGetDocumentQuery,
   useUpdateDocumentMutation,
 } from '../../../store/api/knowledgeApi';
 import Tagify from '@yaireo/tagify';
+import { ckEditorConfig } from '../../../configs';
 
 const EditDocument = () => {
   /**
    * Distruct document_id from uri
    */
   const { document_id } = useParams();
-
-  /**
-   * Document object state prop
-   */
-  const [document, setDocument] = useState({
-    title: null,
-    text: null,
-    tag: null,
-  })
-
-  /**
-   * Tag input ref
-   */
-  const tagInputRef = useRef(null);
 
   /**
    * Fetching Document data usign RTK Query hook
@@ -40,34 +29,54 @@ const EditDocument = () => {
   });
 
   /**
-   * Set state props value after successful fetching
+   * Navigator
    */
-  useEffect(() => {
-    if (isSuccess && data) {
-      setDocument(data)
-      new Tagify(tagInputRef.current);
-    }
-  }, [isSuccess, data]);
+  const navigate = useNavigate();
+
+  /**
+   * Document object state prop
+   */
+  const [document, setDocument] = useState({
+    title: null,
+    text: null,
+    tag: null,
+  });
 
   /**
    * Update document request hook
    */
-  const [updateDocument, result] = useUpdateDocumentMutation();
+  const [
+    updateDocument,
+    {
+      isLoading: isUpdating,
+      isSuccess: isUpdateSucceed,
+      isError: isUpdateFailed,
+      error: updateError,
+    },
+  ] = useUpdateDocumentMutation();
+
+  /**
+   * Notify successful mutation and navigate user to index page
+   */
+  useEffect(() => {
+    if (isUpdateSucceed) {
+      notify.success('سند با موفقیت ویرایش شد !');
+      navigate('/document');
+    }
+  }, [isUpdateSucceed]);
 
   /**
    * Update document handler
    */
   const handleUpdateDocument = () => {
+    console.log(document);
 
-  }
+    updateDocument({ id: document_id, data: document });
+  };
 
-  if (!document) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+  if(!isSuccess)
+    return null
+
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full">
@@ -84,7 +93,7 @@ const EditDocument = () => {
               disabled={false}
               className="px-4 py-2 flex items-center justify-center max-md:w-2/3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
-              ذخیره
+              {isUpdating ? 'در حال ذخیره سازی' : 'ذخیره'}
             </button>
             <Link
               to={'/document'}
@@ -101,8 +110,10 @@ const EditDocument = () => {
             </h3>
             <input
               type="text"
-              value={document.title}
-              onChange={(e) => setDocument({...document, title: e.target.value})}
+              value={data?.title ?? ''}
+              onChange={(e) =>
+                setDocument({ ...document, title: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               placeholder="عنوان سند"
             />
@@ -112,20 +123,20 @@ const EditDocument = () => {
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               تگ ها:
             </h3>
-            <input
-              type="text"
-              value={document.tag}
+            <TagifyInput
+              defaultValue={data?.tag ?? ''}
               onChange={(e) => {
-                try {
-                  let tags = JSON.parse(e.target.value).map((tag) => tag.value);
-                  setDocument({...document, tag: tags.join(',')});
-                } catch {
-                  setDocument({...document, tag: e.target.value});
+                {
+                  try {
+                    const tags = JSON.parse(e.detail.value).map(
+                      (tag) => tag.value
+                    );
+                    setDocument((prev) => ({ ...prev, tag: tags.join(',') }));
+                  } catch {
+                    console.log('Tagify parse error');
+                  }
                 }
               }}
-              ref={tagInputRef}
-              className="w-full px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              placeholder="تگ ها"
             />
           </div>
 
@@ -136,10 +147,10 @@ const EditDocument = () => {
             <div className="min-h-0 max-h-[900px] overflow-y-auto">
               <CKEditor
                 editor={ClassicEditor}
-                data={document.text}
+                data={data?.text ?? ''}
                 onChange={(event, editor) => {
                   const value = editor.getData();
-                  setDocument({...document, text: value})
+                  setDocument({ ...document, text: value });
                 }}
                 config={ckEditorConfig}
                 style={{
