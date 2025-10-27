@@ -14,6 +14,8 @@ import {
 } from '../../../store/api/knowledgeApi';
 import Tagify from '@yaireo/tagify';
 import { ckEditorConfig } from '../../../configs';
+import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
+import { EditDocumentLoading } from './EditDocumentLoading';
 
 const EditDocument = () => {
   /**
@@ -74,13 +76,15 @@ const EditDocument = () => {
     updateDocument({ id: document_id, data: document });
   };
 
-  if(!isSuccess)
-    return null
-
+  /**
+   * Display loading page on loading state
+   */
+  if(isLoading)
+    return <EditDocumentLoading/>
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full">
-      <div className="flex-1 flex flex-col p-8 pt-10">
+      <div className="flex-1 flex flex-col p-3 md:p-8 pt-10">
         <div className="flex justify-between md:items-center mb-4 max-md:flex-col max-md:gap-2">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 border-r-2 border-blue-500 pr-2 max-md:my-2">
@@ -91,13 +95,13 @@ const EditDocument = () => {
             <button
               onClick={handleUpdateDocument}
               disabled={false}
-              className="px-4 py-2 flex items-center justify-center max-md:w-2/3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 flex items-center justify-center max-md:w-1/2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
               {isUpdating ? 'در حال ذخیره سازی' : 'ذخیره'}
             </button>
             <Link
               to={'/document'}
-              className="px-6 py-3 max-md:w-1/3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="px-6 py-3 max-md:w-1/2 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               بازگشت
             </Link>
