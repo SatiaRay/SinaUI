@@ -69,6 +69,14 @@ const EditDocument = () => {
   }, [isUpdateSucceed]);
 
   /**
+   * Notify failure mutation 
+   */
+  useEffect(() => {
+    if (isUpdateFailed) 
+      notify.error('ویرایش سند با خطا مواجه شد. لطفا کمی بعد تر مجددا تلاش کنید.')
+  }, [isUpdateFailed]);
+
+  /**
    * Update document handler
    */
   const handleUpdateDocument = () => {
