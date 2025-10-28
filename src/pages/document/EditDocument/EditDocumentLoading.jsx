@@ -1,5 +1,4 @@
-import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import Skeleton from 'react-loading-skeleton';
 
 export const EditDocumentLoading = () => {
   return (
