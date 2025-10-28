@@ -1,6 +1,6 @@
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
-export const SkeletonLoading = ({ rows = 1, cols = 1, height = 20, baseColor ="#132440", highlightColor ="#222", containerClassName="flex flex-row gap-2 my-3" }) => {
+export const SkeletonLoading = ({ rows = 1, cols = 1, height = 20, baseColor ="#374151", highlightColor ="#5c626b", containerClassName="flex flex-row gap-2 my-3" }) => {
   let skeletonRows = [];
 
   for (let i = 0; i < rows; i++) {
