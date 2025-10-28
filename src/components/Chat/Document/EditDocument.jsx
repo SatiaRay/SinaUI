@@ -80,8 +80,6 @@ const EditDocument = () => {
    * Update document handler
    */
   const handleUpdateDocument = () => {
-    console.log(document);
-
     updateDocument({ id: document_id, data: document });
   };
 
