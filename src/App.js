@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
-import { CreateDocument, DocumentIndex, EditDocument } from './components/Chat/Document';
+import { CreateDocument, DocumentIndex, EditDocument } from "./pages/document";
 import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';

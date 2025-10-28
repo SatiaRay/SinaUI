@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { FaTrash, FaMicrophone, FaKeyboard, FaRobot } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { documentEndpoints } from '../../../utils/apis';
-import { notify } from '../../../ui/toast';
-import {PulseLoader} from "react-spinners"
-import { useUpdateDocumentMutation } from '../../../store/api/knowledgeApi';
+import { notify } from '../../ui/toast';
+import { useUpdateDocumentMutation } from '../../store/api/knowledgeApi';
 
 const DocumentCard = ({ document,  handleDelete }) => {
   const navigate = useNavigate();

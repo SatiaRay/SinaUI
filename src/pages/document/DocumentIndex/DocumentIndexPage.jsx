@@ -1,20 +1,20 @@
 // DocumentIndex.js
 import React, { useEffect, useState, useCallback } from 'react';
-import DocumentCard from './DocumentCard';
-import SearchDocument from './searchDocument/SearchDocument'; // Import the separate search component
+import DocumentCard from "../../../components/document/DocumentCard"
+import SearchDocument from '../../../components/document/SearchDocument'; // Import the separate search component
 import knowledgeApi, {
   useDeleteDocumentMutation,
 } from '../../../store/api/knowledgeApi';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
-import { Pagination } from '../../ui/pagination';
+import { Pagination } from '../../../components/ui/pagination';
 import { useDisplay } from '../../../hooks/display';
 import { notify } from '../../../ui/toast';
-import { confirm } from '../../ui/alert/confirmation';
+import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
 import { GoPlusCircle } from "react-icons/go";
 
-const DocumentIndex = () => {
+const DocumentIndexPage = () => {
   /**
    * Response props
    */
@@ -127,4 +127,4 @@ const DocumentIndex = () => {
   );
 };
 
-export default DocumentIndex;
+export default DocumentIndexPage;

@@ -1,51 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { TagifyInput } from '../../ui/tagifyInput';
+import React, { useState, useEffect, useRef } from 'react';
+import { TagifyInput } from '../../../components/ui/tagifyInput';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { notify } from '../../../ui/toast';
-import { useStoreDocumentMutation } from '../../../store/api/knowledgeApi';
+import {
+  useGetDocumentQuery,
+  useUpdateDocumentMutation,
+} from '../../../store/api/knowledgeApi';
 import { ckEditorConfig } from '../../../configs';
-import { Sppiner } from '../../ui/sppiner';
+import { EditDocumentLoading } from './EditDocumentLoading';
+import { Sppiner } from '../../../components/ui/sppiner';
 
-const CreateDocument = () => {
+const EditDocumentPage = () => {
+  /**
+   * Distruct document_id from uri
+   */
+  const { document_id } = useParams();
+
   /**
    * Navigator
    */
   const navigate = useNavigate();
 
   /**
-   * Document object state prop
+   * Fetching Document data usign RTK Query hook
    */
-  const [document, setDocument] = useState({
-    title: "",
-    text: "",
-    tag: "",
+  const { data, isSuccess, isLoading, isError, error } = useGetDocumentQuery({
+    id: document_id,
   });
 
   /**
-   * Store document request hook
+   * Document object state prop
    */
-  const [storeDocument, { isLoading, isSuccess, isError, error }] =
-    useStoreDocumentMutation();
+  const [document, setDocument] = useState(null);
+
+  useEffect(() => {
+    if (isSuccess && data)
+      setDocument({
+        title: data.title,
+        text: data.text,
+        tag: data.tag,
+      });
+  }, [isSuccess, data]);
+
+  /**
+   * Update document request hook
+   */
+  const [
+    updateDocument,
+    {
+      isLoading: isUpdating,
+      isSuccess: isUpdateSucceed,
+      isError: isUpdateFailed,
+      error: updateError,
+    },
+  ] = useUpdateDocumentMutation();
 
   /**
    * Notify successful mutation and navigate user to index page
    */
   useEffect(() => {
-    if (isSuccess) {
-      notify.success('سند با موفقیت اضافه شد !');
+    if (isUpdateSucceed) {
+      notify.success('سند با موفقیت ویرایش شد !');
       navigate('/document');
     }
-  }, [isSuccess]);
+  }, [isUpdateSucceed]);
 
   /**
-   * Store document handler
+   * Notify failure mutation 
    */
-  const handleStoreDocument = () => {
-    storeDocument(document);
+  useEffect(() => {
+    if (isUpdateFailed) 
+      notify.error('ویرایش سند با خطا مواجه شد. لطفا کمی بعد تر مجددا تلاش کنید.')
+  }, [isUpdateFailed]);
+
+  /**
+   * Update document handler
+   */
+  const handleUpdateDocument = () => {
+    updateDocument({ id: document_id, data: document });
   };
+
+  /**
+   * Display loading page on loading state
+   */
+  if (isLoading || !document) return <EditDocumentLoading />;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full">
@@ -53,16 +94,16 @@ const CreateDocument = () => {
         <div className="flex justify-between md:items-center mb-4 max-md:flex-col max-md:gap-2">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 border-r-2 border-blue-500 pr-2 max-md:my-2">
-              افزودن سند جدید
+              محتوای سند
             </h2>
           </div>
           <div className="flex gap-2 max-md:justify-between">
             <button
-              onClick={handleStoreDocument}
+              onClick={handleUpdateDocument}
               disabled={false}
               className="px-4 py-2 flex items-center justify-center max-md:w-1/2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
-              {isLoading ? <Sppiner size={8} /> : 'ذخیره'}
+              {isUpdating ? <Sppiner size={8}/> : 'ذخیره'}
             </button>
             <Link
               to={'/document'}
@@ -136,4 +177,4 @@ const CreateDocument = () => {
   );
 };
 
-export default CreateDocument;
+export default EditDocumentPage;
