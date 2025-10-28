@@ -31,7 +31,7 @@ const DocumentCard = ({ document,  handleDelete }) => {
   return (
     <div
       onClick={() => navigate(`/document/edit/${document.id}`)}
-      className="bg-white relative dark:bg-black/50 rounded-xl overflow-hidden dark:shadow-white/10 shadow-lg p-4 hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700"
+      className="w-full bg-white relative dark:bg-black/50 rounded-xl overflow-hidden dark:shadow-white/10 shadow-lg p-4 hover:shadow-xl transition-shadow cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700"
     >
       <div className="flex items-center justify-between">
         <h5 className="text-lg font-medium w-2/3 text-gray-900 dark:text-white truncate">
