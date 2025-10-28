@@ -136,12 +136,12 @@ const EditDocument = () => {
               onChange={(e) => {
                 {
                   try {
-                    const tags = JSON.parse(e.detail.value).map(
+                    const tags = JSON.parse(e.target.value).map(
                       (tag) => tag.value
                     );
                     setDocument((prev) => ({ ...prev, tag: tags.join(',') }));
                   } catch {
-                    console.log('Tagify parse error');
+                    setDocument((prev) => ({ ...prev, tag: e.target.value }));
                   }
                 }
               }}
