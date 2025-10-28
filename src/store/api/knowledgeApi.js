@@ -34,6 +34,14 @@ const knowledgeApi = createApi({
       providesTags: (result, error, arg) =>
         [{ type: 'Document', id: result.id }]
     }),
+    storeDocument: builder.mutation({
+      query: (data) => ({
+        url: `/`,
+        method: 'POST',
+        body: data
+      }),
+      invalidatesTags: ['Document'],
+    }),
     updateDocument: builder.mutation({
       query: ({id, data}) => ({
         url: `/${id}`,
@@ -54,4 +62,4 @@ const knowledgeApi = createApi({
 
 export default knowledgeApi;
 
-export const { useGetAllDocumentsQuery, useGetDocumentQuery, useUpdateDocumentMutation, useDeleteDocumentMutation } = knowledgeApi;
+export const { useGetAllDocumentsQuery, useGetDocumentQuery, useUpdateDocumentMutation, useDeleteDocumentMutation, useStoreDocumentMutation } = knowledgeApi;
