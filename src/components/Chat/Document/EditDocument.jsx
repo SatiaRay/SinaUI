@@ -1,20 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TagifyInput } from '../../ui/tagifyInput';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { getWebSocketUrl } from '../../../utils/websocket';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { documentEndpoints } from '../../../utils/apis';
 import { notify } from '../../../ui/toast';
 import {
   useGetDocumentQuery,
   useUpdateDocumentMutation,
 } from '../../../store/api/knowledgeApi';
-import Tagify from '@yaireo/tagify';
 import { ckEditorConfig } from '../../../configs';
-import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
 import { EditDocumentLoading } from './EditDocumentLoading';
 import { Sppiner } from '../../ui/sppiner';
 
