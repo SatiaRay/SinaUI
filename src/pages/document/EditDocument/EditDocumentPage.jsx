@@ -94,7 +94,7 @@ const EditDocumentPage = () => {
         <div className="flex justify-between md:items-center mb-4 max-md:flex-col max-md:gap-2">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 border-r-2 border-blue-500 pr-2 max-md:my-2">
-              محتوای سند
+              ویرایش سند
             </h2>
           </div>
           <div className="flex gap-2 max-md:justify-between">
