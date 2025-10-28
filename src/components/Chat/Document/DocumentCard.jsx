@@ -21,7 +21,8 @@ const DocumentCard = ({ document,  handleDelete }) => {
       const data = {...document, status: !document.status}
 
       try {
-        await updateDocument(data).unwrap();
+        console.log(data)
+        await updateDocument({id: document.id, data}).unwrap();
       } catch (err) {
         setLocalStatus(document.status); // Rollback if error
         notify.error('خطا در تغییر وضعیت سند!');
