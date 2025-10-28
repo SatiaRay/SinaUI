@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
-import { DocumentIndex, EditDocument } from './components/Chat/Document';
+import { CreateDocument, DocumentIndex, EditDocument } from './components/Chat/Document';
 import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
@@ -74,7 +74,9 @@ function AppContent() {
     >
       {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
-      <div className="md:container mx-auto md:px-10 py-0 md:py-3 lg:px-0 w-[100%] lg:w-[90%] xl:w-[85%] xxl:w-[1400px]">{privateRoutes()}</div>
+      <div className="md:container mx-auto md:px-10 py-0 md:py-3 lg:px-0 w-[100%] lg:w-[90%] xl:w-[85%] xxl:w-[1400px]">
+        {privateRoutes()}
+      </div>
 
       {publicRoutes()}
 
@@ -151,15 +153,24 @@ function privateRoutes() {
             }
           />
         </Route>
+        <Route
+          path="document/edit/:document_id"
+          element={
+            <PrivateRoute>
+              <EditDocument />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="document/create"
+          element={
+            <PrivateRoute>
+              <CreateDocument />
+            </PrivateRoute>
+          }
+        />
       </Route>
-      <Route
-        path="document/edit/:document_id"
-        element={
-          <PrivateRoute>
-            <EditDocument />
-          </PrivateRoute>
-        }
-      />
       <Route
         path="/processes"
         element={
