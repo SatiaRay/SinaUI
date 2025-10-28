@@ -12,13 +12,9 @@ import { notify } from '../../../ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
 import { GoPlusCircle } from "react-icons/go";
+import { DocumentIndexLoading } from './DocumentIndexLoading';
 
 const DocumentIndexPage = () => {
-  /**
-   * Response props
-   */
-  const { height, isDesktop, isLargeDisplay } = useDisplay();
-
   /**
    * Pagination props
    */
@@ -71,15 +67,7 @@ const DocumentIndexPage = () => {
    * Show skeleton loading
    */
   if (isLoading)
-    return (
-      <div className="text-center container mx-auto">
-        <SkeletonLoading
-          rows={height / 150}
-          cols={!isLargeDisplay ? 1 : 3}
-          height={110}
-        />
-      </div>
-    );
+    return <DocumentIndexLoading/>;
 
   /**
    * Display error message when fetching fails

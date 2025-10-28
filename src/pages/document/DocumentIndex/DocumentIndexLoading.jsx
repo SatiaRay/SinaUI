@@ -1,0 +1,32 @@
+import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
+import { useDisplay } from '../../../hooks/display';
+import Skeleton from 'react-loading-skeleton';
+
+export const DocumentIndexLoading = () => {
+  /**
+   * Response props
+   */
+  const { height, isLargeDisplay } = useDisplay();
+
+  return (
+    <div className="text-center container mx-auto">
+      <div className='flex justify-between pl-2 mb-6 items-center'>
+        <h3 className="text-3xl">مستندات</h3>
+
+        <Skeleton
+          baseColor="#374151"
+          highlightColor="#5c626b"
+          height={45}
+          className="inline"
+          width={110}
+        />
+      </div>
+      <SkeletonLoading
+        rows={height / 150}
+        cols={!isLargeDisplay ? 1 : 3}
+        height={110}
+      />
+    </div>
+  );
+};
+
