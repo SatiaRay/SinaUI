@@ -1,7 +1,6 @@
 // DocumentIndex.js
-import React, { useEffect, useState, useCallback } from 'react';
+import React, {useState } from 'react';
 import DocumentCard from "../../../components/document/DocumentCard"
-import SearchDocument from '../../../components/document/SearchDocument'; // Import the separate search component
 import knowledgeApi, {
   useDeleteDocumentMutation,
 } from '../../../store/api/knowledgeApi';
@@ -96,7 +95,7 @@ const DocumentIndexPage = () => {
    * Display document cards list
    */
   return (
-    <div className="h-full flex flex-col justify-center pb-3 md:pb-0">
+    <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h3 className="text-3xl">مستندات</h3>
         <Link
@@ -107,7 +106,7 @@ const DocumentIndexPage = () => {
           <GoPlusCircle size={22} className='pr-2 box-content'/>
         </Link>
       </div>
-      <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3 flex-1 items-start">
+      <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
         {documents.map((document) => (
           <DocumentCard
             document={document}
