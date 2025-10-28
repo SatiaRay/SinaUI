@@ -16,7 +16,7 @@ const DocumentCard = ({ document,  handleDelete }) => {
   const toggleVectorStatus = async () => {
       setLocalStatus(!localStatus)
 
-      const data = {...document, status: !document.status}
+      const data = {...document, status: !localStatus}
 
       try {
         console.log(data)
