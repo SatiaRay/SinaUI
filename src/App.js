@@ -6,36 +6,36 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom';
-import Chat from './components/Chat/Chat';
-import CrawlUrl from './components/Chat/CrawlUrl';
+import Chat from '@components/Chat/Chat';
+import CrawlUrl from '@components/Chat/CrawlUrl';
 import {
   Document,
   DocumentIndex,
   DomainIndex,
   EditDocument,
-} from './components/Chat/Document';
-import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
-import EditInstruction from './components/Chat/Instruction/EditInstruction';
-import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
-import Status1 from './components/Chat/Status';
-import Wizard from './components/Chat/Wizard';
-import Login from './components/Login';
-import Navbar from './components/Navbar';
-import PrivateRoute from './components/PrivateRoute';
-import Workflow from './components/Workflow/WorkflowIndex';
-import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
-import { AuthProvider } from './contexts/AuthContext';
-import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
-import VoiceAgentConversation from './pages/VoiceAgentConversation';
-import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
-import { getVersion } from './utils/apis';
-import Register from './components/register';
-import Setting from './pages/setting';
-import { ChatProvider } from './contexts/ChatContext';
-import MonitoringPage from './components/Monitoring/MonitoringPage';
-import RecentLogsPage from './components/Monitoring/RecentLogsPage';
-import ToolUsageStats from './components/Monitoring/ToolUsageStats';
-import LogSearchPage from './components/Monitoring/LogSearchPage';
+} from '@components/Chat/Document';
+import CreateInstruction from '@components/Chat/Instruction/CreateInstruction';
+import EditInstruction from '@components/Chat/Instruction/EditInstruction';
+import InstructionIndex from '@components/Chat/Instruction/InstructionIndex';
+import Status1 from '@components/Chat/Status';
+import Wizard from '@components/Chat/Wizard';
+import Login from '@components/Login';
+import Navbar from '@components/Navbar';
+import PrivateRoute from '@components/PrivateRoute';
+import Workflow from '@components/Workflow/WorkflowIndex';
+import WorkflowEditor from '@components/Workflow/editor/WorkflowEditor';
+import { AuthProvider } from '@contexts/AuthContext';
+import { VoiceAgentProvider } from '@contexts/VoiceAgentContext';
+import { ChatProvider } from '@contexts/ChatContext';
+import VoiceAgentConversation from '@pages/VoiceAgentConversation';
+import AiToolsFunctionTester from '@pages/AiToolsFunctionTester';
+import Setting from '@pages/setting';
+import { getVersion } from '@utils/apis';
+import Register from '@components/register';
+import MonitoringPage from '@components/Monitoring/MonitoringPage';
+import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
+import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
+import LogSearchPage from '@components/Monitoring/LogSearchPage';
 
 function App() {
   return (
