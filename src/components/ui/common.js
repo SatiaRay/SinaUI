@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 export const H2 = styled.h2`
   font-size: 22px !important;
@@ -152,21 +152,50 @@ export const LoadingIndicator = styled.div`
   padding: 1rem;
 `;
 
-export const LoadingSpinner = styled.div`
-  animation: spin 1s linear infinite;
-  border-radius: 50%;
-  height: 1.25rem;
-  width: 1.25rem;
-  border-bottom: 2px solid #3b82f6;
-  margin-right: 0.75rem;
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+const dualSpin = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 `;
 
+export const LoadingSpinner = styled.div`
+  position: relative;
+  display: inline-flex;
+  width: 1.25rem;
+  height: 1.25rem;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    animation: ${dualSpin} 1s linear infinite;
+  }
+
+  &::before {
+    width: 100%;
+    height: 100%;
+    border-top: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    opacity: 0.8;
+  }
+
+  &::after {
+    width: 70%;
+    height: 70%;
+    top: 15%;
+    left: 15%;
+    border-bottom: 2px solid currentColor;
+    border-left: 2px solid currentColor;
+    animation-duration: 0.5s;
+    animation-direction: reverse;
+    opacity: 0.6;
+  }
+`;
 export const LoadingText = styled.p`
   color: #6b7280;
 
