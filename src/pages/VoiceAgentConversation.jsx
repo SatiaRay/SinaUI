@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
-import { useVoiceAgent } from '../contexts/VoiceAgentContext';
+import { useVoiceAgent } from '@contexts/VoiceAgentContext';
+import MicVisualizer from '@components/MicVisualizer';
 import { Button } from 'react-bootstrap';
 import { ClipLoader } from 'react-spinners';
-import MicVisualizer from '../components/MicVisualizer';
 import { AudioLines, Mic, MicVocal } from 'lucide-react';
 import {
   submitRequest,

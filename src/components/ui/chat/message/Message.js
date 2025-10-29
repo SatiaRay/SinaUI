@@ -1,7 +1,7 @@
 import React from 'react';
-import OptionMessage from './components/OptionMessage';
-import ImageMessage from './components/ImageMessage';
-import TextMessage from './components/TextMessage';
+import OptionMessage from '@components/ui/chat/message/components/OptionMessage';
+import ImageMessage from '@components/ui/chat/message/components/ImageMessage';
+import TextMessage from '@components/ui/chat/message/components/TextMessage';
 import SentMessage from './SentMessage';
 import ReceivedMessage from './ReceivedMessage';
 import { ErrorMessage } from './ErrorMessage';
