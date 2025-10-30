@@ -1,5 +1,5 @@
 const PYTHON_APP_URL = process.env.REACT_APP_PYTHON_APP_API_HOST;
-const protocol = process.env.REACT_APP_FORCE_WEBSOCKET_PROTOCOL;
+const protocol = process.env.REACT_APP_FORCE_WEBSOCKET_PROTOCOL ?? 'wss';
 
 export const sockets = {
   voice: (handleTranscribe) => {
