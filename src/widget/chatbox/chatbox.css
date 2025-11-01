@@ -17,7 +17,7 @@
 
 #khan-chatbox ::before,
 #khan-chatbox ::after {
-  --tw-content: "";
+  --tw-content: '';
 }
 
 /* html/body resets — scope as children */
@@ -28,8 +28,8 @@
   -moz-tab-size: 4;
   tab-size: 4;
   font-family:
-    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", "Noto Color Emoji";
+    ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
   font-feature-settings: normal;
   font-variation-settings: normal;
   -webkit-tap-highlight-color: transparent;
@@ -75,8 +75,8 @@
 #khan-chatbox samp,
 #khan-chatbox pre {
   font-family:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   font-feature-settings: normal;
   font-variation-settings: normal;
   font-size: 1em;
@@ -126,14 +126,14 @@
 }
 
 #khan-chatbox button,
-#khan-chatbox input[type="button"],
-#khan-chatbox input[type="reset"],
-#khan-chatbox input[type="submit"] {
+#khan-chatbox input[type='button'],
+#khan-chatbox input[type='reset'],
+#khan-chatbox input[type='submit'] {
   -webkit-appearance: button;
-} 
+}
 
 #khan-chatbox :-moz-focusring {
-  outline: 1px solid transparent; /* outline نامرئی ولی دسترسی‌پذیری حفظ میشه */
+  outline: 1px solid transparent;
   outline-offset: 1px;
 }
 #khan-chatbox :-moz-ui-invalid {
@@ -149,7 +149,7 @@
   height: auto;
 }
 
-#khan-chatbox [type="search"] {
+#khan-chatbox [type='search'] {
   -webkit-appearance: textfield;
   outline-offset: -2px;
 }
@@ -213,7 +213,7 @@
 }
 
 #khan-chatbox button,
-#khan-chatbox [role="button"] {
+#khan-chatbox [role='button'] {
   cursor: pointer;
 }
 #khan-chatbox :disabled {
@@ -238,6 +238,6 @@
   height: auto;
 }
 
-#khan-chatbox [hidden]:where(:not([hidden="until-found"])) {
+#khan-chatbox [hidden]:where(:not([hidden='until-found'])) {
   display: none;
 }
