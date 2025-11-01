@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
+import { AuthProvider } from '../../../contexts/AuthContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
 import { useState, useEffect, useRef } from 'react';
-import { AuthProvider } from '../../../contexts/AuthContext';
 import ChatSkeletonLoader from './chatSkeletonLoader';
 
 const Box = styled.div`
@@ -68,14 +68,6 @@ const Messages = styled.div`
   flex-direction: column;
   margin: 0;
   padding: 0 10px;
-`;
-
-const ContentTransition = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  transition: opacity 0.6s ease-in-out;
-  opacity: ${(props) => (props.isVisible ? 1 : 0)};
 `;
 
 const Close = styled.div`
@@ -142,7 +134,6 @@ const ChatBox = (props) => {
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
   const [isSkeletonActive, setIsSkeletonActive] = useState(false);
-  const [contentVisible, setContentVisible] = useState(false);
   const skeletonTimerRef = useRef(null);
 
   useEffect(() => {
@@ -161,20 +152,14 @@ const ChatBox = (props) => {
     if (isVisible || isStatic || fullscreen) {
       if (!isSkeletonActive) {
         setIsSkeletonActive(true);
-        setContentVisible(true);
 
         if (skeletonTimerRef.current) {
           clearTimeout(skeletonTimerRef.current);
         }
 
         skeletonTimerRef.current = setTimeout(() => {
-          setContentVisible(false);
-
-          setTimeout(() => {
-            setIsSkeletonActive(false);
-            setContentVisible(true);
-            skeletonTimerRef.current = null;
-          }, 600);
+          setIsSkeletonActive(false);
+          skeletonTimerRef.current = null;
         }, 1200);
       }
 
@@ -188,6 +173,9 @@ const ChatBox = (props) => {
   }, [isVisible, isStatic, fullscreen]);
 
   if (!accessToken) {
+    console.error(
+      '[ChatBox] ⚠️ Access token missing: The chat box cannot be initialized without a valid access token. Please provide a valid token to enable chat functionality.'
+    );
     return null;
   }
 
@@ -223,17 +211,15 @@ const ChatBox = (props) => {
         )}
         <MessagesWrapper>
           <Messages>
-            <ContentTransition isVisible={contentVisible}>
-              {isSkeletonActive ? (
-                <ChatSkeletonLoader theme={theme} />
-              ) : (
-                <AuthProvider>
-                  <ChatProvider>
-                    <Chat services={services} />
-                  </ChatProvider>
-                </AuthProvider>
-              )}
-            </ContentTransition>
+            {isSkeletonActive ? (
+              <ChatSkeletonLoader theme={theme} />
+            ) : (
+              <AuthProvider>
+                <ChatProvider>
+                  <Chat services={services} />
+                </ChatProvider>
+              </AuthProvider>
+            )}
           </Messages>
         </MessagesWrapper>
       </Box>
