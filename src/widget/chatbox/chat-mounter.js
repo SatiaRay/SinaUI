@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import ChatBox from '@components/chatbox';
+import ChatBox from './components/chatbox';
 import './chatbox.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'typeface-vazir';

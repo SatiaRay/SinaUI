@@ -188,6 +188,9 @@ const ChatBox = (props) => {
   }, [isVisible, isStatic, fullscreen]);
 
   if (!accessToken) {
+    console.error(
+      '[ChatBox] ⚠️ Access token missing: The chat box cannot be initialized without a valid access token. Please provide a valid token to enable chat functionality.'
+    );
     return null;
   }
 

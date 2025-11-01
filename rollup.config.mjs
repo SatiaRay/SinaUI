@@ -9,7 +9,11 @@ import { config } from 'dotenv';
 import postcssUrl from 'postcss-url';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
-
+import alias from '@rollup/plugin-alias';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // Load environment variables from .env
 const envConfig = config({ path: './.env.production' }).parsed;
 
@@ -42,6 +46,20 @@ export default {
       extensions: ['.js', '.jsx'],
       browser: true,
       preferBuiltins: false,
+    }),
+    alias({
+      entries: [
+        {
+          find: '@components',
+          replacement: path.resolve(__dirname, 'src/components'),
+        },
+        {
+          find: '@contexts',
+          replacement: path.resolve(__dirname, 'src/contexts'),
+        },
+        { find: '@pages', replacement: path.resolve(__dirname, 'src/pages') },
+        { find: '@utils', replacement: path.resolve(__dirname, 'src/utils') },
+      ],
     }),
     replace({
       preventAssignment: true,
