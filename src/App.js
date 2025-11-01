@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
-import { CreateDocument, DocumentIndex, EditDocument } from "./pages/document";
+import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
 import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
@@ -45,7 +45,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const showNavbar = location.pathname !== '/login';
+  const isPrivateRoute = location.pathname !== '/login' && location.pathname !== '/register';
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
@@ -65,20 +65,22 @@ function AppContent() {
     <div
       id="khan"
       className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
-        showNavbar
+        isPrivateRoute
           ? sidebarCollapsed
             ? 'md:mr-0'
             : 'md:mr-64'
           : 'flex items-center justify-center'
       }`}
     >
-      {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
+      {isPrivateRoute && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
-      <div className="md:container mx-auto md:px-10 py-0 md:py-3 lg:px-0 w-[100%] lg:w-[90%] xl:w-[85%] xxl:w-[1400px]">
-        {privateRoutes()}
-      </div>
+      {isPrivateRoute && (
+        <div className="md:container mx-auto md:px-10 py-0 md:py-3 lg:px-0 w-[100%] lg:w-[90%] xl:w-[85%] xxl:w-[1400px]">
+          {privateRoutes()}
+        </div>
+      )}
 
-      {publicRoutes()}
+      {!isPrivateRoute && publicRoutes()}
 
       <span
         className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
@@ -256,10 +258,12 @@ function privateRoutes() {
 
 function publicRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-    </Routes>
+    <div className="w-full h-full grid grid-cols-1 justify-center items-center">
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </div>
   );
 }
 
