@@ -7,13 +7,17 @@ import '@contexts/axios'; // Import axios configuration
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import reportWebVitals from './reportWebVitals';
+import { Provider } from "react-redux";
+import store from './store';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
     <ToastContainer
       position="top-right"
       autoClose={3000}

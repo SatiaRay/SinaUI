@@ -6,36 +6,32 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom';
-import Chat from '@components/Chat/Chat';
-import CrawlUrl from '@components/Chat/CrawlUrl';
-import {
-  Document,
-  DocumentIndex,
-  DomainIndex,
-  EditDocument,
-} from '@components/Chat/Document';
-import CreateInstruction from '@components/Chat/Instruction/CreateInstruction';
-import EditInstruction from '@components/Chat/Instruction/EditInstruction';
-import InstructionIndex from '@components/Chat/Instruction/InstructionIndex';
-import Status1 from '@components/Chat/Status';
-import Wizard from '@components/Chat/Wizard';
-import Login from '@components/Login';
-import Navbar from '@components/Navbar';
-import PrivateRoute from '@components/PrivateRoute';
-import Workflow from '@components/Workflow/WorkflowIndex';
-import WorkflowEditor from '@components/Workflow/editor/WorkflowEditor';
-import { AuthProvider } from '@contexts/AuthContext';
-import { VoiceAgentProvider } from '@contexts/VoiceAgentContext';
-import { ChatProvider } from '@contexts/ChatContext';
-import VoiceAgentConversation from '@pages/VoiceAgentConversation';
-import AiToolsFunctionTester from '@pages/AiToolsFunctionTester';
-import Setting from '@pages/setting';
-import { getVersion } from '@utils/apis';
-import Register from '@components/register';
+import Chat from './components/Chat/Chat';
+import CrawlUrl from './components/Chat/CrawlUrl';
+import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
+import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
+import EditInstruction from './components/Chat/Instruction/EditInstruction';
+import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
+import Status1 from './components/Chat/Status';
+import Wizard from './components/Chat/Wizard';
+import Login from './components/Login';
+import Navbar from './components/Navbar';
+import PrivateRoute from './components/PrivateRoute';
+import Workflow from './components/Workflow/WorkflowIndex';
+import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
+import { AuthProvider } from './contexts/AuthContext';
+import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
+import VoiceAgentConversation from './pages/VoiceAgentConversation';
+import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
+import { getVersion } from './utils/apis';
+import Register from './components/register';
+import Setting from './pages/setting';
+import ChatBoxPreview from './pages/widget/chat-box-perview';
+import { ChatProvider } from './contexts/ChatContext';
 import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
-import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
+import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
 
 function App() {
   return (
@@ -53,7 +49,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const showNavbar = location.pathname !== '/login';
+  const isPrivateRoute = location.pathname !== '/login' && location.pathname !== '/register';
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
@@ -73,28 +69,22 @@ function AppContent() {
     <div
       id="khan"
       className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
-        showNavbar
+        isPrivateRoute
           ? sidebarCollapsed
             ? 'md:mr-0'
             : 'md:mr-64'
           : 'flex items-center justify-center'
       }`}
     >
-      {showNavbar && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
+      {isPrivateRoute && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
-      {/* <div
-        className={`transition-all duration-300 h-screen bg-red-300 ${
-          showNavbar
-            ? sidebarCollapsed
-              ? "md:mr-0"
-              : "md:mr-64"
-            : "flex items-center justify-center"
-        }`}
-      > */}
-      {privateRoutes()}
-      {/* </div> */}
+      {isPrivateRoute && (
+        <div className="md:container mx-auto md:px-10 py-0 md:py-3 lg:px-0 w-[100%] lg:w-[90%] xl:w-[85%] xxl:w-[1400px]">
+          {privateRoutes()}
+        </div>
+      )}
 
-      {publicRoutes()}
+      {!isPrivateRoute && publicRoutes()}
 
       <span
         className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
@@ -192,33 +182,10 @@ function privateRoutes() {
       </Route>
       /** Document routes */
       <Route>
-        <Route
-          path="/document"
-          element={
-            <PrivateRoute>
-              <Document />
-            </PrivateRoute>
-          }
-        >
-          <Route path="" element={<Navigate to="domains" />} />
+        <Route path="/document">
           <Route
-            path="domains"
-            element={
-              <PrivateRoute>
-                <DomainIndex />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="domain/:domain_id"
-            element={
-              <PrivateRoute>
-                <DocumentIndex />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="manuals"
+            index
+            path=""
             element={
               <PrivateRoute>
                 <DocumentIndex />
@@ -226,15 +193,24 @@ function privateRoutes() {
             }
           />
         </Route>
+        <Route
+          path="document/edit/:document_id"
+          element={
+            <PrivateRoute>
+              <EditDocument />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="document/create"
+          element={
+            <PrivateRoute>
+              <CreateDocument />
+            </PrivateRoute>
+          }
+        />
       </Route>
-      <Route
-        path="document/edit/:document_id"
-        element={
-          <PrivateRoute>
-            <EditDocument />
-          </PrivateRoute>
-        }
-      />
       <Route
         path="/processes"
         element={
@@ -311,10 +287,12 @@ function privateRoutes() {
 
 function publicRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-    </Routes>
+    <div className="w-full h-full grid grid-cols-1 justify-center items-center">
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </div>
   );
 }
 

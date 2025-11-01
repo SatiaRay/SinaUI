@@ -4,6 +4,7 @@ import axios from '../contexts/axios';
 const BASE_URL = process.env.REACT_APP_CHAT_API_URL;
 const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
 const IPD_SERVICE_URL = process.env.REACT_APP_IPD_SERVICE;
+const KNOWLEDGE_SERVICE_URL = process.env.REACT_APP_KNOWLEDGE_SERVICE;
 
 // Errors helpers (moved from services/api.js)
 const handleAxiosError = (error, defaultMessage = 'خطا رخ داده است') => {
@@ -403,7 +404,7 @@ export const domainEndpoints = {
 };
 
 export const documentEndpoints = {
-  addDocumentManually: async (data) => {
+  store: async (data) => {
     try {
       const response = await axios.post(
         `${BASE_URL}/add_manually_knowledge`,
@@ -415,7 +416,7 @@ export const documentEndpoints = {
       throw error;
     }
   },
-  deleteDocument: async (documentId) => {
+  delete: async (documentId) => {
     try {
       const response = await axios.delete(
         `${BASE_URL}/documents/${documentId}`
@@ -426,7 +427,7 @@ export const documentEndpoints = {
       throw error;
     }
   },
-  getDocument: async (document_id) => {
+  find: async (document_id) => {
     try {
       return await axios.get(`${PYTHON_APP_URL}/documents/${document_id}`);
     } catch (err) {
@@ -434,70 +435,19 @@ export const documentEndpoints = {
       throw err;
     }
   },
-  getDocuments: async (
-    manualType = false,
-    agentType = null,
+  all: async (
     page = 1,
     size = 10
   ) => {
-    let url;
-    if (manualType) {
-      url = `${PYTHON_APP_URL}/documents/manual?page=${page}&size=${size}`;
-      if (agentType && typeof agentType === 'string') {
-        url += `&agent_type=${agentType}`;
-      }
-    } else {
-      url = `${PYTHON_APP_URL}/documents?page=${page}&size=${size}`;
-    }
+    let url = `${KNOWLEDGE_SERVICE_URL}/?page=${page}&size=${size}`;;
+   
     try {
       return await axios.get(url);
     } catch (err) {
       console.error(err.message);
       return null;
     }
-  },
-  getDomainDocuments: async (domain_id, page = 1, size = 10) => {
-    const url = `${PYTHON_APP_URL}/documents/domain/${domain_id}?page=${page}&size=${size}`;
-    try {
-      return await axios.get(url);
-    } catch (err) {
-      console.error(err.message);
-      return null;
-    }
-  },
-  toggleDocumentVectorStatus: async (document_id) => {
-    try {
-      return await axios.post(
-        `${PYTHON_APP_URL}/documents/${document_id}/toggle-vector`
-      );
-    } catch (err) {
-      console.error('Error fetching document:', err.message);
-      throw err;
-    }
-  },
-  crawlUrl: async (url, recursive = false, store_in_vector = false) => {
-    try {
-      return await axios.post(`${PYTHON_APP_URL}/crawl`, {
-        url: url,
-        recursive: recursive,
-        store_in_vector: store_in_vector,
-      });
-    } catch (err) {
-      console.error('Error fetching document:', err.message);
-      throw err;
-    }
-  },
-  vectorizeDocument: async (document_id, document) => {
-    try {
-      return await axios.post(
-        `${PYTHON_APP_URL}/documents/${document_id}/vectorize`,
-        document
-      );
-    } catch (err) {
-      console.error('Error vectorizing document:', err.message);
-      throw err;
-    }
-  },
+  }
 };
 
 // =============================
