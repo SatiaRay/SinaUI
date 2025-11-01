@@ -133,7 +133,8 @@
 } 
 
 #khan-chatbox :-moz-focusring {
-  outline: auto;
+  outline: 1px solid transparent; /* outline نامرئی ولی دسترسی‌پذیری حفظ میشه */
+  outline-offset: 1px;
 }
 #khan-chatbox :-moz-ui-invalid {
   box-shadow: none;
