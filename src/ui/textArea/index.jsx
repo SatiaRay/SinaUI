@@ -3,7 +3,7 @@ import {
   EditableInput,
   InputWrapper,
   Placeholder,
-} from '../../components/ui/common';
+} from '@components/ui/common';
 
 const TextInputWithBreaks = ({
   value,

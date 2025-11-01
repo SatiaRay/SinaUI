@@ -7,7 +7,7 @@ import VoiceBtn from './VoiceBtn';
 import { WizardButtons } from './Wizard/';
 import TextInputWithBreaks from '../../ui/textArea';
 import Message from '../ui/chat/message/Message';
-import { useChat } from '../../contexts/ChatContext';
+import { useChat } from '@contexts/ChatContext';
 import Swal from 'sweetalert2';
 import {
   H2,

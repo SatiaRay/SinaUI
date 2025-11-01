@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import GuardLogList from '../GuardLogList';
-import { AuthProvider } from '../../contexts/AuthContext';
+import { AuthProvider } from '@contexts/AuthContext';
 import axios from 'axios';
 
 // Mock axios
