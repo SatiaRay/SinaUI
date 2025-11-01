@@ -11,9 +11,9 @@ export const ErrorMessage = ({ data }) => {
         strokeWidth={1.5}
         stroke="currentColor"
         style={{
-          width: "25px",
-          paddingLeft: "10px",
-          boxSizing: "content-box"
+          width: '25px',
+          paddingLeft: '10px',
+          boxSizing: 'content-box',
         }}
       >
         <path
@@ -27,4 +27,3 @@ export const ErrorMessage = ({ data }) => {
     </ErrorMessageContent>
   );
 };
-

@@ -7,7 +7,7 @@ import VoiceBtn from './VoiceBtn';
 import { WizardButtons } from './Wizard/';
 import TextInputWithBreaks from '../../ui/textArea';
 import Message from '../ui/chat/message/Message';
-import { useChat } from '../../contexts/ChatContext';
+import { useChat } from '@contexts/ChatContext';
 import Swal from 'sweetalert2';
 import {
   H2,
@@ -101,7 +101,7 @@ class StableTableParser {
         if (this.handleTag(fullTag)) {
           processed += fullTag;
         } else {
-          // Tag was handled internally, don't add to processed
+          // Tag was handled internally, don"t add to processed
           continue;
         }
       } else {
@@ -126,7 +126,7 @@ class StableTableParser {
     if (lowerTag.startsWith('<table')) {
       this.state.isInTable = true;
       this.state.tableOpenTag = tag;
-      return false; // Don't add to processed
+      return false; // Don"t add to processed
     } else if (lowerTag === '</table>') {
       this.finalizeCurrentRow();
       this.state.isInTable = false;

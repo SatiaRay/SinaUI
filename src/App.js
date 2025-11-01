@@ -28,6 +28,10 @@ import Register from './components/register';
 import Setting from './pages/setting';
 import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
+import MonitoringPage from '@components/Monitoring/MonitoringPage';
+import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
+import LogSearchPage from '@components/Monitoring/LogSearchPage';
+import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
 
 function App() {
   return (
@@ -117,6 +121,40 @@ function privateRoutes() {
             element={
               <PrivateRoute>
                 <VoiceAgentConversation />
+              </PrivateRoute>
+            }
+          />
+        </Route>
+        <Route path="/monitoring">
+          <Route
+            path=""
+            element={
+              <PrivateRoute>
+                <MonitoringPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="logs"
+            element={
+              <PrivateRoute>
+                <RecentLogsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="log-by-id"
+            element={
+              <PrivateRoute>
+                <LogSearchPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="tools"
+            element={
+              <PrivateRoute>
+                <ToolUsageStats />
               </PrivateRoute>
             }
           />
@@ -243,15 +281,6 @@ function privateRoutes() {
           }
         />
       </Route>
-      {/* Widget  */}
-      <Route
-        path="widget/chat"
-        element={
-          <PrivateRoute>
-            <ChatBoxPreview />
-          </PrivateRoute>
-        }
-      />
     </Routes>
   );
 }
