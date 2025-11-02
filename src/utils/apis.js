@@ -160,7 +160,7 @@ export const workflowEndpoints = {
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem('khan-access-token')}`,
           },
         }
       );
