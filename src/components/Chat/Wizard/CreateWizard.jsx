@@ -2,24 +2,35 @@ import React, { useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '../../../ui/dropdown';
-import { wizardEndpoints } from '../../../utils/apis';
+import { useCreateWizardMutation } from '../../../store/api/AiApi';
+import { notify } from '../../../ui/toast';
 
+/**
+ * CreateWizard component for creating a new wizard
+ */
 const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
+  /**
+   * Wizard object state prop
+   */
   const [title, setTitle] = useState('');
   const [context, setContext] = useState('');
   const [wizardType, setWizardType] = useState('answer');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
+  /**
+   * Create wizard request hook
+   */
+  const [createWizard, { isLoading, isError, error }] = useCreateWizardMutation();
+
+  /**
+   * Create wizard handler
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !context.trim()) {
-      setError('لطفا تمام فیلدها را پر کنید');
+      notify.error('لطفا تمام فیلدها را پر کنید');
       return;
     }
 
-    setLoading(true);
-    setError(null);
     const wizardData = {
       title,
       context,
@@ -28,20 +39,15 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
     };
 
     try {
-      const newWizard = await wizardEndpoints.createWizard(wizardData);
-
-      // با axios، داده‌ها مستقیماً در newWizard هستند
+      const newWizard = await createWizard(wizardData).unwrap();
       if (onWizardCreated) {
         onWizardCreated(newWizard);
       }
       onClose();
+      notify.success('ویزارد با موفقیت ایجاد شد');
     } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || 'خطا در ایجاد ویزارد'
-      );
+      notify.error(err.data?.message || 'خطا در ایجاد ویزارد');
       console.error('Error creating wizard:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -165,8 +171,10 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
           </div>
         </div>
 
-        {error && (
-          <div className="text-red-500 text-sm text-center">{error}</div>
+        {isError && (
+          <div className="text-red-500 text-sm text-center">
+            {error?.data?.message || 'خطا در ایجاد ویزارد'}
+          </div>
         )}
 
         <div className="flex justify-end gap-4">
@@ -179,10 +187,10 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
           </button>
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center"
           >
-            {loading ? (
+            {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 در حال ایجاد...

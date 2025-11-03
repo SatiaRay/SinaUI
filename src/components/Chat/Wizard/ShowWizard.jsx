@@ -1,97 +1,129 @@
 import React, { useState, useEffect } from 'react';
+import { useGetWizardQuery, useDeleteWizardMutation, useToggleStatusWizardMutation } from '../../../store/api/AiApi';
+import { notify } from '../../../ui/toast';
 import CreateWizard from './CreateWizard';
 import UpdateWizard from './UpdateWizard';
-import { wizardEndpoints } from '../../../utils/apis';
 
+/**
+ * ShowWizard component for displaying and managing a wizard
+ */
 const ShowWizard = ({ wizard, onWizardSelect }) => {
+  /**
+   * Wizard object state prop from query and manual updates
+   */
   const [wizardData, setWizardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showCreateWizard, setShowCreateWizard] = useState(false);
-  const [selectedWizardForEdit, setSelectedWizardForEdit] = useState(null);
-  const [updatingStatus, setUpdatingStatus] = useState({});
 
+  /**
+   * Wizard object state prop from query
+   */
+  const { data, isLoading, isError, error } = useGetWizardQuery({ id: wizard?.id, enableOnly: true }, {
+    skip: !wizard?.id, 
+  });
+
+  /**
+   * Delete wizard mutation hook
+   */
+  const [deleteWizard, { isLoading: isDeleting }] = useDeleteWizardMutation();
+
+  /**
+   * Toggle wizard status mutation hook
+   */
+  const [toggleStatusWizard] = useToggleStatusWizardMutation();
+
+  /**
+   * Sync wizard data from query on load
+   */
   useEffect(() => {
-    const fetchWizardData = async () => {
-      if (!wizard?.id) return;
+    if (data) {
+      setWizardData(data);
+    }
+  }, [data]);
 
-      setLoading(true);
-      setError(null);
-
+  /**
+   * Delete wizard handler
+   */
+  const handleDeleteWizard = async (wizardId) => {
+    if (window.confirm('آیا مطمئن هستید که می‌خواهید این ویزارد را حذف کنید؟')) {
       try {
-        const data = await wizardEndpoints.getWizard(wizard.id);
-        setWizardData(data);
+        await deleteWizard(wizardId).unwrap();
+        notify.success('ویزارد با موفقیت حذف شد');
+        setWizardData((prev) => ({
+          ...prev,
+          children: prev?.children?.filter((child) => child.id !== wizardId) || [],
+        }));
       } catch (err) {
-        setError(err.message || 'خطا در دریافت ویزارد');
-        console.error('Error fetching wizard:', err);
-      } finally {
-        setLoading(false);
+        notify.error(err.data?.message || 'خطا در حذف ویزارد');
+        console.error('Error deleting wizard:', err);
       }
-    };
+    }
+  };
 
-    fetchWizardData();
-  }, [wizard?.id]);
+  /**
+   * Toggle wizard status handler
+   */
+  const toggleWizardStatus = async (wizardId, currentStatus) => {
+    try {
+      await toggleStatusWizard({ wizardId, endpoint: currentStatus ? 'disable' : 'enable' }).unwrap();
+      notify.success('وضعیت ویزارد با موفقیت تغییر کرد');
+      setWizardData((prev) => ({
+        ...prev,
+        children: prev?.children?.map((child) =>
+          child.id === wizardId ? { ...child, enabled: !child.enabled } : child
+        ) || [],
+      }));
+    } catch (err) {
+      notify.error(err.data?.message || 'خطا در تغییر وضعیت ویزارد');
+      console.error('Error toggling wizard status:', err);
+    }
+  };
 
+  /**
+   * Back navigation handler
+   */
   const handleBackClick = () => {
     if (wizardData?.parent_id) {
       onWizardSelect({ id: wizardData.parent_id });
-    } else onWizardSelect(null);
+    } else {
+      onWizardSelect(null);
+    }
   };
 
+  /**
+   * Child wizard selection handler
+   */
   const handleChildClick = (childWizard) => {
     onWizardSelect(childWizard);
   };
 
+  /**
+   * Add new child wizard handler
+   */
   const addNewChild = (child) => {
     setWizardData((prev) => ({
       ...prev,
-      children: [...(prev.children || []), child],
+      children: [...(prev?.children || []), child],
     }));
   };
 
+  /**
+   * Update wizard handler
+   */
   const handleWizardUpdated = (updatedWizard) => {
     setWizardData((prev) => ({
       ...prev,
-      children: prev.children.map((child) =>
+      children: prev?.children?.map((child) =>
         child.id === updatedWizard.id ? updatedWizard : child
-      ),
+      ) || [],
     }));
   };
 
-  const handleDeleteWizard = async (wizardId) => {
-    try {
-      await wizardEndpoints.deleteWizard(wizardId);
-      setWizardData((prev) => ({
-        ...prev,
-        children: prev.children.filter((child) => child.id !== wizardId),
-      }));
-    } catch (error) {
-      console.error('Error deleting wizard:', error);
-      alert('خطا در حذف ویزارد');
-    }
-  };
+  /**
+   * State for managing modals
+   */
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
+  const [selectedWizardForEdit, setSelectedWizardForEdit] = useState(null);
 
-  const toggleWizardStatus = async (wizardId, currentStatus) => {
-    setUpdatingStatus((prev) => ({ ...prev, [wizardId]: true }));
-    try {
-      await wizardEndpoints.toggleStatusWizard(
-        wizardId,
-        currentStatus ? 'disable' : 'enable'
-      );
-      setWizardData((prev) => ({
-        ...prev,
-        children: prev.children.map((child) =>
-          child.id === wizardId ? { ...child, enabled: !child.enabled } : child
-        ),
-      }));
-    } catch (err) {
-      setError(err.message || 'خطا در تغییر وضعیت ویزارد');
-    } finally {
-      setUpdatingStatus((prev) => ({ ...prev, [wizardId]: false }));
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
@@ -99,10 +131,10 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
-        <p className="text-red-500 dark:text-red-400">{error}</p>
+        <p className="text-red-500 dark:text-red-400">{error?.data?.message || 'خطا در دریافت ویزارد'}</p>
         <button
           onClick={() => onWizardSelect(wizard)}
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -209,17 +241,14 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                         </td>
                         <td
                           className="px-6 py-4 whitespace-nowrap text-sm cursor-pointer"
-                          onClick={() => handleChildClick(child)}
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleWizardStatus(child.id, child.enabled);
-                            }}
-                            disabled={updatingStatus[child.id]}
+                            onClick={() => toggleWizardStatus(child.id, child.enabled)}
+                            disabled={isDeleting || isLoading} // Disable during any loading
                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer transition-colors ${child.enabled ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800' : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'} disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
-                            {updatingStatus[child.id] ? (
+                            {isDeleting || isLoading ? (
                               <div className="flex items-center gap-1">
                                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
                                 <span>در حال تغییر...</span>

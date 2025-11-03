@@ -2,15 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '../../../ui/dropdown';
-import { wizardEndpoints } from '../../../utils/apis';
+import { useUpdateWizardMutation } from '../../../store/api/AiApi';
+import { notify } from '../../../ui/toast';
 
+/**
+ * UpdateWizard component for editing an existing wizard
+ */
 const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
+  /**
+   * Wizard object state prop
+   */
   const [title, setTitle] = useState('');
   const [context, setContext] = useState('');
   const [wizardType, setWizardType] = useState('answer');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
+  /**
+   * Update wizard request hook
+   */
+  const [updateWizard, { isLoading, isError, error }] = useUpdateWizardMutation();
+
+  /**
+   * Fill form with wizard data on mount
+   */
   useEffect(() => {
     if (wizard) {
       setTitle(wizard.title || '');
@@ -19,40 +32,35 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
     }
   }, [wizard]);
 
+  /**
+   * Update wizard handler
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError('لطفا تمام فیلدها را پر کنید');
+      notify.error('لطفا عنوان را پر کنید');
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    /**
+     * Update wizard constructor
+     */
     const wizardData = {
       title,
       context,
-      parent_id: wizard.parent_id,
       wizard_type: wizardType,
     };
 
     try {
-      // با axios مستقیم داده برگشتی در response.data است
-      const updatedWizard = await wizardEndpoints.updateWizard(
-        wizard.id,
-        wizardData
-      );
-
+      const updatedWizard = await updateWizard({ id: wizard.id, data: wizardData }).unwrap();
       if (onWizardUpdated) {
         onWizardUpdated(updatedWizard);
       }
       onClose();
+      notify.success('ویزارد با موفقیت ویرایش شد');
     } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || 'خطا در بروزرسانی ویزارد'
-      );
+      notify.error(err.data?.message || 'خطا در بروزرسانی ویزارد');
       console.error('Error updating wizard:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -176,8 +184,10 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
           </div>
         </div>
 
-        {error && (
-          <div className="text-red-500 text-sm text-center">{error}</div>
+        {isError && (
+          <div className="text-red-500 text-sm text-center">
+            {error?.data?.message || 'خطا در بروزرسانی ویزارد'}
+          </div>
         )}
 
         <div className="flex justify-end gap-4">
@@ -190,10 +200,10 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
           </button>
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 flex items-center"
           >
-            {loading ? (
+            {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 در حال بروزرسانی...

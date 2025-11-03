@@ -5,9 +5,12 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import WizardIndexLoading from './WizardIndexLoading';
 import { Pagination } from '../../../components/ui/pagination';
 import { notify } from '../../../ui/toast';
-import { Link } from 'react-router-dom';
+import CreateWizard from './CreateWizard'; // اگه وجود داره، مسیر رو تنظیم کن
 import { GoPlusCircle } from 'react-icons/go';
 
+/**
+ * WizardIndexPage component for displaying and managing wizards
+ */
 const WizardIndexPage = () => {
   /**
    * Pagination props
@@ -16,22 +19,26 @@ const WizardIndexPage = () => {
   const perpage = 20;
 
   /**
-   * List of wizards
+   * Wizards list query hook
    */
-  const [wizards, setWizards] = useState(null);
-
-  /**
-   * Fetch wizards list api hook
-   */
-  const { data, isLoading, isSuccess, isError, error } = useGetWizardsQuery({
+  const { data, isLoading, isSuccess, isError, error, refetch } = useGetWizardsQuery({
     page,
     perpage,
   });
 
   /**
-   * Store wizards from request response data to state prop
+   * State for managing CreateWizard modal
    */
-  if (isSuccess && !wizards) setWizards(data.wizards);
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
+
+  /**
+   * Handle wizard creation
+   */
+  const handleWizardCreated = () => {
+    setShowCreateWizard(false);
+    refetch(); // رفرش لیست بعد از ایجاد ویزارد
+    notify.success('ویزارد با موفقیت ایجاد شد');
+  };
 
   /**
    * Display loading page
@@ -47,37 +54,42 @@ const WizardIndexPage = () => {
   }
 
   /**
-   * Prevent map wizards when it is null
-   */
-  if (!wizards) return null;
-
-  /**
    * Display wizard cards list
    */
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h3 className="text-3xl">ویزاردها</h3>
-        <Link
-        //   to={'/wizard/create'}
-        //   className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+        <button
+          onClick={() => setShowCreateWizard(true)}
+          className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
           <span>ویزارد جدید</span>
           <GoPlusCircle size={22} className="pr-2 box-content" />
-        </Link>
+        </button>
       </div>
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
-        {wizards.map((wizard) => (
-          <WizardCard wizard={wizard} key={wizard.id} onDelete={() => {}} />
-        ))}
+        {data?.wizards && Array.isArray(data.wizards) ? (
+          data.wizards.map((wizard) => (
+            <WizardCard key={wizard.id} wizard={wizard} onDelete={() => {}} />
+          ))
+        ) : (
+          <p>هیچ ویزاردی برای نمایش وجود ندارد.</p>
+        )}
       </div>
       <Pagination
         page={page}
         perpage={perpage}
-        totalPages={data.pages}
-        totalItems={data.total}
+        totalPages={data?.pages}
+        totalItems={data?.total}
         handlePageChange={setPage}
       />
+      {showCreateWizard && (
+        <CreateWizard
+          onClose={() => setShowCreateWizard(false)}
+          onWizardCreated={handleWizardCreated}
+        />
+      )}
     </div>
   );
 };

@@ -1,25 +1,32 @@
-import { useState } from 'react';
+import React from 'react';
 import { WizardButtonStyled } from '../../ui/common';
-import { wizardEndpoints } from '../../../utils/apis';
+import { useGetWizardQuery } from '../../../store/api/AiApi';
 
+/**
+ * WizardButton component for triggering wizard selection
+ */
 const WizardButton = ({ wizard, onWizardClick }) => {
-  const [error, setError] = useState(null);
+  /**
+   * Wizard data query hook
+   */
+  const { data, isLoading, isError, error } = useGetWizardQuery({ id: wizard.id, enableOnly: true }, {
+    skip: !wizard.id,
+  });
 
-  const handleWizardClick = async (wizardId) => {
-    try {
-      const data = await wizardEndpoints.getWizard(wizardId);
+  /**
+   * Handle wizard click with fetched data
+   */
+  const handleWizardClick = () => {
+    if (!isLoading && !isError && data) {
       onWizardClick(data);
-    } catch (err) {
-      setError(err.message);
     }
   };
 
   return (
     <WizardButtonStyled
       key={wizard.id}
-      onClick={() => {
-        handleWizardClick(wizard.id);
-      }}
+      onClick={handleWizardClick}
+      disabled={isLoading || isError}
     >
       {wizard.title}
     </WizardButtonStyled>

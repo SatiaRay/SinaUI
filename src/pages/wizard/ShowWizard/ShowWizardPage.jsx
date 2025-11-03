@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useGetWizardQuery } from '../../../store/api/AiApi';
 import ShowWizardLoading from './ShowWizardLoading';
 import { notify } from '../../../ui/toast';
 
-const ShowWizard = () => {
+/**
+ * ShowWizard component for displaying wizard details
+ */
+const ShowWizardPage = () => {
   /**
    * Destruct wizard_id from uri
    */
@@ -18,38 +21,22 @@ const ShowWizard = () => {
   /**
    * Fetching Wizard data using RTK Query hook
    */
-  const { data, isSuccess, isLoading, isError, error } = useGetWizardQuery({
+  const { data, isLoading, isError, error } = useGetWizardQuery({
     id: wizard_id,
   });
 
   /**
-   * Wizard object state prop
-   */
-  const [wizard, setWizard] = useState(null);
-
-  useEffect(() => {
-    if (isSuccess && data) {
-      setWizard({
-        title: data.title,
-        context: data.context,
-        wizard_type: data.wizard_type,
-      });
-    }
-  }, [isSuccess, data]);
-
-  /**
    * Notify failure fetching
    */
-  useEffect(() => {
-    if (isError) {
-      notify.error('خطا در دریافت ویزارد. لطفاً دوباره تلاش کنید.');
-    }
-  }, [isError]);
+  if (isError) {
+    notify.error('خطا در دریافت ویزارد. لطفاً دوباره تلاش کنید.');
+    return <p>مشکلی پیش آمده است 🛑</p>;
+  }
 
   /**
    * Display loading page on loading state
    */
-  if (isLoading || !wizard) return <ShowWizardLoading />;
+  if (isLoading || !data) return <ShowWizardLoading />;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full">
@@ -61,12 +48,12 @@ const ShowWizard = () => {
             </h2>
           </div>
           <div className="flex gap-2 max-md:justify-between">
-            <Link
-              to={'/wizard'}
+            <button
+              onClick={() => navigate(-1)}
               className="px-6 py-3 max-md:w-1/2 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               بازگشت
-            </Link>
+            </button>
           </div>
         </div>
         <div className="flex-1 flex flex-col min-h-0">
@@ -75,7 +62,7 @@ const ShowWizard = () => {
               عنوان:
             </h3>
             <p className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              {wizard.title}
+              {data.title}
             </p>
           </div>
 
@@ -84,7 +71,7 @@ const ShowWizard = () => {
               نوع:
             </h3>
             <p className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              {wizard.wizard_type === 'answer' ? 'جواب' : 'سوال'}
+              {data.wizard_type === 'answer' ? 'جواب' : 'سوال'}
             </p>
           </div>
 
@@ -94,7 +81,7 @@ const ShowWizard = () => {
             </h3>
             <div
               className="min-h-0 max-h-[900px] overflow-y-auto prose dark:prose-invert max-w-none text-gray-800 dark:text-white"
-              dangerouslySetInnerHTML={{ __html: wizard.context }}
+              dangerouslySetInnerHTML={{ __html: data.context }}
             />
           </div>
         </div>
@@ -103,4 +90,4 @@ const ShowWizard = () => {
   );
 };
 
-export default ShowWizard;
+export default ShowWizardPage;

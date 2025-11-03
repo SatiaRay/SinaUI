@@ -2,6 +2,9 @@ import React from 'react';
 import { WizardButtonsContainer } from '../../ui/common';
 import WizardButton from './WizardButton';
 
+/**
+ * WizardButtons component for rendering a list of wizard buttons
+ */
 const WizardButtons = ({ wizards, onWizardSelect }) => {
   return (
     <WizardButtonsContainer>

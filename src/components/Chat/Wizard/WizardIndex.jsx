@@ -3,53 +3,71 @@ import CreateWizard from './CreateWizard';
 import ShowWizard from './ShowWizard';
 import WizardCard from './WizardCard';
 import UpdateWizard from './UpdateWizard';
-import { wizardEndpoints } from '../../../utils/apis';
+import { useGetWizardsQuery } from '../../../store/api/AiApi';
+import { notify } from '../../../ui/toast';
 
+/**
+ * WizardIndex component for managing all wizards
+ */
 const WizardIndex = () => {
-  const [wizards, setWizards] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  /**
+   * State for managing modals
+   */
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [selectedWizard, setSelectedWizard] = useState(null);
   const [selectedWizardForUpdate, setSelectedWizardForEdit] = useState(null);
 
+  /**
+   * Wizards list query hook
+   */
+  const { data: wizards, isLoading, isError, error, refetch } = useGetWizardsQuery({ enableOnly: true });
+
+  /**
+   * Sync wizards data on load
+   */
   useEffect(() => {
-    fetchWizards();
-  }, []);
+    refetch(); // Initial fetch
+  }, [refetch]);
 
-  const fetchWizards = async () => {
-    try {
-      const resData = await wizardEndpoints.listWizards();
-      setWizards(resData);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  /**
+   * Create wizard handler
+   */
   const handleWizardCreated = (newWizard) => {
-    setWizards((prevWizards) => [newWizard, ...prevWizards]);
+    setShowCreateWizard(false);
+    refetch(); 
+    notify.success('ویزارد با موفقیت ایجاد شد');
   };
 
+  /**
+   * Delete wizard handler
+   */
   const handleWizardDeleted = (wizardId) => {
-    setWizards((prevWizards) => prevWizards.filter((w) => w.id !== wizardId));
+    refetch(); 
+    notify.success('ویزارد با موفقیت حذف شد');
   };
 
+  /**
+   * Wizard selection handler
+   */
   const handleWizardClick = (wizard) => {
     setSelectedWizard(wizard);
   };
 
+  /**
+   * Update wizard handler
+   */
   const handleWizardUpdated = (updatedWizard) => {
-    setWizards((prevWizards) =>
-      prevWizards.map((w) => (w.id === updatedWizard.id ? updatedWizard : w))
-    );
+    setSelectedWizardForEdit(null); 
+    refetch();
+    notify.success('ویزارد با موفقیت به‌روزرسانی شد');
   };
 
+  /**
+   * Toggle wizard status handler
+   */
   const handleWizardToggled = (updatedWizard) => {
-    setWizards((prevWizards) =>
-      prevWizards.map((w) => (w.id === updatedWizard.id ? updatedWizard : w))
-    );
+    refetch(); 
+    notify.success('وضعیت ویزارد با موفقیت تغییر کرد');
   };
 
   if (selectedWizard) {
@@ -85,21 +103,21 @@ const WizardIndex = () => {
               onClose={() => setShowCreateWizard(false)}
               onWizardCreated={handleWizardCreated}
             />
-          ) : loading ? (
+          ) : isLoading ? (
             <div className="flex justify-center items-center p-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
-          ) : error ? (
+          ) : isError ? (
             <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
-              <p className="text-red-500 dark:text-red-400">{error}</p>
+              <p className="text-red-500 dark:text-red-400">{error?.data?.message || 'خطا در دریافت ویزاردها'}</p>
               <button
-                onClick={fetchWizards}
+                onClick={refetch}
                 className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
               >
                 تلاش مجدد
               </button>
             </div>
-          ) : wizards.length === 0 ? (
+          ) : wizards?.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
