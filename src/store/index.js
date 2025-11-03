@@ -1,18 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit';
-import knowledgeApi from './api/knowledgeApi';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import wizardApi from './api/AiApi';
-import documentSlice from './features/documentSlice';
-import wizardSlice from './features/wizardSlice';
+import wizardReducer from './features/wizardSlice';
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
-    document: documentSlice.reducer,
-    wizard: wizardSlice.reducer,
-    [knowledgeApi.reducerPath]: knowledgeApi.reducer,
-    [wizardApi.reducerPath]: wizardApi.reducer, 
+    wizard: wizardReducer,
+    [wizardApi.reducerPath]: wizardApi.reducer,
   },
-  middleware: (getDefault) =>
-    getDefault().concat(knowledgeApi.middleware, wizardApi.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(wizardApi.middleware),
+  devTools: true,
 });
+
+setupListeners(store.dispatch);
 
 export default store;
