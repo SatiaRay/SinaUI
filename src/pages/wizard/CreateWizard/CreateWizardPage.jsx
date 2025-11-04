@@ -8,7 +8,7 @@ import { notify } from '../../../ui/toast';
 /**
  * CreateWizard component for creating a new wizard
  */
-const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
+const CreateWizardPage = ({ onClose, onWizardCreated, parent_id = null }) => {
   /**
    * Wizard object state prop
    */
@@ -205,4 +205,4 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
   );
 };
 
-export default CreateWizard;
+export default CreateWizardPage;

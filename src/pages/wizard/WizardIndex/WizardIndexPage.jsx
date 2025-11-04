@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import WizardCard from './WizardCard';
+import WizardCard from '../../../components/Wizard/WizardCard';
 import { useGetWizardsQuery } from '../../../store/api/AiApi';
 import 'react-loading-skeleton/dist/skeleton.css';
 import WizardIndexLoading from './WizardIndexLoading';
 import { Pagination } from '../../../components/ui/pagination';
 import { notify } from '../../../ui/toast';
-import CreateWizard from './CreateWizard'; // اگه وجود داره، مسیر رو تنظیم کن
+import CreateWizardPage from '../CreateWizard/CreateWizardPage'; 
 import { GoPlusCircle } from 'react-icons/go';
 
 /**
@@ -36,14 +36,14 @@ const WizardIndexPage = () => {
    */
   const handleWizardCreated = () => {
     setShowCreateWizard(false);
-    refetch(); // رفرش لیست بعد از ایجاد ویزارد
+    refetch(); 
     notify.success('ویزارد با موفقیت ایجاد شد');
   };
 
   /**
    * Display loading page
    */
-  if (isLoading) return <WizardIndexLoading />;
+  if (isLoading ) return <WizardIndexLoading />;
 
   /**
    * Display error message when fetching fails
@@ -85,7 +85,7 @@ const WizardIndexPage = () => {
         handlePageChange={setPage}
       />
       {showCreateWizard && (
-        <CreateWizard
+        <CreateWizardPage
           onClose={() => setShowCreateWizard(false)}
           onWizardCreated={handleWizardCreated}
         />

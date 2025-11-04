@@ -68,7 +68,7 @@ const DeleteWizardPage = () => {
       try {
         await deleteWizard(data.id).unwrap();
         notify.success(`${data.title} با موفقیت حذف شد.`);
-        navigate('/wizard'); // بازگشت به صفحه لیست
+        navigate('/wizard'); 
       } catch (err) {
         notify.error('خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.');
         console.error('Error deleting wizard:', err);

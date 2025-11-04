@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { notify } from '../../../ui/toast';
+import { notify } from '../../ui/toast';
 import Swal from 'sweetalert2';
-import { useToggleStatusWizardMutation, useDeleteWizardMutation } from '../../../store/api/AiApi';
+import { useToggleStatusWizardMutation, useDeleteWizardMutation } from '../../store/api/AiApi';
 
 /**
  * WizardCard component for displaying and managing a single wizard

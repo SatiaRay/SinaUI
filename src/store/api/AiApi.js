@@ -3,10 +3,9 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const wizardApi = createApi({
   reducerPath: 'wizardApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_AI_URL || 'http://khan.satia.co:8090',
+    baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8090',
     prepareHeaders: (headers, { getState }) => {
-      const token = process.env.REACT_APP_WIDGET_ACCESS_TOKEN; // توکن از .env
-      console.log('Token from .env:', token); // دیباگ
+      const token = localStorage.getItem('khan-access-token');
       if (token) headers.set('Authorization', `Bearer ${token}`);
       headers.set('Accept', 'application/json');
       headers.set('Content-Type', 'application/json');
@@ -17,7 +16,7 @@ const wizardApi = createApi({
   endpoints: (builder) => ({
     getRootWizards: builder.query({
       query: () => '/wizards/hierarchy/roots',
-      providesTags: ['Wizard'],
+      providesTags: ['wizard'],
     }),
     getWizards: builder.query({
       query: ({ perpage = 10, page = 1 }) => ({

@@ -1,25 +1,10 @@
-import React, { useState } from 'react';
-import CreateWizard from './Wizard/CreateWizard';
-import WizardIndex from './Wizard/WizardIndex';
+import React from 'react';
+import WizardIndexPage from '../../pages/wizard/WizardIndex/WizardIndexPage';
 
 const Wizard = () => {
-  const [showCreateWizard, setShowCreateWizard] = useState(false);
-  const [selectedWebsiteData, setSelectedWebsiteData] = useState(null);
-
   return (
     <div className="space-y-4 p-12 w-full">
-      {' '}
-      {/* اضافه کردن p-6 برای padding */}
-      <WizardIndex />
-      {showCreateWizard && (
-        <CreateWizard
-          onClose={() => {
-            setShowCreateWizard(false);
-            setSelectedWebsiteData(null);
-          }}
-          websiteData={selectedWebsiteData}
-        />
-      )}
+      <WizardIndexPage />
     </div>
   );
 };

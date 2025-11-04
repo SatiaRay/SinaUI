@@ -9,7 +9,7 @@ const WizardIndexLoading = () => {
   const { height, isLargeDisplay } = useDisplay();
 
   return (
-    <div className="text-center container mx-auto mt-3 md:mt-0 px-3 md:px-0">
+    <div className="text-center container mx-auto md:mt-0 px-3 md:px-0">
       <div className="flex justify-between md:pl-2 mb-6 items-center">
         <Skeleton
           baseColor="#374151"
