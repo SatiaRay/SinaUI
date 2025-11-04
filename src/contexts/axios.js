@@ -6,7 +6,7 @@ axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 // Add a request interceptor to include the auth token
 axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('khan-access-token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -28,7 +28,7 @@ axios.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // Unauthorized - clear auth data and redirect to login
-          localStorage.removeItem('token');
+          localStorage.removeItem('khan-access-token');
           localStorage.removeItem('user');
           window.location.href = '/login';
           break;
