@@ -1,35 +1,40 @@
-import React, { useState } from 'react';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import CustomDropdown from '../../../ui/dropdown';
-import { useCreateWizardMutation } from '../../../store/api/AiApi';
-import { notify } from '../../../ui/toast';
+"use client";
+import React, { useState } from "react";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import CustomDropdown from "../../../ui/dropdown";
+import { useCreateWizardMutation } from "../../../store/api/AiApi";
 
 /**
  * CreateWizard component for creating a new wizard
  */
-const CreateWizardPage = ({ onClose, onWizardCreated, parent_id = null }) => {
+const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
   /**
-   * Wizard object state prop
+   * Local form state
    */
-  const [title, setTitle] = useState('');
-  const [context, setContext] = useState('');
-  const [wizardType, setWizardType] = useState('answer');
+  const [title, setTitle] = useState("");
+  const [context, setContext] = useState("");
+  const [wizardType, setWizardType] = useState("answer");
+  const [error, setError] = useState(null);
 
   /**
    * Create wizard request hook
    */
-  const [createWizard, { isLoading, isError, error }] = useCreateWizardMutation();
+  const [createWizard, { isLoading, isError, error: apiError }] =
+    useCreateWizardMutation();
 
   /**
-   * Create wizard handler
+   * Handle submit create wizard
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!title.trim() || !context.trim()) {
-      notify.error('لطفا تمام فیلدها را پر کنید');
+      setError("لطفا تمام فیلدها را پر کنید");
       return;
     }
+
+    setError(null);
 
     const wizardData = {
       title,
@@ -40,17 +45,20 @@ const CreateWizardPage = ({ onClose, onWizardCreated, parent_id = null }) => {
 
     try {
       const newWizard = await createWizard(wizardData).unwrap();
+
       if (onWizardCreated) {
         onWizardCreated(newWizard);
       }
       onClose();
-      notify.success('ویزارد با موفقیت ایجاد شد');
     } catch (err) {
-      notify.error(err.data?.message || 'خطا در ایجاد ویزارد');
-      console.error('Error creating wizard:', err);
+      setError(err?.data?.message || "خطا در ایجاد ویزارد");
+      console.error("Error creating wizard:", err);
     }
   };
 
+  /**
+   * Render
+   */
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 pb-12">
       <div className="flex justify-between items-center mb-6">
@@ -86,14 +94,14 @@ const CreateWizardPage = ({ onClose, onWizardCreated, parent_id = null }) => {
           </label>
           <CustomDropdown
             options={[
-              { value: 'answer', label: 'جواب' },
-              { value: 'question', label: 'سوال' },
+              { value: "answer", label: "جواب" },
+              { value: "question", label: "سوال" },
             ]}
             value={wizardType}
             onChange={setWizardType}
             placeholder="انتخاب نوع ویزارد"
-            className={'w-full'}
-            parentStyle={'w-full'}
+            className={"w-full"}
+            parentStyle={"w-full"}
           />
         </div>
 
@@ -110,70 +118,50 @@ const CreateWizardPage = ({ onClose, onWizardCreated, parent_id = null }) => {
               data={context}
               onChange={(event, editor) => setContext(editor.getData())}
               config={{
-                language: 'fa',
-                direction: 'rtl',
+                language: "fa",
+                direction: "rtl",
                 toolbar: [
-                  'heading',
-                  '|',
-                  'bold',
-                  'italic',
-                  'link',
-                  'bulletedList',
-                  'numberedList',
-                  '|',
-                  'outdent',
-                  'indent',
-                  '|',
-                  'insertTable',
-                  'undo',
-                  'redo',
+                  "heading",
+                  "|",
+                  "bold",
+                  "italic",
+                  "link",
+                  "bulletedList",
+                  "numberedList",
+                  "|",
+                  "outdent",
+                  "indent",
+                  "|",
+                  "insertTable",
+                  "undo",
+                  "redo",
                 ],
                 table: {
                   contentToolbar: [
-                    'tableColumn',
-                    'tableRow',
-                    'mergeTableCells',
-                    'tableProperties',
-                    'tableCellProperties',
+                    "tableColumn",
+                    "tableRow",
+                    "mergeTableCells",
+                    "tableProperties",
+                    "tableCellProperties",
                   ],
                 },
                 htmlSupport: {
                   allow: [
-                    {
-                      name: 'table',
-                      attributes: true,
-                      classes: true,
-                      styles: true,
-                    },
-                    {
-                      name: 'tr',
-                      attributes: true,
-                      classes: true,
-                      styles: true,
-                    },
-                    {
-                      name: 'td',
-                      attributes: true,
-                      classes: true,
-                      styles: true,
-                    },
-                    {
-                      name: 'th',
-                      attributes: true,
-                      classes: true,
-                      styles: true,
-                    },
+                    { name: "table", attributes: true, classes: true, styles: true },
+                    { name: "tr", attributes: true, classes: true, styles: true },
+                    { name: "td", attributes: true, classes: true, styles: true },
+                    { name: "th", attributes: true, classes: true, styles: true },
                   ],
                 },
               }}
-              style={{ direction: 'rtl', textAlign: 'right' }}
+              style={{ direction: "rtl", textAlign: "right" }}
             />
           </div>
         </div>
 
-        {isError && (
+        {(error || isError) && (
           <div className="text-red-500 text-sm text-center">
-            {error?.data?.message || 'خطا در ایجاد ویزارد'}
+            {error || apiError?.data?.message || "خطا در ایجاد ویزارد"}
           </div>
         )}
 
@@ -196,7 +184,7 @@ const CreateWizardPage = ({ onClose, onWizardCreated, parent_id = null }) => {
                 در حال ایجاد...
               </>
             ) : (
-              'ایجاد ویزارد'
+              "ایجاد ویزارد"
             )}
           </button>
         </div>
@@ -205,4 +193,4 @@ const CreateWizardPage = ({ onClose, onWizardCreated, parent_id = null }) => {
   );
 };
 
-export default CreateWizardPage;
+export default CreateWizard;
