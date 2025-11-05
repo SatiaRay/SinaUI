@@ -4,8 +4,8 @@ import wizardApi from '../api/AiApi';
 const wizardAdapter = createEntityAdapter();
 
 const initialState = wizardAdapter.getInitialState({
-  status: "idle"
-})
+  status: 'idle',
+});
 
 const wizardSlice = createSlice({
   name: 'wizard',
@@ -23,4 +23,3 @@ const wizardSlice = createSlice({
 });
 
 export default wizardSlice;
-

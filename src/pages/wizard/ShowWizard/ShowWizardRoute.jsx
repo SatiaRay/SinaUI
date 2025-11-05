@@ -9,8 +9,8 @@ export default function ShowWizardRoute() {
     <ShowWizardPage
       wizard={{ id: Number(id) }}
       onWizardSelect={(w) => {
-        if (!w) navigate('/wizard');          
-        else navigate(`/wizard/${w.id}`);    
+        if (!w) navigate('/wizard');
+        else navigate(`/wizard/${w.id}`);
       }}
     />
   );

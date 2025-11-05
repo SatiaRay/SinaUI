@@ -19,7 +19,8 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
   /**
    * Update wizard request hook
    */
-  const [updateWizard, { isLoading, isError, error }] = useUpdateWizardMutation();
+  const [updateWizard, { isLoading, isError, error }] =
+    useUpdateWizardMutation();
 
   /**
    * Fill form with wizard data on mount
@@ -52,7 +53,10 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
     };
 
     try {
-      const updatedWizard = await updateWizard({ id: wizard.id, data: wizardData }).unwrap();
+      const updatedWizard = await updateWizard({
+        id: wizard.id,
+        data: wizardData,
+      }).unwrap();
       if (onWizardUpdated) {
         onWizardUpdated(updatedWizard);
       }

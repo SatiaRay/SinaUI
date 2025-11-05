@@ -1,9 +1,10 @@
-"use client";
-import React, { useState } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import CustomDropdown from "../../../ui/dropdown";
-import { useCreateWizardMutation } from "../../../store/api/AiApi";
+'use client';
+import React, { useState } from 'react';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import CustomDropdown from '../../../ui/dropdown';
+import { useCreateWizardMutation } from '../../../store/api/AiApi';
+import Error from './Error';
 
 /**
  * CreateWizard component for creating a new wizard
@@ -12,16 +13,18 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
   /**
    * Local form state
    */
-  const [title, setTitle] = useState("");
-  const [context, setContext] = useState("");
-  const [wizardType, setWizardType] = useState("answer");
+  const [title, setTitle] = useState('');
+  const [context, setContext] = useState('');
+  const [wizardType, setWizardType] = useState('answer');
   const [error, setError] = useState(null);
 
   /**
    * Create wizard request hook
    */
-  const [createWizard, { isLoading, isError, error: apiError }] =
-    useCreateWizardMutation();
+  const [
+    createWizard,
+    { isLoading, isError, error: apiError, reset: resetMutation },
+  ] = useCreateWizardMutation();
 
   /**
    * Handle submit create wizard
@@ -30,7 +33,7 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
     e.preventDefault();
 
     if (!title.trim() || !context.trim()) {
-      setError("لطفا تمام فیلدها را پر کنید");
+      setError('لطفا تمام فیلدها را پر کنید');
       return;
     }
 
@@ -51,8 +54,8 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
       }
       onClose();
     } catch (err) {
-      setError(err?.data?.message || "خطا در ایجاد ویزارد");
-      console.error("Error creating wizard:", err);
+      setError(err?.data?.message || 'خطا در ایجاد ویزارد');
+      console.error('Error creating wizard:', err);
     }
   };
 
@@ -94,14 +97,14 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
           </label>
           <CustomDropdown
             options={[
-              { value: "answer", label: "جواب" },
-              { value: "question", label: "سوال" },
+              { value: 'answer', label: 'جواب' },
+              { value: 'question', label: 'سوال' },
             ]}
             value={wizardType}
             onChange={setWizardType}
             placeholder="انتخاب نوع ویزارد"
-            className={"w-full"}
-            parentStyle={"w-full"}
+            className={'w-full'}
+            parentStyle={'w-full'}
           />
         </div>
 
@@ -118,53 +121,77 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
               data={context}
               onChange={(event, editor) => setContext(editor.getData())}
               config={{
-                language: "fa",
-                direction: "rtl",
+                language: 'fa',
+                direction: 'rtl',
                 toolbar: [
-                  "heading",
-                  "|",
-                  "bold",
-                  "italic",
-                  "link",
-                  "bulletedList",
-                  "numberedList",
-                  "|",
-                  "outdent",
-                  "indent",
-                  "|",
-                  "insertTable",
-                  "undo",
-                  "redo",
+                  'heading',
+                  '|',
+                  'bold',
+                  'italic',
+                  'link',
+                  'bulletedList',
+                  'numberedList',
+                  '|',
+                  'outdent',
+                  'indent',
+                  '|',
+                  'insertTable',
+                  'undo',
+                  'redo',
                 ],
                 table: {
                   contentToolbar: [
-                    "tableColumn",
-                    "tableRow",
-                    "mergeTableCells",
-                    "tableProperties",
-                    "tableCellProperties",
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells',
+                    'tableProperties',
+                    'tableCellProperties',
                   ],
                 },
                 htmlSupport: {
                   allow: [
-                    { name: "table", attributes: true, classes: true, styles: true },
-                    { name: "tr", attributes: true, classes: true, styles: true },
-                    { name: "td", attributes: true, classes: true, styles: true },
-                    { name: "th", attributes: true, classes: true, styles: true },
+                    {
+                      name: 'table',
+                      attributes: true,
+                      classes: true,
+                      styles: true,
+                    },
+                    {
+                      name: 'tr',
+                      attributes: true,
+                      classes: true,
+                      styles: true,
+                    },
+                    {
+                      name: 'td',
+                      attributes: true,
+                      classes: true,
+                      styles: true,
+                    },
+                    {
+                      name: 'th',
+                      attributes: true,
+                      classes: true,
+                      styles: true,
+                    },
                   ],
                 },
               }}
-              style={{ direction: "rtl", textAlign: "right" }}
+              style={{ direction: 'rtl', textAlign: 'right' }}
             />
           </div>
         </div>
 
         {(error || isError) && (
-          <div className="text-red-500 text-sm text-center">
-            {error || apiError?.data?.message || "خطا در ایجاد ویزارد"}
-          </div>
+          <Error
+            className="text-red-500 text-sm text-center"
+            message={error || apiError?.data?.message || 'خطا در ایجاد ویزارد'}
+            reset={() => {
+              setError(null);
+              resetMutation();
+            }}
+          />
         )}
-
         <div className="flex justify-end gap-4">
           <button
             type="button"
@@ -184,7 +211,7 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
                 در حال ایجاد...
               </>
             ) : (
-              "ایجاد ویزارد"
+              'ایجاد ویزارد'
             )}
           </button>
         </div>

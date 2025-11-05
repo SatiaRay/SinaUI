@@ -6,7 +6,7 @@ import WizardIndexLoading from './WizardIndexLoading';
 import { Pagination } from '../../../components/ui/pagination';
 import { notify } from '../../../ui/toast';
 import CreateWizardPage from '../CreateWizard/CreateWizardPage';
-import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage'; 
+import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage';
 import { GoPlusCircle } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,7 +34,7 @@ const WizardIndexPage = () => {
    * State for modals
    */
   const [showCreateWizard, setShowCreateWizard] = useState(false);
-  const [editTarget, setEditTarget] = useState(null); 
+  const [editTarget, setEditTarget] = useState(null);
 
   /**
    * Handle wizard creation
@@ -64,10 +64,10 @@ const WizardIndexPage = () => {
   const items = Array.isArray(data?.wizards)
     ? data.wizards
     : Array.isArray(data?.data)
-    ? data.data
-    : Array.isArray(data)
-    ? data
-    : [];
+      ? data.data
+      : Array.isArray(data)
+        ? data
+        : [];
 
   /**
    * Display wizard cards list
@@ -92,9 +92,9 @@ const WizardIndexPage = () => {
               key={wizard.id}
               wizard={wizard}
               onClickWizard={(wizard) => navigate(`/wizard/${wizard.id}`)}
-              selectedWizardForUpdate={(w) => setEditTarget(w)} 
-              onDeleteWizard={() => refetch()}                  
-              onToggleWizard={() => refetch()}                
+              selectedWizardForUpdate={(w) => setEditTarget(w)}
+              onDeleteWizard={() => refetch()}
+              onToggleWizard={() => refetch()}
             />
           ))
         ) : (
@@ -123,7 +123,7 @@ const WizardIndexPage = () => {
           onClose={() => setEditTarget(null)}
           onWizardUpdated={() => {
             setEditTarget(null);
-            refetch(); 
+            refetch();
           }}
         />
       )}

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import CreateWizardPage from '../CreateWizard/CreateWizardPage';
@@ -7,13 +7,13 @@ import {
   useGetWizardQuery,
   useDeleteWizardMutation,
   useToggleStatusWizardMutation,
-} from "../../../store/api/AiApi";
-import wizardApi from "../../../store/api/AiApi";
+} from '../../../store/api/AiApi';
+import wizardApi from '../../../store/api/AiApi';
 import ShowWizardLoading from './ShowWizardLoading';
 
 const ShowWizard = ({ wizard, onWizardSelect }) => {
   /**
-   * Fetch wizard data by ID 
+   * Fetch wizard data by ID
    */
   const { data, isLoading, isError, error, isSuccess } = useGetWizardQuery(
     { id: wizard?.id, enableOnly: true },
@@ -36,6 +36,17 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   }, [isSuccess, data]);
 
   const wizardData = cachedWizard ?? data;
+
+  const [delayedLoading, setDelayedLoading] = useState(true);
+
+  useEffect(() => {
+    if (isLoading) {
+      setDelayedLoading(true);
+    } else {
+      const timer = setTimeout(() => setDelayedLoading(false), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
 
   /**
    * UI-only states
@@ -69,7 +80,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     if (!wizard?.id) return;
     dispatch(
       wizardApi.util.updateQueryData(
-        "getWizard",
+        'getWizard',
         { id: wizard.id, enableOnly: true },
         (draft) => {
           updater(draft);
@@ -112,11 +123,13 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     try {
       await deleteWizard(wizardId).unwrap();
       updateWizardCache((draft) => {
-        draft.children = (draft.children || []).filter((c) => c.id !== wizardId);
+        draft.children = (draft.children || []).filter(
+          (c) => c.id !== wizardId
+        );
       });
     } catch (err) {
-      console.error("Error deleting wizard:", err);
-      alert("خطا در حذف ویزارد");
+      console.error('Error deleting wizard:', err);
+      alert('خطا در حذف ویزارد');
     }
   };
 
@@ -128,7 +141,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     try {
       await toggleStatusWizard({
         wizardId,
-        endpoint: currentStatus ? "disable" : "enable",
+        endpoint: currentStatus ? 'disable' : 'enable',
       }).unwrap();
       updateWizardCache((draft) => {
         draft.children = (draft.children || []).map((c) =>
@@ -137,7 +150,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
       });
     } catch (err) {
       console.error(err);
-      alert(err?.data?.message || "خطا در تغییر وضعیت ویزارد");
+      alert(err?.data?.message || 'خطا در تغییر وضعیت ویزارد');
     } finally {
       setUpdatingStatus((prev) => ({ ...prev, [wizardId]: false }));
     }
@@ -146,7 +159,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   /**
    * Render loading state (mentor style): only if first load AND no cache yet
    */
-  if (isLoading && !cachedWizard) {
+  if ((isLoading || delayedLoading) && !cachedWizard) {
     return <ShowWizardLoading />;
   }
 
@@ -157,7 +170,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
     return (
       <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
         <p className="text-red-500 dark:text-red-400">
-          {error?.data?.message || "خطا در دریافت ویزارد"}
+          {error?.data?.message || 'خطا در دریافت ویزارد'}
         </p>
         <button
           onClick={() => onWizardSelect(wizard)}
@@ -267,7 +280,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                           className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 cursor-pointer"
                           onClick={() => handleChildClick(child)}
                         >
-                          {new Date(child.created_at).toLocaleString("fa-IR")}
+                          {new Date(child.created_at).toLocaleString('fa-IR')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <button
@@ -278,8 +291,8 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                             disabled={!!updatingStatus[child.id]}
                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer transition-colors ${
                               child.enabled
-                                ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
-                                : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
+                                ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800'
+                                : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {updatingStatus[child.id] ? (
@@ -288,9 +301,9 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                                 <span>در حال تغییر...</span>
                               </div>
                             ) : child.enabled ? (
-                              "فعال"
+                              'فعال'
                             ) : (
-                              "غیرفعال"
+                              'غیرفعال'
                             )}
                           </button>
                         </td>

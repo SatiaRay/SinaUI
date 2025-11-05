@@ -3,9 +3,6 @@ import { useDisplay } from '../../../hooks/display';
 import Skeleton from 'react-loading-skeleton';
 
 const WizardIndexLoading = () => {
-  /**
-   * Response props for dynamic layout
-   */
   const { height, isLargeDisplay } = useDisplay();
 
   return (
