@@ -2,9 +2,6 @@ import styled from 'styled-components';
 import Chat from '../../../components/Chat/Chat';
 import { ChatProvider } from '../../../contexts/ChatContext';
 import { AuthProvider } from '../../../contexts/AuthContext';
-import Chat from '@components/Chat/Chat';
-import { ChatProvider } from '@contexts/ChatContext';
-import { AuthProvider } from '@contexts/AuthContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
 import { useState, useEffect, useRef } from 'react';
@@ -213,7 +210,14 @@ const ChatBox = (props) => {
           </Header>
         )}
         <MessagesWrapper>
-          <Messages>
+          <Messages
+            className={
+              isSkeletonActive
+                ? 'overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+                : ''
+            }
+            style={isSkeletonActive ? { overflow: 'hidden' } : {}}
+          >
             {isSkeletonActive ? (
               <ChatSkeletonLoader theme={theme} />
             ) : (
