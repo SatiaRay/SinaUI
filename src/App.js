@@ -9,6 +9,7 @@ import {
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
+import { WorkflowIndex } from './pages/workflow';
 import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
@@ -17,8 +18,7 @@ import Wizard from './components/Chat/Wizard';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
-import Workflow from './components/Workflow/WorkflowIndex';
-import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
+import { WorkflowEditor } from './pages/workflow';
 import { AuthProvider } from './contexts/AuthContext';
 import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 import VoiceAgentConversation from './pages/VoiceAgentConversation';
@@ -49,7 +49,8 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const isPrivateRoute = location.pathname !== '/login' && location.pathname !== '/register';
+  const isPrivateRoute =
+    location.pathname !== '/login' && location.pathname !== '/register';
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
@@ -233,7 +234,7 @@ function privateRoutes() {
           index
           element={
             <PrivateRoute>
-              <Workflow />
+              <WorkflowIndex />
             </PrivateRoute>
           }
         />
