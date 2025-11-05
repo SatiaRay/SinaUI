@@ -210,7 +210,14 @@ const ChatBox = (props) => {
           </Header>
         )}
         <MessagesWrapper>
-          <Messages>
+          <Messages
+            className={
+              isSkeletonActive
+                ? 'overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+                : ''
+            }
+            style={isSkeletonActive ? { overflow: 'hidden' } : {}}
+          >
             {isSkeletonActive ? (
               <ChatSkeletonLoader theme={theme} />
             ) : (
