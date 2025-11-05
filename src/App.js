@@ -32,6 +32,7 @@ import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
+import ShowWizardRoute from './pages/wizard/ShowWizard/ShowWizardRoute';
 
 function App() {
   return (
@@ -220,14 +221,24 @@ function privateRoutes() {
         }
       />
       <Route path="crawl-url" element={<CrawlUrl />} />
-      <Route
-        path="/wizard"
-        element={
-          <PrivateRoute>
-            <Wizard />
-          </PrivateRoute>
-        }
-      />
+      <Route path="/wizard">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <Wizard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path=":id"
+          element={
+            <PrivateRoute>
+              <ShowWizardRoute />
+            </PrivateRoute>
+          }
+        />
+      </Route>
       <Route path="/workflow">
         <Route
           index

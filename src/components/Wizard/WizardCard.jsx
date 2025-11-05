@@ -8,10 +8,10 @@ import { useToggleStatusWizardMutation, useDeleteWizardMutation } from '../../st
  */
 const WizardCard = ({
   wizard,
-  onClickWizard,
-  onDeleteWizard,
-  selectedWizardForUpdate,
-  onToggleWizard,
+  onClickWizard = () => {},           
+  onDeleteWizard = () => {},            
+  selectedWizardForUpdate = () => {},   
+  onToggleWizard = () => {},            
 }) => {
   /**
    * Toggle wizard status mutation hook
@@ -37,9 +37,9 @@ const WizardCard = ({
       const endpoint = currentStatus ? 'disable' : 'enable';
       await toggleStatusWizard({ wizardId, endpoint }).unwrap();
       notify.success('وضعیت ویزارد با موفقیت تغییر کرد');
-      onToggleWizard({ ...wizard, enabled: !wizard.enabled });
+      onToggleWizard({ ...wizard, enabled: !wizard.enabled }); 
     } catch (err) {
-      notify.error(err.data?.message || 'خطا در تغییر وضعیت ویزارد');
+      notify.error(err?.data?.message || 'خطا در تغییر وضعیت ویزارد');
       console.error('Error toggling wizard status:', err);
     } finally {
       setUpdatingStatus((prev) => ({ ...prev, [wizardId]: false }));
@@ -69,7 +69,7 @@ const WizardCard = ({
       try {
         await deleteWizard(wizard.id).unwrap();
         notify.success(`${wizard.title} با موفقیت حذف شد.`);
-        onDeleteWizard(wizard.id);
+        onDeleteWizard(wizard.id); 
       } catch (err) {
         notify.error('خطا در حذف ویزارد. لطفاً دوباره تلاش کنید.');
         console.error('Error deleting wizard:', err);
@@ -93,7 +93,7 @@ const WizardCard = ({
                 e.stopPropagation();
                 toggleWizardStatus(wizard.id, wizard.enabled);
               }}
-              disabled={updatingStatus[wizard.id]}
+              disabled={!!updatingStatus[wizard.id]}
               className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors ${
                 wizard.enabled
                   ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800'
@@ -117,8 +117,8 @@ const WizardCard = ({
                 e.stopPropagation();
                 selectedWizardForUpdate(wizard);
               }}
-              disabled={updatingStatus[wizard.id]}
-              className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800`}
+              disabled={!!updatingStatus[wizard.id]}
+              className="px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800"
             >
               ویرایش
             </button>
@@ -128,8 +128,8 @@ const WizardCard = ({
                 e.stopPropagation();
                 submitDelete(wizard);
               }}
-              disabled={updatingStatus[wizard.id]}
-              className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-red-200 dark:bg-red-900 dark:hover:bg-red-800`}
+              disabled={!!updatingStatus[wizard.id]}
+              className="px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-colors bg-red-200 dark:bg-red-900 dark:hover:bg-red-800"
             >
               حذف
             </button>

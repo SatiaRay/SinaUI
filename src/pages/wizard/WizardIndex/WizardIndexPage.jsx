@@ -5,8 +5,10 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import WizardIndexLoading from './WizardIndexLoading';
 import { Pagination } from '../../../components/ui/pagination';
 import { notify } from '../../../ui/toast';
-import CreateWizardPage from '../CreateWizard/CreateWizardPage'; 
+import CreateWizardPage from '../CreateWizard/CreateWizardPage';
+import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage'; 
 import { GoPlusCircle } from 'react-icons/go';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * WizardIndexPage component for displaying and managing wizards
@@ -18,32 +20,35 @@ const WizardIndexPage = () => {
   const [page, setPage] = useState(1);
   const perpage = 20;
 
+  const navigate = useNavigate();
+
   /**
    * Wizards list query hook
    */
-  const { data, isLoading, isSuccess, isError, error, refetch } = useGetWizardsQuery({
+  const { data, isLoading, isError, refetch } = useGetWizardsQuery({
     page,
     perpage,
   });
 
   /**
-   * State for managing CreateWizard modal
+   * State for modals
    */
   const [showCreateWizard, setShowCreateWizard] = useState(false);
+  const [editTarget, setEditTarget] = useState(null); 
 
   /**
    * Handle wizard creation
    */
   const handleWizardCreated = () => {
     setShowCreateWizard(false);
-    refetch(); 
+    refetch();
     notify.success('ویزارد با موفقیت ایجاد شد');
   };
 
   /**
    * Display loading page
    */
-  if (isLoading ) return <WizardIndexLoading />;
+  if (isLoading) return <WizardIndexLoading />;
 
   /**
    * Display error message when fetching fails
@@ -52,6 +57,17 @@ const WizardIndexPage = () => {
     notify.error('خطا در دریافت ویزاردها. لطفاً دوباره تلاش کنید.');
     return <p>مشکلی پیش آمده است 🛑</p>;
   }
+
+  /**
+   * Normalize list shape
+   */
+  const items = Array.isArray(data?.wizards)
+    ? data.wizards
+    : Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data)
+    ? data
+    : [];
 
   /**
    * Display wizard cards list
@@ -68,15 +84,24 @@ const WizardIndexPage = () => {
           <GoPlusCircle size={22} className="pr-2 box-content" />
         </button>
       </div>
+
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
-        {data?.wizards && Array.isArray(data.wizards) ? (
-          data.wizards.map((wizard) => (
-            <WizardCard key={wizard.id} wizard={wizard} onDelete={() => {}} />
+        {items.length > 0 ? (
+          items.map((wizard) => (
+            <WizardCard
+              key={wizard.id}
+              wizard={wizard}
+              onClickWizard={(wizard) => navigate(`/wizard/${wizard.id}`)}
+              selectedWizardForUpdate={(w) => setEditTarget(w)} 
+              onDeleteWizard={() => refetch()}                  
+              onToggleWizard={() => refetch()}                
+            />
           ))
         ) : (
           <p>هیچ ویزاردی برای نمایش وجود ندارد.</p>
         )}
       </div>
+
       <Pagination
         page={page}
         perpage={perpage}
@@ -84,10 +109,22 @@ const WizardIndexPage = () => {
         totalItems={data?.total}
         handlePageChange={setPage}
       />
+
       {showCreateWizard && (
         <CreateWizardPage
           onClose={() => setShowCreateWizard(false)}
           onWizardCreated={handleWizardCreated}
+        />
+      )}
+
+      {editTarget && (
+        <UpdateWizardPage
+          wizard={editTarget}
+          onClose={() => setEditTarget(null)}
+          onWizardUpdated={() => {
+            setEditTarget(null);
+            refetch(); 
+          }}
         />
       )}
     </div>

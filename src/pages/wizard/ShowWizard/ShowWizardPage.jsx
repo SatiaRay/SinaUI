@@ -1,20 +1,21 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import CreateWizardPage from '../CreateWizard';
-import UpdateWizardPage from '../UpdateWizard';
+import CreateWizardPage from '../CreateWizard/CreateWizardPage';
+import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage';
 import {
   useGetWizardQuery,
   useDeleteWizardMutation,
   useToggleStatusWizardMutation,
 } from "../../../store/api/AiApi";
-import wizardApi from "../../../store/api/AiApi"; 
+import wizardApi from "../../../store/api/AiApi";
+import ShowWizardLoading from './ShowWizardLoading';
 
 const ShowWizard = ({ wizard, onWizardSelect }) => {
   /**
    * Fetch wizard data by ID 
    */
-  const { data: wizardData, isLoading, isError, error } = useGetWizardQuery(
+  const { data, isLoading, isError, error, isSuccess } = useGetWizardQuery(
     { id: wizard?.id, enableOnly: true },
     { skip: !wizard?.id }
   );
@@ -22,6 +23,19 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   const [deleteWizard] = useDeleteWizardMutation();
   const [toggleStatusWizard] = useToggleStatusWizardMutation();
   const dispatch = useDispatch();
+
+  /**
+   * Local cache (mentor pattern): once filled, we don't show skeleton again
+   */
+  const [cachedWizard, setCachedWizard] = useState(null);
+
+  useEffect(() => {
+    if (isSuccess && data) {
+      setCachedWizard(data);
+    }
+  }, [isSuccess, data]);
+
+  const wizardData = cachedWizard ?? data;
 
   /**
    * UI-only states
@@ -62,6 +76,12 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
         }
       )
     );
+    setCachedWizard((prev) => {
+      if (!prev) return prev;
+      const clone = JSON.parse(JSON.stringify(prev));
+      updater(clone);
+      return clone;
+    });
   };
 
   /**
@@ -124,14 +144,10 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   };
 
   /**
-   * Render loading state
+   * Render loading state (mentor style): only if first load AND no cache yet
    */
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-      </div>
-    );
+  if (isLoading && !cachedWizard) {
+    return <ShowWizardLoading />;
   }
 
   /**
@@ -253,10 +269,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                         >
                           {new Date(child.created_at).toLocaleString("fa-IR")}
                         </td>
-                        <td
-                          className="px-6 py-4 whitespace-nowrap text-sm cursor-pointer"
-                          onClick={() => handleChildClick(child)}
-                        >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
