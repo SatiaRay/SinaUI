@@ -28,10 +28,12 @@ import Register from './components/register';
 import Setting from './pages/setting';
 import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
-import MonitoringPage from '@components/Monitoring/MonitoringPage';
-import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
-import LogSearchPage from '@components/Monitoring/LogSearchPage';
-import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
+import {
+  MonitoringIndex,
+  RecentLogsPage,
+  LogSearchPage,
+  ToolUsageStats,
+} from './pages/Monitorings';
 
 function App() {
   return (
@@ -49,7 +51,8 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const isPrivateRoute = location.pathname !== '/login' && location.pathname !== '/register';
+  const isPrivateRoute =
+    location.pathname !== '/login' && location.pathname !== '/register';
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
@@ -130,7 +133,7 @@ function privateRoutes() {
             path=""
             element={
               <PrivateRoute>
-                <MonitoringPage />
+                <MonitoringIndex />
               </PrivateRoute>
             }
           />
