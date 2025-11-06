@@ -58,7 +58,7 @@ const MonitoringApi = createApi({
      */
     getToolStats: builder.query({
       query: ({ days = 7, top_n = 10 } = {}) => ({
-        url: '/function-calling-logسs/stats/tools',
+        url: '/function-calling-logs/stats/tools',
         params: { days, top_n },
       }),
       providesTags: ['Stats'],
