@@ -22,7 +22,7 @@ const WorkflowApi = createApi({
      */
     getAllWorkflows: builder.query({
       query: ({ agentType } = {}) =>
-        agentType ? `/workflows?agent_type=${agentType}` : `/workflows`,
+        agentType ? `/workflowsسس?agent_type=${agentType}` : `/workflows`,
       providesTags: (result) =>
         result
           ? [

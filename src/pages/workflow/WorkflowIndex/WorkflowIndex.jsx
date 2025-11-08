@@ -1,10 +1,3 @@
-// WorkflowIndex.jsx
-
-/**
- * Workflow Index Component
- * Main component for displaying, managing, and interacting with workflows
- * Provides functionality to view, create, edit, delete, export, and import workflows
- */
 import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -17,19 +10,13 @@ import {
 import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';
-import WorkflowError from '@pages/workflow/WorkflowError/WorkflowError';
+import Error from '@components/Error';
 
 const WorkflowIndex = () => {
-  /**
-   * Component State and Refs
-   */
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [agentType, setAgentType] = useState('');
 
-  /**
-   * RTK Query Hooks for API Operations
-   */
   const {
     data: workflows = [],
     isLoading,
@@ -41,18 +28,10 @@ const WorkflowIndex = () => {
   const [importWorkflow] = useImportWorkflowMutation();
   const [deleteWorkflow] = useDeleteWorkflowMutation();
 
-  /**
-   * Handles workflow creation navigation
-   * Navigates to the workflow creation page
-   */
   const handleCreate = useCallback(() => {
     navigate('/workflow/create');
   }, [navigate]);
 
-  /**
-   * Handles workflow editing navigation
-   * @param {number} workflowId - The ID of the workflow to edit
-   */
   const handleEdit = useCallback(
     (workflowId) => {
       if (!workflowId) {
@@ -64,12 +43,6 @@ const WorkflowIndex = () => {
     [navigate]
   );
 
-  /**
-   * Handles workflow deletion with confirmation and error handling
-   * Uses optimistic updates - workflow is immediately removed from UI
-   * If server returns error, UI automatically rolls back and shows error notification
-   * @param {number} workflowId - The ID of the workflow to delete
-   */
   const handleDelete = useCallback(
     async (workflowId) => {
       if (!workflowId) return;
@@ -97,10 +70,7 @@ const WorkflowIndex = () => {
     },
     [deleteWorkflow]
   );
-  /**
-   * Handles workflow export/download
-   * @param {number} workflowId - The ID of the workflow to export
-   */
+
   const handleDownload = useCallback(
     async (workflowId) => {
       if (!workflowId) {
@@ -109,7 +79,6 @@ const WorkflowIndex = () => {
       }
 
       try {
-        // Show loading indicator
         Swal.fire({
           title: 'در حال آماده‌سازی فایل...',
           text: 'لطفا منتظر بمانید',
@@ -125,7 +94,6 @@ const WorkflowIndex = () => {
           throw new Error('No data received from server');
         }
 
-        // Create and trigger download
         const blob = new Blob([JSON.stringify(data, null, 2)], {
           type: 'application/json',
         });
@@ -138,7 +106,6 @@ const WorkflowIndex = () => {
         link.remove();
         window.URL.revokeObjectURL(url);
 
-        // Close loading indicator and show success notification
         Swal.close();
         notify.success('فایل با موفقیت دانلود شد');
       } catch (err) {
@@ -150,23 +117,15 @@ const WorkflowIndex = () => {
     [exportWorkflow]
   );
 
-  /**
-   * Triggers file input click for import
-   */
   const handleFileSelect = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
 
-  /**
-   * Handles workflow import from JSON file
-   * @param {Event} e - File input change event
-   */
   const handleFileChange = useCallback(
     async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      // Validate file type
       if (!file.name.endsWith('.json')) {
         Swal.fire({
           title: 'خطا!',
@@ -178,7 +137,6 @@ const WorkflowIndex = () => {
       }
 
       try {
-        // Show loading indicator
         Swal.fire({
           title: 'در حال بارگذاری...',
           text: 'لطفا منتظر بمانید',
@@ -188,10 +146,8 @@ const WorkflowIndex = () => {
           },
         });
 
-        // Execute import operation
         await importWorkflow({ file }).unwrap();
 
-        // Success notification
         Swal.fire({
           title: 'موفق!',
           text: 'گردش کار با موفقیت بارگذاری شد.',
@@ -201,7 +157,6 @@ const WorkflowIndex = () => {
           timerProgressBar: true,
         });
 
-        // Reset file input
         e.target.value = '';
       } catch (err) {
         console.error('Import failed:', err);
@@ -216,34 +171,24 @@ const WorkflowIndex = () => {
     [importWorkflow]
   );
 
-  /**
-   * Renders loading state
-   */
   if (isLoading) {
     return <WorkflowIndexLoading />;
   }
 
-  /**
-   * Renders error state
-   */
   if (isError) {
-    return <WorkflowError error={error} onRetry={refetch} />;
+    return <Error error={error} onRetry={refetch} variant="elevated" />;
   }
 
-  /**
-   * Main component render
-   */
   return (
-    <div className="container mx-auto px-4 py-12 w-full">
-      {/* Header Section with Filters and Actions */}
-      <div className="flex max-md:flex-col max-md:gap-4 justify-between items-center mb-4">
-        <h1 className="md:text-2xl border-r-2 border-blue-500 pr-2 text-xl max-md:w-full font-bold text-gray-800 dark:text-white">
+    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 w-full">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-xl sm:text-2xl border-r-2 border-blue-500 pr-2 w-full sm:w-auto font-bold text-gray-800 dark:text-white">
           گردش کارها
         </h1>
 
         {/* Action Buttons and Filters */}
-        <div className="flex items-center max-md:justify-between max-md:w-full md:gap-2 gap-1">
-          {/* Agent Type Filter Dropdown */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <CustomDropdown
             options={[
               { value: '', label: 'همه' },
@@ -253,10 +198,9 @@ const WorkflowIndex = () => {
             value={agentType}
             onChange={(val) => setAgentType(val)}
             placeholder="انتخاب نوع ربات"
-            className="max-md:w-1/4"
+            className="w-full sm:w-28"
           />
 
-          {/* File Import Section */}
           <>
             <input
               type="file"
@@ -267,33 +211,31 @@ const WorkflowIndex = () => {
             />
             <button
               onClick={handleFileSelect}
-              className="border max-md:w-1/2 text-blue-500 border-blue-500 text-xs font-bold hover:bg-blue-500 hover:text-white h-9 px-4 rounded-md transition-colors duration-200"
+              className="border text-blue-500 border-blue-500 text-xs font-bold hover:bg-blue-500 hover:text-white h-10 px-4 rounded-md transition-colors duration-200 w-full sm:w-32"
             >
               بارگذاری گردش کار
             </button>
           </>
 
-          {/* Create Workflow Button */}
           <button
             onClick={handleCreate}
-            className="bg-blue-500 max-md:w-1/2 hover:bg-blue-600 text-white text-xs font-bold px-4 h-9 rounded-md transition-colors duration-200"
+            className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 h-10 rounded-md transition-colors duration-200 w-full sm:w-32"
           >
             ایجاد گردش کار
           </button>
         </div>
       </div>
 
-      {/* Workflows Table */}
-      <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
-            {/* Table Header */}
+      {/* Desktop Table */}
+      <div className="hidden sm:block bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+        <div className="w-full overflow-hidden">
+          <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
             <thead className="bg-neutral-200 dark:bg-gray-700">
               <tr>
                 {['نام', 'نوع ربات', 'وضعیت', 'عملیات', ''].map((header) => (
                   <th
                     key={header}
-                    className="px-6 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+                    className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
                   >
                     {header}
                   </th>
@@ -301,29 +243,27 @@ const WorkflowIndex = () => {
               </tr>
             </thead>
 
-            {/* Table Body */}
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {workflows.length === 0 ? (
-                // Empty state
                 <tr>
                   <td
                     colSpan="5"
-                    className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
+                    className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
                   >
                     هیچ گردش کاری یافت نشد
                   </td>
                 </tr>
               ) : (
-                // Workflows list
                 workflows.map((workflow) => (
-                  <tr key={workflow.id}>
-                    {/* Workflow Name */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  <tr
+                    key={workflow.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <td className="px-4 py-4 text-sm text-gray-900 dark:text-white">
                       {workflow.name || '-'}
                     </td>
 
-                    {/* Agent Type */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <td className="px-4 py-4 text-sm text-gray-900 dark:text-white">
                       {workflow.agent_type === 'text_agent'
                         ? 'ربات متنی'
                         : workflow.agent_type === 'voice_agent'
@@ -333,34 +273,33 @@ const WorkflowIndex = () => {
                             : '-'}
                     </td>
 
-                    {/* Status */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    <td className="px-4 py-4">
+                      <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                         فعال
                       </span>
                     </td>
 
-                    {/* Actions */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => handleEdit(workflow.id)}
-                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mx-2"
-                      >
-                        ویرایش
-                      </button>
-                      <button
-                        onClick={() => handleDelete(workflow.id)}
-                        className="text-red-500 hover:text-red-700 mx-2"
-                      >
-                        حذف
-                      </button>
+                    <td className="px-4 py-4 text-sm">
+                      <div className="flex justify-center gap-3">
+                        <button
+                          onClick={() => handleEdit(workflow.id)}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          ویرایش
+                        </button>
+                        <button
+                          onClick={() => handleDelete(workflow.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          حذف
+                        </button>
+                      </div>
                     </td>
 
-                    {/* Export Button */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <td className="px-4 py-4">
                       <button
                         onClick={() => handleDownload(workflow.id)}
-                        className="text-green-600 text-xs border border-green-600 h-8 px-2 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200"
+                        className="text-green-600 text-xs border border-green-600 h-8 px-3 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200 transition-colors duration-200"
                       >
                         دریافت خروجی
                       </button>
@@ -371,6 +310,65 @@ const WorkflowIndex = () => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="sm:hidden space-y-4">
+        {workflows.length === 0 ? (
+          <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 text-center text-gray-500 dark:text-gray-400">
+            هیچ گردش کاری یافت نشد
+          </div>
+        ) : (
+          workflows.map((workflow) => (
+            <div
+              key={workflow.id}
+              className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+                    {workflow.name || '-'}
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {workflow.agent_type === 'text_agent'
+                      ? 'ربات متنی'
+                      : workflow.agent_type === 'voice_agent'
+                        ? 'ربات صوتی'
+                        : workflow.agent_type === 'both'
+                          ? 'همه'
+                          : '-'}
+                  </p>
+                </div>
+                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  فعال
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-600">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(workflow.id)}
+                    className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 text-xs px-3 py-1 border border-blue-600 rounded-md"
+                  >
+                    ویرایش
+                  </button>
+                  <button
+                    onClick={() => handleDelete(workflow.id)}
+                    className="text-red-500 hover:text-red-700 text-xs px-3 py-1 border border-red-500 rounded-md"
+                  >
+                    حذف
+                  </button>
+                </div>
+                <button
+                  onClick={() => handleDownload(workflow.id)}
+                  className="text-green-600 text-xs border border-green-600 px-3 py-1 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200"
+                >
+                  دریافت
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
