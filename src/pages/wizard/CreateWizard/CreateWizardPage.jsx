@@ -7,7 +7,7 @@ import { useCreateWizardMutation } from '../../../store/api/AiApi';
 import Error from './Error';
 
 /**
- * CreateWizard component for creating a new wizard
+ * CreateWizard component
  */
 const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
   /**
@@ -184,7 +184,6 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
 
         {(error || isError) && (
           <Error
-            className="text-red-500 text-sm text-center"
             message={error || apiError?.data?.message || 'خطا در ایجاد ویزارد'}
             reset={() => {
               setError(null);

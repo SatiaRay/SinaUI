@@ -9,6 +9,7 @@ import CreateWizardPage from '../CreateWizard/CreateWizardPage';
 import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage';
 import { GoPlusCircle } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
+import Error from './Error';
 
 /**
  * WizardIndexPage component for displaying and managing wizards
@@ -25,7 +26,7 @@ const WizardIndexPage = () => {
   /**
    * Wizards list query hook
    */
-  const { data, isLoading, isError, refetch } = useGetWizardsQuery({
+  const { data, isLoading, isError, refetch, error } = useGetWizardsQuery({
     page,
     perpage,
   });
@@ -54,8 +55,14 @@ const WizardIndexPage = () => {
    * Display error message when fetching fails
    */
   if (isError) {
-    notify.error('خطا در دریافت ویزاردها. لطفاً دوباره تلاش کنید.');
-    return <p>مشکلی پیش آمده است 🛑</p>;
+    return (
+      <div>
+        <Error
+          message={error?.data?.message || 'خطا در دریافت ویزاردها'}
+          reset={() => refetch()}
+        />
+      </div>
+    );
   }
 
   /**

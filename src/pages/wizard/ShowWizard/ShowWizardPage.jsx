@@ -10,22 +10,24 @@ import {
 } from '../../../store/api/AiApi';
 import wizardApi from '../../../store/api/AiApi';
 import ShowWizardLoading from './ShowWizardLoading';
+import Error from './Error';
 
 const ShowWizard = ({ wizard, onWizardSelect }) => {
   /**
    * Fetch wizard data by ID
    */
-  const { data, isLoading, isError, error, isSuccess } = useGetWizardQuery(
-    { id: wizard?.id, enableOnly: true },
-    { skip: !wizard?.id }
-  );
+  const { data, isLoading, isError, error, isSuccess, refetch } =
+    useGetWizardQuery(
+      { id: wizard?.id, enableOnly: true },
+      { skip: !wizard?.id }
+    );
 
   const [deleteWizard] = useDeleteWizardMutation();
   const [toggleStatusWizard] = useToggleStatusWizardMutation();
   const dispatch = useDispatch();
 
   /**
-   * Local cache (mentor pattern): once filled, we don't show skeleton again
+   * Local cache
    */
   const [cachedWizard, setCachedWizard] = useState(null);
 
@@ -157,7 +159,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   };
 
   /**
-   * Render loading state (mentor style): only if first load AND no cache yet
+   * Render loading state
    */
   if ((isLoading || delayedLoading) && !cachedWizard) {
     return <ShowWizardLoading />;
@@ -168,16 +170,13 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
    */
   if (isError) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
-        <p className="text-red-500 dark:text-red-400">
-          {error?.data?.message || 'خطا در دریافت ویزارد'}
-        </p>
-        <button
-          onClick={() => onWizardSelect(wizard)}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >
-          تلاش مجدد
-        </button>
+      <div>
+        <Error
+          message={error?.data?.message || 'خطا در دریافت ویزارد'}
+          reset={() => {
+            refetch();
+          }}
+        />
       </div>
     );
   }

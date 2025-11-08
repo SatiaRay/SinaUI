@@ -4,9 +4,11 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '../../../ui/dropdown';
 import { useUpdateWizardMutation } from '../../../store/api/AiApi';
 import { notify } from '../../../ui/toast';
+import UpdateWizardLoading from './UpdateWizardLoading';
+import Error from './Error';
 
 /**
- * UpdateWizard component for editing an existing wizard
+ * UpdateWizard component
  */
 const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
   /**
@@ -19,7 +21,7 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
   /**
    * Update wizard request hook
    */
-  const [updateWizard, { isLoading, isError, error }] =
+  const [updateWizard, { isLoading, isError, error, reset }] =
     useUpdateWizardMutation();
 
   /**
@@ -67,6 +69,13 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
       console.error('Error updating wizard:', err);
     }
   };
+
+  /**
+   * Render loading state
+   */
+  if (!wizard || !wizard.title) {
+    return <UpdateWizardLoading />;
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 pb-12">
@@ -189,8 +198,11 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
         </div>
 
         {isError && (
-          <div className="text-red-500 text-sm text-center">
-            {error?.data?.message || 'خطا در بروزرسانی ویزارد'}
+          <div className="p-2">
+            <Error
+              message={error?.data?.message || 'خطا در بروزرسانی ویزارد'}
+              reset={() => reset()}
+            />
           </div>
         )}
 
