@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import CreateWizardPage from '../CreateWizard/CreateWizardPage';
 import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage';
@@ -11,6 +11,9 @@ import {
 import wizardApi from '../../../store/api/AiApi';
 import ShowWizardLoading from './ShowWizardLoading';
 import Error from './Error';
+
+/* Show skeleton only on first fetch */
+let __SHOW_WIZARD_FIRST_FETCH_DONE__ = false;
 
 const ShowWizard = ({ wizard, onWizardSelect }) => {
   /**
@@ -39,16 +42,37 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
 
   const wizardData = cachedWizard ?? data;
 
-  const [delayedLoading, setDelayedLoading] = useState(true);
+  /**
+   * Skeleton delay
+   */
+  const [showSkeleton, setShowSkeleton] = useState(
+    !__SHOW_WIZARD_FIRST_FETCH_DONE__
+  );
+  const hasEverLoadedRef = useRef(__SHOW_WIZARD_FIRST_FETCH_DONE__);
 
   useEffect(() => {
-    if (isLoading) {
-      setDelayedLoading(true);
-    } else {
-      const timer = setTimeout(() => setDelayedLoading(false), 1200);
-      return () => clearTimeout(timer);
+    if (hasEverLoadedRef.current) {
+      setShowSkeleton(false);
+      return;
     }
-  }, [isLoading]);
+    const hasData = !!wizardData;
+    if (hasData) {
+      const t = setTimeout(() => {
+        setShowSkeleton(false);
+        hasEverLoadedRef.current = true;
+        __SHOW_WIZARD_FIRST_FETCH_DONE__ = true;
+      }, 1500);
+      return () => clearTimeout(t);
+    }
+  }, [wizardData]);
+
+  useEffect(() => {
+    if (!hasEverLoadedRef.current) {
+      if (isLoading && !cachedWizard) setShowSkeleton(true);
+    } else {
+      setShowSkeleton(false);
+    }
+  }, [isLoading, cachedWizard]);
 
   /**
    * UI-only states
@@ -76,7 +100,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   };
 
   /**
-   * Update wizard cache using RTK Query updateQueryData
+   * Update wizard cache using updateQueryData
    */
   const updateWizardCache = (updater) => {
     if (!wizard?.id) return;
@@ -161,7 +185,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   /**
    * Render loading state
    */
-  if ((isLoading || delayedLoading) && !cachedWizard) {
+  if (showSkeleton && !hasEverLoadedRef.current) {
     return <ShowWizardLoading />;
   }
 
@@ -210,7 +234,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
           parent_id={wizard.id}
         />
       ) : (
-        <div className="space-y-6 text-white">
+        <div className="space-y-6 text.white">
           <div className="flex items-center justify-between">
             <h2 className="text-xl dark:text-white font-semibold text-gray-800">
               {wizardData.title}
@@ -224,7 +248,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
               </button>
               <button
                 onClick={handleBackClick}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex.items-center gap-2"
               >
                 بازگشت
               </button>
@@ -322,7 +346,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                                 e.stopPropagation();
                                 handleDeleteWizard(child.id);
                               }}
-                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:bg-red-300"
                             >
                               حذف
                             </button>

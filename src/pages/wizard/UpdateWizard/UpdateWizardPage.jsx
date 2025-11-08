@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '../../../ui/dropdown';
@@ -6,6 +6,11 @@ import { useUpdateWizardMutation } from '../../../store/api/AiApi';
 import { notify } from '../../../ui/toast';
 import UpdateWizardLoading from './UpdateWizardLoading';
 import Error from './Error';
+
+/**
+ * Show skeleton only on first fetch
+ */
+let __UPDATE_WIZARD_FIRST_FETCH_DONE__ = false;
 
 /**
  * UpdateWizard component
@@ -32,6 +37,31 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
       setTitle(wizard.title || '');
       setContext(wizard.context || '');
       setWizardType(wizard.wizard_type || 'answer');
+    }
+  }, [wizard]);
+
+  /**
+   * Skeleton delay
+   */
+  const [showSkeleton, setShowSkeleton] = useState(
+    !__UPDATE_WIZARD_FIRST_FETCH_DONE__
+  );
+  const hasEverLoadedRef = useRef(__UPDATE_WIZARD_FIRST_FETCH_DONE__);
+
+  useEffect(() => {
+    if (!hasEverLoadedRef.current) {
+      if (!wizard || !wizard.title) {
+        setShowSkeleton(true);
+        return;
+      }
+      const timer = setTimeout(() => {
+        setShowSkeleton(false);
+        hasEverLoadedRef.current = true;
+        __UPDATE_WIZARD_FIRST_FETCH_DONE__ = true;
+      }, 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowSkeleton(false);
     }
   }, [wizard]);
 
@@ -71,10 +101,14 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
   };
 
   /**
-   * Render loading state
+   * Display skeleton only on first fetch
    */
-  if (!wizard || !wizard.title) {
-    return <UpdateWizardLoading />;
+  if (showSkeleton && !hasEverLoadedRef.current) {
+    return (
+      <div className="transition-opacity duration-500 opacity-100">
+        <UpdateWizardLoading />
+      </div>
+    );
   }
 
   return (
@@ -126,7 +160,7 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
         <div>
           <label
             htmlFor="context"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text.sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
             متن ویزارد
           </label>

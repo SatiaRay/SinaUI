@@ -12,22 +12,6 @@ const UpdateWizardLoading = () => {
           width={160}
           className="inline mt-4"
         />
-        <div className="flex gap-3 justify-end mt-3 w-full">
-          <Skeleton
-            baseColor="#374151"
-            highlightColor="#5c626b"
-            height={45}
-            containerClassName="w-1/2 md:w-[80px]"
-            className="inline"
-          />
-          <Skeleton
-            baseColor="#374151"
-            highlightColor="#5c626b"
-            height={45}
-            containerClassName="w-1/2 md:w-[110px]"
-            className="inline"
-          />
-        </div>
       </div>
 
       <div className="grid gap-1 mt-6">
@@ -70,10 +54,26 @@ const UpdateWizardLoading = () => {
         <Skeleton
           baseColor="#374151"
           highlightColor="#5c626b"
-          height={200}
+          height={100}
           className="w-full"
         />
       </div>
+        <div className="flex gap-3 justify-end mt-3 w-full">
+          <Skeleton
+            baseColor="#374151"
+            highlightColor="#5c626b"
+            height={45}
+            containerClassName="w-1/2 md:w-[80px]"
+            className="inline"
+          />
+          <Skeleton
+            baseColor="#374151"
+            highlightColor="#5c626b"
+            height={45}
+            containerClassName="w-1/2 md:w-[110px]"
+            className="inline"
+          />
+        </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import WizardCard from '../../../components/Wizard/WizardCard';
 import { useGetWizardsQuery } from '../../../store/api/AiApi';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -10,6 +10,11 @@ import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage';
 import { GoPlusCircle } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
 import Error from './Error';
+
+/**
+ * show skeleton only on first fetch
+ */
+let __WIZARDS_FIRST_FETCH_DONE__ = false;
 
 /**
  * WizardIndexPage component for displaying and managing wizards
@@ -38,6 +43,38 @@ const WizardIndexPage = () => {
   const [editTarget, setEditTarget] = useState(null);
 
   /**
+   * Skeleton delay
+   */
+  const [showSkeleton, setShowSkeleton] = useState(
+    !__WIZARDS_FIRST_FETCH_DONE__
+  );
+  const hasEverLoadedRef = useRef(__WIZARDS_FIRST_FETCH_DONE__);
+
+  useEffect(() => {
+    const hasItems =
+      Array.isArray(data?.wizards) ||
+      Array.isArray(data?.data) ||
+      Array.isArray(data);
+
+    if (!hasEverLoadedRef.current && hasItems) {
+      const t = setTimeout(() => {
+        setShowSkeleton(false);
+        hasEverLoadedRef.current = true;
+        __WIZARDS_FIRST_FETCH_DONE__ = true;
+      }, 1500);
+      return () => clearTimeout(t);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (!hasEverLoadedRef.current) {
+      if (isLoading) setShowSkeleton(true);
+    } else {
+      setShowSkeleton(false);
+    }
+  }, [isLoading]);
+
+  /**
    * Handle wizard creation
    */
   const handleWizardCreated = () => {
@@ -45,11 +82,6 @@ const WizardIndexPage = () => {
     refetch();
     notify.success('ویزارد با موفقیت ایجاد شد');
   };
-
-  /**
-   * Display loading page
-   */
-  if (isLoading) return <WizardIndexLoading />;
 
   /**
    * Display error message when fetching fails
@@ -75,6 +107,17 @@ const WizardIndexPage = () => {
       : Array.isArray(data)
         ? data
         : [];
+
+  /**
+   * Display skeleton only on the very first fetch
+   */
+  if (showSkeleton && !hasEverLoadedRef.current) {
+    return (
+      <div className="h-full flex flex-col justify-start pb-3 md:pb-0 transition-opacity duration-500 opacity-100">
+        <WizardIndexLoading />
+      </div>
+    );
+  }
 
   /**
    * Display wizard cards list

@@ -3,7 +3,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 
 const ShowWizardLoading = () => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full px-0 pt-0 pb-3 md:px-0">
+    <div className="rounded-lg flex flex-col h-full overflow-hidden w-full px-0 pt-0 pb-3 md:px-0">
       <div className="flex items-start justify-between">
         <Skeleton
           baseColor="#374151"
