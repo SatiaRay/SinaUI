@@ -11,9 +11,8 @@ const store = configureStore({
     [knowledgeApi.reducerPath]: knowledgeApi.reducer,
     [instructionApi.reducerPath]: instructionApi.reducer,
   },
-  middleware: (getDefault) => {
-    getDefault().concat(knowledgeApi.middleware, instructionApi.middleware);
-  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(knowledgeApi.middleware, instructionApi.middleware),
 });
 
 export default store;
