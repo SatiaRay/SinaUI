@@ -1,26 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CustomDropdown from '../../ui/dropdown';
 import Tagify from '@yaireo/tagify';
 
 const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({});
+  const tagifyRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    var inputElem = document.querySelector('input.tagify'); // the "input" element which will be transformed into a Tagify component
-    var tagify = new Tagify(inputElem, {
-      // A list of possible tags. This setting is optional if you want to allow
-      // any possible tag to be added without suggesting any to the user.
-      whitelist: ['foo', 'bar', 'and baz', 0, 1, 2],
-    });
-  }, []);
-
-  useEffect(() => {
-    const defaults = {};
-    Object.entries(schema.properties).forEach(([key, property]) => {
-      defaults[key] = initialValues[key] ?? property.default ?? '';
-    });
-    setFormData(defaults);
+    if (schema?.properties) {
+      const defaults = {};
+      Object.entries(schema.properties).forEach(([key, property]) => {
+        defaults[key] = initialValues[key] ?? property.default ?? '';
+      });
+      setFormData(defaults);
+    }
   }, [initialValues, schema]);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      tagifyRef.current = new Tagify(inputRef.current, {
+        whitelist: ['foo', 'bar', 'and baz', 0, 1, 2],
+        dropdown: {
+          enabled: 0,
+        },
+      });
+
+      return () => {
+        if (tagifyRef.current) {
+          tagifyRef.current.destroy();
+        }
+      };
+    }
+  }, []);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -87,20 +99,22 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
       case 'array':
         return (
           <input
+            ref={inputRef}
             className="tagify border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             onChange={(e) => {
               try {
                 const tags = JSON.parse(e.target.value).map(
                   (item) => item.value
                 );
-
                 handleChange(key, tags);
               } catch {
                 handleChange(key, []);
               }
             }}
-            value={value}
-            placeholder={`عدد ${label} را وارد کنید`}
+            value={JSON.stringify(
+              (value || []).map((item) => ({ value: item }))
+            )}
+            placeholder={`${label} را وارد کنید`}
           />
         );
 
@@ -130,7 +144,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
           <div key={key} className="flex flex-col">
             {property.type !== 'boolean' && (
               <label className="mb-1 pr-1 dark:text-gray-300">
-                {label}{' '}
+                {label}
                 {schema.required?.includes(key) && (
                   <span className="text-red-500">*</span>
                 )}

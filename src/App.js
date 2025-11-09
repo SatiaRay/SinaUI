@@ -25,7 +25,7 @@ import VoiceAgentConversation from './pages/VoiceAgentConversation';
 import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
-import Setting from './pages/setting';
+import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
 import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
 import MonitoringPage from '@components/Monitoring/MonitoringPage';
@@ -49,7 +49,8 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const isPrivateRoute = location.pathname !== '/login' && location.pathname !== '/register';
+  const isPrivateRoute =
+    location.pathname !== '/login' && location.pathname !== '/register';
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
