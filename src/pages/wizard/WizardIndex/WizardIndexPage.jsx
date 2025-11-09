@@ -9,7 +9,7 @@ import CreateWizardPage from '../CreateWizard/CreateWizardPage';
 import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage';
 import { GoPlusCircle } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
-import Error from './Error';
+import WizardError from '../WizardError';
 
 /**
  * show skeleton only on first fetch
@@ -89,8 +89,9 @@ const WizardIndexPage = () => {
   if (isError) {
     return (
       <div>
-        <Error
-          message={error?.data?.message || 'خطا در دریافت ویزاردها'}
+        <WizardError
+          message={error?.data?.message}
+          defaultMessage="خطا در دریافت ویزاردها"
           reset={() => refetch()}
         />
       </div>

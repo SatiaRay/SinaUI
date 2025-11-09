@@ -4,12 +4,12 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '../../../ui/dropdown';
 import { useCreateWizardMutation } from '../../../store/api/AiApi';
-import Error from './Error';
+import WizardError from '../WizardError';
 
 /**
  * CreateWizard component
  */
-const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
+const CreateWizardPage = ({ onClose, onWizardCreated, parent_id = null }) => {
   /**
    * Local form state
    */
@@ -150,30 +150,10 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
                 },
                 htmlSupport: {
                   allow: [
-                    {
-                      name: 'table',
-                      attributes: true,
-                      classes: true,
-                      styles: true,
-                    },
-                    {
-                      name: 'tr',
-                      attributes: true,
-                      classes: true,
-                      styles: true,
-                    },
-                    {
-                      name: 'td',
-                      attributes: true,
-                      classes: true,
-                      styles: true,
-                    },
-                    {
-                      name: 'th',
-                      attributes: true,
-                      classes: true,
-                      styles: true,
-                    },
+                    { name: 'table', attributes: true, classes: true, styles: true },
+                    { name: 'tr', attributes: true, classes: true, styles: true },
+                    { name: 'td', attributes: true, classes: true, styles: true },
+                    { name: 'th', attributes: true, classes: true, styles: true },
                   ],
                 },
               }}
@@ -183,14 +163,16 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
         </div>
 
         {(error || isError) && (
-          <Error
-            message={error || apiError?.data?.message || 'خطا در ایجاد ویزارد'}
+          <WizardError
+            message={error || apiError?.data?.message}
+            defaultMessage="خطایی در ایجاد ویزارد رخ داده است."
             reset={() => {
               setError(null);
               resetMutation();
             }}
           />
         )}
+
         <div className="flex justify-end gap-4">
           <button
             type="button"
@@ -219,4 +201,4 @@ const CreateWizard = ({ onClose, onWizardCreated, parent_id = null }) => {
   );
 };
 
-export default CreateWizard;
+export default CreateWizardPage;

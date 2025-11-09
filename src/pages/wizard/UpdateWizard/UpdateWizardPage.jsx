@@ -5,7 +5,7 @@ import CustomDropdown from '../../../ui/dropdown';
 import { useUpdateWizardMutation } from '../../../store/api/AiApi';
 import { notify } from '../../../ui/toast';
 import UpdateWizardLoading from './UpdateWizardLoading';
-import Error from './Error';
+import WizardError from '../WizardError'; 
 
 /**
  * Show skeleton only on first fetch
@@ -15,7 +15,7 @@ let __UPDATE_WIZARD_FIRST_FETCH_DONE__ = false;
 /**
  * UpdateWizard component
  */
-const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
+const UpdateWizardPage = ({ wizard, onClose, onWizardUpdated }) => {
   /**
    * Wizard object state prop
    */
@@ -233,8 +233,9 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
 
         {isError && (
           <div className="p-2">
-            <Error
-              message={error?.data?.message || 'خطا در بروزرسانی ویزارد'}
+            <WizardError
+              message={error?.data?.message}
+              defaultMessage="خطا در بروزرسانی ویزارد"
               reset={() => reset()}
             />
           </div>
@@ -268,4 +269,4 @@ const UpdateWizard = ({ wizard, onClose, onWizardUpdated }) => {
   );
 };
 
-export default UpdateWizard;
+export default UpdateWizardPage;

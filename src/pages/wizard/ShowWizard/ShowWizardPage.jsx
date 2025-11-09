@@ -10,12 +10,14 @@ import {
 } from '../../../store/api/AiApi';
 import wizardApi from '../../../store/api/AiApi';
 import ShowWizardLoading from './ShowWizardLoading';
-import Error from './Error';
+import WizardError from '../WizardError';
 
-/* Show skeleton only on first fetch */
+/**
+ * Show skeleton only on first fetch
+ */ 
 let __SHOW_WIZARD_FIRST_FETCH_DONE__ = false;
 
-const ShowWizard = ({ wizard, onWizardSelect }) => {
+const ShowWizardPage = ({ wizard, onWizardSelect }) => {
   /**
    * Fetch wizard data by ID
    */
@@ -195,8 +197,9 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   if (isError) {
     return (
       <div>
-        <Error
-          message={error?.data?.message || 'خطا در دریافت ویزارد'}
+        <WizardError
+          message={error?.data?.message}
+          defaultMessage="خطا در دریافت ویزارد"
           reset={() => {
             refetch();
           }}
@@ -319,7 +322,7 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {updatingStatus[child.id] ? (
-                              <div className="flex items-center gap-1">
+                              <div className="flex.items-center gap-1">
                                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
                                 <span>در حال تغییر...</span>
                               </div>
@@ -365,4 +368,4 @@ const ShowWizard = ({ wizard, onWizardSelect }) => {
   );
 };
 
-export default ShowWizard;
+export default ShowWizardPage;
