@@ -6,13 +6,13 @@ import {
   useGetAllWorkflowsQuery,
   useExportWorkflowMutation,
   useImportWorkflowMutation,
-} from '../../../store/api/workflowApi';
+} from '../../../store/api/workflowsApi';
 import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';
 import Error from '@components/Error';
 
-const WorkflowIndex = () => {
+const WorkflowIndexPage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [agentType, setAgentType] = useState('');
@@ -374,4 +374,4 @@ const WorkflowIndex = () => {
   );
 };
 
-export default WorkflowIndex;
+export default WorkflowIndexPage;

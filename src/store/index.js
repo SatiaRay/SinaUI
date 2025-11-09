@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import knowledgeApi from './api/knowledgeApi';
 import documentSlice from './features/documentSlice';
-import workflowApi from './api/workflowApi';
+import workflowApi from './api/workflowsApi';
 import workflowSlice from './features/workflowSlice';
 
 const store = configureStore({

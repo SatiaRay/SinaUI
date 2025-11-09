@@ -20,7 +20,7 @@ import {
   useGetWorkflowQuery,
   useStoreWorkflowMutation,
   useUpdateWorkflowMutation,
-} from '../../../store/api/workflowApi';
+} from '../../../store/api/workflowsApi';
 import ChatNoHistory from '../../../components/Chat/ChatNoHistory';
 import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
