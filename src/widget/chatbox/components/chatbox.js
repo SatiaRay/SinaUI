@@ -206,7 +206,7 @@ const ChatBox = (props) => {
                 <IoClose size={20} />
               </Close>
             )}
-            <Title>چت‌بات خان 🤖</Title>
+            <Title>چت‌بات سینا 🤖</Title>
           </Header>
         )}
         <MessagesWrapper>
