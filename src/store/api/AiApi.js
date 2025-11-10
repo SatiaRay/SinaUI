@@ -1,145 +1,33 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import WorkflowEndpoints from './endpoints/WorkflowEndpoints';
 
-const AiApi = createApi({
+/**
+ * 🔹 Base API Configuration
+ * Core API instance that serves as foundation for all endpoints
+ * Endpoints are injected after base API creation
+ */
+export const AiApi = createApi({
   reducerPath: 'khan-WorkflowAPI',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8050',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('khan-access-token');
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
+      if (token) headers.set('Authorization', `Bearer ${token}`);
       headers.set('Accept', 'application/json');
       return headers;
     },
   }),
-  tagTypes: ['Workflow'],
-  endpoints: (builder) => ({
-    /**
-     * Get all workflows with optional agent type filter
-     * @param {Object} params - Query parameters
-     * @param {string} params.agentType - Optional agent type filter
-     */
-    getAllWorkflows: builder.query({
-      query: ({ agentType } = {}) =>
-        agentType ? `/workflows?agent_type=${agentType}` : `/workflows`,
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }) => ({ type: 'Workflow', id })),
-              { type: 'Workflow', id: 'LIST' },
-            ]
-          : [{ type: 'Workflow', id: 'LIST' }],
-    }),
-
-    /**
-     * Get single workflow by ID
-     * @param {Object} params - Query parameters
-     * @param {number} params.id - Workflow ID
-     */
-    getWorkflow: builder.query({
-      query: ({ id }) => `/workflows/${id}`,
-      providesTags: (result) =>
-        result ? [{ type: 'Workflow', id: result.id }] : [],
-    }),
-
-    /**
-     * Create new workflow
-     * @param {Object} params - Mutation parameters
-     * @param {Object} params.data - Workflow data
-     */
-    storeWorkflow: builder.mutation({
-      query: ({ data }) => ({
-        url: `/workflows`,
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: [{ type: 'Workflow', id: 'LIST' }],
-    }),
-
-    /**
-     * Update existing workflow
-     * @param {Object} params - Mutation parameters
-     * @param {number} params.id - Workflow ID
-     * @param {Object} params.data - Updated workflow data
-     */
-    updateWorkflow: builder.mutation({
-      query: ({ id, data }) => ({
-        url: `/workflows/${id}`,
-        method: 'PUT',
-        body: data,
-      }),
-      invalidatesTags: (result, error, arg) => [
-        { type: 'Workflow', id: arg.id },
-        { type: 'Workflow', id: 'LIST' },
-      ],
-    }),
-
-    /**
-     * Delete workflow by ID with optimistic updates
-     * @param {Object} params - Mutation parameters
-     * @param {number} params.id - Workflow ID
-     */
-    deleteWorkflow: builder.mutation({
-      query: ({ id }) => ({
-        url: `/workflows/${id}`,
-        method: 'DELETE',
-      }),
-      async onQueryStarted({ id, agentType }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          AiApi.util.updateQueryData(
-            'getAllWorkflows',
-            { agentType: agentType || '' },
-            (draft) => draft.filter((w) => w.id !== id)
-          )
-        );
-
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
-      invalidatesTags: (result, error, arg) => [
-        { type: 'Workflow', id: arg.id },
-        { type: 'Workflow', id: 'LIST' },
-      ],
-    }),
-
-    /**
-     * Export workflow as JSON file
-     * @param {Object} params - Mutation parameters
-     * @param {number} params.id - Workflow ID
-     */
-    exportWorkflow: builder.mutation({
-      query: ({ id }) => ({
-        url: `/workflows/${id}/export`,
-        method: 'GET',
-      }),
-    }),
-
-    /**
-     * Import workflow from JSON file
-     * @param {Object} params - Mutation parameters
-     * @param {File} params.file - JSON file to import
-     */
-    importWorkflow: builder.mutation({
-      query: ({ file }) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        return {
-          url: `/workflows/import`,
-          method: 'POST',
-          body: formData,
-        };
-      },
-      invalidatesTags: [{ type: 'Workflow', id: 'LIST' }],
-    }),
-  }),
+  tagTypes: ['Workflow', 'Agent'],
+  endpoints: () => ({}),
 });
 
-export default AiApi;
+// Inject workflow endpoints into the base API
+WorkflowEndpoints(AiApi);
 
+/**
+ * 🔹 Workflow Hooks Export
+ * All workflow-related hooks are exported from AiApi
+ */
 export const {
   useGetAllWorkflowsQuery,
   useGetWorkflowQuery,
@@ -149,3 +37,5 @@ export const {
   useExportWorkflowMutation,
   useImportWorkflowMutation,
 } = AiApi;
+
+export default AiApi;
