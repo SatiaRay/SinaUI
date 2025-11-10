@@ -6,7 +6,7 @@ import {
   useGetAllWorkflowsQuery,
   useExportWorkflowMutation,
   useImportWorkflowMutation,
-} from '../../../store/api/workflowsApi';
+} from '../../../store/api/AiApi';
 import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';

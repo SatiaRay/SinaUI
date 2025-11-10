@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const WorkflowsApi = createApi({
+const AiApi = createApi({
   reducerPath: 'khan-WorkflowAPI',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8050',
@@ -87,7 +87,7 @@ const WorkflowsApi = createApi({
       }),
       async onQueryStarted({ id, agentType }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          WorkflowsApi.util.updateQueryData(
+          AiApi.util.updateQueryData(
             'getAllWorkflows',
             { agentType: agentType || '' },
             (draft) => draft.filter((w) => w.id !== id)
@@ -138,7 +138,7 @@ const WorkflowsApi = createApi({
   }),
 });
 
-export default WorkflowsApi;
+export default AiApi;
 
 export const {
   useGetAllWorkflowsQuery,
@@ -148,4 +148,4 @@ export const {
   useDeleteWorkflowMutation,
   useExportWorkflowMutation,
   useImportWorkflowMutation,
-} = WorkflowsApi;
+} = AiApi;
