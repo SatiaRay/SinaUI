@@ -4,43 +4,40 @@ const instructionApi = createApi({
   reducerPath: 'khan-instruction',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8090',
-
-    prepareHeaders: (headers, { getState }) => {
-      const token = localStorage.getItem('khan-access-token')
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem('khan-access-token');
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
       headers.set('Accept', 'application/json');
-
       return headers;
     },
   }),
   tagTypes: ['Instruction'],
   endpoints: (builder) => ({
     getInstructions: builder.query({
-      query: ({ perpage, page, agent_type }) => {
+      query: ({ page = 1, agent_type = null }) => {
         const params = new URLSearchParams();
-        params.set('perpage', perpage);
-        params.set('page', page);
+        params.set('page', String(page));
         if (agent_type) params.set('agent_type', agent_type);
-        return `/?${params.toString()}`;
+        return `/instructions/?${params.toString()}`;
       },
-      providesTags: (result, error, arg) =>
-        result
+      providesTags: (result, _error, arg) =>
+        result && Array.isArray(result.items) && result.items.length
           ? [
-              ...result.instructions.map(({ id }) => ({ type: 'Instruction', id })),
-              { type: 'Instruction', page: arg.page, perpage: arg.perpage },
+              ...result.items.map(({ id }) => ({ type: 'Instruction', id })),
+              { type: 'Instruction', page: arg.page },
             ]
-          : [{ type: 'Instruction', page: arg.page, perpage: arg.perpage }],
+          : [{ type: 'Instruction', page: arg?.page }],
     }),
     getInstruction: builder.query({
-      query: ({ id }) => `/${id}`,
+      query: ({ id }) => `/instructions/${id}`,
       providesTags: (result) =>
-        result ? [{ type: 'Instruction', id: result.id }] : ['Instruction'],
+        result?.id ? [{ type: 'Instruction', id: result.id }] : ['Instruction'],
     }),
     createInstruction: builder.mutation({
       query: (data) => ({
-        url: `/`,
+        url: `/instructions/`,
         method: 'POST',
         body: data,
       }),
@@ -48,18 +45,18 @@ const instructionApi = createApi({
     }),
     updateInstruction: builder.mutation({
       query: ({ id, data }) => ({
-        url: `/${id}`,
+        url: `/instructions/${id}`,
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, arg) => [
+      invalidatesTags: (_result, _error, arg) => [
         { type: 'Instruction', id: arg.id },
         'Instruction',
       ],
     }),
     deleteInstruction: builder.mutation({
       query: (id) => ({
-        url: `/${id}`,
+        url: `/instructions/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Instruction'],
