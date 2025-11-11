@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const systemApi = createApi({
   reducerPath: 'khan-system',
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.PYTHON_APP_URL || 'http://127.0.0.1:8000',
+    baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8000',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('khan-access-token');
       if (token) {
