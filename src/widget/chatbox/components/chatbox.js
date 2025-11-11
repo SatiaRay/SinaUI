@@ -158,6 +158,12 @@ const ChatBox = (props) => {
         }
 
         skeletonTimerRef.current = setTimeout(() => {
+
+          setTimeout(() => {
+            setIsSkeletonActive(false);
+            skeletonTimerRef.current = null;
+          }, 600);
+
           setIsSkeletonActive(false);
           skeletonTimerRef.current = null;
         }, 1200);
@@ -210,7 +216,7 @@ const ChatBox = (props) => {
           </Header>
         )}
         <MessagesWrapper>
-          <Messages
+        <Messages
             className={
               isSkeletonActive
                 ? 'overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
