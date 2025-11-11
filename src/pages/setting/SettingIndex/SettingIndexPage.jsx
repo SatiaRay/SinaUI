@@ -54,10 +54,10 @@ const Setting = () => {
   );
 
   const isLoading =
-    schemaLoading || settingsLoading || updateLoading || loading;
+    schemaLoading || settingsLoading || loading;
   const error = schemaError || settingsError;
 
-  if (isLoading) {
+  if (isLoading && !settingsData) {
     return <SettingIndexLoading />;
   }
 
