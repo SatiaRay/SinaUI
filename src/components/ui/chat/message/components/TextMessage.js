@@ -25,9 +25,21 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
       .catch((err) => console.error('Failed to copy:', err));
   };
 
+  const cleanTextContent = (text) => {
+    if (!text) return text;
+
+    let cleanedText = text.replace(/^\s+|\s+$/g, '');
+    cleanedText = cleanedText.replace(/\n\s*\n\s*\n/g, '\n\n');
+
+    return cleanedText;
+  };
+
   let contentToRender = '';
   if (data.role === 'assistant') {
     let safeBody = data.body.replace(/^(\d+)\.\s+\*\*/gm, '**$1. ');
+
+    safeBody = cleanTextContent(safeBody);
+
     let formattedHtml = marked.parse(safeBody);
     formattedHtml = String(formattedHtml);
 
@@ -51,8 +63,9 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
       />
     );
   } else {
+    const cleanedBody = cleanTextContent(data.body);
     contentToRender = (
-      <TextMessageContent ref={textRef}>{data.body}</TextMessageContent>
+      <TextMessageContent ref={textRef}>{cleanedBody}</TextMessageContent>
     );
   }
 
