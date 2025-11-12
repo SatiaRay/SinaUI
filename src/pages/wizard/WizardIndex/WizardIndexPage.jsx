@@ -12,11 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import WizardError from '../WizardError';
 
 /**
- * show skeleton only on first fetch
- */
-let __WIZARDS_FIRST_FETCH_DONE__ = false;
-
-/**
  * WizardIndexPage component for displaying and managing wizards
  */
 const WizardIndexPage = () => {
@@ -26,53 +21,27 @@ const WizardIndexPage = () => {
   const [page, setPage] = useState(1);
   const perpage = 20;
 
+  /**
+   * List of wizards
+   */
+  const [wizards, setWizards] = useState(null);
+
   const navigate = useNavigate();
 
   /**
    * Wizards list query hook
    */
-  const { data, isLoading, isError, refetch, error } = useGetWizardsQuery({
-    page,
-    perpage,
-  });
+  const { data, isLoading, isError, isSuccess, refetch, error } =
+    useGetWizardsQuery({
+      page,
+      perpage,
+    });
 
   /**
    * State for modals
    */
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
-
-  /**
-   * Skeleton delay
-   */
-  const [showSkeleton, setShowSkeleton] = useState(
-    !__WIZARDS_FIRST_FETCH_DONE__
-  );
-  const hasEverLoadedRef = useRef(__WIZARDS_FIRST_FETCH_DONE__);
-
-  useEffect(() => {
-    const hasItems =
-      Array.isArray(data?.wizards) ||
-      Array.isArray(data?.data) ||
-      Array.isArray(data);
-
-    if (!hasEverLoadedRef.current && hasItems) {
-      const t = setTimeout(() => {
-        setShowSkeleton(false);
-        hasEverLoadedRef.current = true;
-        __WIZARDS_FIRST_FETCH_DONE__ = true;
-      }, 1500);
-      return () => clearTimeout(t);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (!hasEverLoadedRef.current) {
-      if (isLoading) setShowSkeleton(true);
-    } else {
-      setShowSkeleton(false);
-    }
-  }, [isLoading]);
 
   /**
    * Handle wizard creation
@@ -99,26 +68,25 @@ const WizardIndexPage = () => {
   }
 
   /**
-   * Normalize list shape
+   * Store wizards from request response data to state prop for optimistic mutation
    */
-  const items = Array.isArray(data?.wizards)
-    ? data.wizards
-    : Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data)
-        ? data
-        : [];
+  if (isSuccess && !wizards) setWizards(data);
 
   /**
    * Display skeleton only on the very first fetch
    */
-  if (showSkeleton && !hasEverLoadedRef.current) {
+  if (isLoading) {
     return (
       <div className="h-full flex flex-col justify-start pb-3 md:pb-0 transition-opacity duration-500 opacity-100">
         <WizardIndexLoading />
       </div>
     );
   }
+
+  /**
+   * Prevent map wizards when it is null
+   */
+  if (!wizards) return null;
 
   /**
    * Display wizard cards list
@@ -137,8 +105,8 @@ const WizardIndexPage = () => {
       </div>
 
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
-        {items.length > 0 ? (
-          items.map((wizard) => (
+        {wizards.length > 0 ? (
+          wizards.map((wizard) => (
             <WizardCard
               key={wizard.id}
               wizard={wizard}
