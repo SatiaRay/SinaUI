@@ -2,7 +2,7 @@ import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
 import { useDisplay } from '../../../hooks/display';
 import Skeleton from 'react-loading-skeleton';
 
-const WizardIndexLoading = () => {
+export const WizardIndexLoading = () => {
   const { height, isLargeDisplay } = useDisplay();
 
   return (
@@ -27,5 +27,3 @@ const WizardIndexLoading = () => {
     </div>
   );
 };
-
-export default WizardIndexLoading;
