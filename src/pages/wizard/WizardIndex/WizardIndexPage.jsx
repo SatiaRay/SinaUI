@@ -1,19 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+// WizardIndexPage.js
+import React, { useState, useEffect } from 'react';
 import WizardCard from '../../../components/Wizard/WizardCard';
-import { useGetWizardsQuery } from '../../../store/api/AiApi';
+import {
+  useGetWizardsQuery,
+  useDeleteWizardMutation,
+} from '../../../store/api/AiApi';
 import 'react-loading-skeleton/dist/skeleton.css';
-import WizardIndexLoading from './WizardIndexLoading';
 import { Pagination } from '../../../components/ui/pagination';
 import { notify } from '../../../ui/toast';
-import CreateWizardPage from '../CreateWizard/CreateWizardPage';
-import UpdateWizardPage from '../UpdateWizard/UpdateWizardPage';
+import { confirm } from '../../../components/ui/alert/confirmation';
+import { Link } from 'react-router-dom';
 import { GoPlusCircle } from 'react-icons/go';
-import { useNavigate } from 'react-router-dom';
-import WizardError from '../WizardError';
+import { WizardIndexLoading } from './WizardIndexLoading';
 
-/**
- * WizardIndexPage component for displaying and managing wizards
- */
 const WizardIndexPage = () => {
   /**
    * Pagination props
@@ -22,130 +21,108 @@ const WizardIndexPage = () => {
   const perpage = 20;
 
   /**
-   * List of wizards
+   * List of wizards (for optimistic delete)
    */
   const [wizards, setWizards] = useState(null);
 
-  const navigate = useNavigate();
+  /**
+   * Fetch wizards
+   */
+  const { data, isLoading, isSuccess, isError, error } =
+    useGetWizardsQuery({ page, perpage });
 
   /**
-   * Wizards list query hook
+   * Store initial data for optimistic updates
    */
-  const { data, isLoading, isError, isSuccess, refetch, error } =
-    useGetWizardsQuery({
-      page,
-      perpage,
+  if (isSuccess && !wizards) {
+    setWizards(data);
+  }
+
+  /**
+   * Delete mutation
+   */
+  const [deleteWizard] = useDeleteWizardMutation();
+
+  /**
+   * Delete handler (optimistic + confirm)
+   */
+  const handleDeleteWizard = async (id) => {
+    confirm({
+      title: 'حذف ویزارد',
+      text: 'آیا از حذف این ویزارد مطمئن هستید؟',
+      onConfirm: async () => {
+        // Optimistic remove
+        setWizards((prev) => prev.filter((w) => w.id !== id));
+
+        try {
+          await deleteWizard(id).unwrap();
+          notify.success('ویزارد با موفقیت حذف شد');
+        } catch (err) {
+          notify.error('خطا در حذف ویزارد!');
+          // Revert: refetch latest data
+          setWizards(data.wizards);
+        }
+      },
     });
-
-  /**
-   * State for modals
-   */
-  const [showCreateWizard, setShowCreateWizard] = useState(false);
-  const [editTarget, setEditTarget] = useState(null);
-
-  /**
-   * Handle wizard creation
-   */
-  const handleWizardCreated = () => {
-    setShowCreateWizard(false);
-    refetch();
-    notify.success('ویزارد با موفقیت ایجاد شد');
   };
 
   /**
-   * Display error message when fetching fails
+   * Loading
    */
-  if (isError) {
-    return (
-      <div>
-        <WizardError
-          message={error?.data?.message}
-          defaultMessage="خطا در دریافت ویزاردها"
-          reset={() => refetch()}
-        />
-      </div>
-    );
-  }
+  if (isLoading) return <WizardIndexLoading />;
 
   /**
-   * Store wizards from request response data to state prop for optimistic mutation
+   * Error
    */
-  if (isSuccess && !wizards) setWizards(data);
+  if (isError) return <p>مشکلی پیش آمده است</p>;
 
   /**
-   * Display skeleton only on the very first fetch
-   */
-  if (isLoading) {
-    return (
-      <div className="h-full flex flex-col justify-start pb-3 md:pb-0 transition-opacity duration-500 opacity-100">
-        <WizardIndexLoading />
-      </div>
-    );
-  }
-
-  /**
-   * Prevent map wizards when it is null
+   * Prevent render until data ready
    */
   if (!wizards) return null;
 
   /**
-   * Display wizard cards list
+   * Render
    */
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
+      {/* Header */}
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h3 className="text-3xl">ویزاردها</h3>
-        <button
-          onClick={() => setShowCreateWizard(true)}
+        <Link
+          to="/wizard/create"
           className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
           <span>ویزارد جدید</span>
           <GoPlusCircle size={22} className="pr-2 box-content" />
-        </button>
+        </Link>
       </div>
 
+      {/* Wizards Grid */}
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
         {wizards.length > 0 ? (
           wizards.map((wizard) => (
             <WizardCard
               key={wizard.id}
               wizard={wizard}
-              onClickWizard={(wizard) => navigate(`/wizard/${wizard.id}`)}
-              selectedWizardForUpdate={(w) => setEditTarget(w)}
-              onDeleteWizard={() => refetch()}
-              onToggleWizard={() => refetch()}
+              handleDelete={handleDeleteWizard}
             />
           ))
         ) : (
-          <p>هیچ ویزاردی برای نمایش وجود ندارد.</p>
+          <p className="col-span-full text-center text-gray-500">
+            هیچ ویزاردی یافت نشد.
+          </p>
         )}
       </div>
 
+      {/* Pagination */}
       <Pagination
         page={page}
         perpage={perpage}
-        totalPages={data?.pages}
-        totalItems={data?.total}
+        totalPages={data.pages}
+        totalItems={data.total}
         handlePageChange={setPage}
       />
-
-      {showCreateWizard && (
-        <CreateWizardPage
-          onClose={() => setShowCreateWizard(false)}
-          onWizardCreated={handleWizardCreated}
-        />
-      )}
-
-      {editTarget && (
-        <UpdateWizardPage
-          wizard={editTarget}
-          onClose={() => setEditTarget(null)}
-          onWizardUpdated={() => {
-            setEditTarget(null);
-            refetch();
-          }}
-        />
-      )}
     </div>
   );
 };
