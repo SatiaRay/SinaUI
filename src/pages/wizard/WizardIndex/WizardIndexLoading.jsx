@@ -29,8 +29,6 @@ const WizardIndexLoading = () => {
         height={110}
         containerClassName="flex flex-row my-3"
         className="md:mx-2"
-        baseColor="#374151"
-        highlightColor="#5c626b"
       />
     </div>
   );
