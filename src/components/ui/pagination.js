@@ -1,5 +1,5 @@
 export const Pagination = ({page, perpage, totalPages, totalItems, handlePageSizeChange, handlePageChange}) => {
-    if(totalPages == 1)
+    if(totalPages < 2)
       return null;
 
     return (
