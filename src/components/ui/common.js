@@ -411,6 +411,7 @@ export const TextMessageContent = styled.div`
   /* ===== پایه ===== */
   @apply text-gray-800 dark:text-gray-100;
   line-height: 1.9;
+  white-space: pre-wrap;
   padding: 0.75rem;
   direction: rtl;
   unicode-bidi: isolate;
