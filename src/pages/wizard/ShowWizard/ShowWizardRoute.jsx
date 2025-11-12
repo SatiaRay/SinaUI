@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import ShowWizardPage from './ShowWizardPage';
 
-export default function ShowWizardRoute() {
+export default function ShowWizardPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 

@@ -31,7 +31,7 @@ import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
-import ShowWizardRoute from './pages/wizard/ShowWizard/ShowWizardRoute';
+import ShowWizardPage from './pages/wizard/ShowWizard/ShowWizardPage';
 import WizardIndexPage from '@pages/wizard/WizardIndex/WizardIndexPage';
 import CreateWizardPage from '@pages/wizard/CreateWizard/CreateWizardPage';
 
@@ -236,7 +236,7 @@ function privateRoutes() {
           path=":id"
           element={
             <PrivateRoute>
-              <ShowWizardRoute />
+              <ShowWizardPage />
             </PrivateRoute>
           }
         />
