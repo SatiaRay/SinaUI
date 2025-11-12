@@ -28,8 +28,10 @@ const WizardIndexPage = () => {
   /**
    * Fetch wizards
    */
-  const { data, isLoading, isSuccess, isError, error } =
-    useGetWizardsQuery({ page, perpage });
+  const { data, isLoading, isSuccess, isError, error } = useGetWizardsQuery({
+    page,
+    perpage,
+  });
 
   /**
    * Store initial data for optimistic updates
@@ -102,11 +104,13 @@ const WizardIndexPage = () => {
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
         {wizards.length > 0 ? (
           wizards.map((wizard) => (
-            <WizardCard
-              key={wizard.id}
-              wizard={wizard}
-              handleDelete={handleDeleteWizard}
-            />
+            <Link to={`/wizard/${wizard.id}`}>
+              <WizardCard
+                key={wizard.id}
+                wizard={wizard}
+                handleDelete={handleDeleteWizard}
+              />
+            </Link>
           ))
         ) : (
           <p className="col-span-full text-center text-gray-500">
