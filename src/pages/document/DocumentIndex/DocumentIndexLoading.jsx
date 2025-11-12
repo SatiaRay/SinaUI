@@ -22,7 +22,7 @@ export const DocumentIndexLoading = () => {
         />
       </div>
       <SkeletonLoading
-        rows={height / 150}
+        rows={Math.floor(height / 150)}
         cols={!isLargeDisplay ? 1 : 3}
         height={110}
         containerClassName='flex flex-row my-3'
