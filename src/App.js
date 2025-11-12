@@ -13,7 +13,6 @@ import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
 import Status1 from './components/Chat/Status';
-import Wizard from './components/Chat/Wizard';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
@@ -33,6 +32,7 @@ import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
 import ShowWizardRoute from './pages/wizard/ShowWizard/ShowWizardRoute';
+import WizardIndexPage from '@pages/wizard/WizardIndex/WizardIndexPage';
 
 function App() {
   return (
@@ -226,7 +226,7 @@ function privateRoutes() {
           index
           element={
             <PrivateRoute>
-              <Wizard />
+              <WizardIndexPage />
             </PrivateRoute>
           }
         />
