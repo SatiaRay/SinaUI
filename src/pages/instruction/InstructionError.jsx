@@ -6,9 +6,7 @@ import React from 'react';
  */
 const Error = ({ message, defaultMessage, reset, className = '' }) => {
   const finalMessage =
-    message ||
-    defaultMessage ||
-    'خطایی رخ داد. لطفاً دوباره تلاش کنید.';
+    message || defaultMessage || 'خطایی رخ داد. لطفاً دوباره تلاش کنید.';
 
   return (
     <div

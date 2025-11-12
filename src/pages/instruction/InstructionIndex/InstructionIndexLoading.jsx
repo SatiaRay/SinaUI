@@ -52,11 +52,31 @@ const InstructionIndexLoading = () => {
                   key={i}
                   className="grid [grid-template-columns:250px_4.3fr_0.5fr_0.5fr_0.5fr] gap-3 p-3"
                 >
-                  <Skeleton baseColor="#374151" highlightColor="#5c626b" height={60} />
-                  <Skeleton baseColor="#374151" highlightColor="#5c626b" height={60} />
-                  <Skeleton baseColor="#374151" highlightColor="#5c626b" height={60} />
-                  <Skeleton baseColor="#374151" highlightColor="#5c626b" height={60} />
-                  <Skeleton baseColor="#374151" highlightColor="#5c626b" height={60} />
+                  <Skeleton
+                    baseColor="#374151"
+                    highlightColor="#5c626b"
+                    height={60}
+                  />
+                  <Skeleton
+                    baseColor="#374151"
+                    highlightColor="#5c626b"
+                    height={60}
+                  />
+                  <Skeleton
+                    baseColor="#374151"
+                    highlightColor="#5c626b"
+                    height={60}
+                  />
+                  <Skeleton
+                    baseColor="#374151"
+                    highlightColor="#5c626b"
+                    height={60}
+                  />
+                  <Skeleton
+                    baseColor="#374151"
+                    highlightColor="#5c626b"
+                    height={60}
+                  />
                 </div>
               ))}
             </div>
@@ -64,10 +84,21 @@ const InstructionIndexLoading = () => {
         </div>
       </div>
       <div className="bg-white shadow-lg border-t dark:bg-gray-800 p-3 flex items-center justify-between mt-4 rounded-lg">
-        <Skeleton baseColor="#374151" highlightColor="#5c626b" height={18} width={160} />
+        <Skeleton
+          baseColor="#374151"
+          highlightColor="#5c626b"
+          height={18}
+          width={160}
+        />
         <div className="flex items-center">
           {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} baseColor="#374151" highlightColor="#5c626b" height={40} width={32} />
+            <Skeleton
+              key={i}
+              baseColor="#374151"
+              highlightColor="#5c626b"
+              height={40}
+              width={32}
+            />
           ))}
         </div>
       </div>

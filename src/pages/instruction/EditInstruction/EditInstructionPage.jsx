@@ -31,7 +31,7 @@ const EditInstructionPage = () => {
   });
 
   /**
-   * Legacy local ui states 
+   * Legacy local ui states
    */
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ const EditInstructionPage = () => {
     isLoading: isFetching,
     isError: isFetchError,
     error: fetchError,
-    refetch, 
+    refetch,
   } = useGetInstructionQuery(
     { id },
     {
@@ -57,7 +57,12 @@ const EditInstructionPage = () => {
 
   const [
     updateInstruction,
-    { isLoading: isUpdating, isError: isUpdateError, error: updateError, reset },
+    {
+      isLoading: isUpdating,
+      isError: isUpdateError,
+      error: updateError,
+      reset,
+    },
   ] = useUpdateInstructionMutation();
 
   /**
@@ -87,8 +92,8 @@ const EditInstructionPage = () => {
   }, [instruction]);
 
   /**
-   * Handle fetch error 
-  */
+   * Handle fetch error
+   */
   useEffect(() => {
     if (isFetchError) {
       setError('خطا در دریافت اطلاعات دستورالعمل');

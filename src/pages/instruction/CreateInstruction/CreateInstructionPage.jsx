@@ -104,7 +104,9 @@ const CreateInstructionPage = () => {
         )}
         <div className="flex-1 flex flex-col min-h-0">
           <div className="my-2 md:my-3">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">برچسب:</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              برچسب:
+            </h3>
             <input
               type="text"
               value={instruction.label}
@@ -114,7 +116,9 @@ const CreateInstructionPage = () => {
             />
           </div>
           <div className="my-2 md:my-3">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">متن:</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              متن:
+            </h3>
             <textarea
               rows={6}
               value={instruction.text}
@@ -125,7 +129,9 @@ const CreateInstructionPage = () => {
           </div>
           <div className="my-2 md:my-3 grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="w-full">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">نوع ربات:</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                نوع ربات:
+              </h3>
               <CustomDropdown
                 options={agentTypeOptions}
                 value={instruction.agent_type}
@@ -136,7 +142,9 @@ const CreateInstructionPage = () => {
               />
             </div>
             <div className="w-full">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">وضعیت:</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                وضعیت:
+              </h3>
               <CustomDropdown
                 options={statusOptions}
                 value={instruction.status}

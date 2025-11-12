@@ -58,13 +58,20 @@ const InstructionIndexPage = () => {
 
   const [
     deleteInstruction,
-    { isLoading: isDeleting, isError: isDeleteError, error: deleteError, reset: resetDelete },
+    {
+      isLoading: isDeleting,
+      isError: isDeleteError,
+      error: deleteError,
+      reset: resetDelete,
+    },
   ] = useDeleteInstructionMutation();
 
   /**
    * One-time skeleton logic
    */
-  const [showSkeleton, setShowSkeleton] = useState(!__INSTRUCTION_INDEX_FIRST_FETCH_DONE__);
+  const [showSkeleton, setShowSkeleton] = useState(
+    !__INSTRUCTION_INDEX_FIRST_FETCH_DONE__
+  );
   const hasEverLoadedRef = useRef(__INSTRUCTION_INDEX_FIRST_FETCH_DONE__);
 
   useEffect(() => {
@@ -146,9 +153,14 @@ const InstructionIndexPage = () => {
         const prevInstructions = instructions;
         const prevPagination = pagination;
 
-        const nextInstructions = prevInstructions.filter((ins) => ins.id !== id);
+        const nextInstructions = prevInstructions.filter(
+          (ins) => ins.id !== id
+        );
         const nextTotal = Math.max(prevPagination.total - 1, 0);
-        const nextPages = Math.max((Math.ceil(nextTotal / prevPagination.size)) || 0, 0);
+        const nextPages = Math.max(
+          Math.ceil(nextTotal / prevPagination.size) || 0,
+          0
+        );
 
         setInstructions(nextInstructions);
         setPagination((p) => ({ ...p, total: nextTotal, pages: nextPages }));
@@ -205,9 +217,7 @@ const InstructionIndexPage = () => {
         <div className="mb-3">
           <Error
             message={
-              error ||
-              listError?.data?.message ||
-              deleteError?.data?.message
+              error || listError?.data?.message || deleteError?.data?.message
             }
             defaultMessage="خطایی در نمایش دستورالعمل رخ داده است."
             reset={() => {
@@ -224,14 +234,16 @@ const InstructionIndexPage = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-neutral-200 dark:bg-gray-700">
                 <tr>
-                  {['برچسب', 'متن', 'نوع ربات', 'وضعیت', 'عملیات'].map((item, idx) => (
-                    <th
-                      key={idx}
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
-                    >
-                      {item}
-                    </th>
-                  ))}
+                  {['برچسب', 'متن', 'نوع ربات', 'وضعیت', 'عملیات'].map(
+                    (item, idx) => (
+                      <th
+                        key={idx}
+                        className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
+                      >
+                        {item}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -247,10 +259,10 @@ const InstructionIndexPage = () => {
                       {instruction.agent_type === 'text_agent'
                         ? 'ربات متنی'
                         : instruction.agent_type === 'voice_agent'
-                        ? 'ربات صوتی'
-                        : instruction.agent_type === 'both'
-                        ? 'همه'
-                        : '-'}
+                          ? 'ربات صوتی'
+                          : instruction.agent_type === 'both'
+                            ? 'همه'
+                            : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                       {instruction.status == 1 ? 'فعال' : 'غیرفعال'}
@@ -275,7 +287,10 @@ const InstructionIndexPage = () => {
 
                 {!isLoading && instructions.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                    <td
+                      colSpan={5}
+                      className="px-6 py-6 text-center text-sm text-gray-500 dark:text-gray-400"
+                    >
                       موردی برای نمایش وجود ندارد.
                     </td>
                   </tr>
@@ -317,7 +332,10 @@ const InstructionIndexPage = () => {
             </p>
           </div>
           <div>
-            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            <nav
+              className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+              aria-label="Pagination"
+            >
               <button
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
@@ -332,7 +350,8 @@ const InstructionIndexPage = () => {
                 if (
                   pageNumber === 1 ||
                   pageNumber === pagination.pages ||
-                  (pageNumber >= pagination.page - 2 && pageNumber <= pagination.page + 2)
+                  (pageNumber >= pagination.page - 2 &&
+                    pageNumber <= pagination.page + 2)
                 ) {
                   return (
                     <button
