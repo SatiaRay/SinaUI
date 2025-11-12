@@ -8,13 +8,7 @@ const WizardIndexLoading = () => {
   return (
     <div className="text-center container mx-auto md:mt-0 px-3 md:px-0">
       <div className="flex justify-between md:pl-2 mb-6 items-center">
-        <Skeleton
-          baseColor="#374151"
-          highlightColor="#5c626b"
-          height={40}
-          className="inline"
-          width={150}
-        />
+      <h3 className="text-3xl">ویزاردها</h3>
         <Skeleton
           baseColor="#374151"
           highlightColor="#5c626b"
