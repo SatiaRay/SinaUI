@@ -33,6 +33,7 @@ import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
 import ShowWizardRoute from './pages/wizard/ShowWizard/ShowWizardRoute';
 import WizardIndexPage from '@pages/wizard/WizardIndex/WizardIndexPage';
+import CreateWizardPage from '@pages/wizard/CreateWizard/CreateWizardPage';
 
 function App() {
   return (
@@ -50,7 +51,8 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const isPrivateRoute = location.pathname !== '/login' && location.pathname !== '/register';
+  const isPrivateRoute =
+    location.pathname !== '/login' && location.pathname !== '/register';
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
@@ -235,6 +237,14 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <ShowWizardRoute />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="create"
+          element={
+            <PrivateRoute>
+              <CreateWizardPage />
             </PrivateRoute>
           }
         />
