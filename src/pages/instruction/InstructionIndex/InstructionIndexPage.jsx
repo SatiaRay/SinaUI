@@ -238,7 +238,9 @@ const InstructionIndexPage = () => {
                     (item, idx) => (
                       <th
                         key={idx}
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
+                        className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap
+                                 max-md:px-2 max-md:py-2 max-md:text-[10px]
+                                 max-lg:px-2 max-lg:py-2 max-lg:text-[10px]"
                       >
                         {item}
                       </th>
@@ -249,13 +251,27 @@ const InstructionIndexPage = () => {
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {instructions.map((instruction) => (
                   <tr key={instruction.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300
+                                   max-md:px-2 max-md:py-2 max-md:text-[10px] max-md:w-[88px] max-md:max-w-[88px] max-md:truncate
+                                   max-lg:px-2 max-lg:py-2 max-lg:text-[10px] max-lg:w-[88px] max-lg:max-w-[88px] max-lg:truncate"
+                    >
                       {instruction.label}
                     </td>
-                    <td className="md:px-6 p-2 md:py-4 text-sm text-gray-900 dark:text-gray-300">
-                      {instruction.text}
+                    <td
+                      className="md:px-6 p-2 md:py-4 text-sm text-gray-900 dark:text-gray-300
+                                  max-md:px-2 max-md:py-2 max-md:text-[10px] max-md:w-[110px] max-md:max-w-[110px]
+                                  max-lg:px-2 max-lg:py-2 max-lg:text-[10px] max-lg:w-[110px] max-lg:max-w-[110px]"
+                    >
+                      <div className="max-md:block max-md:truncate max-md:whitespace-nowrap max-lg:block max-lg:truncate max-lg:whitespace-nowrap">
+                        {instruction.text}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300
+                                   max-md:px-2 max-md:py-2 max-md:text-[10px] max-md:w-[78px] max-md:max-w-[78px] max-md:truncate
+                                   max-lg:px-2 max-lg:py-2 max-lg:text-[10px] max-lg:w-[78px] max-lg:max-w-[78px] max-lg:truncate"
+                    >
                       {instruction.agent_type === 'text_agent'
                         ? 'ربات متنی'
                         : instruction.agent_type === 'voice_agent'
@@ -264,19 +280,29 @@ const InstructionIndexPage = () => {
                             ? 'همه'
                             : '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300
+                                   max-md:px-2 max-md:py-2 max-md:text-[10px] max-md:w-[64px] max-md:max-w-[64px] max-md:truncate
+                                   max-lg:px-2 max-lg:py-2 max-lg:text-[10px] max-lg:w-[64px] max-lg:max-w-[64px] max-lg:truncate"
+                    >
                       {instruction.status == 1 ? 'فعال' : 'غیرفعال'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4 rtl:space-x-reverse">
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4 rtl:space-x-reverse
+                                   max-md:px-2 max-md:py-2 max-md:space-x-1 max-md:rtl:space-x-reverse max-md:text-[10px] max-md:w-[96px] max-md:max-w-[96px]
+                                   max-lg:px-2 max-lg:py-2 max-lg:space-x-1 max-lg:rtl:space-x-reverse max-lg:text-[10px] max-lg:w-[96px] max-lg:max-w-[96px]"
+                    >
                       <button
                         onClick={() => handleEdit(instruction.id)}
-                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300
+                                   max-md:px-1 max-md:py-[2px] max-lg:px-1 max-lg:py-[2px]"
                       >
                         ویرایش
                       </button>
                       <button
                         onClick={() => handleDelete(instruction.id)}
-                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300
+                                   max-md:px-1 max-md:py-[2px] max-lg:px-1 max-lg:py-[2px]"
                         disabled={isDeleting}
                       >
                         حذف
@@ -289,7 +315,7 @@ const InstructionIndexPage = () => {
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-6 py-6 text-center text-sm text-gray-500 dark:text-gray-400"
+                      className="px-6 py-6 text-center text-sm text-gray-500 dark:text-gray-400 max-md:text-[10px] max-lg:text-[10px]"
                     >
                       موردی برای نمایش وجود ندارد.
                     </td>
@@ -301,23 +327,7 @@ const InstructionIndexPage = () => {
         </div>
       </div>
       <div className="bg-white shadow-lg border-t dark:bg-gray-800 p-3 flex items-center justify-between mt-4 rounded-lg">
-        <div className="flex-1 flex justify-between sm:hidden">
-          <button
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page === 1}
-            className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            قبلی
-          </button>
-          <button
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page === pagination.pages}
-            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            بعدی
-          </button>
-        </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div className="flex-1 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-700 dark:text-gray-300">
               نمایش{' '}
