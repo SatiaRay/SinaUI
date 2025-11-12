@@ -4,23 +4,6 @@ export const Pagination = ({page, perpage, totalPages, totalItems, handlePageSiz
 
     return (
       <div className="flex flex-col sm:flex-row justify-center items-center mt-6 gap-4">
-        {/* <div className="flex items-center gap-2">
-          <label htmlFor="pageSize" className="text-sm text-gray-600">
-            تعداد آیتم در هر صفحه:
-          </label>
-          <select
-            id="pageSize"
-            value={perpage}
-            onChange={handlePageSizeChange}
-            className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-          >
-            {PAGE_SIZE_OPTIONS.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-        </div> */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => handlePageChange(page - 1)}
