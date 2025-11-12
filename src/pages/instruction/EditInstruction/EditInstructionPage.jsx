@@ -6,7 +6,7 @@ import {
   useUpdateInstructionMutation,
 } from '../../../store/api/instructionApi';
 import EditInstructionLoading from './EditInstructionLoading';
-import Error from '../Error';
+import Error from '../InstructionError';
 
 /**
  * Show skeleton only on first fetch
@@ -100,7 +100,7 @@ const EditInstructionPage = () => {
   }, [isFetchError]);
 
   /**
-   * Skeleton delay
+   * Show Skeleton when data arrives
    */
   useEffect(() => {
     if (!hasEverLoadedRef.current) {
@@ -108,12 +108,9 @@ const EditInstructionPage = () => {
         setShowSkeleton(true);
         return;
       }
-      const timer = setTimeout(() => {
-        setShowSkeleton(false);
-        hasEverLoadedRef.current = true;
-        __EDIT_INSTRUCTION_FIRST_FETCH_DONE__ = true;
-      }, 1500);
-      return () => clearTimeout(timer);
+      setShowSkeleton(false);
+      hasEverLoadedRef.current = true;
+      __EDIT_INSTRUCTION_FIRST_FETCH_DONE__ = true;
     } else {
       setShowSkeleton(false);
     }

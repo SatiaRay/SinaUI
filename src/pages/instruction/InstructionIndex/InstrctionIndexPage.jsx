@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomDropdown from '../../../ui/dropdown';
-import Error from '../Error';
+import Error from '../InstructionError';
 import InstructionIndexLoading from './InstructionIndexLoading';
 import {
   useGetInstructionsQuery,
   useDeleteInstructionMutation,
 } from '../../../store/api/instructionApi';
+import { confirm } from '../../../components/ui/alert/confirmation';
 
 /**
  * Show skeleton only on first fetch
@@ -20,7 +21,7 @@ const InstructionIndexPage = () => {
   const navigate = useNavigate();
 
   /**
-   * Local list and pagination 
+   * Local list and pagination
    */
   const [instructions, setInstructions] = useState([]);
   const [pagination, setPagination] = useState({
@@ -36,7 +37,7 @@ const InstructionIndexPage = () => {
   const [agentType, setAgentType] = useState('');
 
   /**
-   * Legacy UI flags 
+   * Legacy UI flags
    */
   const [error, setError] = useState(null);
 
@@ -84,7 +85,7 @@ const InstructionIndexPage = () => {
   }, [data]);
 
   /**
-   * Map API response to local list and pagination 
+   * Map API response to local list and pagination
    */
   useEffect(() => {
     if (!data) return;
@@ -106,7 +107,7 @@ const InstructionIndexPage = () => {
   }, [data]);
 
   /**
-   * Handle list fetch error 
+   * Handle list fetch error
    */
   useEffect(() => {
     if (isError) {
@@ -125,7 +126,7 @@ const InstructionIndexPage = () => {
   };
 
   /**
-   * Navigate handlers 
+   * Navigate handlers
    */
   const handleCreate = () => {
     navigate('/instructions/create');
@@ -135,31 +136,35 @@ const InstructionIndexPage = () => {
   };
 
   /**
-   * Optimistic remove
+   * Optimistic remove with confirmation modal
    */
   const handleDelete = async (id) => {
-    if (!window.confirm('آیا از حذف این دستورالعمل اطمینان دارید؟')) return;
+    confirm({
+      title: 'حذف دستورالعمل',
+      text: 'آیا از حذف این دستورالعمل مطمئن هستید ؟',
+      onConfirm: async () => {
+        const prevInstructions = instructions;
+        const prevPagination = pagination;
 
-    const prevInstructions = instructions;
-    const prevPagination = pagination;
+        const nextInstructions = prevInstructions.filter((ins) => ins.id !== id);
+        const nextTotal = Math.max(prevPagination.total - 1, 0);
+        const nextPages = Math.max((Math.ceil(nextTotal / prevPagination.size)) || 0, 0);
 
-    const nextInstructions = prevInstructions.filter((ins) => ins.id !== id);
-    const nextTotal = Math.max(prevPagination.total - 1, 0);
-    const nextPages = Math.max((Math.ceil(nextTotal / prevPagination.size)) || 0, 0);
+        setInstructions(nextInstructions);
+        setPagination((p) => ({ ...p, total: nextTotal, pages: nextPages }));
 
-    setInstructions(nextInstructions);
-    setPagination((p) => ({ ...p, total: nextTotal, pages: nextPages }));
-
-    try {
-      await deleteInstruction(id).unwrap();
-      if (nextInstructions.length === 0 && prevPagination.page > 1) {
-        setPagination((p) => ({ ...p, page: p.page - 1 }));
-      }
-    } catch (err) {
-      setInstructions(prevInstructions);
-      setPagination(prevPagination);
-      setError('خطا در حذف دستورالعمل');
-    }
+        try {
+          await deleteInstruction(id).unwrap();
+          if (nextInstructions.length === 0 && prevPagination.page > 1) {
+            setPagination((p) => ({ ...p, page: p.page - 1 }));
+          }
+        } catch (err) {
+          setInstructions(prevInstructions);
+          setPagination(prevPagination);
+          setError('خطا در حذف دستورالعمل');
+        }
+      },
+    });
   };
 
   /**

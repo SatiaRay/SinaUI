@@ -4,7 +4,7 @@ import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import { Sppiner } from '../../../components/ui/sppiner';
 import { useCreateInstructionMutation } from '../../../store/api/instructionApi';
-import Error from '../Error';
+import Error from '../InstructionError';
 
 const CreateInstructionPage = () => {
   /**
