@@ -73,16 +73,6 @@ const wizardApi = createApi({
         'Wizard',
       ],
     }),
-    toggleStatusWizard: builder.mutation({
-      query: ({ wizardId, endpoint }) => ({
-        url: `/wizards/${wizardId}/${endpoint}`,
-        method: 'POST',
-      }),
-      invalidatesTags: (result, error, arg) => [
-        { type: 'Wizard', id: arg.wizardId },
-        'Wizard',
-      ],
-    }),
     deleteWizard: builder.mutation({
       query: (id) => ({
         url: `/wizards/${id}`,
@@ -100,6 +90,5 @@ export const {
   useGetRootWizardsQuery,
   useCreateWizardMutation,
   useUpdateWizardMutation,
-  useToggleStatusWizardMutation,
   useDeleteWizardMutation,
 } = wizardApi;
