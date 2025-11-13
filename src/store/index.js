@@ -2,12 +2,12 @@ import { configureStore } from '@reduxjs/toolkit';
 import knowledgeApi from './api/knowledgeApi';
 import { aiApi } from './api/aiApi';
 import documentSlice from './features/documentSlice';
-import wizardReducer from './features/wizardSlice';
+import wizardSlice from './features/wizardSlice';
 
 const store = configureStore({
   reducer: {
     document: documentSlice,
-    wizard: wizardReducer,
+    wizard: wizardSlice,
     [aiApi.reducerPath]: aiApi.reducer,
     [knowledgeApi.reducerPath]: knowledgeApi.reducer,
   },
