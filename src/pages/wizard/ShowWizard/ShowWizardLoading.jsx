@@ -1,7 +1,7 @@
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const ShowWizardLoading = () => {
+export const ShowWizardLoading = () => {
   return (
     <div className="rounded-lg flex flex-col h-full overflow-hidden w-full px-0 pt-0 pb-3 md:px-0">
       <div className="flex items-start justify-between">
@@ -43,5 +43,3 @@ const ShowWizardLoading = () => {
     </div>
   );
 };
-
-export default ShowWizardLoading;

@@ -9,7 +9,8 @@ import {
 import { notify } from '../../../ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { GoPlusCircle } from 'react-icons/go';
-import ShowWizardLoading from './ShowWizardLoading';
+import {ShowWizardLoading} from './ShowWizardLoading';
+import WizardCard from '../../../components/Wizard/WizardCard'; // Import WizardCard
 
 const ShowWizardPage = () => {
   const { wizard_id } = useParams();
@@ -47,7 +48,7 @@ const ShowWizardPage = () => {
   }, [isSuccess, data]);
 
   /* -------------------------------------------------- */
-  /* Delete (optimistic) */
+  /* Delete handler (optimistic) */
   /* -------------------------------------------------- */
   const handleDelete = async (childId) => {
     confirm({
@@ -77,7 +78,6 @@ const ShowWizardPage = () => {
     const childId = child.id;
     const newEnabled = !child.enabled;
 
-    // Optimistic UI update
     setWizard((prev) => ({
       ...prev,
       children: prev.children.map((c) =>
@@ -89,8 +89,8 @@ const ShowWizardPage = () => {
       await updateWizard({
         id: childId,
         data: {
-          ...child,           // Send ALL fields
-          enabled: newEnabled // Only change this
+          ...child,
+          enabled: newEnabled,
         },
       }).unwrap();
 
@@ -98,7 +98,7 @@ const ShowWizardPage = () => {
     } catch (err) {
       const msg = err?.data?.detail?.[0]?.msg || 'خطا در تغییر وضعیت';
       notify.error(msg);
-      setWizard(data); // Revert on error
+      setWizard(data);
     }
   };
 
@@ -119,15 +119,18 @@ const ShowWizardPage = () => {
   /* -------------------------------------------------- */
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
-      {/* Header */}
+      {/* Static Header */}
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
-        <h3 className="text-3xl">{wizard.title}</h3>
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+          جزئیات ویزارد
+        </h3>
         <div className="flex gap-2">
           <Link
             to={`/wizard/create?parent_id=${wizard.id}`}
             className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
-            <span>ویزارد فرزند جدید</span>
+            <span className="hidden sm:inline">ویزارد فرزند جدید</span>
+            <span className="sm:hidden">جدید</span>
             <GoPlusCircle size={22} className="pr-2 box-content" />
           </Link>
           <Link
@@ -139,97 +142,49 @@ const ShowWizardPage = () => {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-3 md:p-0">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      {/* Content Section */}
+      <div className="p-3 md:p-0 flex-1 overflow-y-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
+          {/* Wizard Title */}
+          <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+            <h1
+              className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white line-clamp-2 break-words"
+              title={wizard.title}
+            >
+              {wizard.title}
+            </h1>
+            <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
+              <span>شناسه: {wizard.id}</span>
+              <span>نوع: {wizard.wizard_type === 'answer' ? 'پاسخ' : 'سوال'}</span>
+              <span>وضعیت: {wizard.enabled ? 'فعال' : 'غیرفعال'}</span>
+            </div>
+          </div>
+
+          {/* Wizard Context */}
           <div
             className="prose dark:prose-invert max-w-none text-gray-800 dark:text-white [&_a]:text-blue-600 [&_a]:underline [&_a]:hover:text-blue-700 dark:[&_a]:text-blue-400 dark:[&_a]:hover:text-blue-300"
             dangerouslySetInnerHTML={{ __html: wizard.context }}
           />
         </div>
-      </div>
 
-      {/* Children Table */}
-      {wizard.children?.length > 0 && (
-        <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h4 className="text-lg font-medium text-gray-900 dark:text-white">
-              ویزارد های فرزند
-            </h4>
+        {/* Children as WizardCard List */}
+        {wizard.children?.length > 0 ? (
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {wizard.children.map((child) => (
+              <WizardCard
+                key={child.id}
+                wizard={child}
+                handleDelete={handleDelete}
+                onToggle={() => handleToggle(child)} // Optional: if card supports toggle
+              />
+            ))}
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-900">
-                <tr>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    عنوان
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    تاریخ ایجاد
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    وضعیت
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    عملیات
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {wizard.children.map((child) => (
-                  <tr
-                    key={child.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                    onClick={() => navigate(`/wizard/${child.id}`)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      {child.title}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(child.created_at).toLocaleString('fa-IR')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggle(child);
-                        }}
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors ${
-                          child.enabled
-                            ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800'
-                            : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800'
-                        }`}
-                      >
-                        {child.enabled ? 'فعال' : 'غیرفعال'}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      <div className="flex gap-2">
-                        <Link
-                          to={`/wizard/edit/${child.id}`}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          ویرایش
-                        </Link>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(child.id);
-                          }}
-                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        ) : (
+          <p className="mt-6 text-center text-gray-500 dark:text-gray-400">
+            هیچ ویزارد فرزند یافت نشد.
+          </p>
+        )}
+      </div>
     </div>
   );
 };

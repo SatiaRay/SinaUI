@@ -14,7 +14,7 @@ const WizardCard = ({ wizard, handleDelete }) => {
   /**
    * Store wizard status in state for optimistic toggling
    */
-  const [status, setStatus] = useState(wizard.status);
+  const [status, setStatus] = useState(wizard.enabled);
 
   /**
    * Delete handler with confirmation
@@ -48,20 +48,36 @@ const WizardCard = ({ wizard, handleDelete }) => {
    */
   const handleToggleStatus = async (e) => {
     e.stopPropagation();
-    try {
-      setStatus(!status);
 
-      await updateWizard({
-        id: wizard.id,
-        data: {
-          ...wizard,
-          status,
-        },
-      }).unwrap();
-    } catch (err) {
-      notify.error('خطا در تغییر وضعیت ویزارد');
-      setStatus(wizard.status);
-    }
+    const newEnabled = !status;
+  
+    confirm({
+      title: 'تغییر وضعیت ویزارد',
+      text: `آیا مطمئن هستید که می‌خواهید این ویزارد را ${newEnabled ? 'فعال' : 'غیرفعال'} کنید؟`,
+      onConfirm: async () => {
+        // Optimistic update
+        setStatus(newEnabled);
+
+        try {
+          await updateWizard({
+            id: wizard.id,
+            data: {
+              ...wizard,
+              enabled: newEnabled,
+            },
+          }).unwrap();
+  
+          notify.success('وضعیت ویزارد با موفقیت تغییر کرد');
+        } catch (err) {
+          // Rollback on error
+          const original = wizard.enabled;
+          setStatus(original);
+  
+          const msg = err?.data?.detail?.[0]?.msg || 'خطا در تغییر وضعیت ویزارد';
+          notify.error(msg);
+        }
+      },
+    });
   };
 
   return (
