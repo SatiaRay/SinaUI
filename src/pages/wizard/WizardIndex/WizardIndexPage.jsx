@@ -112,13 +112,13 @@ const WizardIndexPage = () => {
       </div>
 
       {/* Pagination */}
-      <Pagination
+      {/* <Pagination
         page={page}
         perpage={perpage}
         totalPages={data.pages}
         totalItems={data.total}
         handlePageChange={setPage}
-      />
+      /> */}
     </div>
   );
 };
