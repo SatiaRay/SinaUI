@@ -41,7 +41,7 @@ const wizardApi = createApi({
       },
     }),
     getWizard: builder.query({
-      query: ({ id, enableOnly = true }) =>
+      query: ({ id, enableOnly = false }) =>
         `/wizards/${id}?enable_only=${enableOnly ? 'true' : 'false'}`,
       providesTags: (result, error, arg) => [{ type: 'Wizard', id: arg.id }],
     }),
