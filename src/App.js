@@ -34,6 +34,7 @@ import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
 import ShowWizardPage from './pages/wizard/ShowWizard/ShowWizardPage';
 import WizardIndexPage from '@pages/wizard/WizardIndex/WizardIndexPage';
 import CreateWizardPage from '@pages/wizard/CreateWizard/CreateWizardPage';
+import UpdateWizardPage from '@pages/wizard/UpdateWizard/UpdateWizardPage';
 
 function App() {
   return (
@@ -237,6 +238,14 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <ShowWizardPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="edit/:wizard_id"
+          element={
+            <PrivateRoute>
+              <UpdateWizardPage />
             </PrivateRoute>
           }
         />
