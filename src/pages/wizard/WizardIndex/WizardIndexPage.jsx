@@ -95,7 +95,7 @@ const WizardIndexPage = () => {
       </div>
 
       {/* Wizards Grid */}
-      <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
         {wizards.length > 0 ? (
           wizards.map((wizard) => (
             <WizardCard
