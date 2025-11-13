@@ -1,7 +1,7 @@
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const UpdateWizardLoading = () => {
+export const EditWizardLoading = () => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full p-3 md:p-8 pt-7">
       <div className="grid grid-cols-1 md:grid-cols-2 justify-between">
@@ -77,5 +77,3 @@ const UpdateWizardLoading = () => {
     </div>
   );
 };
-
-export default UpdateWizardLoading;
