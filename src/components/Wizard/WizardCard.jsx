@@ -46,7 +46,8 @@ const WizardCard = ({ wizard, handleDelete }) => {
   /**
    * Toggle wizard status
    */
-  const handleToggleStatus = async () => {
+  const handleToggleStatus = async (e) => {
+    e.stopPropagation()
     try {
       setStatus(!status)
 
