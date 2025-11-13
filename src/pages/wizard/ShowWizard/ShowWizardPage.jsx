@@ -4,7 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   useGetWizardQuery,
   useDeleteWizardMutation,
-  useToggleStatusWizardMutation,
+  useUpdateWizardMutation,
 } from '../../../store/api/AiApi';
 import { notify } from '../../../ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
@@ -16,7 +16,7 @@ const ShowWizardPage = () => {
   const navigate = useNavigate();
 
   /* -------------------------------------------------- */
-  /* RTK Query – refetch on param change                */
+  /* RTK Query */
   /* -------------------------------------------------- */
   const {
     data,
@@ -33,10 +33,10 @@ const ShowWizardPage = () => {
   );
 
   const [deleteWizard] = useDeleteWizardMutation();
-  const [toggleStatusWizard] = useToggleStatusWizardMutation();
+  const [updateWizard] = useUpdateWizardMutation();
 
   /* -------------------------------------------------- */
-  /* Sync wizard state with data (critical fix)         */
+  /* Sync state */
   /* -------------------------------------------------- */
   const [wizard, setWizard] = useState(null);
 
@@ -47,7 +47,7 @@ const ShowWizardPage = () => {
   }, [isSuccess, data]);
 
   /* -------------------------------------------------- */
-  /* Delete handler (optimistic)                        */
+  /* Delete (optimistic) */
   /* -------------------------------------------------- */
   const handleDelete = async (childId) => {
     confirm({
@@ -71,11 +71,13 @@ const ShowWizardPage = () => {
   };
 
   /* -------------------------------------------------- */
-  /* Toggle status (optimistic)                         */
+  /* Toggle status (optimistic) – FULL PAYLOAD */
   /* -------------------------------------------------- */
-  const handleToggle = async (childId, currentEnabled) => {
-    const newEnabled = !currentEnabled;
+  const handleToggle = async (child) => {
+    const childId = child.id;
+    const newEnabled = !child.enabled;
 
+    // Optimistic UI update
     setWizard((prev) => ({
       ...prev,
       children: prev.children.map((c) =>
@@ -84,18 +86,24 @@ const ShowWizardPage = () => {
     }));
 
     try {
-      await toggleStatusWizard({
-        wizardId: childId,
-        endpoint: newEnabled ? 'enable' : 'disable',
+      await updateWizard({
+        id: childId,
+        data: {
+          ...child,           // Send ALL fields
+          enabled: newEnabled // Only change this
+        },
       }).unwrap();
-    } catch {
-      notify.error('خطا در تغییر وضعیت');
-      setWizard(data);
+
+      notify.success('وضعیت ویزارد با موفقیت تغییر کرد');
+    } catch (err) {
+      const msg = err?.data?.detail?.[0]?.msg || 'خطا در تغییر وضعیت';
+      notify.error(msg);
+      setWizard(data); // Revert on error
     }
   };
 
   /* -------------------------------------------------- */
-  /* Render States                                      */
+  /* Render States */
   /* -------------------------------------------------- */
   if (isLoading) return <ShowWizardLoading />;
   if (isError)
@@ -107,7 +115,7 @@ const ShowWizardPage = () => {
   if (!wizard) return null;
 
   /* -------------------------------------------------- */
-  /* Main Render                                        */
+  /* Main Render */
   /* -------------------------------------------------- */
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
@@ -184,7 +192,7 @@ const ShowWizardPage = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleToggle(child.id, child.enabled);
+                          handleToggle(child);
                         }}
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors ${
                           child.enabled
