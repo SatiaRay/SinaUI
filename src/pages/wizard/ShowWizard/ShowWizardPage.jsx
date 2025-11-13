@@ -14,6 +14,8 @@ const ShowWizardPage = () => {
   /* -------------------------------------------------- */
   const { wizard_id } = useParams();               // <-- from URL /wizard/:wizard_id
   const navigate = useNavigate();
+  if(!wizard_id)
+    console.error(`wizard_id param is: ${wizard_id}`)
 
   /* -------------------------------------------------- */
   /* 2. RTK-Query hooks                                 */
