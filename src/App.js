@@ -20,8 +20,6 @@ import Workflow from './components/Workflow/WorkflowIndex';
 import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
 import { AuthProvider } from './contexts/AuthContext';
 import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
-import VoiceAgentConversation from './pages/VoiceAgentConversation';
-import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
@@ -119,17 +117,6 @@ function privateRoutes() {
             }
           />
         </Route>
-        /** VOICE AGENT CONVERSATION */
-        <Route path="/voice-agent">
-          <Route
-            path=""
-            element={
-              <PrivateRoute>
-                <VoiceAgentConversation />
-              </PrivateRoute>
-            }
-          />
-        </Route>
         <Route path="/monitoring">
           <Route
             path=""
@@ -160,16 +147,6 @@ function privateRoutes() {
             element={
               <PrivateRoute>
                 <ToolUsageStats />
-              </PrivateRoute>
-            }
-          />
-        </Route>
-        <Route path="/ai-tools">
-          <Route
-            path=""
-            element={
-              <PrivateRoute>
-                <AiToolsFunctionTester />
               </PrivateRoute>
             }
           />
