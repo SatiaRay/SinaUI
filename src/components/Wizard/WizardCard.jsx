@@ -14,7 +14,7 @@ const WizardCard = ({ wizard, handleDelete }) => {
   /**
    * Store wizard status in state for optimistic toggling
    */
-  const [status, setStatus] = useState(wizard.status)
+  const [status, setStatus] = useState(wizard.status);
 
   /**
    * Delete handler with confirmation
@@ -47,21 +47,22 @@ const WizardCard = ({ wizard, handleDelete }) => {
    * Toggle wizard status
    */
   const handleToggleStatus = async (e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     try {
-      setStatus(!status)
+      setStatus(!status);
 
       await updateWizard({
         id: wizard.id,
         data: {
-          ...wizard, status
+          ...wizard,
+          status,
         },
       }).unwrap();
     } catch (err) {
       notify.error('خطا در تغییر وضعیت ویزارد');
-      setStatus(wizard.status)
+      setStatus(wizard.status);
     }
-  }
+  };
 
   return (
     <div
@@ -71,7 +72,10 @@ const WizardCard = ({ wizard, handleDelete }) => {
       <div className="space-y-4">
         {/* Title + Actions */}
         <div className="flex justify-between items-start">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+          <h3
+            className="text-lg font-medium text-gray-900 dark:text-white line-clamp-1 pr-2"
+            title={wizard.title}
+          >
             {wizard.title}
           </h3>
 
