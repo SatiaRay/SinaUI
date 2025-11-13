@@ -1,13 +1,20 @@
 // components/Wizard/WizardCard.js
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { confirm } from '../ui/alert/confirmation';
+import { useUpdateWizardMutation } from 'store/api/AiApi';
+import { notify } from '../../ui/toast';
 
 const WizardCard = ({ wizard, handleDelete }) => {
   /**
    * Use navigation hook
    */
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  /**
+   * Store wizard status in state for optimistic toggling
+   */
+  const [status, setStatus] = useState(wizard.status)
 
   /**
    * Delete handler with confirmation
@@ -24,6 +31,37 @@ const WizardCard = ({ wizard, handleDelete }) => {
     });
   };
 
+  /**
+   * Update mutation
+   */
+  const [
+    updateWizard,
+    {
+      isLoading: isUpdating,
+      isSuccess: isUpdateSuccess,
+      isError: isUpdateError,
+    },
+  ] = useUpdateWizardMutation();
+
+  /**
+   * Toggle wizard status
+   */
+  const handleToggleStatus = async () => {
+    try {
+      setStatus(!status)
+
+      await updateWizard({
+        id: wizard.id,
+        data: {
+          ...wizard, status
+        },
+      }).unwrap();
+    } catch (err) {
+      notify.error('خطا در تغییر وضعیت ویزارد');
+      setStatus(wizard.status)
+    }
+  }
+
   return (
     <div
       className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer"
@@ -36,16 +74,16 @@ const WizardCard = ({ wizard, handleDelete }) => {
             {wizard.title}
           </h3>
 
-          <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+          <div className="flex gap-1" onClick={handleToggleStatus}>
             {/* Status Badge */}
             <span
               className={`px-3 py-1 text-xs font-medium rounded-full ${
-                wizard.enabled
+                status
                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                   : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
               }`}
             >
-              {wizard.enabled ? 'فعال' : 'غیرفعال'}
+              {status ? 'فعال' : 'غیرفعال'}
             </span>
 
             {/* Edit Link */}
