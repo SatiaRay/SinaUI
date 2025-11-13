@@ -233,7 +233,7 @@ function privateRoutes() {
           }
         />
         <Route
-          path=":id"
+          path=":wizard_id"
           element={
             <PrivateRoute>
               <ShowWizardPage />
