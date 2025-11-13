@@ -104,13 +104,11 @@ const WizardIndexPage = () => {
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
         {wizards.length > 0 ? (
           wizards.map((wizard) => (
-            <Link to={`/wizard/${wizard.id}`}>
-              <WizardCard
-                key={wizard.id}
-                wizard={wizard}
-                handleDelete={handleDeleteWizard}
-              />
-            </Link>
+            <WizardCard
+              key={wizard.id}
+              wizard={wizard}
+              handleDelete={handleDeleteWizard}
+            />
           ))
         ) : (
           <p className="col-span-full text-center text-gray-500">
