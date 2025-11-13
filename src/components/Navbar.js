@@ -62,7 +62,7 @@ const Navbar = ({ onSidebarCollapse }) => {
   const navItems = [
     { path: '/chat', label: 'چت', icon: LuBotMessageSquare },
     { path: '/document', label: 'پایگاه دانش', icon: LuBrainCircuit },
-    { path: '/wizard', label: 'پاسخ‌های هوشمند', icon: FaMagic },
+    { path: '/wizard', label: 'ویزاردها', icon: FaMagic },
     { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
     { path: '/instructions', label: 'دستورالعمل‌ها', icon: FaBook },
     { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },

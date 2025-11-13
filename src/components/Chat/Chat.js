@@ -4,7 +4,7 @@ import { FaRobot } from 'react-icons/fa';
 import { BeatLoader } from 'react-spinners';
 import { notify } from '../../ui/toast';
 import VoiceBtn from './VoiceBtn';
-import { WizardButtons } from './Wizard/';
+import { WizardButtons } from '../Wizard';
 import TextInputWithBreaks from '../../ui/textArea';
 import Message from '../ui/chat/message/Message';
 import { useChat } from '@contexts/ChatContext';
