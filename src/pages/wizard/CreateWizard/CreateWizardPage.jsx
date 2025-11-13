@@ -42,7 +42,10 @@ const CreateWizardPage = () => {
   useEffect(() => {
     if (isSuccess) {
       notify.success('ویزارد با موفقیت ایجاد شد!');
-      navigate('/wizard');
+      if(wizard.parent_id)
+        navigate(`/wizard/${wizard.parent_id}`);
+      else
+        navigate('/wizard')
     }
   }, [isSuccess, navigate]);
 
