@@ -5,7 +5,7 @@ import {
   useGetWizardQuery,
   useDeleteWizardMutation,
   useUpdateWizardMutation,
-} from '../../../store/api/AiApi';
+} from 'store/api/ai-features/wizardApi';
 import { notify } from '../../../ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { GoPlusCircle } from 'react-icons/go';

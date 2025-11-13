@@ -1,20 +1,6 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { aiApi } from '../aiApi';
 
-const wizardApi = createApi({
-  reducerPath: 'khan-wizard',
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8090',
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem('khan-access-token');
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-      headers.set('Accept', 'application/json');
-      headers.set('Content-Type', 'application/json');
-      return headers;
-    },
-  }),
-  tagTypes: ['Wizard'],
+const wizardApi = aiApi.injectEndpoints({
   endpoints: (builder) => ({
     getWizards: builder.query({
       query: ({ perpage = 10, page = 1 }) =>
@@ -82,7 +68,6 @@ const wizardApi = createApi({
     }),
   }),
 });
-export default wizardApi;
 
 export const {
   useGetWizardsQuery,
@@ -92,3 +77,5 @@ export const {
   useUpdateWizardMutation,
   useDeleteWizardMutation,
 } = wizardApi;
+
+export default wizardApi;

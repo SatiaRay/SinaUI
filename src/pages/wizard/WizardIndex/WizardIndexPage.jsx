@@ -4,7 +4,7 @@ import WizardCard from '../../../components/Wizard/WizardCard';
 import {
   useGetWizardsQuery,
   useDeleteWizardMutation,
-} from '../../../store/api/AiApi';
+} from 'store/api/ai-features/wizardApi';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Pagination } from '../../../components/ui/pagination';
 import { notify } from '../../../ui/toast';

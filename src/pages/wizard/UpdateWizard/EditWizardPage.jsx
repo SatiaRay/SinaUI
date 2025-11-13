@@ -8,7 +8,7 @@ import { notify } from '../../../ui/toast';
 import {
   useGetWizardQuery,
   useUpdateWizardMutation,
-} from '../../../store/api/AiApi';
+} from 'store/api/ai-features/wizardApi';
 import { ckEditorConfig } from '../../../configs';
 import { EditWizardLoading } from './EditWizardLoading';
 import { Sppiner } from '../../../components/ui/sppiner';

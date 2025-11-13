@@ -1,5 +1,5 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
-import wizardApi from '../api/AiApi';
+import wizardApi from 'store/api/ai-features/wizardApi';
 
 const wizardAdapter = createEntityAdapter();
 
