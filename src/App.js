@@ -29,11 +29,12 @@ import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
-import ShowWizardPage from './pages/wizard/ShowWizard/ShowWizardPage';
-import WizardIndexPage from '@pages/wizard/WizardIndex/WizardIndexPage';
-import CreateWizardPage from '@pages/wizard/CreateWizard/CreateWizardPage';
-import UpdateWizardPage from '@pages/wizard/UpdateWizard/EditWizardPage';
-import EditWizardPage from '@pages/wizard/UpdateWizard/EditWizardPage';
+import {
+  CreateWizardPage,
+  EditWizardPage,
+  ShowWizardPage,
+  WizardIndexPage,
+} from '@pages/wizard';
 
 function App() {
   return (
