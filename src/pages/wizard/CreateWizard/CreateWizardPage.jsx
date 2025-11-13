@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '../../../ui/dropdown';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { notify } from '../../../ui/toast';
 import { useCreateWizardMutation } from '../../../store/api/AiApi';
 import { ckEditorConfig } from '../../../configs';
@@ -16,12 +16,18 @@ const CreateWizardPage = () => {
   const navigate = useNavigate();
 
   /**
+   * Query string parameters
+   */
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  /**
    * Wizard object state
    */
   const [wizard, setWizard] = useState({
     title: '',
     context: '',
     wizard_type: 'answer',
+    parent_id: searchParams.get('parent_id') ?? null
   });
 
   /**
