@@ -1006,7 +1006,7 @@ const ChatInner = ({ services = null }) => {
 /**
  * Lazy loading configuration for chat component
  */
-const LAZY_LOAD_DELAY_MS = 1000000;
+const LAZY_LOAD_DELAY_MS = 200;
 
 const ChatLazy = lazy(
   () =>
