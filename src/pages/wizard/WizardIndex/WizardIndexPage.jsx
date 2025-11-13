@@ -50,6 +50,9 @@ const WizardIndexPage = () => {
    */
   const handleDeleteWizard = async (id) => {
     try {
+      // Remove wizard optimistic
+      setWizards(wizards.filter((wizard) => wizard.id != id));
+
       await deleteWizard(id).unwrap();
       notify.success('ویزارد با موفقیت حذف شد');
     } catch (err) {
