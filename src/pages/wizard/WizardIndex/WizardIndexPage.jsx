@@ -49,23 +49,14 @@ const WizardIndexPage = () => {
    * Delete handler (optimistic + confirm)
    */
   const handleDeleteWizard = async (id) => {
-    confirm({
-      title: 'حذف ویزارد',
-      text: 'آیا از حذف این ویزارد مطمئن هستید؟',
-      onConfirm: async () => {
-        // Optimistic remove
-        setWizards((prev) => prev.filter((w) => w.id !== id));
-
-        try {
-          await deleteWizard(id).unwrap();
-          notify.success('ویزارد با موفقیت حذف شد');
-        } catch (err) {
-          notify.error('خطا در حذف ویزارد!');
-          // Revert: refetch latest data
-          setWizards(data.wizards);
-        }
-      },
-    });
+    try {
+      await deleteWizard(id).unwrap();
+      notify.success('ویزارد با موفقیت حذف شد');
+    } catch (err) {
+      notify.error('خطا در حذف ویزارد!');
+      // Revert: refetch latest data
+      setWizards(data.wizards);
+    }
   };
 
   /**
