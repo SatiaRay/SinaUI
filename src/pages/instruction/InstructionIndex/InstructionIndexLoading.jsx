@@ -1,7 +1,7 @@
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const InstructionIndexLoading = () => {
+export const InstructionIndexLoading = () => {
   return (
     <div className="p-4 md:pt-12 container mx-auto overflow-x-hidden">
       <div className="flex max-md:flex-col md:gap-0 gap-2 pt-6 md:pt-0 justify-between items-center mb-4">
@@ -105,5 +105,3 @@ const InstructionIndexLoading = () => {
     </div>
   );
 };
-
-export default InstructionIndexLoading;
