@@ -187,8 +187,8 @@ const InstructionIndexPage = () => {
   }
 
   return (
-    <div className="p-4 md:pt-12 container mx-auto overflow-x-hidden">
-      <div className="flex max-md:flex-col md:gap-0 gap-2 pt-6 md:pt-0 justify-between items-center mb-4">
+    <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
+      <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h1 className="md:text-2xl dark:text-white mb-2 mt-1 md:mb-0 md:mt-0 border-r-2 pr-2 border-blue-500 text-xl font-bold max-md:w-full">
           دستورالعمل‌های بات
         </h1>
