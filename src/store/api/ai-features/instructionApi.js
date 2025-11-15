@@ -4,7 +4,7 @@ const instructionApi = aiApi.injectEndpoints({
   endpoints: (builder) => ({
     getInstructions: builder.query({
       query: ({ perpage = 10, page = 1 }) =>
-        `/instructions?perpage=${perpage}&page=${page}`,
+        `/instructions/?perpage=${perpage}&page=${page}`,
       providesTags: (result, error, arg) => {
         const items = Array.isArray(result?.instructions)
           ? result.instructions
@@ -31,7 +31,7 @@ const instructionApi = aiApi.injectEndpoints({
     }),
     createInstruction: builder.mutation({
       query: (data) => ({
-        url: '/instructions',
+        url: '/instructions/',
         method: 'POST',
         body: data,
       }),
