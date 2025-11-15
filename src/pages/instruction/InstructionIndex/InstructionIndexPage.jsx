@@ -29,7 +29,7 @@ const InstructionIndexPage = () => {
   /**
    * Store instructions from request response data to state prop for optimistic mutation
    */
-  if (isSuccess && !instructions) setInstructions(data.instructions);
+  if (isSuccess && !instructions) setInstructions(data.items);
 
   /**
    * Delete instruction api hook
@@ -100,13 +100,6 @@ const InstructionIndexPage = () => {
                 {instruction.text}
               </p>
               <div className="mt-3 flex gap-3 text-sm">
-                <span className="text-gray-500">
-                  نوع: {
-                    instruction.agent_type === 'text_agent' ? 'متن' :
-                    instruction.agent_type === 'voice_agent' ? 'صوت' :
-                    instruction.agent_type === 'both' ? 'همه' : '-'
-                  }
-                </span>
                 <span className="text-gray-500">
                   وضعیت: {instruction.status == 1 ? 'فعال' : 'غیرفعال'}
                 </span>
