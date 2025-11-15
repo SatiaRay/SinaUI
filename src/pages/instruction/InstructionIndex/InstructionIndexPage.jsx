@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CustomDropdown from '../../../ui/dropdown';
 import Error from '../InstructionError';
 import InstructionIndexLoading from './InstructionIndexLoading';
+import { GoPlusCircle } from "react-icons/go";
+import { Link } from 'react-router-dom';
 import {
   useGetInstructionsQuery,
   useDeleteInstructionMutation,
@@ -194,23 +195,13 @@ const InstructionIndexPage = () => {
         </h1>
 
         <div className="max-md:w-full flex justify-between items-center">
-          <CustomDropdown
-            options={[
-              { value: '', label: 'همه' },
-              { value: 'text_agent', label: 'ربات متنی' },
-              { value: 'voice_agent', label: 'ربات صوتی' },
-            ]}
-            value={agentType}
-            onChange={(val) => setAgentType(val)}
-            placeholder="انتخاب نوع ربات"
-          />
-
-          <button
-            onClick={handleCreate}
-            className="bg-blue-500 text-sm font-semibold w-1/2 hover:bg-blue-600 text-white flex items-center justify-center h-9 rounded-md mr-2"
+          <Link
+            to={'/document/create'}
+            className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
-            دستور العمل جدید
-          </button>
+            <span>دستور العمل جدید</span>
+            <GoPlusCircle size={22} className="pr-2 box-content" />
+          </Link>
         </div>
       </div>
       {(error || listError || isDeleteError) && (
