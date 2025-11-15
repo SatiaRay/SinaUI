@@ -1,4 +1,4 @@
-import { aiApi } from '../aiApi';
+import aiApi from '../aiApi';
 
 const wizardApi = aiApi.injectEndpoints({
   endpoints: (builder) => ({

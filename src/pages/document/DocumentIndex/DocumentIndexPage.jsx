@@ -5,9 +5,7 @@ import knowledgeApi, {
   useDeleteDocumentMutation,
 } from '../../../store/api/knowledgeApi';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
 import { Pagination } from '../../../components/ui/pagination';
-import { useDisplay } from '../../../hooks/display';
 import { notify } from '../../../ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
@@ -71,7 +69,7 @@ const DocumentIndexPage = () => {
   /**
    * Display error message when fetching fails
    */
-  if (isError) return <p>مشکلی پیش آمده است 🛑</p>;
+  if (isError) <p className='text-center'>مشکلی پیش آمده است 🛑</p>;
 
   /**
    * Prevent map documents when it is null

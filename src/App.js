@@ -9,9 +9,7 @@ import {
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
-import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
-import EditInstruction from './components/Chat/Instruction/EditInstruction';
-import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
+import { CreateInstruction, InstructionIndex, EditInstruction } from './pages/instruction/Index';
 import Status1 from './components/Chat/Status';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
@@ -264,7 +262,7 @@ function privateRoutes() {
         />
       </Route>
       {/* Instruction Routes */}
-      <Route path="/instructions">
+      <Route path="/instruction">
         <Route
           index
           element={
