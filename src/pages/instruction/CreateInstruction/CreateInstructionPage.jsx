@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import { Sppiner } from '../../../components/ui/sppiner';
-import { useCreateInstructionMutation } from '../../../store/api/instructionApi';
 import Error from '../InstructionError';
+import { useCreateInstructionMutation } from 'store/api/ai-features/instructionApi';
 
 const CreateInstructionPage = () => {
   /**

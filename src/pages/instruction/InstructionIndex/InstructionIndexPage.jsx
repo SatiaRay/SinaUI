@@ -5,11 +5,8 @@ import { GoPlusCircle } from "react-icons/go";
 import { Pagination } from '../../../components/ui/pagination';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { notify } from '../../../ui/toast';
-import instructionApi, {
-  useGetInstructionsQuery,
-  useDeleteInstructionMutation,
-} from '../../../store/api/instructionApi';
 import { InstructionIndexLoading } from './InstructionIndexLoading';
+import { useDeleteInstructionMutation, useGetInstructionsQuery } from 'store/api/ai-features/instructionApi';
 
 const InstructionIndexPage = () => {
   /**

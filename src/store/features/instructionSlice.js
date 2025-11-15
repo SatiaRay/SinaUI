@@ -1,5 +1,5 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
-import instructionApi from '../api/instructionApi';
+import instructionApi from 'store/api/ai-features/instructionApi';
 
 const instructionAdapter = createEntityAdapter();
 

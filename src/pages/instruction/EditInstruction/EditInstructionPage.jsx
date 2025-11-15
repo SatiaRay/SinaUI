@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CustomDropdown from '../../../ui/dropdown';
-import {
-  useGetInstructionQuery,
-  useUpdateInstructionMutation,
-} from '../../../store/api/instructionApi';
 import EditInstructionLoading from './EditInstructionLoading';
 import Error from '../InstructionError';
+import { useGetInstructionQuery, useUpdateInstructionMutation } from 'store/api/ai-features/instructionApi';
 
 /**
  * Show skeleton only on first fetch
