@@ -1,4 +1,4 @@
-import { aiApi } from '../aiApi';
+import aiApi from '../aiApi';
 
 const instructionApi = aiApi.injectEndpoints({
   endpoints: (builder) => ({

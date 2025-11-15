@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import knowledgeApi from './api/knowledgeApi';
 import documentSlice from './features/documentSlice';
 import instructionSlice from './features/instructionSlice';
-import { aiApi } from './api/aiApi';
+import aiApi from './api/aiApi';
 
 const store = configureStore({
   reducer: {

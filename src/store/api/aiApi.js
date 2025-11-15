@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export const aiApi = createApi({
+const aiApi = createApi({
   reducerPath: 'ai-api',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8090',
@@ -17,3 +17,5 @@ export const aiApi = createApi({
   tagTypes: ['Wizard', 'Instruction'],
   endpoints: () => ({}),
 });
+
+export default aiApi
