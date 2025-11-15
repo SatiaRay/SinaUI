@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 import knowledgeApi from './api/knowledgeApi';
-import { aiApi } from './api/aiApi';
 import documentSlice from './features/documentSlice';
 import instructionSlice from './features/instructionSlice';
 import aiApi from './api/aiApi';
