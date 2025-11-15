@@ -1,12 +1,15 @@
 // InstructionIndexPage.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GoPlusCircle } from "react-icons/go";
+import { GoPlusCircle } from 'react-icons/go';
 import { Pagination } from '../../../components/ui/pagination';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { notify } from '../../../ui/toast';
 import { InstructionIndexLoading } from './InstructionIndexLoading';
-import { useDeleteInstructionMutation, useGetInstructionsQuery } from 'store/api/ai-features/instructionApi';
+import {
+  useDeleteInstructionMutation,
+  useGetInstructionsQuery,
+} from 'store/api/ai-features/instructionApi';
 import InstructionCard from '@components/instruction/InstructionCard';
 
 const InstructionIndexPage = () => {
@@ -60,13 +63,12 @@ const InstructionIndexPage = () => {
   /**
    * Show skeleton loading
    */
-  if (isLoading)
-    return <InstructionIndexLoading />;
+  if (isLoading) return <InstructionIndexLoading />;
 
   /**
    * Display error message when fetching fails
    */
-  if (isError) return <p className='text-center'>مشکلی پیش آمده است 🛑</p>;
+  if (isError) return <p className="text-center">مشکلی پیش آمده است 🛑</p>;
 
   /**
    * Prevent map instructions when it is null
@@ -84,17 +86,30 @@ const InstructionIndexPage = () => {
           to={'/instruction/create'}
           className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
-          <span className='hidden md:inline'>دستورالعمل جدید</span>
-          <span className='md:hidden'>جدید</span>
-          <GoPlusCircle size={22} className='pr-2 box-content'/>
+          <span className="hidden md:inline">دستورالعمل جدید</span>
+          <span className="md:hidden">جدید</span>
+          <GoPlusCircle size={22} className="pr-2 box-content" />
         </Link>
       </div>
 
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
         {instructions.map((instruction) => (
-          <InstructionCard instruction={instruction} handleDelete={handleDeleteInstruction}/>
+          <InstructionCard
+            instruction={instruction}
+            handleDelete={handleDeleteInstruction}
+          />
         ))}
       </div>
+
+      {/* Empty instructions message  */}
+      {instructions.length < 1 && (
+        <div className="text-center mx-auto">
+          <p>هیچ دستورالعملی ثبت شده ای یافت نشد.</p>
+          <Link to={'/instruction/create'} className="underline text-blue-300">
+            ثبت دستور جدید
+          </Link>
+        </div>
+      )}
 
       <Pagination
         page={page}
