@@ -64,7 +64,7 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: '/document', label: 'پایگاه دانش', icon: LuBrainCircuit },
     { path: '/wizard', label: 'پاسخ‌های هوشمند', icon: FaMagic },
     { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
-    { path: '/instructions', label: 'دستورالعمل‌ها', icon: FaBook },
+    { path: '/instruction', label: 'دستورالعمل‌ها', icon: FaBook },
     { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
   ];
 

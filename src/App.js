@@ -253,7 +253,7 @@ function privateRoutes() {
         />
       </Route>
       {/* Instruction Routes */}
-      <Route path="/instructions">
+      <Route path="/instruction">
         <Route
           index
           element={
