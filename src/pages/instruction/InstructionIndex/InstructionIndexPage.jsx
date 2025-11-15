@@ -7,6 +7,7 @@ import { confirm } from '../../../components/ui/alert/confirmation';
 import { notify } from '../../../ui/toast';
 import { InstructionIndexLoading } from './InstructionIndexLoading';
 import { useDeleteInstructionMutation, useGetInstructionsQuery } from 'store/api/ai-features/instructionApi';
+import InstructionCard from '@components/instruction/InstructionCard';
 
 const InstructionIndexPage = () => {
   /**
@@ -90,37 +91,7 @@ const InstructionIndexPage = () => {
 
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
         {instructions.map((instruction) => (
-          <div
-            key={instruction.id}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col justify-between"
-          >
-            <div>
-              <h4 className="font-semibold text-lg mb-2">{instruction.label}</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                {instruction.text}
-              </p>
-              <div className="mt-3 flex gap-3 text-sm">
-                <span className="text-gray-500">
-                  وضعیت: {instruction.status == 1 ? 'فعال' : 'غیرفعال'}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-4 flex justify-end gap-3 text-sm">
-              <Link
-                to={`/instruction/edit/${instruction.id}`}
-                className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
-              >
-                ویرایش
-              </Link>
-              <button
-                onClick={() => handleDeleteInstruction(instruction.id)}
-                className="text-red-600 hover:text-red-800 dark:text-red-400"
-              >
-                حذف
-              </button>
-            </div>
-          </div>
+          <InstructionCard instruction={instruction} handleDelete={handleDeleteInstruction}/>
         ))}
       </div>
 
