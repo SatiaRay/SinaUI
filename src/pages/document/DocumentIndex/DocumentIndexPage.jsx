@@ -70,7 +70,7 @@ const DocumentIndexPage = () => {
   /**
    * Display error message when fetching fails
    */
-  if (isError) return <p>مشکلی پیش آمده است 🛑</p>;
+  if (isError) return <p className='text-center'>مشکلی پیش آمده است 🛑</p>;
 
   /**
    * Prevent map documents when it is null
