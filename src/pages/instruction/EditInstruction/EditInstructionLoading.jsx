@@ -1,7 +1,7 @@
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const EditInstructionLoading = () => {
+export const EditInstructionLoading = () => {
   return (
     <div className="w-full max-w-[680px] mx-auto">
       <div className="grid grid-cols-1">
@@ -92,5 +92,3 @@ const EditInstructionLoading = () => {
     </div>
   );
 };
-
-export default EditInstructionLoading;
