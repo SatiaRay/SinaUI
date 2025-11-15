@@ -79,12 +79,13 @@ const InstructionIndexPage = () => {
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
-        <h3 className="text-3xl">دستورالعمل‌ها</h3>
+        <h3 className="text-xl md:text-2xl">دستورالعمل‌ها</h3>
         <Link
           to={'/instruction/create'}
           className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
-          <span>دستورالعمل جدید</span>
+          <span className='hidden md:inline'>دستورالعمل جدید</span>
+          <span className='md:hidden'>جدید</span>
           <GoPlusCircle size={22} className='pr-2 box-content'/>
         </Link>
       </div>
