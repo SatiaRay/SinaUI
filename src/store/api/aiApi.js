@@ -14,6 +14,6 @@ export const aiApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Wizard'],
+  tagTypes: ['Wizard', 'Instruction'],
   endpoints: () => ({}),
 });
