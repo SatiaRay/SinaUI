@@ -461,3 +461,16 @@ code {
     }
 }
 }
+
+/* Light Mode */
+:root {
+    --skeleton-base-color: #e5e7eb;      /* gray-200 */
+    --skeleton-highlight-color: #f3f4f6; /* gray-100 */
+}
+
+/* Dark Mode */
+.dark {
+    --skeleton-base-color: #4b5563;      /* gray-600 */
+    --skeleton-highlight-color: #6b7280; /* gray-500 */
+}
+
