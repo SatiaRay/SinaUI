@@ -16,10 +16,24 @@ import Dropdown from '@components/ui/dropdown';
 import { Edit, Trash } from 'lucide-react';
 
 const WorkflowIndexPage = () => {
+  /**
+   * Hook: Programmatic navigation to create/edit pages
+   */
   const navigate = useNavigate();
+
+  /**
+   * Ref: Hidden file input for workflow import
+   */
   const fileInputRef = useRef(null);
+
+  /**
+   * State: Optional filter by agent type (text, voice, etc.)
+   */
   const [agentType, setAgentType] = useState('');
 
+  /**
+   * Query: Fetch all workflows, supports agentType filtering
+   */
   const {
     data: workflows = [],
     isLoading,
@@ -27,14 +41,24 @@ const WorkflowIndexPage = () => {
     error,
     refetch,
   } = useGetAllWorkflowsQuery({ agentType });
+
+  /**
+   * Mutations: RTK Query auto-generated async thunks
+   */
   const [exportWorkflow] = useExportWorkflowMutation();
   const [importWorkflow] = useImportWorkflowMutation();
   const [deleteWorkflow] = useDeleteWorkflowMutation();
 
+  /**
+   * Handler: Navigate to workflow creation page
+   */
   const handleCreate = useCallback(() => {
     navigate('/workflow/create');
   }, [navigate]);
 
+  /**
+   * Handler: Navigate to workflow edit page with ID validation
+   */
   const handleEdit = useCallback(
     (workflowId) => {
       if (!workflowId) {
@@ -46,10 +70,12 @@ const WorkflowIndexPage = () => {
     [navigate]
   );
 
+  /**
+   * Handler: Delete workflow with user confirmation via SweetAlert
+   */
   const handleDelete = useCallback(
     async (workflowId) => {
       if (!workflowId) return;
-
       try {
         const result = await Swal.fire({
           title: 'آیا مطمئن هستید؟',
@@ -62,7 +88,6 @@ const WorkflowIndexPage = () => {
           confirmButtonText: 'بله، حذف شود!',
           reverseButtons: false,
         });
-
         if (result.isConfirmed) {
           await deleteWorkflow({ id: workflowId, agentType }).unwrap();
         }
@@ -74,13 +99,15 @@ const WorkflowIndexPage = () => {
     [deleteWorkflow]
   );
 
+  /**
+   * Handler: Export workflow as downloadable JSON file
+   */
   const handleDownload = useCallback(
     async (workflowId) => {
       if (!workflowId) {
         console.warn('No workflow ID provided for download');
         return;
       }
-
       try {
         Swal.fire({
           title: 'در حال آماده‌سازی فایل...',
@@ -90,13 +117,10 @@ const WorkflowIndexPage = () => {
             Swal.showLoading();
           },
         });
-
         const data = await exportWorkflow({ id: workflowId }).unwrap();
-
         if (!data) {
           throw new Error('No data received from server');
         }
-
         const blob = new Blob([JSON.stringify(data, null, 2)], {
           type: 'application/json',
         });
@@ -108,7 +132,6 @@ const WorkflowIndexPage = () => {
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
-
         Swal.close();
         notify.success('فایل با موفقیت دانلود شد');
       } catch (err) {
@@ -120,15 +143,20 @@ const WorkflowIndexPage = () => {
     [exportWorkflow]
   );
 
+  /**
+   * Handler: Trigger hidden file input for import
+   */
   const handleFileSelect = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
 
+  /**
+   * Handler: Process selected JSON file and import workflow
+   */
   const handleFileChange = useCallback(
     async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
       if (!file.name.endsWith('.json')) {
         Swal.fire({
           title: 'خطا!',
@@ -138,7 +166,6 @@ const WorkflowIndexPage = () => {
         });
         return;
       }
-
       try {
         Swal.fire({
           title: 'در حال بارگذاری...',
@@ -148,9 +175,7 @@ const WorkflowIndexPage = () => {
             Swal.showLoading();
           },
         });
-
         await importWorkflow({ file }).unwrap();
-
         Swal.fire({
           title: 'موفق!',
           text: 'گردش کار با موفقیت بارگذاری شد.',
@@ -159,7 +184,6 @@ const WorkflowIndexPage = () => {
           timer: 3000,
           timerProgressBar: true,
         });
-
         e.target.value = '';
       } catch (err) {
         console.error('Import failed:', err);
@@ -174,20 +198,31 @@ const WorkflowIndexPage = () => {
     [importWorkflow]
   );
 
+  /**
+   * Render: Show loading skeleton during initial fetch
+   */
   if (isLoading) {
     return <WorkflowIndexLoading />;
   }
 
+  /**
+   * Render: Show error with retry option
+   */
   if (isError) {
     return <Error error={error} onRetry={refetch} variant="elevated" />;
   }
 
+  /**
+   * Render: Main layout with header, actions, and workflow table
+   */
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
+      {/* Header: Title + action buttons (import, create) */}
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h3 className="text-xl lg:text-3xl">گردش کارها</h3>
         <div className="flex gap-2 items-center">
           <>
+            {/* Hidden file input for workflow import */}
             <input
               type="file"
               accept=".json,application/json"
@@ -195,6 +230,7 @@ const WorkflowIndexPage = () => {
               onChange={handleFileChange}
               className="hidden"
             />
+            {/* Import button: Triggers file selection */}
             <button
               onClick={handleFileSelect}
               className="pr-4 pl-3 py-2 md:py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -204,6 +240,7 @@ const WorkflowIndexPage = () => {
               <LuUpload size={24} className="pr-2 pb-1 border-box" />
             </button>
           </>
+          {/* Create new workflow button */}
           <Link
             to={'/workflow/create'}
             className="pr-4 pl-3 py-2 md:py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -214,9 +251,12 @@ const WorkflowIndexPage = () => {
           </Link>
         </div>
       </div>
+
+      {/* Table container with responsive padding */}
       <div className="px-3 md:px-0 mt-3">
         <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg">
           <div className="w-full">
+            {/* Table: Desktop view with columns for name, status, actions */}
             <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
               <thead className="bg-neutral-200 dark:bg-gray-700">
                 <tr>
@@ -230,8 +270,8 @@ const WorkflowIndexPage = () => {
                   ))}
                 </tr>
               </thead>
-
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {/* Empty state: No workflows found */}
                 {workflows.length === 0 ? (
                   <tr>
                     <td
@@ -242,22 +282,25 @@ const WorkflowIndexPage = () => {
                     </td>
                   </tr>
                 ) : (
+                  /* Workflow rows: One per workflow */
                   workflows.map((workflow) => (
                     <tr
                       key={workflow.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
+                      {/* Workflow name column */}
                       <td className="px-4 pt-6 text-sm text-gray-900 dark:text-white line-clamp-1">
                         {workflow.name || '-'}
                       </td>
-
+                      {/* Status column: Hardcoded as "فعال" for now */}
                       <td className="px-4 py-4">
                         <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                           فعال
                         </span>
                       </td>
-
+                      {/* Actions column: Desktop buttons + mobile dropdown */}
                       <td className="px-4 py-4 text-sm">
+                        {/* Desktop: Inline action buttons */}
                         <div className="hidden lg:flex justify-center gap-4">
                           <button
                             onClick={() => handleDownload(workflow.id)}
@@ -278,7 +321,7 @@ const WorkflowIndexPage = () => {
                             حذف
                           </button>
                         </div>
-                        {/* Mobile: Show Operation Buttons in Dropdown  */}
+                        {/* Mobile: Dropdown menu with same actions */}
                         <Dropdown label="عملیات" className="lg:hidden">
                           <Dropdown.Option
                             onClick={() => handleEdit(workflow.id)}
@@ -314,6 +357,7 @@ const WorkflowIndexPage = () => {
           </div>
         </div>
       </div>
+      {/* Pagination: Currently commented out (future enhancement) */}
       {/* <Pagination
         page={page}
         perpage={perpage}
@@ -322,68 +366,6 @@ const WorkflowIndexPage = () => {
         handlePageChange={setPage}
       /> */}
     </div>
-
-    //   {/* Desktop Table */}
-
-    //   {/* Mobile Cards */}
-    //   <div className="sm:hidden space-y-4">
-    //     {workflows.length === 0 ? (
-    //       <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 text-center text-gray-500 dark:text-gray-400">
-    //         هیچ گردش کاری یافت نشد
-    //       </div>
-    //     ) : (
-    //       workflows.map((workflow) => (
-    //         <div
-    //           key={workflow.id}
-    //           className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4"
-    //         >
-    //           <div className="flex justify-between items-start mb-3">
-    //             <div>
-    //               <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-    //                 {workflow.name || '-'}
-    //               </h3>
-    //               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-    //                 {workflow.agent_type === 'text_agent'
-    //                   ? 'ربات متنی'
-    //                   : workflow.agent_type === 'voice_agent'
-    //                     ? 'ربات صوتی'
-    //                     : workflow.agent_type === 'both'
-    //                       ? 'همه'
-    //                       : '-'}
-    //               </p>
-    //             </div>
-    //             <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-    //               فعال
-    //             </span>
-    //           </div>
-
-    //           <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-600">
-    //             <div className="flex gap-2">
-    //               <button
-    //                 onClick={() => handleEdit(workflow.id)}
-    //                 className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 text-xs px-3 py-1 border border-blue-600 rounded-md"
-    //               >
-    //                 ویرایش
-    //               </button>
-    //               <button
-    //                 onClick={() => handleDelete(workflow.id)}
-    //                 className="text-red-500 hover:text-red-700 text-xs px-3 py-1 border border-red-500 rounded-md"
-    //               >
-    //                 حذف
-    //               </button>
-    //             </div>
-    //             <button
-    //               onClick={() => handleDownload(workflow.id)}
-    //               className="text-green-600 text-xs border border-green-600 px-3 py-1 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200"
-    //             >
-    //               دریافت
-    //             </button>
-    //           </div>
-    //         </div>
-    //       ))
-    //     )}
-    //   </div>
-    // </div>
   );
 };
 
