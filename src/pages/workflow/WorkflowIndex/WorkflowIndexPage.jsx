@@ -11,7 +11,9 @@ import { notify } from '../../../ui/toast';
 import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';
 import Error from '@components/Error';
 import { GoPlusCircle } from 'react-icons/go';
-import { LuUpload } from 'react-icons/lu';
+import { LuDownload, LuUpload } from 'react-icons/lu';
+import Dropdown from '@components/ui/dropdown';
+import { Edit, Trash } from 'lucide-react';
 
 const WorkflowIndexPage = () => {
   const navigate = useNavigate();
@@ -183,8 +185,8 @@ const WorkflowIndexPage = () => {
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
-        <h3 className="text-3xl">گردش کارها</h3>
-        <div className='flex gap-2 items-center'>
+        <h3 className="text-xl lg:text-3xl">گردش کارها</h3>
+        <div className="flex gap-2 items-center">
           <>
             <input
               type="file"
@@ -195,93 +197,121 @@ const WorkflowIndexPage = () => {
             />
             <button
               onClick={handleFileSelect}
-              className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="pr-4 pl-3 py-2 md:py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
-              <span className='pl-1'>بارگذاری گردش کار</span>
-              <LuUpload size={24} className="pr-2 pb-1 border-box"/>
+              <span className="pl-1 hidden md:block">بارگذاری گردش کار</span>
+              <span className="pl-1 md:hidden">بارگذاری</span>
+              <LuUpload size={24} className="pr-2 pb-1 border-box" />
             </button>
           </>
           <Link
             to={'/workflow/create'}
-            className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            className="pr-4 pl-3 py-2 md:py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
-            <span>سند جدید</span>
+            <span className="hidden md:block">گردش کار جدید</span>
+            <span className="md:hidden">جدید</span>
             <GoPlusCircle size={22} className="pr-2 box-content" />
           </Link>
         </div>
       </div>
-      <div className="hidden sm:block bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-        <div className="w-full overflow-hidden">
-          <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
-            <thead className="bg-neutral-200 dark:bg-gray-700">
-              <tr>
-                {['نام', 'وضعیت', 'خروجی', 'عملیات'].map((header) => (
-                  <th
-                    key={header}
-                    className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {workflows.length === 0 ? (
+      <div className="px-3 md:px-0 mt-3">
+        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg">
+          <div className="w-full">
+            <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
+              <thead className="bg-neutral-200 dark:bg-gray-700">
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
-                  >
-                    هیچ گردش کاری یافت نشد
-                  </td>
+                  {['نام', 'وضعیت', 'عملیات'].map((header) => (
+                    <th
+                      key={header}
+                      className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      {header}
+                    </th>
+                  ))}
                 </tr>
-              ) : (
-                workflows.map((workflow) => (
-                  <tr
-                    key={workflow.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
-                    <td className="px-4 py-4 text-sm text-gray-900 dark:text-white">
-                      {workflow.name || '-'}
-                    </td>
+              </thead>
 
-                    <td className="px-4 py-4">
-                      <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        فعال
-                      </span>
-                    </td>
-
-                    <td className="px-4 py-4">
-                      <button
-                        onClick={() => handleDownload(workflow.id)}
-                        className="text-green-600 text-xs border border-green-600 h-8 px-3 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200 transition-colors duration-200"
-                      >
-                        دریافت خروجی
-                      </button>
-                    </td>
-
-                    <td className="px-4 py-4 text-sm">
-                      <div className="flex justify-center gap-3">
-                        <button
-                          onClick={() => handleEdit(workflow.id)}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                        >
-                          ویرایش
-                        </button>
-                        <button
-                          onClick={() => handleDelete(workflow.id)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          حذف
-                        </button>
-                      </div>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {workflows.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
+                    >
+                      هیچ گردش کاری یافت نشد
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  workflows.map((workflow) => (
+                    <tr
+                      key={workflow.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
+                      <td className="px-4 pt-6 text-sm text-gray-900 dark:text-white line-clamp-1">
+                        {workflow.name || '-'}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          فعال
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-4 text-sm">
+                        <div className="hidden lg:flex justify-center gap-4">
+                          <button
+                            onClick={() => handleDownload(workflow.id)}
+                            className="text-green-600 text-xs border border-green-600 h-8 px-3 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200 transition-colors duration-200"
+                          >
+                            دریافت خروجی
+                          </button>
+                          <button
+                            onClick={() => handleEdit(workflow.id)}
+                            className="text-blue-500 hover:text-blue-700 border border-blue-500 hover:bg-blue-500 hover:text-white px-3 rounded-lg"
+                          >
+                            ویرایش
+                          </button>
+                          <button
+                            onClick={() => handleDelete(workflow.id)}
+                            className="text-red-500 hover:text-red-700 border border-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg"
+                          >
+                            حذف
+                          </button>
+                        </div>
+                        {/* Mobile: Show Operation Buttons in Dropdown  */}
+                        <Dropdown label="عملیات" className="lg:hidden">
+                          <Dropdown.Option
+                            onClick={() => handleEdit(workflow.id)}
+                          >
+                            <div className="flex flex-row gap-2 items-center text-green-400">
+                              <LuDownload />
+                              <span>دریافت خروجی</span>
+                            </div>
+                          </Dropdown.Option>
+                          <Dropdown.Option
+                            onClick={() => handleEdit(workflow.id)}
+                          >
+                            <div className="flex flex-row gap-2 items-center text-blue-400">
+                              <Edit size={14} />
+                              <span>ویرایش</span>
+                            </div>
+                          </Dropdown.Option>
+                          <Dropdown.Option
+                            onClick={() => handleDelete(workflow.id)}
+                          >
+                            <div className="flex flex-row gap-2 items-center text-red-400">
+                              <Trash size={14} />
+                              <span>حذف</span>
+                            </div>
+                          </Dropdown.Option>
+                        </Dropdown>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       {/* <Pagination
