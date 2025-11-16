@@ -1,6 +1,6 @@
 // DocumentIndex.js
-import React, { useState } from 'react';
-import DocumentCard from '../../../components/document/DocumentCard';
+import React, {useState } from 'react';
+import DocumentCard from "../../../components/document/DocumentCard"
 import knowledgeApi, {
   useDeleteDocumentMutation,
 } from '../../../store/api/knowledgeApi';
@@ -11,7 +11,7 @@ import { useDisplay } from '../../../hooks/display';
 import { notify } from '../../../ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
-import { GoPlusCircle } from 'react-icons/go';
+import { GoPlusCircle } from "react-icons/go";
 import { DocumentIndexLoading } from './DocumentIndexLoading';
 
 const DocumentIndexPage = () => {
@@ -66,8 +66,8 @@ const DocumentIndexPage = () => {
   /**
    * Show skeleton loading
    */
-
-  return <DocumentIndexLoading />;
+  if (isLoading)
+    return <DocumentIndexLoading/>;
 
   /**
    * Display error message when fetching fails
@@ -91,7 +91,7 @@ const DocumentIndexPage = () => {
           className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
           <span>سند جدید</span>
-          <GoPlusCircle size={22} className="pr-2 box-content" />
+          <GoPlusCircle size={22} className='pr-2 box-content'/>
         </Link>
       </div>
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
