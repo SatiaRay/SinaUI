@@ -215,7 +215,7 @@ const WorkflowIndexPage = () => {
           <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
             <thead className="bg-neutral-200 dark:bg-gray-700">
               <tr>
-                {['نام', 'وضعیت', 'عملیات', ''].map((header) => (
+                {['نام', 'وضعیت', 'خروجی', 'عملیات'].map((header) => (
                   <th
                     key={header}
                     className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
@@ -252,6 +252,15 @@ const WorkflowIndexPage = () => {
                       </span>
                     </td>
 
+                    <td className="px-4 py-4">
+                      <button
+                        onClick={() => handleDownload(workflow.id)}
+                        className="text-green-600 text-xs border border-green-600 h-8 px-3 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200 transition-colors duration-200"
+                      >
+                        دریافت خروجی
+                      </button>
+                    </td>
+
                     <td className="px-4 py-4 text-sm">
                       <div className="flex justify-center gap-3">
                         <button
@@ -267,15 +276,6 @@ const WorkflowIndexPage = () => {
                           حذف
                         </button>
                       </div>
-                    </td>
-
-                    <td className="px-4 py-4">
-                      <button
-                        onClick={() => handleDownload(workflow.id)}
-                        className="text-green-600 text-xs border border-green-600 h-8 px-3 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200 transition-colors duration-200"
-                      >
-                        دریافت خروجی
-                      </button>
                     </td>
                   </tr>
                 ))
