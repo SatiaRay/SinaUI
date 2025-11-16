@@ -27,12 +27,7 @@ const WorkflowIndexPage = () => {
   const fileInputRef = useRef(null);
 
   /**
-   * State: Optional filter by agent type (text, voice, etc.)
-   */
-  const [agentType, setAgentType] = useState('');
-
-  /**
-   * Query: Fetch all workflows, supports agentType filtering
+   * Query: Fetch all workflows
    */
   const {
     data: workflows = [],
@@ -40,7 +35,7 @@ const WorkflowIndexPage = () => {
     isError,
     error,
     refetch,
-  } = useGetAllWorkflowsQuery({ agentType });
+  } = useGetAllWorkflowsQuery();
 
   /**
    * Mutations: RTK Query auto-generated async thunks
@@ -48,13 +43,6 @@ const WorkflowIndexPage = () => {
   const [exportWorkflow] = useExportWorkflowMutation();
   const [importWorkflow] = useImportWorkflowMutation();
   const [deleteWorkflow] = useDeleteWorkflowMutation();
-
-  /**
-   * Handler: Navigate to workflow creation page
-   */
-  const handleCreate = useCallback(() => {
-    navigate('/workflow/create');
-  }, [navigate]);
 
   /**
    * Handler: Navigate to workflow edit page with ID validation
@@ -89,7 +77,7 @@ const WorkflowIndexPage = () => {
           reverseButtons: false,
         });
         if (result.isConfirmed) {
-          await deleteWorkflow({ id: workflowId, agentType }).unwrap();
+          await deleteWorkflow({ id: workflowId }).unwrap();
         }
       } catch (err) {
         console.error('Error in deletion process:', err);
@@ -254,36 +242,36 @@ const WorkflowIndexPage = () => {
 
       {/* Table container with responsive padding */}
       <div className="px-3 md:px-0 mt-3">
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg">
-          <div className="w-full">
-            {/* Table: Desktop view with columns for name, status, actions */}
-            <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
-              <thead className="bg-neutral-200 dark:bg-gray-700">
-                <tr>
-                  {['نام', 'وضعیت', 'عملیات'].map((header) => (
-                    <th
-                      key={header}
-                      className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {/* Empty state: No workflows found */}
-                {workflows.length === 0 ? (
+        {/* Empty workflows list message */}
+        {workflows.length < 1 && (
+          <div className="text-center mx-auto">
+            <p>هیچ گردش کار ثبت شده ای یافت نشد.</p>
+            <Link to={'/workflow/create'} className="underline text-blue-300">
+              ثبت گردش کار جدید
+            </Link>
+          </div>
+        )}
+
+        {/* Main content */}
+        {workflows.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg">
+              {/* Table: Desktop view with columns for name, status, actions */}
+              <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
+                <thead className="bg-neutral-200 dark:bg-gray-700">
                   <tr>
-                    <td
-                      colSpan="5"
-                      className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
-                    >
-                      هیچ گردش کاری یافت نشد
-                    </td>
+                    {['نام', 'وضعیت', 'عملیات'].map((header) => (
+                      <th
+                        key={header}
+                        className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        {header}
+                      </th>
+                    ))}
                   </tr>
-                ) : (
-                  /* Workflow rows: One per workflow */
-                  workflows.map((workflow) => (
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {/* Workflow rows: One per workflow */}
+                  {workflows.map((workflow) => (
                     <tr
                       key={workflow.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -350,12 +338,11 @@ const WorkflowIndexPage = () => {
                         </Dropdown>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
           </div>
-        </div>
+        )}
       </div>
       {/* Pagination: Currently commented out (future enhancement) */}
       {/* <Pagination
