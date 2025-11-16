@@ -16,11 +16,6 @@ import 'reactflow/dist/style.css';
 import { v4 as uuidv4 } from 'uuid';
 import { notify } from '../../../ui/toast';
 import { aiFunctionsEndpoints } from '../../../utils/apis';
-import {
-  useGetWorkflowQuery,
-  useStoreWorkflowMutation,
-  useUpdateWorkflowMutation,
-} from '../../../store/api/AiApi';
 import ChatNoHistory from '../../../components/Chat/ChatNoHistory';
 import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
@@ -69,9 +64,11 @@ const initialNodes = [
 
 /**
  * Main workflow editor component
- * Handles workflow creation, editing, and visualization
+ * 
+ * @param onSave Save workflow handler 
+ * @returns jsx
  */
-const WorkflowEditorContent = () => {
+const WorkflowEditorContent = ({onSave, workflowData = null}) => {
   // Router hooks for navigation and parameters
   const { workflowId } = useParams();
   const navigate = useNavigate();
@@ -95,14 +92,6 @@ const WorkflowEditorContent = () => {
 
   // React Flow instance for viewport manipulation
   const reactFlowInstance = useReactFlow();
-
-  // RTK Query hooks for API operations
-  const { data: workflowData, isLoading: isFetching } = useGetWorkflowQuery(
-    { id: parseInt(workflowId) },
-    { skip: !workflowId }
-  );
-  const [updateWorkflow] = useUpdateWorkflowMutation();
-  const [storeWorkflow] = useStoreWorkflowMutation();
 
   /**
    * Hides navbar when chat modal is open
@@ -755,23 +744,8 @@ const WorkflowEditorContent = () => {
           }),
         };
 
-        console.log(
-          'Saving workflow data:',
-          JSON.stringify(workflowData, null, 2)
-        );
-
         // Save or update workflow
-        if (workflowId) {
-          await updateWorkflow({
-            id: parseInt(workflowId),
-            data: workflowData,
-          });
-          notify.success('گردش کار با موفقیت بروزرسانی شد');
-        } else {
-          const { data } = await storeWorkflow({ data: workflowData });
-          navigate(`/workflow/${data.id}`);
-          notify.success('گردش کار با موفقیت ایجاد شد');
-        }
+        await onSave(workflowData)
 
         // Update main state
         setNodes(customNodes);
@@ -794,29 +768,9 @@ const WorkflowEditorContent = () => {
       workflowName,
       setNodes,
       agentType,
-      updateWorkflow,
-      storeWorkflow,
       navigate,
     ]
   );
-
-  // Loading state
-  if (isFetching || loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-red-500">{error}</div>
-      </div>
-    );
-  }
 
   return (
     <div className="h-screen w-full relative" style={{ zIndex: 10 }}>
