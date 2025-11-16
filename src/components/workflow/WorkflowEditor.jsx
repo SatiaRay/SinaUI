@@ -65,10 +65,10 @@ const initialNodes = [
 /**
  * Main workflow editor component
  * 
- * @param onSave Save workflow handler 
+ * @param setSchema Set schema json data handler for accessing the editor data from outside of the compoennt
  * @returns jsx
  */
-const WorkflowEditorContent = ({onSave, workflowData = null}) => {
+const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
   // Router hooks for navigation and parameters
   const { workflowId } = useParams();
   const navigate = useNavigate();
@@ -84,8 +84,6 @@ const WorkflowEditorContent = ({onSave, workflowData = null}) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [workflowName, setWorkflowName] = useState('');
-  const [agentType, setAgentType] = useState('');
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [aiFunctions, setAiFunctions] = useState([]);
   const [showChatModal, setShowChatModal] = useState(false);
@@ -113,9 +111,6 @@ const WorkflowEditorContent = ({onSave, workflowData = null}) => {
     try {
       setLoading(true);
       setError(null);
-
-      setWorkflowName(workflowData.name || '');
-      setAgentType(workflowData.agent_type);
 
       // Transform workflow steps to ReactFlow nodes
       const workflowNodes = workflowData.flow.map((step) => ({
@@ -590,74 +585,6 @@ const WorkflowEditorContent = ({onSave, workflowData = null}) => {
     return { chatHistory, sessionId };
   };
 
-  /**
-   * Imports workflow from JSON string
-   * @param {string} jsonString - The JSON string containing workflow data
-   */
-  const importWorkflow = useCallback(
-    (jsonString) => {
-      try {
-        const workflowData = JSON.parse(jsonString);
-        if (!workflowData.flow || !Array.isArray(workflowData.flow)) {
-          throw new Error('Invalid workflow format');
-        }
-
-        const newNodes = [];
-        const newEdges = [];
-        const xOffset = 250;
-
-        workflowData.flow.forEach((step, index) => {
-          const node = {
-            id: step.id,
-            type: step.type === 'action' ? 'process' : step.type,
-            position: { x: index * xOffset, y: 250 },
-            data: {
-              label: step.label,
-              description: step.description || '',
-              position: step.position,
-              conditions:
-                step.type === 'decision'
-                  ? Object.keys(step.conditions || {})
-                  : [],
-              jsonConfig: null,
-              pageConfig: {
-                showPage: false,
-                pageUrl: '',
-                closeOnAction: false,
-              },
-            },
-          };
-          newNodes.push(node);
-
-          if (step.type === 'decision' && step.conditions) {
-            Object.entries(step.conditions).forEach(([condition, targetId]) => {
-              newEdges.push({
-                id: `${step.id}-${targetId}`,
-                source: step.id,
-                target: targetId,
-                sourceHandle: condition,
-                type: 'step',
-              });
-            });
-          } else if (step.next) {
-            newEdges.push({
-              id: `${step.id}-${step.next}`,
-              source: step.id,
-              target: step.next,
-              type: 'step',
-            });
-          }
-        });
-
-        setNodes(newNodes);
-        setEdges(newEdges);
-      } catch (error) {
-        console.error('Error importing workflow:', error);
-        alert('Error importing workflow: ' + error.message);
-      }
-    },
-    [setNodes, setEdges]
-  );
 
   /**
    * Saves workflow to the backend
@@ -671,20 +598,8 @@ const WorkflowEditorContent = ({onSave, workflowData = null}) => {
         setLoading(true);
         setError(null);
 
-        // Validate workflow name
-        if (!workflowName.trim()) {
-          notify.error('لطفا نام گردش کار را وارد کنید');
-          setLoading(false);
-          return;
-        }
-
-        const usedAgentType = overrideAgentType ?? agentType;
-
         // Transform nodes and edges to API format
-        workflowData = {
-          name: workflowName.trim(),
-          agent_type: usedAgentType,
-          flow: customNodes.map((node) => {
+        workflowData = customNodes.map((node) => {
             const step = {
               id: node.id,
               label: node.data.label,
@@ -741,11 +656,10 @@ const WorkflowEditorContent = ({onSave, workflowData = null}) => {
             }
 
             return step;
-          }),
-        };
+          });
 
         // Save or update workflow
-        await onSave(workflowData)
+        await setSchema(workflowData)
 
         // Update main state
         setNodes(customNodes);
@@ -765,9 +679,7 @@ const WorkflowEditorContent = ({onSave, workflowData = null}) => {
       nodes,
       edges,
       workflowId,
-      workflowName,
       setNodes,
-      agentType,
       navigate,
     ]
   );
@@ -789,10 +701,6 @@ const WorkflowEditorContent = ({onSave, workflowData = null}) => {
 
       {/* Sidebar component for workflow management */}
       <WorkflowEditorSidebar
-        workflowName={workflowName}
-        setWorkflowName={setWorkflowName}
-        agentType={agentType}
-        setAgentType={setAgentType}
         workflowId={workflowId}
         saveWorkflow={saveWorkflow}
         addNode={addNode}
