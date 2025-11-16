@@ -22,6 +22,11 @@ const WorkflowIndexPage = () => {
   const navigate = useNavigate();
 
   /**
+   * List of workflows
+   */
+  const [workflows, setWorkflows] = useState(null);
+
+  /**
    * Ref: Hidden file input for workflow import
    */
   const fileInputRef = useRef(null);
@@ -30,12 +35,18 @@ const WorkflowIndexPage = () => {
    * Query: Fetch all workflows
    */
   const {
-    data: workflows = [],
+    data = [],
     isLoading,
+    isSuccess,
     isError,
     error,
     refetch,
   } = useGetAllWorkflowsQuery();
+
+  /**
+   * Store workflows from request response data to state prop for optimistic mutation
+   */
+  if (isSuccess && !workflows) setWorkflows(data);
 
   /**
    * Mutations: RTK Query auto-generated async thunks
@@ -77,11 +88,14 @@ const WorkflowIndexPage = () => {
           reverseButtons: false,
         });
         if (result.isConfirmed) {
+          setWorkflows(workflows.filter(workflow => workflow.id != workflowId))
+
           await deleteWorkflow({ id: workflowId }).unwrap();
         }
       } catch (err) {
         console.error('Error in deletion process:', err);
         notify.error('خطا در حذف گردش کار! لطفاً دوباره تلاش کنید');
+        setWorkflows(data)
       }
     },
     [deleteWorkflow]
@@ -201,6 +215,11 @@ const WorkflowIndexPage = () => {
   }
 
   /**
+   * Prevent map workflows when it is null
+   */
+  if (!workflows) return null;
+
+  /**
    * Render: Main layout with header, actions, and workflow table
    */
   return (
@@ -255,92 +274,92 @@ const WorkflowIndexPage = () => {
         {/* Main content */}
         {workflows.length > 0 && (
           <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg">
-              {/* Table: Desktop view with columns for name, status, actions */}
-              <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
-                <thead className="bg-neutral-200 dark:bg-gray-700">
-                  <tr>
-                    {['نام', 'وضعیت', 'عملیات'].map((header) => (
-                      <th
-                        key={header}
-                        className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {/* Workflow rows: One per workflow */}
-                  {workflows.map((workflow) => (
-                    <tr
-                      key={workflow.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
+            {/* Table: Desktop view with columns for name, status, actions */}
+            <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
+              <thead className="bg-neutral-200 dark:bg-gray-700">
+                <tr>
+                  {['نام', 'وضعیت', 'عملیات'].map((header) => (
+                    <th
+                      key={header}
+                      className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
                     >
-                      {/* Workflow name column */}
-                      <td className="px-4 pt-6 text-sm text-gray-900 dark:text-white line-clamp-1">
-                        {workflow.name || '-'}
-                      </td>
-                      {/* Status column: Hardcoded as "فعال" for now */}
-                      <td className="px-4 py-4">
-                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                          فعال
-                        </span>
-                      </td>
-                      {/* Actions column: Desktop buttons + mobile dropdown */}
-                      <td className="px-4 py-4 text-sm">
-                        {/* Desktop: Inline action buttons */}
-                        <div className="hidden lg:flex justify-center gap-4">
-                          <button
-                            onClick={() => handleDownload(workflow.id)}
-                            className="text-green-600 text-xs border border-green-600 h-8 px-3 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200 transition-colors duration-200"
-                          >
-                            دریافت خروجی
-                          </button>
-                          <button
-                            onClick={() => handleEdit(workflow.id)}
-                            className="text-blue-500 hover:text-blue-700 border border-blue-500 hover:bg-blue-500 hover:text-white px-3 rounded-lg"
-                          >
-                            ویرایش
-                          </button>
-                          <button
-                            onClick={() => handleDelete(workflow.id)}
-                            className="text-red-500 hover:text-red-700 border border-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg"
-                          >
-                            حذف
-                          </button>
-                        </div>
-                        {/* Mobile: Dropdown menu with same actions */}
-                        <Dropdown label="عملیات" className="lg:hidden">
-                          <Dropdown.Option
-                            onClick={() => handleEdit(workflow.id)}
-                          >
-                            <div className="flex flex-row gap-2 items-center text-green-400">
-                              <LuDownload />
-                              <span>دریافت خروجی</span>
-                            </div>
-                          </Dropdown.Option>
-                          <Dropdown.Option
-                            onClick={() => handleEdit(workflow.id)}
-                          >
-                            <div className="flex flex-row gap-2 items-center text-blue-400">
-                              <Edit size={14} />
-                              <span>ویرایش</span>
-                            </div>
-                          </Dropdown.Option>
-                          <Dropdown.Option
-                            onClick={() => handleDelete(workflow.id)}
-                          >
-                            <div className="flex flex-row gap-2 items-center text-red-400">
-                              <Trash size={14} />
-                              <span>حذف</span>
-                            </div>
-                          </Dropdown.Option>
-                        </Dropdown>
-                      </td>
-                    </tr>
+                      {header}
+                    </th>
                   ))}
-                </tbody>
-              </table>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {/* Workflow rows: One per workflow */}
+                {workflows.map((workflow) => (
+                  <tr
+                    key={workflow.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    {/* Workflow name column */}
+                    <td className="px-4 pt-6 text-sm text-gray-900 dark:text-white line-clamp-1">
+                      {workflow.name || '-'}
+                    </td>
+                    {/* Status column: Hardcoded as "فعال" for now */}
+                    <td className="px-4 py-4">
+                      <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        فعال
+                      </span>
+                    </td>
+                    {/* Actions column: Desktop buttons + mobile dropdown */}
+                    <td className="px-4 py-4 text-sm">
+                      {/* Desktop: Inline action buttons */}
+                      <div className="hidden lg:flex justify-center gap-4">
+                        <button
+                          onClick={() => handleDownload(workflow.id)}
+                          className="text-green-600 text-xs border border-green-600 h-8 px-3 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200 transition-colors duration-200"
+                        >
+                          دریافت خروجی
+                        </button>
+                        <button
+                          onClick={() => handleEdit(workflow.id)}
+                          className="text-blue-500 hover:text-blue-700 border border-blue-500 hover:bg-blue-500 hover:text-white px-3 rounded-lg"
+                        >
+                          ویرایش
+                        </button>
+                        <button
+                          onClick={() => handleDelete(workflow.id)}
+                          className="text-red-500 hover:text-red-700 border border-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg"
+                        >
+                          حذف
+                        </button>
+                      </div>
+                      {/* Mobile: Dropdown menu with same actions */}
+                      <Dropdown label="عملیات" className="lg:hidden">
+                        <Dropdown.Option
+                          onClick={() => handleEdit(workflow.id)}
+                        >
+                          <div className="flex flex-row gap-2 items-center text-green-400">
+                            <LuDownload />
+                            <span>دریافت خروجی</span>
+                          </div>
+                        </Dropdown.Option>
+                        <Dropdown.Option
+                          onClick={() => handleEdit(workflow.id)}
+                        >
+                          <div className="flex flex-row gap-2 items-center text-blue-400">
+                            <Edit size={14} />
+                            <span>ویرایش</span>
+                          </div>
+                        </Dropdown.Option>
+                        <Dropdown.Option
+                          onClick={() => handleDelete(workflow.id)}
+                        >
+                          <div className="flex flex-row gap-2 items-center text-red-400">
+                            <Trash size={14} />
+                            <span>حذف</span>
+                          </div>
+                        </Dropdown.Option>
+                      </Dropdown>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
