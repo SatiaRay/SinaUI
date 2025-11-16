@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
   useDeleteWorkflowMutation,
@@ -7,10 +7,11 @@ import {
   useExportWorkflowMutation,
   useImportWorkflowMutation,
 } from '../../../store/api/AiApi';
-import CustomDropdown from '../../../ui/dropdown';
 import { notify } from '../../../ui/toast';
 import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';
 import Error from '@components/Error';
+import { GoPlusCircle } from 'react-icons/go';
+import { LuUpload } from 'react-icons/lu';
 
 const WorkflowIndexPage = () => {
   const navigate = useNavigate();
@@ -180,27 +181,10 @@ const WorkflowIndexPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 w-full">
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-xl sm:text-2xl border-r-2 border-blue-500 pr-2 w-full sm:w-auto font-bold text-gray-800 dark:text-white">
-          گردش کارها
-        </h1>
-
-        {/* Action Buttons and Filters */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-          <CustomDropdown
-            options={[
-              { value: '', label: 'همه' },
-              { value: 'text_agent', label: 'ربات متنی' },
-              { value: 'voice_agent', label: 'ربات صوتی' },
-            ]}
-            value={agentType}
-            onChange={(val) => setAgentType(val)}
-            placeholder="انتخاب نوع ربات"
-            className="w-full sm:w-28"
-          />
-
+    <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
+      <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
+        <h3 className="text-3xl">گردش کارها</h3>
+        <div className='flex gap-2 items-center'>
           <>
             <input
               type="file"
@@ -211,28 +195,27 @@ const WorkflowIndexPage = () => {
             />
             <button
               onClick={handleFileSelect}
-              className="border text-blue-500 border-blue-500 text-xs font-bold hover:bg-blue-500 hover:text-white h-10 px-4 rounded-md transition-colors duration-200 w-full sm:w-32"
+              className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
-              بارگذاری گردش کار
+              <span className='pl-1'>بارگذاری گردش کار</span>
+              <LuUpload size={24} className="pr-2 pb-1 border-box"/>
             </button>
           </>
-
-          <button
-            onClick={handleCreate}
-            className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 h-10 rounded-md transition-colors duration-200 w-full sm:w-32"
+          <Link
+            to={'/workflow/create'}
+            className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
-            ایجاد گردش کار
-          </button>
+            <span>سند جدید</span>
+            <GoPlusCircle size={22} className="pr-2 box-content" />
+          </Link>
         </div>
       </div>
-
-      {/* Desktop Table */}
       <div className="hidden sm:block bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
         <div className="w-full overflow-hidden">
           <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
             <thead className="bg-neutral-200 dark:bg-gray-700">
               <tr>
-                {['نام', 'نوع ربات', 'وضعیت', 'عملیات', ''].map((header) => (
+                {['نام', 'وضعیت', 'عملیات', ''].map((header) => (
                   <th
                     key={header}
                     className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
@@ -261,16 +244,6 @@ const WorkflowIndexPage = () => {
                   >
                     <td className="px-4 py-4 text-sm text-gray-900 dark:text-white">
                       {workflow.name || '-'}
-                    </td>
-
-                    <td className="px-4 py-4 text-sm text-gray-900 dark:text-white">
-                      {workflow.agent_type === 'text_agent'
-                        ? 'ربات متنی'
-                        : workflow.agent_type === 'voice_agent'
-                          ? 'ربات صوتی'
-                          : workflow.agent_type === 'both'
-                            ? 'همه'
-                            : '-'}
                     </td>
 
                     <td className="px-4 py-4">
@@ -311,66 +284,76 @@ const WorkflowIndexPage = () => {
           </table>
         </div>
       </div>
-
-      {/* Mobile Cards */}
-      <div className="sm:hidden space-y-4">
-        {workflows.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 text-center text-gray-500 dark:text-gray-400">
-            هیچ گردش کاری یافت نشد
-          </div>
-        ) : (
-          workflows.map((workflow) => (
-            <div
-              key={workflow.id}
-              className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4"
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-                    {workflow.name || '-'}
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {workflow.agent_type === 'text_agent'
-                      ? 'ربات متنی'
-                      : workflow.agent_type === 'voice_agent'
-                        ? 'ربات صوتی'
-                        : workflow.agent_type === 'both'
-                          ? 'همه'
-                          : '-'}
-                  </p>
-                </div>
-                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  فعال
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-600">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(workflow.id)}
-                    className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 text-xs px-3 py-1 border border-blue-600 rounded-md"
-                  >
-                    ویرایش
-                  </button>
-                  <button
-                    onClick={() => handleDelete(workflow.id)}
-                    className="text-red-500 hover:text-red-700 text-xs px-3 py-1 border border-red-500 rounded-md"
-                  >
-                    حذف
-                  </button>
-                </div>
-                <button
-                  onClick={() => handleDownload(workflow.id)}
-                  className="text-green-600 text-xs border border-green-600 px-3 py-1 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200"
-                >
-                  دریافت
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      {/* <Pagination
+        page={page}
+        perpage={perpage}
+        totalPages={data.pages}
+        totalItems={data.total}
+        handlePageChange={setPage}
+      /> */}
     </div>
+
+    //   {/* Desktop Table */}
+
+    //   {/* Mobile Cards */}
+    //   <div className="sm:hidden space-y-4">
+    //     {workflows.length === 0 ? (
+    //       <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 text-center text-gray-500 dark:text-gray-400">
+    //         هیچ گردش کاری یافت نشد
+    //       </div>
+    //     ) : (
+    //       workflows.map((workflow) => (
+    //         <div
+    //           key={workflow.id}
+    //           className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4"
+    //         >
+    //           <div className="flex justify-between items-start mb-3">
+    //             <div>
+    //               <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+    //                 {workflow.name || '-'}
+    //               </h3>
+    //               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+    //                 {workflow.agent_type === 'text_agent'
+    //                   ? 'ربات متنی'
+    //                   : workflow.agent_type === 'voice_agent'
+    //                     ? 'ربات صوتی'
+    //                     : workflow.agent_type === 'both'
+    //                       ? 'همه'
+    //                       : '-'}
+    //               </p>
+    //             </div>
+    //             <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+    //               فعال
+    //             </span>
+    //           </div>
+
+    //           <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-600">
+    //             <div className="flex gap-2">
+    //               <button
+    //                 onClick={() => handleEdit(workflow.id)}
+    //                 className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 text-xs px-3 py-1 border border-blue-600 rounded-md"
+    //               >
+    //                 ویرایش
+    //               </button>
+    //               <button
+    //                 onClick={() => handleDelete(workflow.id)}
+    //                 className="text-red-500 hover:text-red-700 text-xs px-3 py-1 border border-red-500 rounded-md"
+    //               >
+    //                 حذف
+    //               </button>
+    //             </div>
+    //             <button
+    //               onClick={() => handleDownload(workflow.id)}
+    //               className="text-green-600 text-xs border border-green-600 px-3 py-1 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200"
+    //             >
+    //               دریافت
+    //             </button>
+    //           </div>
+    //         </div>
+    //       ))
+    //     )}
+    //   </div>
+    // </div>
   );
 };
 
