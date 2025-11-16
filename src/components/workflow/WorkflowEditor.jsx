@@ -14,9 +14,9 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { v4 as uuidv4 } from 'uuid';
-import { notify } from '../../../ui/toast';
-import { aiFunctionsEndpoints } from '../../../utils/apis';
-import ChatNoHistory from '../../../components/Chat/ChatNoHistory';
+import { notify } from '../../ui/toast';
+import { aiFunctionsEndpoints } from '../../utils/apis';
+import ChatNoHistory from '../Chat/ChatNoHistory';
 import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
 import WorkflowEditorSidebar from './WorkflowEditorSidebar';

@@ -26,12 +26,12 @@ import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
-import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
 import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
+import CreateWorkflowPage from '@pages/workflow/CreateWorkflow/CreateWorkflowPage';
 
 function App() {
   return (
@@ -250,7 +250,7 @@ function privateRoutes() {
           path="create"
           element={
             <PrivateRoute>
-              <WorkflowEditor />
+              <CreateWorkflowPage />
             </PrivateRoute>
           }
         />

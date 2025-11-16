@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import CustomDropdown from '../../../ui/dropdown';
+import CustomDropdown from '../../ui/dropdown';
 import {
   PlayIcon,
   PlusCircleIcon,
@@ -12,20 +12,10 @@ import {
 } from '@heroicons/react/24/outline';
 
 const WorkflowEditorSidebar = ({
-  workflowName,
-  setWorkflowName,
-  agentType = 'text_agent',
-  setAgentType,
-  saveWorkflow,
   addNode,
   setShowChatModal,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
-  useEffect(() => {
-    if (!agentType) {
-      setAgentType('text_agent');
-    }
-  }, [agentType, setAgentType]);
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -71,46 +61,6 @@ const WorkflowEditorSidebar = ({
             : 'max-h-0 opacity-0 overflow-hidden'
         }`}
       >
-        <div className="p-1.5">
-          <label
-            htmlFor="workflow-name"
-            className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-          >
-            نام گردش کار
-          </label>
-          <input
-            type="text"
-            id="workflow-name"
-            value={workflowName}
-            onChange={(e) => setWorkflowName(e.target.value)}
-            placeholder="نام گردش کار را وارد کنید"
-            className="w-full px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-          />
-        </div>
-        <div className="p-1.5">
-          <label
-            htmlFor="agent_type"
-            className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-          >
-            نوع ربات
-          </label>
-
-          <CustomDropdown
-            options={[
-              { value: 'both', label: 'همه' },
-              { value: 'text_agent', label: 'ربات متنی' },
-              { value: 'voice_agent', label: 'ربات صوتی' },
-            ]}
-            value={agentType}
-            onChange={setAgentType}
-            placeholder="انتخاب نوع ربات"
-            parentStyle="w-full"
-            className="text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md"
-            style={{ height: '38px', lineHeight: '38px' }} // ارتفاع مشابه input
-          />
-        </div>
-        <hr className="border-gray-200 dark:border-gray-700 my-1" />
-
         <button
           onClick={() => addNode('start')}
           className={`${buttonStyles} bg-[var(--accent-blue)] hover:bg-blue-600 focus:ring-blue-400`}
@@ -160,13 +110,6 @@ const WorkflowEditorSidebar = ({
         >
           <PlayIcon className="h-4 w-4" />
           اجرا
-        </button>
-        <button
-          onClick={() => saveWorkflow()}
-          className={`${buttonStyles} bg-[var(--accent-green)] hover:bg-green-500 focus:ring-green-400`}
-        >
-          <CheckIcon className="h-4 w-4" /> {/* جایگزینی با CheckIcon */}
-          ذخیره
         </button>
       </div>
     </div>
