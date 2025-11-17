@@ -7,7 +7,7 @@ import {
   XCircleIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline';
-import { PanelLeft, PanelLeftClose } from 'lucide-react';
+import { Braces, CirclePlay, Construction, Cpu, GitPullRequest, Menu, MessageSquareShare, PanelLeft, PanelLeftClose, SquareFunction } from 'lucide-react';
 import { useDisplay } from 'hooks/display';
 
 const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
@@ -72,18 +72,21 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
           <div className="grid gap-2">
             {extended && (
               <>
-                <h3 className={`text-lg my-0 pt-2 mr-1`}>منو</h3>
+                <div className='flex items-center'>
+                  <Menu className='pt-2 box-content'/>
+                  <h3 className={`text-lg my-0 pt-2 mr-2`}>منو</h3>
+                </div>
                 <hr className="border-gray-200 dark:border-gray-700 my-1" />
               </>
             )}
 
             <button
               onClick={() => addNode('start')}
-              className={`${buttonStyles} bg-[var(--accent-blue)] hover:bg-blue-600 focus:ring-blue-400 h-[45px] rounded-lg text-center`}
+              className={`${buttonStyles} bg-green-500 hover:bg-green-600 focus:ring-green-400 h-[45px] rounded-lg text-center`}
               style={{ width: extended ? '100%' : '50px' }}
               title="نقطه شروع فرایند"
             >
-              <PlusCircleIcon
+              <CirclePlay
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -95,7 +98,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
               style={{ width: extended ? '100%' : '50px' }}
               title="فرایند"
             >
-              <CogIcon
+              <Cpu
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -107,7 +110,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
               style={{ width: extended ? '100%' : '50px' }}
               title="تصمیم"
             >
-              <QuestionMarkCircleIcon
+              <GitPullRequest
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -119,7 +122,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
               style={{ width: extended ? '100%' : '50px' }}
               title="تابع"
             >
-              <CogIcon
+              <Braces
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -127,11 +130,11 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
             </button>
             <button
               onClick={() => addNode('response')}
-              className={`${buttonStyles} bg-[var(--accent-orange)] hover:bg-orange-600 focus:ring-orange-400 h-[45px] rounded-lg`}
+              className={`${buttonStyles} bg-gray-400 hover:bg-gray-600 focus:ring-gray-400 h-[45px] rounded-lg`}
               style={{ width: extended ? '100%' : '50px' }}
               title="پاسخ"
             >
-              <QuestionMarkCircleIcon
+              <MessageSquareShare
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -139,11 +142,11 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
             </button>
             <button
               onClick={() => addNode('end')}
-              className={`${buttonStyles} bg-[var(--accent-red)] hover:bg-red-600 focus:ring-red-400 h-[45px] rounded-lg`}
+              className={`${buttonStyles} bg-red-500 hover:bg-red-600 focus:ring-red-400 h-[45px] rounded-lg`}
               style={{ width: extended ? '100%' : '50px' }}
               title="پایان"
             >
-              <XCircleIcon
+              <Construction
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -152,8 +155,8 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
             <hr className="border-gray-200 dark:border-gray-700 my-1" />
             <button
               onClick={() => {
-                setShowChatModal(true)
-                setExtended(false)
+                setShowChatModal(true);
+                setExtended(false);
               }}
               className={`${buttonStyles} bg-[var(--accent-teal)] hover:bg-teal-600 focus:ring-teal-400 border border-teal-400 h-[45px] rounded-lg`}
               style={{ width: extended ? '100%' : '50px' }}
