@@ -832,15 +832,11 @@ const Chat = ({ services = null }) => {
       text: 'آیا از پاک کردن تمام تاریخچه چت مطمئن هستید؟ این عمل قابل بازگشت نیست.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#0ea5e9',
+      cancelButtonColor: '#6b7280',
       confirmButtonText: 'بله، پاک کن!',
       cancelButtonText: 'لغو',
-      customClass: {
-        confirmButton: 'swal2-confirm-btn',
-        cancelButton: 'swal2-cancel-btn',
-      },
-      buttonsStyling: false,
+      buttonsStyling: true,
     });
     if (result.isConfirmed) {
       clearHistory();
@@ -849,11 +845,9 @@ const Chat = ({ services = null }) => {
         title: 'پاک شد!',
         text: 'تاریخچه چت با موفقیت پاک شد.',
         icon: 'success',
+        confirmButtonColor: '#0ea5e9',
         confirmButtonText: 'باشه',
-        customClass: {
-          confirmButton: 'swal2-ok-btn',
-        },
-        buttonsStyling: false,
+        buttonsStyling: true,
       });
       // after clearing history ensure bottom
       setTimeout(forceScrollToBottomImmediate, 50);
