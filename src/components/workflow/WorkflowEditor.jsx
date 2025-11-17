@@ -26,6 +26,7 @@ import FunctionNode from './nodes/FunctionNode';
 import ProcessNode from './nodes/ProcessNode';
 import ResponseNode from './nodes/ResponseNode';
 import StartNode from './nodes/StartNode';
+import { useDisplay } from 'hooks/display';
 
 /**
  * Node type definitions for ReactFlow
@@ -64,11 +65,11 @@ const initialNodes = [
 
 /**
  * Main workflow editor component
- * 
+ *
  * @param setSchema Set schema json data handler for accessing the editor data from outside of the compoennt
  * @returns jsx
  */
-const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
+const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
   // Router hooks for navigation and parameters
   const { workflowId } = useParams();
   const navigate = useNavigate();
@@ -100,6 +101,11 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
       window.parent.postMessage({ type: 'HIDE_NAVBAR' }, '*');
     }
   }, [showChatModal]);
+
+  /**
+   * Display util hooks
+   */
+  const { isDesktop } = useDisplay();
 
   /**
    * Fetches workflow data when component mounts or workflowId changes
@@ -592,7 +598,6 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
     return { chatHistory, sessionId };
   };
 
-
   /**
    * Saves workflow to the backend
    * @param {Array} customNodes - Optional custom nodes to save
@@ -607,66 +612,66 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
 
         // Transform nodes and edges to API format
         workflowData = customNodes.map((node) => {
-            const step = {
-              id: node.id,
-              label: node.data.label,
-              description: node.data.description || null,
-              position: node.position,
-            };
+          const step = {
+            id: node.id,
+            label: node.data.label,
+            description: node.data.description || null,
+            position: node.position,
+          };
 
-            switch (node.type) {
-              case 'start':
-                step.type = 'start';
-                break;
-              case 'process':
-                step.type = 'process';
-                break;
-              case 'function':
-                step.type = 'function';
-                step.functionName = node.data.functionData?.name;
-                step.functionDescription = node.data.functionData?.description;
-                step.functionParameters = node.data.functionData?.parameters;
-                break;
-              case 'response':
-                step.type = 'response';
-                break;
-              case 'decision':
-                step.type = 'decision';
-                const outgoingEdges = edges.filter(
-                  (edge) =>
-                    edge.source === node.id &&
-                    edge.target &&
-                    node.data.conditions.includes(edge.sourceHandle)
-                );
-                step.conditions = outgoingEdges.map((edge) => ({
-                  label: edge.sourceHandle,
-                  next: edge.target,
-                }));
-                break;
-              case 'end':
-                step.type = 'end';
-                break;
-              default:
-                step.type = 'unknown';
-            }
-
-            // Set next node for non-decision, non-end nodes
-            if (node.type !== 'decision' && node.type !== 'end') {
+          switch (node.type) {
+            case 'start':
+              step.type = 'start';
+              break;
+            case 'process':
+              step.type = 'process';
+              break;
+            case 'function':
+              step.type = 'function';
+              step.functionName = node.data.functionData?.name;
+              step.functionDescription = node.data.functionData?.description;
+              step.functionParameters = node.data.functionData?.parameters;
+              break;
+            case 'response':
+              step.type = 'response';
+              break;
+            case 'decision':
+              step.type = 'decision';
               const outgoingEdges = edges.filter(
-                (edge) => edge.source === node.id && edge.target
+                (edge) =>
+                  edge.source === node.id &&
+                  edge.target &&
+                  node.data.conditions.includes(edge.sourceHandle)
               );
-              if (outgoingEdges.length > 0) {
-                step.next = outgoingEdges[0].target;
-              } else {
-                step.next = null;
-              }
-            }
+              step.conditions = outgoingEdges.map((edge) => ({
+                label: edge.sourceHandle,
+                next: edge.target,
+              }));
+              break;
+            case 'end':
+              step.type = 'end';
+              break;
+            default:
+              step.type = 'unknown';
+          }
 
-            return step;
-          });
+          // Set next node for non-decision, non-end nodes
+          if (node.type !== 'decision' && node.type !== 'end') {
+            const outgoingEdges = edges.filter(
+              (edge) => edge.source === node.id && edge.target
+            );
+            if (outgoingEdges.length > 0) {
+              step.next = outgoingEdges[0].target;
+            } else {
+              step.next = null;
+            }
+          }
+
+          return step;
+        });
 
         // Save or update workflow
-        await setSchema(workflowData)
+        await setSchema(workflowData);
 
         // Update main state
         setNodes(customNodes);
@@ -682,17 +687,14 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
         setLoading(false);
       }
     },
-    [
-      nodes,
-      edges,
-      workflowId,
-      setNodes,
-      navigate,
-    ]
+    [nodes, edges, workflowId, setNodes, navigate]
   );
 
   return (
-    <div className="h-full w-full relative border border-gray-700 rounded-md overflow-hidden" style={{ zIndex: 10 }}>
+    <div
+      className="h-full w-full relative border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden"
+      style={{ zIndex: 10 }}
+    >
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -727,9 +729,10 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
         fitView
         proOptions={{ hideAttribution: true }}
         style={{ zIndex: 10 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.1 }}
       >
         <Controls />
-        <MiniMap />
+        {isDesktop && <MiniMap />}
         <Background variant="dots" gap={12} size={1} />
       </ReactFlow>
 
@@ -905,10 +908,10 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
  * Workflow Editor wrapper component with ReactFlowProvider
  * Provides React Flow context to child components
  */
-const WorkflowEditor = ({setSchema}) => {
+const WorkflowEditor = ({ setSchema }) => {
   return (
     <ReactFlowProvider>
-      <WorkflowEditorContent setSchema={setSchema}/>
+      <WorkflowEditorContent setSchema={setSchema} />
     </ReactFlowProvider>
   );
 };
