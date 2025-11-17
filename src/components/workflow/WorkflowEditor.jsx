@@ -183,6 +183,13 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
   }, [workflowData, workflowId, setNodes, setEdges]);
 
   /**
+   * Convert flow to json and call setSchema handler
+   */
+  // useEffect(() => {
+  //   setSchema(flowToJson(edges))
+  // }, [edges, nodes])
+
+  /**
    * Handles connection creation between nodes
    * Validates connection rules and creates appropriate edge
    */
@@ -591,8 +598,8 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
    * @param {Array} customNodes - Optional custom nodes to save
    * @param {string} overrideAgentType - Optional agent type override
    */
-  const saveWorkflow = useCallback(
-    async (customNodes = nodes, overrideAgentType = null) => {
+  const flowToJson = useCallback(
+    async (customNodes = nodes) => {
       let workflowData = null;
       try {
         setLoading(true);
@@ -685,7 +692,7 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
   );
 
   return (
-    <div className="h-screen w-full relative" style={{ zIndex: 10 }}>
+    <div className="h-full w-full relative border border-gray-700 rounded-md overflow-hidden" style={{ zIndex: 10 }}>
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -702,7 +709,6 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
       {/* Sidebar component for workflow management */}
       <WorkflowEditorSidebar
         workflowId={workflowId}
-        saveWorkflow={saveWorkflow}
         addNode={addNode}
         setShowChatModal={setShowChatModal}
       />
@@ -734,7 +740,6 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
           onUpdate={onNodeUpdate}
           onClose={() => setSelectedNode(null)}
           onDelete={deleteNode}
-          saveWorkflow={saveWorkflow}
           nodes={nodes}
           style={{ zIndex: 10 }}
         />
@@ -900,10 +905,10 @@ const WorkflowEditorContent = ({setSchema, workflowData = null}) => {
  * Workflow Editor wrapper component with ReactFlowProvider
  * Provides React Flow context to child components
  */
-const WorkflowEditor = () => {
+const WorkflowEditor = ({setSchema}) => {
   return (
     <ReactFlowProvider>
-      <WorkflowEditorContent />
+      <WorkflowEditorContent setSchema={setSchema}/>
     </ReactFlowProvider>
   );
 };
