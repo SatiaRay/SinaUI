@@ -1,52 +1,83 @@
+/**
+ * react-loading-skeleton: Individual skeleton elements for fine-grained control
+ */
 import Skeleton from 'react-loading-skeleton';
 
+/**
+ * Custom hook: Provides viewport height and responsive breakpoint detection
+ */
+import { useDisplay } from '../../../hooks/display';
+
+/**
+ * Loading component for WorkflowIndexPage – fully responsive with desktop table + mobile cards
+ */
 export const WorkflowIndexLoading = () => {
+  /**
+   * useDisplay: Dynamically calculates available height and whether it's a large display
+   */
+  const { height, isLargeDisplay } = useDisplay();
+
+  /**
+   * Dynamic row count: Ensures skeleton fills viewport without overflow
+   * 150px per row (approx. card/table row height) → height / 150
+   */
+  const rowCount = Math.max(3, Math.floor(height / 150));
+
   return (
-    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 w-full">
+    <div className="container mx-auto w-full p-3 md:p-0">
       {/* Header Section Skeleton */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <Skeleton
-          baseColor="#374151"
-          highlightColor="#5c626b"
-          height={32}
-          width={150}
-          className="w-full sm:w-auto"
-        />
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-          <Skeleton
-            baseColor="#374151"
-            highlightColor="#5c626b"
-            height={40}
-            className="w-full sm:w-28"
-          />
-          <Skeleton
-            baseColor="#374151"
-            highlightColor="#5c626b"
-            height={40}
-            className="w-full sm:w-32"
-          />
-          <Skeleton
-            baseColor="#374151"
-            highlightColor="#5c626b"
-            height={40}
-            className="w-full sm:w-32"
-          />
+      <div className="">
+        <div className="flex justify-between items-center w-full mb-5">
+          <h3 className="text-2xl md:text-3xl">گردش کارها</h3>
+          {/* Desktop: Action Buttons Skeleton (Import + Create) */}
+          <div className="flex gap-3 hidden md:block">
+            <Skeleton
+              baseColor="#374151"
+              highlightColor="#5c626b"
+              height={45}
+              width={120}
+              className="w-full"
+            />
+            <Skeleton
+              baseColor="#374151"
+              highlightColor="#5c626b"
+              height={45}
+              width={120}
+              className="w-full"
+            />
+          </div>
+
+          {/* Mobile: Action Buttons Skeleton (Import + Create) */}
+          <div className="flex gap-3 md:hidden">
+            <Skeleton
+              baseColor="#374151"
+              highlightColor="#5c626b"
+              height={35}
+              width={90}
+            />
+            <Skeleton
+              baseColor="#374151"
+              highlightColor="#5c626b"
+              height={35}
+              width={90}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Desktop Table Skeleton */}
-      <div className="hidden sm:block bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-        <div className="w-full overflow-hidden">
+      {/* Desktop Table Skeleton – Hidden on mobile */}
+      <div className="sm:block bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+        <div className="w-full overflow-x-auto">
           <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-neutral-200 dark:bg-gray-700">
               <tr>
-                {['نام', 'نوع ربات', 'وضعیت', 'عملیات', ''].map((_, index) => (
-                  <th key={index} className="px-4 py-3">
+                {['نام', 'وضعیت', 'عملیات'].map((header, index) => (
+                  <th key={index} className="px-4 py-3 text-center">
                     <Skeleton
                       baseColor="#374151"
                       highlightColor="#5c626b"
                       height={20}
-                      width={60}
+                      width={70}
                       className="mx-auto"
                     />
                   </th>
@@ -54,126 +85,64 @@ export const WorkflowIndexLoading = () => {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index}>
-                  <td className="px-4 py-4">
+              {Array.from({ length: rowCount }).map((_, index) => (
+                <tr
+                  key={index}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  {/* Name */}
+                  <td className="px-4 py-4 text-center">
                     <Skeleton
                       baseColor="#374151"
                       highlightColor="#5c626b"
                       height={20}
-                      width={100}
+                      width={120}
                       className="mx-auto"
                     />
                   </td>
-                  <td className="px-4 py-4">
+                  {/* Status Badge */}
+                  <td className="px-4 py-4 text-center">
                     <Skeleton
                       baseColor="#374151"
                       highlightColor="#5c626b"
-                      height={20}
-                      width={80}
-                      className="mx-auto"
+                      height={26}
+                      width={70}
+                      className="mx-auto rounded-full"
                     />
                   </td>
-                  <td className="px-4 py-4">
-                    <Skeleton
-                      baseColor="#374151"
-                      highlightColor="#5c626b"
-                      height={24}
-                      width={60}
-                      className="mx-auto"
-                    />
-                  </td>
+                  {/* Actions */}
                   <td className="px-4 py-4">
                     <div className="flex justify-center gap-2">
                       <Skeleton
                         baseColor="#374151"
                         highlightColor="#5c626b"
-                        height={20}
-                        width={40}
+                        height={36}
+                        width={80}
+                        className="rounded-lg"
                       />
-                      <Skeleton
-                        baseColor="#374151"
-                        highlightColor="#5c626b"
-                        height={20}
-                        width={40}
-                      />
+                      <div className="hidden lg:flex flex-row gap-2">
+                        <Skeleton
+                          baseColor="#374151"
+                          highlightColor="#5c626b"
+                          height={36}
+                          width={60}
+                          className="rounded-lg hidden"
+                        />
+                        <Skeleton
+                          baseColor="#374151"
+                          highlightColor="#5c626b"
+                          height={36}
+                          width={60}
+                          className="rounded-lg hidden"
+                        />
+                      </div>
                     </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <Skeleton
-                      baseColor="#374151"
-                      highlightColor="#5c626b"
-                      height={32}
-                      width={120}
-                      className="mx-auto"
-                    />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Mobile Card Skeletons */}
-      <div className="sm:hidden space-y-3">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <div
-            key={index}
-            className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 space-y-3"
-          >
-            <div className="flex justify-between items-center">
-              <Skeleton
-                baseColor="#374151"
-                highlightColor="#5c626b"
-                height={20}
-                width={120}
-              />
-              <Skeleton
-                baseColor="#374151"
-                highlightColor="#5c626b"
-                height={24}
-                width={60}
-              />
-            </div>
-            <div className="flex justify-between items-center">
-              <Skeleton
-                baseColor="#374151"
-                highlightColor="#5c626b"
-                height={18}
-                width={80}
-              />
-              <Skeleton
-                baseColor="#374151"
-                highlightColor="#5c626b"
-                height={18}
-                width={100}
-              />
-            </div>
-            <div className="flex justify-between items-center pt-2">
-              <div className="flex gap-2">
-                <Skeleton
-                  baseColor="#374151"
-                  highlightColor="#5c626b"
-                  height={32}
-                  width={60}
-                />
-                <Skeleton
-                  baseColor="#374151"
-                  highlightColor="#5c626b"
-                  height={32}
-                  width={60}
-                />
-              </div>
-              <Skeleton
-                baseColor="#374151"
-                highlightColor="#5c626b"
-                height={32}
-                width={100}
-              />
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
