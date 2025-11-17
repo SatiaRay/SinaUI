@@ -832,10 +832,10 @@ const Chat = ({ services = null }) => {
       text: 'آیا از پاک کردن تمام تاریخچه چت مطمئن هستید؟ این عمل قابل بازگشت نیست.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#0ea5e9',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
       confirmButtonText: 'بله، پاک کن!',
-      cancelButtonText: 'لغو',
+      cancelButtonText: 'لغو', 
       buttonsStyling: true,
     });
     if (result.isConfirmed) {
@@ -845,7 +845,6 @@ const Chat = ({ services = null }) => {
         title: 'پاک شد!',
         text: 'تاریخچه چت با موفقیت پاک شد.',
         icon: 'success',
-        confirmButtonColor: '#0ea5e9',
         confirmButtonText: 'باشه',
         buttonsStyling: true,
       });
