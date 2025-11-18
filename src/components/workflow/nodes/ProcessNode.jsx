@@ -3,14 +3,14 @@ import { Handle, Position } from 'reactflow';
 
 const ProcessNode = ({ data }) => {
   return (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white dark:bg-black/50 border-2 border-blue-200 dark:border-blue-700">
+    <div className="px-4 py-2 shadow-md rounded-md bg-white dark:bg-black/50 border-2 border-blue-200 dark:border-blue-600">
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3 h-3 !bg-blue-600 hover:!bg-blue-700 transition-colors"
+        className="w-3 h-3 !bg-blue-600 hover:!bg-blue-600 transition-colors"
       />
       <div className="flex items-center">
-        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-blue-50 dark:bg-blue-700">
+        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-blue-50 dark:bg-blue-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-blue-600 dark:text-white"
@@ -41,7 +41,7 @@ const ProcessNode = ({ data }) => {
       <Handle
         type="source"
         position={Position.Right}
-        className="w-3 h-3 !bg-blue-600 hover:!bg-blue-700 transition-colors"
+        className="w-3 h-3 !bg-blue-600 hover:!bg-blue-600 transition-colors"
       />
     </div>
   );
