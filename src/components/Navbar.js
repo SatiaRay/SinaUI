@@ -138,9 +138,9 @@ const Navbar = ({ onSidebarCollapse }) => {
         </button>
       </div>
 
-      <button
+      {/* <button
         onClick={toggleDesktopSidebar}
-        className="hidden md:flex fixed right-64 top-4 z-50 items-center justify-center w-6 h-6 bg-gray-800 dark:bg-gray-900 text-gray-300 hover:text-white rounded-l-md border border-gray-700 border-r-0 transition-all duration-300 hover:bg-gray-700"
+        className="hidden md:flex fixed right-64 top-4 z-40 items-center justify-center w-6 h-6 bg-gray-800 dark:bg-gray-900 text-gray-300 hover:text-white rounded-l-md border border-gray-700 border-r-0 transition-all duration-300 hover:bg-gray-700"
         style={{
           transform: desktopSidebarCollapsed
             ? 'translateX(16rem)'
@@ -153,7 +153,7 @@ const Navbar = ({ onSidebarCollapse }) => {
         ) : (
           <ChevronRightIcon className="h-4 w-4" />
         )}
-      </button>
+      </button> */}
 
       <aside
         className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${
