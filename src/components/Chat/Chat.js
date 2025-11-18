@@ -11,6 +11,7 @@ import { useChat } from '@contexts/ChatContext';
 import Swal from 'sweetalert2';
 import {
   H2,
+  H3,
   ChatContainer,
   InitialLayoutContainer,
   WelcomeSection,
@@ -36,6 +37,7 @@ import {
   ActionButtonsContainer,
   ClearHistoryButton,
   ErrorMessage,
+  H4,
 } from '../ui/common';
 
 // Optimized table parser with DOM stability
@@ -859,10 +861,10 @@ const Chat = ({ services = null }) => {
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <InitialLayoutContainer>
           <WelcomeSection>
-            <H2>سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم</H2>
-            <H2>
+            <H3>سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم</H3>
+            <H4>
               نام من به یاد ابن سینا نماد دانش و خرد ایرانی انتخاب شده است
-            </H2>
+            </H4>
             <WelcomeText>
               سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم 😊🚀🌟
             </WelcomeText>
