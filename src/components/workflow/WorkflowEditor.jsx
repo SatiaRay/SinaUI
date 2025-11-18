@@ -103,6 +103,14 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
     }
   }, [showChatModal]);
 
+  useEffect(() => {
+    const asyncSetSchema = async () => {
+      await setSchema(await flowToJson(nodes))
+    }
+
+    asyncSetSchema()
+  }, [nodes,edges])
+
   /**
    * Display util hooks
    */
@@ -390,7 +398,6 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
         },
       },
     };
-    console.log('Adding new node:', newNode);
     setNodes((nds) => [...nds, newNode]);
   };
 
