@@ -131,7 +131,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
             </button>
             <button
               onClick={() => addNode('function')}
-              className={`${buttonStyles} bg-[var(--accent-purple)] hover:bg-purple-600 focus:ring-purple-400 h-[45px] rounded-lg`}
+              className={`${buttonStyles} bg-purple-600 hover:bg-purple-700 focus:ring-purple-400 h-[45px] rounded-lg`}
               style={{ width: extended ? '100%' : '50px' }}
               title="تابع"
             >

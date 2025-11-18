@@ -3,17 +3,17 @@ import { Handle, Position } from 'reactflow';
 
 const EndNode = ({ data }) => {
   return (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white dark:bg-black/50 border-2 border-primary-200 dark:border-primary-700">
+    <div className="px-4 py-2 shadow-md rounded-md bg-white dark:bg-black/50 border-2 border-red-200 dark:border-red-500">
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3 h-3 !bg-primary-600 hover:!bg-primary-700 transition-colors"
+        className="w-3 h-3 !bg-red-600 hover:!bg-red-500 transition-colors"
       />
       <div className="flex items-center">
-        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-primary-50 dark:bg-primary-700">
+        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-red-50 dark:bg-red-500">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-primary-600 dark:text-white"
+            className="h-6 w-6 text-red-600 dark:text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
