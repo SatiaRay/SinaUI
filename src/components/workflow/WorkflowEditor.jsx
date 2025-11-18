@@ -88,7 +88,7 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [aiFunctions, setAiFunctions] = useState([]);
   const [showChatModal, setShowChatModal] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false);
 
   // React Flow instance for viewport manipulation
   const reactFlowInstance = useReactFlow();
@@ -103,13 +103,13 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
     }
   }, [showChatModal]);
 
+  /**
+   * Update flow through sending changes to the parent component
+   * through the setSchema prop
+   */
   useEffect(() => {
-    const asyncSetSchema = async () => {
-      await setSchema(await flowToJson(nodes))
-    }
-
-    asyncSetSchema()
-  }, [nodes,edges])
+    updateFlow();
+  }, [nodes, edges]);
 
   /**
    * Display util hooks
@@ -611,7 +611,7 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
    * @param {Array} customNodes - Optional custom nodes to save
    * @param {string} overrideAgentType - Optional agent type override
    */
-  const flowToJson = useCallback(
+  const updateFlow = useCallback(
     async (customNodes = nodes) => {
       let workflowData = null;
       try {
@@ -700,7 +700,7 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
 
   return (
     <div
-      className={`h-full w-full border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden z-50 ${fullscreen ? "fixed top-0 left-0 bg-white dark:bg-gray-800 " : "relative"}`}
+      className={`h-full w-full border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden z-50 ${fullscreen ? 'fixed top-0 left-0 bg-white dark:bg-gray-800 ' : 'relative'}`}
       style={{ zIndex: 10 }}
     >
       <ToastContainer
