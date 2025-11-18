@@ -7,10 +7,23 @@ import {
   XCircleIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline';
-import { Braces, CirclePlay, Construction, Cpu, GitPullRequest, Menu, MessageSquareShare, PanelLeft, PanelLeftClose, SquareFunction } from 'lucide-react';
+import {
+  Braces,
+  CirclePlay,
+  Construction,
+  Cpu,
+  Fullscreen,
+  GitPullRequest,
+  Menu,
+  MessageSquareShare,
+  Minimize,
+  PanelLeft,
+  PanelLeftClose,
+  SquareFunction,
+} from 'lucide-react';
 import { useDisplay } from 'hooks/display';
 
-const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
+const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFullscreen }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -33,7 +46,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
     <>
       {/* Sandbox */}
       <div
-        className={`absolute w-full h-full top-0 left-0 dark:bg-gray-600 bg-gray-400 opacity-80 z-10 ${extended && !isDesktop ? '' : 'hidden'}`}
+        className={`absolute w-full h-full top-0 left-0 backdrop-blur-sm opacity-80 z-10 ${extended && !isDesktop ? '' : 'hidden'}`}
       ></div>
 
       <div
@@ -64,16 +77,16 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
         <div
           className={`flex flex-col justify-between items-stretch h-full gap-1.5 p-2 transition-all duration-300 ease-in-out ${
             isMenuOpen
-              ? 'max-h-[calc(100vh-110px)] opacity-100'
-              : 'max-h-0 opacity-0 overflow-hidden'
+              ? 'opacity-100'
+              : 'opacity-0 overflow-hidden'
           }`}
         >
           {/* Menu options  */}
           <div className="grid gap-2">
             {extended && (
               <>
-                <div className='flex items-center'>
-                  <Menu className='pt-2 box-content'/>
+                <div className="flex items-center">
+                  <Menu className="pt-2 box-content" />
                   <h3 className={`text-lg my-0 pt-2 mr-2`}>منو</h3>
                 </div>
                 <hr className="border-gray-200 dark:border-gray-700 my-1" />
@@ -170,10 +183,17 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal }) => {
             </button>
           </div>
           {/* Sidebar menu footer */}
-          <div className={extended ? 'text-right' : 'text-center'}>
-            <button onClick={() => setExtended(!extended)}>
-              {extended ? <PanelLeftClose /> : <PanelLeft />}
-            </button>
+          <div className={`${extended ? 'text-right' : 'text-center'} grid gap-3`}>
+            <div>
+              <button onClick={() => setFullscreen(!fullscreen)}>
+                {fullscreen ? <Minimize/> : <Fullscreen />}
+              </button>
+            </div>
+            <div>
+              <button onClick={() => setExtended(!extended)}>
+                {extended ? <PanelLeftClose /> : <PanelLeft />}
+              </button>
+            </div>
           </div>
         </div>
       </div>

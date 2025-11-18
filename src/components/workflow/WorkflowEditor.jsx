@@ -88,6 +88,7 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [aiFunctions, setAiFunctions] = useState([]);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false)
 
   // React Flow instance for viewport manipulation
   const reactFlowInstance = useReactFlow();
@@ -692,7 +693,7 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
 
   return (
     <div
-      className="h-full w-full relative border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden"
+      className={`h-full w-full border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden z-50 ${fullscreen ? "fixed top-0 left-0 bg-white dark:bg-gray-800 " : "relative"}`}
       style={{ zIndex: 10 }}
     >
       <ToastContainer
@@ -713,6 +714,8 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
         workflowId={workflowId}
         addNode={addNode}
         setShowChatModal={setShowChatModal}
+        fullscreen={fullscreen}
+        setFullscreen={setFullscreen}
       />
 
       {/* React Flow canvas for workflow visualization */}
