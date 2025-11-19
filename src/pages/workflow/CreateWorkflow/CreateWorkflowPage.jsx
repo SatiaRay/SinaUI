@@ -9,9 +9,9 @@ import { ckEditorConfig } from '../../../configs';
 import { Sppiner } from '../../../components/ui/sppiner';
 import { useStoreWorkflowMutation } from 'store/api/AiApi';
 import { WorkflowEditor } from '..';
+import CustomDropdown from 'ui/dropdown';
 
-const CreateWorkflowPage
- = () => {
+const CreateWorkflowPage = () => {
   /**
    * Navigator
    */
@@ -21,9 +21,9 @@ const CreateWorkflowPage
    * Workflow object state prop
    */
   const [workflow, setWorkflow] = useState({
-    title: "",
-    text: "",
-    tag: "",
+    name: '', 
+    status: true,
+    flow: "{}"
   });
 
   /**
@@ -46,7 +46,7 @@ const CreateWorkflowPage
    * Store workflow handler
    */
   const handleStoreWorkflow = () => {
-    storeWorkflow(workflow);
+    storeWorkflow({data: workflow});
   };
 
   return (
@@ -75,7 +75,37 @@ const CreateWorkflowPage
           </div>
         </div>
         <div className="flex-1 flex flex-col min-h-0">
-          <WorkflowEditor/>
+          <div className="grid lg:grid-cols-2 mb-3 gap-3">
+            <div className="my-2 md:my-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                نام:
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-[6px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder="نام گردش کار"
+                onChange={(e) => setWorkflow({...workflow, name: e.target.value})}
+                value={workflow.name}
+              />
+            </div>
+            <div className="my-2 md:my-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                وضعیت
+              </label>
+              <CustomDropdown
+                placeholder="وضعیت را انتخاب کنید"
+                onChange={(status) => setWorkflow({...workflow, status})}
+                options={[
+                  { value: 1, label: 'فعال' },
+                  { value: 0, label: 'غیرفعال' },
+                ]}
+                value={workflow.status}
+                className="w-full"
+                parentStyle="w-full"
+              />
+            </div>
+          </div>
+          <WorkflowEditor setSchema={(flow) => setWorkflow({...workflow, flow})} />
         </div>
       </div>
     </div>
