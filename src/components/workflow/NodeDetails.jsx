@@ -27,7 +27,6 @@ const NodeDetails = ({
         ...details,
         conditions: details.conditions.filter((c) => c && c.trim() !== ''),
       };
-      console.log('Sending updated data:', updatedData); // لاگ برای دیباگ
 
       // به‌روزرسانی گره در state
       onUpdate(node.id, updatedData);
@@ -46,10 +45,6 @@ const NodeDetails = ({
           : n
       );
 
-      console.log('Updated nodes before saving:', updatedNodes); // لاگ برای دیباگ
-
-      // فراخوانی saveWorkflow با nodes به‌روز‌شده
-      await saveWorkflow(updatedNodes);
       notify.success('تغییرات با موفقیت ذخیره شد');
       onClose();
     } catch (error) {
