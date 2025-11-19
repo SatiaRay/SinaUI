@@ -32,6 +32,7 @@ import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
 import CreateWorkflowPage from '@pages/workflow/CreateWorkflow/CreateWorkflowPage';
+import EditWorkflowPage from '@pages/workflow/EditWorkflow/EditWorkflowPage';
 
 function App() {
   return (
@@ -242,7 +243,7 @@ function privateRoutes() {
           path=":id"
           element={
             <PrivateRoute>
-              <WorkflowEditor />
+              <EditWorkflowPage />
             </PrivateRoute>
           }
         />

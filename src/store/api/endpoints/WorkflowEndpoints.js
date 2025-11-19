@@ -28,7 +28,7 @@ export const WorkflowEndpoints = (api) => {
        * @param {number} params.id - Workflow ID
        */
       getWorkflow: builder.query({
-        query: ({ id }) => `/workflows/${id}`,
+        query: (id) => `/workflows/${id}`,
         providesTags: (result) =>
           result ? [{ type: 'Workflow', id: result.id }] : [],
       }),
