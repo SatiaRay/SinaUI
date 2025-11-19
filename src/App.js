@@ -239,7 +239,7 @@ function privateRoutes() {
           }
         />
         <Route
-          path=":workflowId"
+          path=":id"
           element={
             <PrivateRoute>
               <WorkflowEditor />

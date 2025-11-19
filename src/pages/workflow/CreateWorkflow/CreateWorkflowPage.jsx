@@ -21,15 +21,29 @@ const CreateWorkflowPage = () => {
    * Workflow object state prop
    */
   const [workflow, setWorkflow] = useState({
-    name: '', 
+    name: '',
     status: true,
-    flow: "{}"
+    flow: [
+      {
+        id: '1',
+        label: 'شروع',
+        type: 'start',
+        position: {
+          x: 50,
+          y: 250,
+        },
+        conditions: null,
+        next: null,
+        description: 'نقطه شروع فرآیند',
+        ele: null,
+      },
+    ],
   });
 
   /**
    * Store workflow request hook
    */
-  const [storeWorkflow, { isLoading, isSuccess, isError, error }] =
+  const [storeWorkflow, { isLoading, isSuccess, isError, error, data }] =
     useStoreWorkflowMutation();
 
   /**
@@ -38,7 +52,7 @@ const CreateWorkflowPage = () => {
   useEffect(() => {
     if (isSuccess) {
       notify.success('گردش کار با موفقیت اضافه شد !');
-      navigate('/workflow');
+      navigate(`/workflow/${data.id}`);
     }
   }, [isSuccess]);
 
@@ -46,11 +60,11 @@ const CreateWorkflowPage = () => {
    * Store workflow handler
    */
   const handleStoreWorkflow = () => {
-    storeWorkflow({data: workflow});
+    storeWorkflow({ data: workflow });
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-hidden w-full">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col overflow-hidden w-full">
       <div className="flex-1 flex flex-col p-3 md:p-8 pt-10">
         <div className="flex justify-between md:items-center mb-4 max-md:flex-col max-md:gap-2">
           <div className="flex items-center gap-4">
@@ -84,7 +98,9 @@ const CreateWorkflowPage = () => {
                 type="text"
                 className="w-full px-3 py-[6px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 placeholder="نام گردش کار"
-                onChange={(e) => setWorkflow({...workflow, name: e.target.value})}
+                onChange={(e) =>
+                  setWorkflow({ ...workflow, name: e.target.value })
+                }
                 value={workflow.name}
               />
             </div>
@@ -94,7 +110,7 @@ const CreateWorkflowPage = () => {
               </label>
               <CustomDropdown
                 placeholder="وضعیت را انتخاب کنید"
-                onChange={(status) => setWorkflow({...workflow, status})}
+                onChange={(status) => setWorkflow({ ...workflow, status })}
                 options={[
                   { value: 1, label: 'فعال' },
                   { value: 0, label: 'غیرفعال' },
@@ -105,7 +121,6 @@ const CreateWorkflowPage = () => {
               />
             </div>
           </div>
-          <WorkflowEditor setSchema={(flow) => setWorkflow({...workflow, flow})} />
         </div>
       </div>
     </div>
