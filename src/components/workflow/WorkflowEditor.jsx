@@ -27,7 +27,7 @@ import ProcessNode from './nodes/ProcessNode';
 import ResponseNode from './nodes/ResponseNode';
 import StartNode from './nodes/StartNode';
 import { useDisplay } from 'hooks/display';
-import { extractEdges, extractNodes } from '@utils/workflowUtility';
+import { extractEdges, extractNodes, formatNodes } from '@utils/workflowUtility';
 
 /**
  * Node type definitions for ReactFlow
@@ -67,17 +67,20 @@ const initialNodes = [
 /**
  * Main workflow editor component
  *
- * @param setSchema Set schema json data handler for accessing the editor data from outside of the compoennt
+ * @param onChange Calls only on add or remove nodes and edges
+ * @param setSchema Calls after any change in workflow even moving nodes
  * @returns jsx
  */
-const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
+const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => {
   // Router hooks for navigation and parameters
   const { workflowId } = useParams();
   const navigate = useNavigate();
 
   // State management for nodes and edges
   const [nodes, setNodes, onNodesChange] = useNodesState(extractNodes(workflowData));
+  const [nodesCount, setNodesCount] = useState(nodes.length)
   const [edges, setEdges, onEdgesChange] = useEdgesState(extractEdges(workflowData));
+  const [edgesCount, setEdgesCount] = useState(edges.length)
 
   // UI state management
   const [selectedNode, setSelectedNode] = useState(null);
@@ -109,8 +112,20 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
    * through the setSchema prop
    */
   useEffect(() => {
-    updateFlow();
+    setSchema(formatNodes(nodes, edges))
+
+    if(nodes && edges)
+      setNodesCount(nodes.length)
+      setEdgesCount(edges.length)
   }, [nodes, edges]);
+
+  /**
+   * Calling onChange prop handler on nodes or edges count change
+   */
+  useEffect(() => {
+    if(nodes && edges)
+      onChange(formatNodes(nodes, edges))
+  }, [nodesCount, edgesCount])
 
   /**
    * Display util hooks
@@ -544,94 +559,6 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
     return { chatHistory, sessionId };
   };
 
-  /**
-   * Saves workflow to the backend
-   * @param {Array} customNodes - Optional custom nodes to save
-   * @param {string} overrideAgentType - Optional agent type override
-   */
-  const updateFlow = useCallback(    
-    async (customNodes = nodes) => {
-      let workflowData = null;
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Transform nodes and edges to API format
-        workflowData = customNodes.map((node) => {
-          const step = {
-            id: node.id,
-            label: node.data.label,
-            description: node.data.description || null,
-            position: node.position,
-          };
-
-          switch (node.type) {
-            case 'start':
-              step.type = 'start';
-              break;
-            case 'process':
-              step.type = 'process';
-              break;
-            case 'function':
-              step.type = 'function';
-              step.functionName = node.data.functionData?.name;
-              step.functionDescription = node.data.functionData?.description;
-              step.functionParameters = node.data.functionData?.parameters;
-              break;
-            case 'response':
-              step.type = 'response';
-              break;
-            case 'decision':
-              step.type = 'decision';
-              const outgoingEdges = edges.filter(
-                (edge) =>
-                  edge.source === node.id &&
-                  edge.target &&
-                  node.data.conditions.includes(edge.sourceHandle)
-              );
-              step.conditions = outgoingEdges.map((edge) => ({
-                label: edge.sourceHandle,
-                next: edge.target,
-              }));
-              break;
-            case 'end':
-              step.type = 'end';
-              break;
-            default:
-              step.type = 'unknown';
-          }
-
-          // Set next node for non-decision, non-end nodes
-          if (node.type !== 'decision' && node.type !== 'end') {
-            const outgoingEdges = edges.filter(
-              (edge) => edge.source === node.id && edge.target
-            );
-            if (outgoingEdges.length > 0) {
-              step.next = outgoingEdges[0].target;
-            } else {
-              step.next = null;
-            }
-          }
-
-          return step;
-        });
-
-        // Save or update workflow
-        await setSchema(workflowData);
-
-        // Update main state
-        setNodes(customNodes);
-      } catch (err) {
-        console.error('Error saving workflow:', err);
-        setError('خطا در ذخیره گردش کار');
-        notify.error('خطا در ذخیره گردش کار');
-      } finally {
-        setLoading(false);
-      }
-    },
-    [nodes, edges, workflowId, setNodes, navigate]
-  );
-
   return (
     <div
       className={`h-full w-full border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden z-50 ${fullscreen ? 'fixed top-0 left-0 bg-white dark:bg-gray-800 ' : 'relative'}`}
@@ -852,10 +779,10 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
  * Workflow Editor wrapper component with ReactFlowProvider
  * Provides React Flow context to child components
  */
-const WorkflowEditor = ({ setSchema, initFlow }) => {
+const WorkflowEditor = ({ onChange, setSchema, initFlow }) => {
   return (
     <ReactFlowProvider>
-      <WorkflowEditorContent setSchema={setSchema} workflowData={initFlow}/>
+      <WorkflowEditorContent onChange={onChange} setSchema={setSchema} workflowData={initFlow}/>
     </ReactFlowProvider>
   );
 };

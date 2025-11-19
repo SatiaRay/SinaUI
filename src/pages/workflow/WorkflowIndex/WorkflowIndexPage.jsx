@@ -46,7 +46,7 @@ const WorkflowIndexPage = () => {
   /**
    * Store workflows from request response data to state prop for optimistic mutation
    */
-  if (isSuccess && !workflows) setWorkflows(data);
+  if (isSuccess && !workflows) setWorkflows(data)
 
   /**
    * Mutations: RTK Query auto-generated async thunks
@@ -72,34 +72,33 @@ const WorkflowIndexPage = () => {
   /**
    * Handler: Delete workflow with user confirmation via SweetAlert
    */
-  const handleDelete = useCallback(
-    async (workflowId) => {
-      if (!workflowId) return;
-      try {
-        const result = await Swal.fire({
-          title: 'آیا مطمئن هستید؟',
-          text: 'این عمل قابل بازگشت نیست!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          cancelButtonText: 'انصراف',
-          confirmButtonText: 'بله، حذف شود!',
-          reverseButtons: false,
-        });
-        if (result.isConfirmed) {
-          setWorkflows(workflows.filter(workflow => workflow.id != workflowId))
+  const handleDelete = async (workflowId) => {
+    if (!workflowId) return;
+    try {
+      const result = await Swal.fire({
+        title: 'آیا مطمئن هستید؟',
+        text: 'این عمل قابل بازگشت نیست!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        cancelButtonText: 'انصراف',
+        confirmButtonText: 'بله، حذف شود!',
+        reverseButtons: false,
+      });
+      if (result.isConfirmed) {
+        setWorkflows(workflows.filter(workflow => workflow.id != workflowId))
 
-          await deleteWorkflow({ id: workflowId }).unwrap();
-        }
-      } catch (err) {
-        console.error('Error in deletion process:', err);
-        notify.error('خطا در حذف گردش کار! لطفاً دوباره تلاش کنید');
-        setWorkflows(data)
+        await deleteWorkflow({ id: workflowId }).unwrap();
+
+        notify.success("گردش کاری حذف شد")
       }
-    },
-    [deleteWorkflow]
-  );
+    } catch (err) {
+      console.error('Error in deletion process:', err);
+      notify.error('خطا در حذف گردش کار! لطفاً دوباره تلاش کنید');
+      setWorkflows(data)
+    }
+  }
 
   /**
    * Handler: Export workflow as downloadable JSON file

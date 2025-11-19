@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TagifyInput } from '../../../components/ui/tagifyInput';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -7,7 +7,11 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { notify } from '../../../ui/toast';
 import { ckEditorConfig } from '../../../configs';
 import { Sppiner } from '../../../components/ui/sppiner';
-import { useGetWorkflowQuery, useStoreWorkflowMutation, useUpdateWorkflowMutation } from 'store/api/AiApi';
+import {
+  useGetWorkflowQuery,
+  useStoreWorkflowMutation,
+  useUpdateWorkflowMutation,
+} from 'store/api/AiApi';
 import { WorkflowEditor } from '..';
 import CustomDropdown from 'ui/dropdown';
 import { EditWorkflowLoading } from './EditWorkflowLoading';
@@ -24,6 +28,13 @@ const EditWorkflowPage = () => {
   const { id } = useParams();
 
   /**
+   * Silence update changes
+   * 
+   * When the below state is true, success notify doesn't display after mutation request succeed
+   */
+  const silenceMutate = useRef(true)
+
+  /**
    * Fetch target workflow
    */
   const { data, isLoading, isSuccess, isError } = useGetWorkflowQuery(id);
@@ -37,33 +48,55 @@ const EditWorkflowPage = () => {
    * Set workflow state after fetch succeed
    */
   useEffect(() => {
-    if (isSuccess && data)
-      setWorkflow(data);
+    if (isSuccess && data) setWorkflow(data);
   }, [isSuccess, data]);
 
   /**
    * Update workflow mutation hook
    */
-  const [updateWorkflow, {isLoading: isUpdating, isSuccess: updated, isError: updatedFailed, error: updateError}] = useUpdateWorkflowMutation()
+  const [
+    updateWorkflow,
+    {
+      isLoading: isUpdating,
+      isSuccess: updated,
+      isError: updatedFailed,
+      error: updateError,
+    },
+  ] = useUpdateWorkflowMutation();
 
   /**
    * Notify successful mutation and navigate user to index page
    */
   useEffect(() => {
-    if (updated) {
+    if (updated && !silenceMutate.current) {
       notify.success('تغییرات ذخیره شد !');
     }
+    silenceMutate.current = false
   }, [updated]);
 
   /**
    * Store workflow handler
+   * @param {Array} flow optional argument. If passed, sets workflow state with passed flow and then send update request with the flow
    */
-  const handleSaveWorkflow = async () => {
-    try{
-      await updateWorkflow({ id, data: workflow }).unwrap();
+  const handleSaveWorkflow = async (flow = null) => {
+    try {
+      if(flow && flow == workflow.flow)
+        return
+
+      const data = {
+        ...workflow,
+        flow: flow || workflow.flow
+      }
+
+      await updateWorkflow({ id, data }).unwrap();
+
+      if(flow)
+        setWorkflow(data)
     } catch (err) {
-      notify.error('خطا در ذخیره تغییرات')
-      setWorkflow(data)
+      console.error(err);
+      
+      notify.error('خطا در ذخیره تغییرات');
+      setWorkflow(data);
     }
   };
 
@@ -83,7 +116,7 @@ const EditWorkflowPage = () => {
           </div>
           <div className="flex gap-2 max-md:justify-between">
             <button
-              onClick={handleSaveWorkflow}
+              onClick={() => handleSaveWorkflow()}
               disabled={false}
               className="px-4 py-2 flex items-center justify-center max-md:w-1/2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
@@ -131,9 +164,12 @@ const EditWorkflowPage = () => {
             </div>
           </div>
           <WorkflowEditor
-            setSchema={(flow) => {
-              setWorkflow({ ...workflow, flow })
+            onChange={(flow) => {
+              silenceMutate.current = true
+
+              handleSaveWorkflow(flow)
             }}
+            setSchema={(flow) => setWorkflow({ ...workflow, flow })}
             initFlow={workflow.flow}
           />
         </div>
