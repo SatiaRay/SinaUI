@@ -27,6 +27,7 @@ import ProcessNode from './nodes/ProcessNode';
 import ResponseNode from './nodes/ResponseNode';
 import StartNode from './nodes/StartNode';
 import { useDisplay } from 'hooks/display';
+import { extractEdges, extractNodes } from '@utils/workflowUtility';
 
 /**
  * Node type definitions for ReactFlow
@@ -75,8 +76,8 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
   const navigate = useNavigate();
 
   // State management for nodes and edges
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState(extractNodes(workflowData));
+  const [edges, setEdges, onEdgesChange] = useEdgesState(extractEdges(workflowData));
 
   // UI state management
   const [selectedNode, setSelectedNode] = useState(null);
@@ -120,82 +121,28 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
    * Fetches workflow data when component mounts or workflowId changes
    * Transforms API response into ReactFlow nodes and edges format
    */
-  useEffect(() => {
-    if (!workflowData || !workflowId) return;
+  // useEffect(() => {
+  //   if (!workflowData || !workflowId) return;
 
-    try {
-      setLoading(true);
-      setError(null);
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
 
-      // Transform workflow steps to ReactFlow nodes
-      const workflowNodes = workflowData.flow.map((step) => ({
-        id: step.id,
-        type: step.type === 'action' ? 'process' : step.type,
-        position: {
-          x: step.position?.x ?? 50,
-          y: step.position?.y ?? 250,
-        },
-        data: {
-          label: step.label,
-          description: step.description || '',
-          conditions:
-            step.type === 'decision'
-              ? (step.conditions || []).map((c) => c.label)
-              : [],
-          conditionTargets:
-            step.type === 'decision'
-              ? (step.conditions || []).reduce((acc, c) => {
-                  acc[c.label] = c.next;
-                  return acc;
-                }, {})
-              : {},
-          jsonConfig: null,
-          pageConfig: {
-            showPage: false,
-            pageUrl: '',
-            closeOnAction: false,
-          },
-        },
-      }));
+  //     // Transform workflow steps to ReactFlow nodes
+  //     const workflowNodes = extractNodes(workflowData)
 
-      // Transform workflow connections to ReactFlow edges
-      const workflowEdges = workflowData.flow.reduce((acc, step) => {
-        if (step.type === 'decision' && step.conditions) {
-          step.conditions.forEach((condition) => {
-            if (condition.next) {
-              acc.push({
-                id: `${step.id}-${condition.next}-${condition.label}`,
-                source: step.id,
-                target: condition.next,
-                sourceHandle: condition.label,
-                type: 'step',
-                animated: true,
-                style: { stroke: '#f59e0b' },
-              });
-            }
-          });
-        } else if (step.next) {
-          acc.push({
-            id: `${step.id}-${step.next}`,
-            source: step.id,
-            target: step.next,
-            type: 'step',
-            animated: true,
-            style: { stroke: '#f59e0b' },
-          });
-        }
-        return acc;
-      }, []);
+  //     // Transform workflow connections to ReactFlow edges
+  //     const workflowEdges = extractEdges(workflowData)
 
-      setNodes(workflowNodes);
-      setEdges(workflowEdges);
-    } catch (err) {
-      console.error('Error processing workflow data:', err);
-      setError('خطا در پردازش اطلاعات گردش کار');
-    } finally {
-      setLoading(false);
-    }
-  }, [workflowData, workflowId, setNodes, setEdges]);
+  //     setNodes(workflowNodes);
+  //     setEdges(workflowEdges);
+  //   } catch (err) {
+  //     error('Error processing workflow data:', err);
+  //     setError('خطا در پردازش اطلاعات گردش کار');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [workflowData, workflowId, setNodes, setEdges]);
 
   /**
    * Convert flow to json and call setSchema handler
@@ -277,7 +224,6 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
    */
   const onNodeUpdate = useCallback(
     (nodeId, newData) => {
-      console.log('Updating node:', nodeId, newData);
       setNodes((nds) => {
         const updatedNodes = nds.map((node) => {
           if (node.id === nodeId) {
@@ -293,7 +239,6 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
           }
           return node;
         });
-        console.log('Updated nodes:', updatedNodes);
         return updatedNodes;
       });
 
@@ -322,12 +267,6 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
               animated: true,
               style: { stroke: '#f59e0b' },
             }));
-
-          console.log('Updated edges:', [
-            ...otherEdges,
-            ...validEdges,
-            ...newEdges,
-          ]);
           return [...otherEdges, ...validEdges, ...newEdges];
         });
       }
@@ -542,7 +481,6 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
       schema: workflowschema,
     };
 
-    console.log('Workflow JSON:', JSON.stringify(workflowData, null, 2));
     return workflowData;
   }, [nodes, edges]);
 
@@ -611,7 +549,7 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
    * @param {Array} customNodes - Optional custom nodes to save
    * @param {string} overrideAgentType - Optional agent type override
    */
-  const updateFlow = useCallback(
+  const updateFlow = useCallback(    
     async (customNodes = nodes) => {
       let workflowData = null;
       try {
@@ -687,10 +625,6 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
         console.error('Error saving workflow:', err);
         setError('خطا در ذخیره گردش کار');
         notify.error('خطا در ذخیره گردش کار');
-        console.log(
-          'Workflow Data Sent:',
-          JSON.stringify(workflowData, null, 2)
-        );
       } finally {
         setLoading(false);
       }
@@ -918,10 +852,10 @@ const WorkflowEditorContent = ({ setSchema, workflowData = null }) => {
  * Workflow Editor wrapper component with ReactFlowProvider
  * Provides React Flow context to child components
  */
-const WorkflowEditor = ({ setSchema }) => {
+const WorkflowEditor = ({ setSchema, initFlow }) => {
   return (
     <ReactFlowProvider>
-      <WorkflowEditorContent setSchema={setSchema} />
+      <WorkflowEditorContent setSchema={setSchema} workflowData={initFlow}/>
     </ReactFlowProvider>
   );
 };
