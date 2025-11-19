@@ -50,7 +50,7 @@ const Dropdown = ({ label = 'Dropdown button', children, className }) => {
       {/* ---- MENU ---- */}
       <div
         ref={dropdownRef}
-        className={`absolute left-0 mt-2 w-44
+        className={`absolute left-0 z-50 mt-2 w-44
                    bg-gray-100 dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg
                    transition-all duration-200 ease-out
                    ${isOpen
