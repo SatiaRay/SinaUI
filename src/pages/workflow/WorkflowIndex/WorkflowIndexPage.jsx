@@ -300,8 +300,8 @@ const WorkflowIndexPage = () => {
                     </td>
                     {/* Status column: Hardcoded as "فعال" for now */}
                     <td className="px-4 py-4">
-                      <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        فعال
+                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${workflow.status ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"}`}>
+                        {workflow.status ? "فعال" : "غیر فعال"}
                       </span>
                     </td>
                     {/* Actions column: Desktop buttons + mobile dropdown */}
