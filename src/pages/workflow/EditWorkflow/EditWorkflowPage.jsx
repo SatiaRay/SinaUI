@@ -29,10 +29,10 @@ const EditWorkflowPage = () => {
 
   /**
    * Silence update changes
-   * 
+   *
    * When the below state is true, success notify doesn't display after mutation request succeed
    */
-  const silenceMutate = useRef(true)
+  const silenceMutate = useRef(true);
 
   /**
    * Fetch target workflow
@@ -68,10 +68,10 @@ const EditWorkflowPage = () => {
    * Notify successful mutation and navigate user to index page
    */
   useEffect(() => {
-    if (updated && !silenceMutate.current) {
-      notify.success('تغییرات ذخیره شد !');
+    if (updated) {
+      if (!silenceMutate.current) notify.success('تغییرات ذخیره شد !');
+      silenceMutate.current = false;
     }
-    silenceMutate.current = false
   }, [updated]);
 
   /**
@@ -80,21 +80,19 @@ const EditWorkflowPage = () => {
    */
   const handleSaveWorkflow = async (flow = null) => {
     try {
-      if(flow && flow == workflow.flow)
-        return
+      if (flow && flow == workflow.flow) return;
 
       const data = {
         ...workflow,
-        flow: flow || workflow.flow
-      }
+        flow: flow || workflow.flow,
+      };
 
       await updateWorkflow({ id, data }).unwrap();
 
-      if(flow)
-        setWorkflow(data)
+      if (flow) setWorkflow(data);
     } catch (err) {
       console.error(err);
-      
+
       notify.error('خطا در ذخیره تغییرات');
       setWorkflow(data);
     }
@@ -165,9 +163,9 @@ const EditWorkflowPage = () => {
           </div>
           <WorkflowEditor
             onChange={(flow) => {
-              silenceMutate.current = true
+              silenceMutate.current = true;
 
-              handleSaveWorkflow(flow)
+              handleSaveWorkflow(flow);
             }}
             setSchema={(flow) => setWorkflow({ ...workflow, flow })}
             initFlow={workflow.flow}
@@ -179,4 +177,3 @@ const EditWorkflowPage = () => {
 };
 
 export default EditWorkflowPage;
-
