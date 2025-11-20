@@ -1,12 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import {
-  PlayIcon,
-  PlusCircleIcon,
-  CogIcon,
-  QuestionMarkCircleIcon,
-  XCircleIcon,
-  CheckIcon,
-} from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
 import {
   Braces,
   CirclePlay,
@@ -19,15 +11,11 @@ import {
   Minimize,
   PanelLeft,
   PanelLeftClose,
-  SquareFunction,
 } from 'lucide-react';
 import { useDisplay } from 'hooks/display';
 
 const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFullscreen }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
 
   /**
    * Sidebar extendable state
