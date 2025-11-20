@@ -112,8 +112,8 @@ const CreateWorkflowPage = () => {
                 placeholder="وضعیت را انتخاب کنید"
                 onChange={(status) => setWorkflow({ ...workflow, status })}
                 options={[
-                  { value: 1, label: 'فعال' },
-                  { value: 0, label: 'غیرفعال' },
+                  { value: '1', label: 'فعال' },
+                  { value: '0', label: 'غیرفعال' },
                 ]}
                 value={Number(workflow.status).toString()}
                 className="w-full"
