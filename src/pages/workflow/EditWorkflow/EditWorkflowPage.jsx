@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TagifyInput } from '../../../components/ui/tagifyInput';
 import 'react-quill/dist/quill.snow.css';
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { notify } from '../../../ui/toast';
-import { ckEditorConfig } from '../../../configs';
 import { Sppiner } from '../../../components/ui/sppiner';
 import {
   useGetWorkflowQuery,
-  useStoreWorkflowMutation,
   useUpdateWorkflowMutation,
 } from 'store/api/AiApi';
 import CustomDropdown from 'ui/dropdown';
