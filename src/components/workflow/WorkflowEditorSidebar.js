@@ -183,7 +183,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
             </button>
           </div>
           {/* Sidebar menu footer */}
-          <div className={`${extended ? 'text-right' : 'text-center'} grid gap-3`}>
+          <div className={`${extended ? 'text-right flex justify-between flex-row-reverse' : 'text-center grid'} gap-3`}>
             <div>
               <button onClick={() => setFullscreen(!fullscreen)}>
                 {fullscreen ? <Minimize/> : <Fullscreen />}
