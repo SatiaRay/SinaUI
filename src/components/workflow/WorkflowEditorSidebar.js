@@ -38,7 +38,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
       ></div>
 
       <div
-        className="absolute left-0 top-0 z-10 bg-white dark:bg-gray-800 shadow-md overflow-x-hidden overflow-y-auto transition-all duration-300 h-full border-r border-gray-300 dark:border-gray-700 w-auto"
+        className="absolute left-0 top-0 z-10 bg-white dark:bg-gray-800 shadow-md overflow-x-hidden overflow transition-all duration-300 h-full border-r border-gray-300 dark:border-gray-700 w-auto"
         style={{ width: extended ? '250px' : 'auto' }}
       >
         <style>
@@ -63,17 +63,17 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
 
         {/* Sidebar Menu */}
         <div
-          className={`flex flex-col justify-between items-stretch h-full gap-1.5 p-2 transition-all duration-300 ease-in-out ${
+          className={`flex flex-col md:justify-between items-stretch h-full gap-1.5 p-2 transition-all duration-300 ease-in-out ${
             isMenuOpen
               ? 'opacity-100'
               : 'opacity-0 overflow-hidden'
           }`}
         >
           {/* Menu options  */}
-          <div className="grid gap-2">
+          <div className="grid gap-2 order-2 md:order-first border-t border-gray-300 dark:border-gray-500 pt-3 mt-1">
             {extended && (
               <>
-                <div className="flex items-center">
+                <div className="items-center hidden md:flex">
                   <Menu className="pt-2 box-content" />
                   <h3 className={`text-lg my-0 pt-2 mr-2`}>منو</h3>
                 </div>
@@ -171,7 +171,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
             </button> */}
           </div>
           {/* Sidebar menu footer */}
-          <div className={`${extended ? 'text-right flex justify-between flex-row-reverse' : 'text-center grid'} gap-3`}>
+          <div className={`${extended ? 'text-right flex justify-between flex-row-reverse' : 'text-center grid gap-1 md:mt-0 rounded-lg bg-gray-300 text-gray-600 dark:text-gray-300 dark:bg-gray-600 pt-2'}`}>
             <div>
               <button onClick={() => setFullscreen(!fullscreen)}>
                 {fullscreen ? <Minimize/> : <Fullscreen />}

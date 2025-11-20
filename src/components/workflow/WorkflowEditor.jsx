@@ -560,7 +560,7 @@ const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => 
 
   return (
     <div
-      className={`h-full w-full border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden z-50 ${fullscreen ? 'fixed top-0 left-0 bg-white dark:bg-gray-800 ' : 'relative'}`}
+      className={`min-h-[600px] h-full w-full border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden z-50 ${fullscreen ? 'fixed top-0 left-0 bg-white dark:bg-gray-800 ' : 'relative'}`}
       style={{ zIndex: 10 }}
     >
       <ToastContainer
