@@ -25,7 +25,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-1 rounded-lg border dark:hover:bg-gray-600 transition-colors duration-200"
+      className="p-2 rounded-lg  dark:hover:bg-gray-600 transition-colors duration-200"
       title={theme === 'light' ? 'تغییر به حالت تاریک' : 'تغییر به حالت روشن'}
       aria-label={
         theme === 'light' ? 'تغییر به حالت تاریک' : 'تغییر به حالت روشن'

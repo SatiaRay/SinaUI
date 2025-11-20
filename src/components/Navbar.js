@@ -2,36 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 import ThemeToggle from '@contexts/ThemeToggle';
-import Swal from 'sweetalert2';
 
 import {
   ArrowLeftEndOnRectangleIcon,
-  Bars3Icon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  XMarkIcon,
-  TrashIcon,
 } from '@heroicons/react/24/outline';
 import {
-  FaRobot,
-  FaMicrophone,
   FaMagic,
   FaProjectDiagram,
   FaBook,
   FaCog,
-  FaFileAlt,
-  FaLink,
-  FaFolderOpen, 
-  FaChartLine
+  FaChartLine,
 } from 'react-icons/fa';
+import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
 
-import { LuBrainCircuit, LuBotMessageSquare  } from "react-icons/lu";
-
-import { IoDocuments } from 'react-icons/io5';
-import { toEnglishLetter } from '../utils/translate';
-
-const NavList = ({ items, onNavigate, closeSidebar }) => (
+/**
+ * Navigation list component with animations
+ * @param {Object} props - Component props
+ * @param {Array} props.items - Navigation items
+ * @param {Function} props.onNavigate - Navigation handler
+ * @param {Function} props.closeSidebar - Close sidebar handler
+ * @param {boolean} props.showContent - Show content state
+ */
+const NavList = ({ items, onNavigate, closeSidebar, showContent }) => (
   <ul className="flex flex-col gap-2">
     {items.map(({ path, label, icon: Icon }) => (
       <li key={path} className="text-right">
@@ -40,25 +34,311 @@ const NavList = ({ items, onNavigate, closeSidebar }) => (
             onNavigate(path);
             closeSidebar?.();
           }}
-          className="flex items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+          className="flex items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap"
         >
           {Icon && (
             <Icon className="w-4 h-4 text-gray-300 group-hover:text-white" />
           )}
-          {label}
+          <span
+            className={`transition-all duration-500 ease-in-out ${
+              showContent
+                ? 'opacity-100 translate-x-0'
+                : 'opacity-0 translate-x-4'
+            }`}
+          >
+            {label}
+          </span>
         </button>
       </li>
     ))}
   </ul>
 );
 
+/**
+ * Expandable Sidebar Component - Works for both mobile and desktop
+ * @param {Object} props - Component props
+ * @param {Array} props.items - Navigation items
+ * @param {Function} props.onNavigate - Navigation handler
+ * @param {Object} props.user - User object
+ * @param {Function} props.onLogout - Logout handler
+ * @param {boolean} props.isExpanded - Expanded state
+ * @param {Function} props.onToggle - Toggle handler
+ * @param {boolean} props.isMobile - Mobile flag
+ * @param {boolean} props.overlayVisible - Overlay visibility
+ */
+const ExpandableSidebar = ({
+  items,
+  onNavigate,
+  user,
+  onLogout,
+  isExpanded,
+  onToggle,
+  isMobile = false,
+  overlayVisible = false,
+}) => {
+  const [showContent, setShowContent] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  /**
+   * Get badge letters from user name
+   * @param {string} name - User name
+   * @returns {string} Badge letters
+   */
+  const getBadgeLetters = (name = '') => {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    const first = parts[0]?.[0] || '';
+    const second = parts[1]?.[0] || '';
+    return (first + second).toUpperCase();
+  };
+
+  // Handle animations for opening and closing
+  useEffect(() => {
+    if (isExpanded) {
+      setIsClosing(false);
+      const timer = setTimeout(() => setShowContent(true), 100);
+      return () => clearTimeout(timer);
+    } else {
+      // Start closing animation
+      setShowContent(false);
+      setIsClosing(true);
+      const timer = setTimeout(() => setIsClosing(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isExpanded]);
+
+  // Different behavior for mobile vs desktop
+  const sidebarClasses = isMobile
+    ? `md:hidden fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg z-30 border-l border-gray-700 transition-all duration-500 ease-in-out ${
+        isExpanded ? 'w-56' : 'w-10'
+      }`
+    : `hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg z-30 border-l border-gray-700 transition-all duration-500 ease-in-out ${
+        isExpanded ? 'w-56' : 'w-10'
+      }`;
+
+  return (
+    <div className={sidebarClasses}>
+      <div className="flex flex-col h-full">
+        {/* Header like desktop when expanded */}
+        {isExpanded && (
+          <header className="p-4 border-b flex w-full justify-between items-center border-gray-700 whitespace-nowrap relative">
+            <h1
+              className={`text-white text-lg font-bold flex-1 text-right transition-all duration-500 ease-in-out ${
+                showContent
+                  ? 'opacity-100 translate-x-0'
+                  : 'opacity-0 translate-x-4'
+              }`}
+            >
+              مدیریت چت
+            </h1>
+            <div
+              className={`flex items-center gap-2 transition-all duration-500 ease-in-out ${
+                showContent
+                  ? 'opacity-100 translate-x-0'
+                  : 'opacity-0 translate-x-4'
+              }`}
+            >
+              <div className="border-0">
+                <ThemeToggle />
+              </div>
+              {/* Toggle button in header when expanded */}
+              <button
+                onClick={onToggle}
+                className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-all duration-500 border-0"
+                aria-label="Close menu"
+              >
+                <ChevronLeftIcon
+                  className={`h-4 w-4 transition-transform duration-500 ${
+                    isExpanded ? 'rotate-180' : 'rotate-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </header>
+        )}
+
+        <div className="flex flex-col h-full py-3">
+          {/* Toggle button - only show in mini mode */}
+          {!isExpanded && (
+            <button
+              onClick={onToggle}
+              className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 mx-1 rounded-md mb-3 transition-all duration-500 border-0"
+              aria-label="Open menu"
+            >
+              <ChevronLeftIcon
+                className={`h-4 w-4 transition-transform duration-500 ${
+                  isExpanded ? 'rotate-180' : 'rotate-0'
+                }`}
+              />
+            </button>
+          )}
+
+          {/* Navigation section */}
+          <nav className="flex-1">
+            {isExpanded ? (
+              <div className="px-2">
+                <NavList
+                  items={items}
+                  onNavigate={onNavigate}
+                  closeSidebar={() => onToggle(false)}
+                  showContent={showContent}
+                />
+                {/* Settings button */}
+                <button
+                  onClick={() => {
+                    onNavigate('/setting');
+                    onToggle(false);
+                  }}
+                  className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap"
+                >
+                  <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white" />
+                  <span
+                    className={`transition-all duration-500 ease-in-out ${
+                      showContent
+                        ? 'opacity-100 translate-x-0'
+                        : 'opacity-0 translate-x-4'
+                    }`}
+                  >
+                    تنظیمات
+                  </span>
+                </button>
+              </div>
+            ) : (
+              // Mini icons view - same icons, no re-render
+              <div className="flex flex-col items-center gap-3">
+                {items.map(({ path, label, icon: Icon }) => (
+                  <button
+                    key={path}
+                    onClick={() => onNavigate(path)}
+                    className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors duration-500"
+                    aria-label={label}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </button>
+                ))}
+                {/* Settings icon in mini mode */}
+                <button
+                  onClick={() => onNavigate('/setting')}
+                  className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors duration-500"
+                  aria-label="تنظیمات"
+                >
+                  <FaCog className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </nav>
+
+          {/* Bottom section */}
+          <div
+            className={`transition-all duration-500 ease-in-out ${
+              isExpanded ? 'px-2' : ''
+            }`}
+          >
+            <div
+              className={`flex transition-all duration-500 ease-in-out ${
+                isExpanded
+                  ? 'flex-row items-center justify-between'
+                  : 'flex-col items-center gap-2'
+              }`}
+            >
+              {isExpanded ? (
+                // Expanded user section with animations
+                <>
+                  <div className="flex items-center gap-2 flex-1">
+                    <div className="w-8 h-8 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full transition-all duration-500">
+                      {getBadgeLetters(user?.name)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`text-white text-xs truncate transition-all duration-500 ease-in-out ${
+                          showContent
+                            ? 'opacity-100 translate-x-0'
+                            : 'opacity-0 translate-x-4'
+                        }`}
+                      >
+                        {user ? `${user.name}` : 'Guest'}
+                      </p>
+                      <p
+                        className={`text-gray-400 text-xs truncate transition-all duration-500 ease-in-out ${
+                          showContent
+                            ? 'opacity-100 translate-x-0'
+                            : 'opacity-0 translate-x-4'
+                        }`}
+                      >
+                        {user?.email || 'example@example.com'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={onLogout}
+                    className={`flex items-center gap-2 text-gray-300 hover:text-white hover:bg-gray-700 p-2 rounded-md transition-all duration-500 ease-in-out ${
+                      showContent
+                        ? 'opacity-100 translate-x-0'
+                        : 'opacity-0 translate-x-4'
+                    }`}
+                    aria-label="Logout"
+                  >
+                    <ArrowLeftEndOnRectangleIcon className="h-4 w-4" />
+                  </button>
+                </>
+              ) : (
+                // Mini user section
+                <>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="border-0">
+                      <ThemeToggle />
+                    </div>
+                    <div className="w-7 h-7 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full cursor-default">
+                      {getBadgeLetters(user?.name)}
+                    </div>
+                    <button
+                      onClick={onLogout}
+                      className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors duration-500"
+                      aria-label="Logout"
+                    >
+                      <ArrowLeftEndOnRectangleIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Background Blur Overlay Component
+ * @param {Object} props - Component props
+ * @param {Function} props.onClose - Close handler
+ * @param {boolean} props.isVisible - Visibility state
+ */
+const BlurOverlay = ({ onClose, isVisible }) => (
+  <div
+    className={`fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-20 transition-opacity duration-500 ease-in-out ${
+      isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+    }`}
+    onClick={onClose}
+  />
+);
+
+/**
+ * Main Navbar Component
+ * @param {Object} props - Component props
+ * @param {Function} props.onSidebarCollapse - Sidebar collapse handler
+ */
 const Navbar = ({ onSidebarCollapse }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
-  const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+  const [isDesktopExpanded, setIsDesktopExpanded] = useState(false);
+
+  /**
+   * Navigation items configuration (documents section removed)
+   */
   const navItems = [
     { path: '/chat', label: 'چت', icon: LuBotMessageSquare },
     { path: '/document', label: 'پایگاه دانش', icon: LuBrainCircuit },
@@ -68,6 +348,9 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
   ];
 
+  /**
+   * Handle user logout
+   */
   const handleLogout = async () => {
     try {
       resetUIState();
@@ -78,43 +361,43 @@ const Navbar = ({ onSidebarCollapse }) => {
     }
   };
 
-  function getBadgeLetters(name = '') {
-    if (!name) return 'U';
-    const parts = name.trim().split(' ');
-    const first = parts[0]?.[0] || '';
-    const second = parts[1]?.[0] || '';
-    return (first + second).toUpperCase();
-  }
-
+  /**
+   * Reset all UI states
+   */
   const resetUIState = () => {
-    setSidebarOpen(false);
-    setDesktopSidebarCollapsed(false);
-    setDocumentsDropdownOpen(false);
+    setIsMobileExpanded(false);
+    setIsDesktopExpanded(false);
     onSidebarCollapse(false);
   };
 
-  const toggleSidebar = () => setSidebarOpen((v) => !v);
-  const closeSidebar = () => {
-    setSidebarOpen(false);
-    setDocumentsDropdownOpen(false);
+  /**
+   * Toggle mobile sidebar
+   */
+  const toggleMobileSidebar = () => {
+    setIsMobileExpanded(!isMobileExpanded);
   };
-  const toggleDesktopSidebar = () => {
-    setDesktopSidebarCollapsed((prev) => {
-      const newState = !prev;
-      onSidebarCollapse(newState);
-      return newState;
-    });
-  };
-  const toggleDocumentsDropdown = () => setDocumentsDropdownOpen((v) => !v);
 
+  /**
+   * Toggle desktop sidebar
+   */
+  const toggleDesktopSidebar = () => {
+    const newState = !isDesktopExpanded;
+    setIsDesktopExpanded(newState);
+    // Only call onSidebarCollapse when sidebar is collapsed (not expanded)
+    onSidebarCollapse(!newState);
+  };
+
+  /**
+   * Handle messages for navbar visibility
+   */
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data.type === 'HIDE_NAVBAR') {
-        setSidebarOpen(false);
-        setDesktopSidebarCollapsed(true);
+        setIsMobileExpanded(false);
+        setIsDesktopExpanded(false);
         onSidebarCollapse(true);
       } else if (event.data.type === 'SHOW_NAVBAR') {
-        setDesktopSidebarCollapsed(false);
+        setIsDesktopExpanded(false);
         onSidebarCollapse(false);
       }
     };
@@ -124,174 +407,43 @@ const Navbar = ({ onSidebarCollapse }) => {
 
   return (
     <div dir="rtl">
-      <div className="md:hidden fixed top-1 right-1 z-50">
-        <button
-          onClick={toggleSidebar}
-          className="text-gray-800 backdrop-blur-sm dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-md transition-all duration-300"
-          aria-label="Toggle sidebar"
-        >
-          {sidebarOpen ? (
-            <XMarkIcon className="h-6 w-6" />
-          ) : (
-            <Bars3Icon className="h-6 w-6" />
-          )}
-        </button>
+      {/* Mobile View */}
+      <div className="md:hidden">
+        {/* Blur Overlay when expanded - Only for mobile */}
+        <BlurOverlay
+          onClose={() => setIsMobileExpanded(false)}
+          isVisible={isMobileExpanded}
+        />
+
+        {/* Mobile Expandable Sidebar */}
+        <ExpandableSidebar
+          items={navItems}
+          onNavigate={navigate}
+          user={user}
+          onLogout={handleLogout}
+          isExpanded={isMobileExpanded}
+          onToggle={toggleMobileSidebar}
+          isMobile={true}
+          overlayVisible={isMobileExpanded}
+        />
       </div>
 
-      <button
-        onClick={toggleDesktopSidebar}
-        className="hidden md:flex fixed right-64 top-4 z-50 items-center justify-center w-6 h-6 bg-gray-800 dark:bg-gray-900 text-gray-300 hover:text-white rounded-l-md border border-gray-700 border-r-0 transition-all duration-300 hover:bg-gray-700"
-        style={{
-          transform: desktopSidebarCollapsed
-            ? 'translateX(16rem)'
-            : 'translateX(0)',
-        }}
-        aria-label="Toggle desktop sidebar"
-      >
-        {desktopSidebarCollapsed ? (
-          <ChevronLeftIcon className="h-4 w-4" />
-        ) : (
-          <ChevronRightIcon className="h-4 w-4" />
-        )}
-      </button>
+      {/* Desktop View */}
+      <div className="hidden md:block">
+        {/* No blur overlay for desktop - sidebar is part of layout */}
 
-      <aside
-        className={`hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg transition-all duration-300 ${
-          desktopSidebarCollapsed ? 'w-0' : 'w-64'
-        }`}
-        aria-expanded={!desktopSidebarCollapsed}
-      >
-        <div
-          className={`flex flex-col h-full transition-all duration-300 ${
-            desktopSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-64'
-          }`}
-        >
-          <header className="p-4 border-b flex w-full justify-between border-gray-700 whitespace-nowrap overflow-hidden">
-            <h1 className="text-white text-lg font-bold">مدیریت چت</h1>
-            <ThemeToggle />
-          </header>
-
-          <nav className="flex-1 p-2 overflow-hidden">
-            <NavList items={navItems} onNavigate={navigate} />
-
-            <button
-              onClick={() => navigate('/setting')}
-              className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
-            >
-              <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white" />
-              <p>تنظیمات</p>
-            </button>
-          </nav>
-
-          <footer className="p-2 flex border-t items-center justify-center border-gray-700  overflow-hidden">
-            <div className="h-full w-full h-14 flex items-center gap-2">
-              <span className="w-12 h-10 flex font-sans -mb-1 items-center justify-center font-bold text-white rounded-full bg-blue-500">
-                {getBadgeLetters(user?.name) || 'U'}
-              </span>
-
-              <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-                <p className="text-white text-xs w-32 truncate">
-                  {user ? `${user.name}` : 'Guest'}
-                </p>
-                <p className="text-white text-xs w-32 truncate">
-                  {user?.email || 'example@example.com'}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
-            >
-              <ArrowLeftEndOnRectangleIcon className="w-10 h-6 text-white" />
-            </button>
-          </footer>
-        </div>
-      </aside>
-
-      {sidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-50 transition-opacity duration-300 opacity-100">
-          <div
-            className="fixed inset-0 backdrop-blur-sm transition-opacity duration-300"
-            onClick={closeSidebar}
-          />
-          <aside
-            className="fixed right-0 top-0 bottom-0 w-64 bg-gray-800 dark:bg-gray-900 shadow-lg transform transition-transform duration-300 translate-x-0"
-            aria-label="Mobile sidebar"
-          >
-            <div className="flex flex-col h-full">
-              <header className="flex items-center justify-between p-4 border-b border-gray-700">
-                <div className="flex gap-2 items-center">
-                  <ThemeToggle />
-
-                  <h2 className="text-white text-lg font-bold">مدیریت چت</h2>
-                </div>
-                <button
-                  onClick={closeSidebar}
-                  className="text-gray-300 hover:text-white transition-colors duration-200"
-                  aria-label="Close sidebar"
-                >
-                  <XMarkIcon className="h-6 w-6" />
-                </button>
-              </header>
-
-              <nav className="flex-1 py-2 overflow-y-auto">
-                <NavList
-                  items={navItems}
-                  onNavigate={navigate}
-                  closeSidebar={closeSidebar}
-                />
-                <div className="mt-2">
-                  <button
-                    onClick={toggleDocumentsDropdown}
-                    className="flex items-center gap-2 w-full text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                    aria-expanded={documentsDropdownOpen}
-                    aria-controls="mobile-documents-dropdown"
-                  >
-                    <FaFolderOpen className="w-4 h-4 text-gray-300 group-hover:text-white" />
-
-                    <p>اسناد</p>
-                    <ChevronDownIcon
-                      className={`h-4 w-4 mr-2 transition-transform duration-200 ${
-                        documentsDropdownOpen ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-                 
-                </div>
-                <button
-                  onClick={() => navigate('/setting')}
-                  className="flex mt-1 items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap"
-                >
-                  <FaCog className="w-4 h-4 text-gray-300 group-hover:text-white" />
-                  <p>تنظیمات</p>
-                </button>
-              </nav>
-
-              <footer className="p-4 border-t border-gray-700 flex items-center justify-center">
-                <div className="h-full w-full h-14 flex items-center gap-2">
-                  <span className="w-12 h-10 flex font-sans px-1 items-center justify-center font-bold text-white rounded-full bg-blue-500">
-                    {getBadgeLetters(user?.name) || 'U'}
-                  </span>
-                  <div className="h-full w-full h-14 flex justify-center flex-col gap-1">
-                    <p className="text-white text-xs w-32 truncate">
-                      {user ? `${user.name}` : 'Guest'}
-                    </p>
-                    <p className="text-white text-xs w-32 truncate">
-                      {user?.email || 'example@example.com'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-end hover:scale-105 gap-2 justify-end text-gray-300 hover:text-white rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  <ArrowLeftEndOnRectangleIcon className="w-10 h-6 text-white" />
-                </button>
-              </footer>
-            </div>
-          </aside>
-        </div>
-      )}
+        {/* Desktop Expandable Sidebar */}
+        <ExpandableSidebar
+          items={navItems}
+          onNavigate={navigate}
+          user={user}
+          onLogout={handleLogout}
+          isExpanded={isDesktopExpanded}
+          onToggle={toggleDesktopSidebar}
+          isMobile={false}
+          overlayVisible={false}
+        />
+      </div>
     </div>
   );
 };
