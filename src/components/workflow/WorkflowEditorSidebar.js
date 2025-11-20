@@ -165,7 +165,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
               />
               <span className={extended ? '' : 'hidden'}>پایان</span>
             </button>
-            <hr className="border-gray-200 dark:border-gray-700 my-1" />
+            {/* <hr className="border-gray-200 dark:border-gray-700 my-1" />
             <button
               onClick={() => {
                 setShowChatModal(true);
@@ -180,7 +180,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
                 style={{ margin: extended ? '0' : 'auto' }}
               />
               <span className={extended ? '' : 'hidden'}>اجرا</span>
-            </button>
+            </button> */}
           </div>
           {/* Sidebar menu footer */}
           <div className={`${extended ? 'text-right flex justify-between flex-row-reverse' : 'text-center grid'} gap-3`}>

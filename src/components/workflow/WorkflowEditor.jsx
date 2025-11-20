@@ -714,7 +714,7 @@ const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => 
       )}
 
       {/* Chat modal for workflow testing */}
-      {showChatModal && (
+      {/* {showChatModal && (
         <div
           className="fixed inset-0 flex p-6"
           style={{ zIndex: 10, pointerEvents: 'none' }}
@@ -770,7 +770,7 @@ const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => 
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
