@@ -70,7 +70,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
           }`}
         >
           {/* Menu options  */}
-          <div className="grid gap-2 order-2 md:order-first border-t border-gray-300 dark:border-gray-500 pt-3 mt-1">
+          <div className={`grid gap-2 order-2 md:order-first ${extended ? '' : 'border-t border-gray-300 dark:border-gray-500 pt-3 mt-1'}`}>
             {extended && (
               <>
                 <div className="items-center hidden md:flex">
@@ -171,7 +171,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
             </button> */}
           </div>
           {/* Sidebar menu footer */}
-          <div className={`${extended ? 'text-right flex justify-between flex-row-reverse' : 'text-center grid gap-1 md:mt-0 rounded-lg bg-gray-300 text-gray-600 dark:text-gray-300 dark:bg-gray-600 pt-2'}`}>
+          <div className={`${extended ? 'text-right flex justify-between flex-row-reverse mt-2' : 'text-center grid gap-1 md:mt-0 rounded-lg bg-gray-300 text-gray-600 dark:text-gray-300 dark:bg-gray-600 pt-2'}`}>
             <div>
               <button onClick={() => setFullscreen(!fullscreen)}>
                 {fullscreen ? <Minimize/> : <Fullscreen />}
