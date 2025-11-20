@@ -1,11 +1,4 @@
-/**
- * react-loading-skeleton: Individual skeleton elements for fine-grained control
- */
 import Skeleton from 'react-loading-skeleton';
-
-/**
- * Custom hook: Provides viewport height and responsive breakpoint detection
- */
 import { useDisplay } from '../../../hooks/display';
 
 /**
