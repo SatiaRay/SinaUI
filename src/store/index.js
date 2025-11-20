@@ -1,24 +1,26 @@
 import { configureStore } from '@reduxjs/toolkit';
 import knowledgeApi from './api/knowledgeApi';
 import documentSlice from './features/documentSlice';
-import workflowApi from './api/AiApi';
+import aiApi from './api/aiApi';
 import workflowSlice from './features/workflowSlice';
+import instructionSlice from './features/instructionSlice';
 
 const store = configureStore({
   reducer: {
     document: documentSlice.reducer,
-    [knowledgeApi.reducerPath]: knowledgeApi.reducer,
+    instruction: instructionSlice.reducer,
     workflow: workflowSlice.reducer,
-    [workflowApi.reducerPath]: workflowApi.reducer,
+    [knowledgeApi.reducerPath]: knowledgeApi.reducer,
+    [aiApi.reducerPath]: aiApi.reducer,
   },
   middleware: (getDefault) => {
     let middlewares = getDefault().concat(
       knowledgeApi.middleware,
-      workflowApi.middleware
+      aiApi.middleware
     );
 
     return middlewares;
-  },
+  }
 });
 
 export default store;

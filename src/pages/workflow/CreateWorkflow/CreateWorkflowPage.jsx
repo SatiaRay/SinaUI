@@ -3,7 +3,7 @@ import 'react-quill/dist/quill.snow.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { notify } from '../../../ui/toast';
 import { Sppiner } from '../../../components/ui/sppiner';
-import { useStoreWorkflowMutation } from 'store/api/AiApi';
+import { useStoreWorkflowMutation } from 'store/api/ai-features/workflowApi';
 import CustomDropdown from 'ui/dropdown';
 
 const CreateWorkflowPage = () => {

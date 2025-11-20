@@ -1,5 +1,6 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
-import AiApi from '../api/AiApi';
+import aiApi from '../api/aiApi';
+import WorkflowEndpoints from 'store/api/ai-features/workflowApi';
 
 const WorkflowAdapter = createEntityAdapter();
 
@@ -13,7 +14,7 @@ const workflowSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addMatcher(
-      AiApi.endpoints.getAllWorkflows.matchFulfilled,
+      WorkflowEndpoints.endpoints.getAllWorkflows.matchFulfilled,
       (state, action) => {
         WorkflowAdapter.setAll(state, action.payload);
         state.status = 'success';

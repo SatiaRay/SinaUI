@@ -6,7 +6,7 @@ import {
   useGetAllWorkflowsQuery,
   useExportWorkflowMutation,
   useImportWorkflowMutation,
-} from '../../../store/api/AiApi';
+} from 'store/api/ai-features/workflowApi';
 import { notify } from '../../../ui/toast';
 import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';
 import Error from '@components/Error';

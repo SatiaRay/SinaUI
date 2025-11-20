@@ -6,7 +6,7 @@ import { Sppiner } from '../../../components/ui/sppiner';
 import {
   useGetWorkflowQuery,
   useUpdateWorkflowMutation,
-} from 'store/api/AiApi';
+} from 'store/api/ai-features/workflowApi';
 import CustomDropdown from 'ui/dropdown';
 import { EditWorkflowLoading } from './EditWorkflowLoading';
 import WorkflowEditor from '@components/workflow/WorkflowEditor';

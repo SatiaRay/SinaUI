@@ -1,17 +1,15 @@
 // DocumentIndex.js
-import React, {useState } from 'react';
-import DocumentCard from "../../../components/document/DocumentCard"
+import React, { useState } from 'react';
+import DocumentCard from '../../../components/document/DocumentCard';
 import knowledgeApi, {
   useDeleteDocumentMutation,
 } from '../../../store/api/knowledgeApi';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
 import { Pagination } from '../../../components/ui/pagination';
-import { useDisplay } from '../../../hooks/display';
 import { notify } from '../../../ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
-import { GoPlusCircle } from "react-icons/go";
+import { GoPlusCircle } from 'react-icons/go';
 import { DocumentIndexLoading } from './DocumentIndexLoading';
 
 const DocumentIndexPage = () => {
@@ -66,13 +64,12 @@ const DocumentIndexPage = () => {
   /**
    * Show skeleton loading
    */
-  if (isLoading)
-    return <DocumentIndexLoading/>;
+  if (isLoading) return <DocumentIndexLoading />;
 
   /**
    * Display error message when fetching fails
    */
-  if (isError) return <p>مشکلی پیش آمده است 🛑</p>;
+  if (isError) <p className='text-center'>مشکلی پیش آمده است 🛑</p>;
 
   /**
    * Prevent map documents when it is null
@@ -84,6 +81,7 @@ const DocumentIndexPage = () => {
    */
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
+      {/* Page header  */}
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h3 className="text-3xl">مستندات</h3>
         <Link
@@ -91,9 +89,11 @@ const DocumentIndexPage = () => {
           className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
           <span>سند جدید</span>
-          <GoPlusCircle size={22} className='pr-2 box-content'/>
+          <GoPlusCircle size={22} className="pr-2 box-content" />
         </Link>
       </div>
+
+      {/* Documents card list */}
       <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
         {documents.map((document) => (
           <DocumentCard
@@ -103,6 +103,18 @@ const DocumentIndexPage = () => {
           />
         ))}
       </div>
+
+      {/* Empty documents message  */}
+      {documents.length < 1 && (
+        <div className="text-center mx-auto">
+          <p>هیچ سند ثبت شده ای یافت نشد.</p>
+          <Link to={'/document/create'} className="underline text-blue-300">
+            ثبت سند جدید
+          </Link>
+        </div>
+      )}
+
+      {/* Pagination  */}
       <Pagination
         page={page}
         perpage={perpage}
