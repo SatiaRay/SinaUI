@@ -155,7 +155,7 @@ const EditWorkflowPage = () => {
                   { value: 1, label: 'فعال' },
                   { value: 0, label: 'غیرفعال' },
                 ]}
-                value={Number(workflow.status)}
+                value={Number(workflow.status).toString()}
                 className="w-full"
                 parentStyle="w-full"
               />
