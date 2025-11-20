@@ -168,13 +168,14 @@ const ChatBox = (props) => {
         }
 
         skeletonTimerRef.current = setTimeout(() => {
-          setContentVisible(false);
 
           setTimeout(() => {
             setIsSkeletonActive(false);
-            setContentVisible(true);
             skeletonTimerRef.current = null;
           }, 600);
+
+          setIsSkeletonActive(false);
+          skeletonTimerRef.current = null;
         }, 1200);
       }
 
@@ -225,18 +226,23 @@ const ChatBox = (props) => {
           </Header>
         )}
         <MessagesWrapper>
-          <Messages>
-            <ContentTransition isVisible={contentVisible}>
-              {isSkeletonActive ? (
-                <ChatSkeletonLoader theme={theme} />
-              ) : (
-                <AuthProvider>
-                  <ChatProvider>
-                    <Chat services={services} />
-                  </ChatProvider>
-                </AuthProvider>
-              )}
-            </ContentTransition>
+        <Messages
+            className={
+              isSkeletonActive
+                ? 'overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+                : ''
+            }
+            style={isSkeletonActive ? { overflow: 'hidden' } : {}}
+          >
+            {isSkeletonActive ? (
+              <ChatSkeletonLoader theme={theme} />
+            ) : (
+              <AuthProvider>
+                <ChatProvider>
+                  <Chat services={services} />
+                </ChatProvider>
+              </AuthProvider>
+            )}
           </Messages>
         </MessagesWrapper>
       </Box>

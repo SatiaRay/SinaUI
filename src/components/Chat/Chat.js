@@ -18,6 +18,7 @@ import { useChat } from '@contexts/ChatContext';
 import Swal from 'sweetalert2';
 import {
   H2,
+  H3,
   ChatContainer,
   InitialLayoutContainer,
   WelcomeSection,
@@ -43,6 +44,7 @@ import {
   ActionButtonsContainer,
   ClearHistoryButton,
   ErrorMessage,
+  H4,
 } from '../ui/common';
 import { ChatSkeletonLoading } from './ChatSkeletonLoading';
 
@@ -847,12 +849,8 @@ const ChatInner = ({ services = null }) => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'بله، پاک کن!',
-      cancelButtonText: 'لغو',
-      customClass: {
-        confirmButton: 'swal2-confirm-btn',
-        cancelButton: 'swal2-cancel-btn',
-      },
-      buttonsStyling: false,
+      cancelButtonText: 'لغو', 
+      buttonsStyling: true,
     });
     if (result.isConfirmed) {
       clearHistory();
@@ -862,10 +860,7 @@ const ChatInner = ({ services = null }) => {
         text: 'تاریخچه چت با موفقیت پاک شد.',
         icon: 'success',
         confirmButtonText: 'باشه',
-        customClass: {
-          confirmButton: 'swal2-ok-btn',
-        },
-        buttonsStyling: false,
+        buttonsStyling: true,
       });
       setTimeout(forceScrollToBottomImmediate, 50);
     }
@@ -876,10 +871,10 @@ const ChatInner = ({ services = null }) => {
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <InitialLayoutContainer>
           <WelcomeSection>
-            <H2>سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم</H2>
-            <H2>
+            <H3>سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم</H3>
+            <H4>
               نام من به یاد ابن سینا نماد دانش و خرد ایرانی انتخاب شده است
-            </H2>
+            </H4>
             <WelcomeText>
               سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم 😊🚀🌟
             </WelcomeText>
