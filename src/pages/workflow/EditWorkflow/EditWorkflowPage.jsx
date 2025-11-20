@@ -12,9 +12,9 @@ import {
   useStoreWorkflowMutation,
   useUpdateWorkflowMutation,
 } from 'store/api/AiApi';
-import { WorkflowEditor } from '..';
 import CustomDropdown from 'ui/dropdown';
 import { EditWorkflowLoading } from './EditWorkflowLoading';
+import WorkflowEditor from '@components/workflow/WorkflowEditor';
 
 const EditWorkflowPage = () => {
   /**

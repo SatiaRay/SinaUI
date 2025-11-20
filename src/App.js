@@ -9,7 +9,7 @@ import {
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
-import { WorkflowIndex } from './pages/workflow';
+import { WorkflowIndexPage, EditWorkflowPage, CreateWorkflowPage } from './pages/workflow';
 import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
 import EditInstruction from './components/Chat/Instruction/EditInstruction';
 import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
@@ -31,8 +31,6 @@ import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
-import CreateWorkflowPage from '@pages/workflow/CreateWorkflow/CreateWorkflowPage';
-import EditWorkflowPage from '@pages/workflow/EditWorkflow/EditWorkflowPage';
 
 function App() {
   return (
@@ -235,7 +233,7 @@ function privateRoutes() {
           index
           element={
             <PrivateRoute>
-              <WorkflowIndex />
+              <WorkflowIndexPage />
             </PrivateRoute>
           }
         />

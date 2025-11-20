@@ -1,2 +1,3 @@
-export { default as WorkflowIndex } from './WorkflowIndex/WorkflowIndexPage';
-export { default as WorkflowEditor } from '../../components/workflow/WorkflowEditor';
+export { default as WorkflowIndexPage } from './WorkflowIndex/WorkflowIndexPage';
+export { default as EditWorkflowPage } from './EditWorkflow/EditWorkflowPage';
+export { default as CreateWorkflowPage } from './CreateWorkflow/CreateWorkflowPage';
