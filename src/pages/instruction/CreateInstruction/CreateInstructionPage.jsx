@@ -4,12 +4,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import { notify } from '../../../ui/toast';
 import { Sppiner } from '../../../components/ui/sppiner';
 import { useCreateInstructionMutation } from 'store/api/ai-features/instructionApi';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 const CreateInstructionPage = () => {
   /**
    * Navigator
    */
   const navigate = useNavigate();
+
+  /**
+   * State for form errors
+   */
+  const [formErrors, setFormErrors] = useState({
+    label: '',
+    text: '',
+    agent_type: '',
+  });
 
   /**
    * Instruction object state prop
@@ -28,6 +38,43 @@ const CreateInstructionPage = () => {
     useCreateInstructionMutation();
 
   /**
+   * Handle 422 validation errors
+   */
+  useEffect(() => {
+    if (isError && error?.status === 422) {
+      // Reset previous errors
+      setFormErrors({ label: '', text: '', agent_type: '' });
+
+      // Extract validation errors from response
+      if (error.data?.detail) {
+        const newErrors = { label: '', text: '', agent_type: '' };
+
+        error.data.detail.forEach((err) => {
+          if (err.loc && Array.isArray(err.loc)) {
+            const field = err.loc[err.loc.length - 1]; // Get last item which is field name
+            if (
+              field === 'label' ||
+              field === 'text' ||
+              field === 'agent_type'
+            ) {
+              newErrors[field] = err.msg || 'این فیلد الزامی است';
+            }
+          }
+        });
+
+        setFormErrors(newErrors);
+      }
+
+      notify.error('لطفا اطلاعات فرم را بررسی کنید');
+    } else if (isError) {
+      console.log(error);
+      notify.error(
+        'افزودن دستورالعمل با خطا مواجه شد. لطفا کمی بعد تر مجددا تلاش کنید.'
+      );
+    }
+  }, [isError, error]);
+
+  /**
    * Notify successful mutation and navigate user to index page
    */
   useEffect(() => {
@@ -38,9 +85,26 @@ const CreateInstructionPage = () => {
   }, [isSuccess]);
 
   /**
+   * Clear error when user starts typing in a field
+   */
+  const handleFieldChange = (field, value) => {
+    setInstruction({ ...instruction, [field]: value });
+
+    // Clear error for this field when user starts typing
+    if (formErrors[field]) {
+      setFormErrors({
+        ...formErrors,
+        [field]: '',
+      });
+    }
+  };
+
+  /**
    * Store instruction handler
    */
   const handleStoreInstruction = () => {
+    // Clear previous errors before submitting
+    setFormErrors({ label: '', text: '', agent_type: '' });
     storeInstruction(instruction);
   };
 
@@ -56,7 +120,7 @@ const CreateInstructionPage = () => {
           <div className="flex gap-2 max-md:justify-between">
             <button
               onClick={handleStoreInstruction}
-              disabled={false}
+              disabled={isLoading}
               className="px-4 py-2 flex items-center justify-center max-md:w-1/2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
               {isLoading ? <Sppiner size={8} /> : 'ذخیره'}
@@ -71,7 +135,7 @@ const CreateInstructionPage = () => {
         </div>
 
         <div className="flex-1 flex flex-col min-h-0">
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 برچسب:
@@ -79,12 +143,20 @@ const CreateInstructionPage = () => {
               <input
                 type="text"
                 value={instruction.label}
-                onChange={(e) =>
-                  setInstruction({ ...instruction, label: e.target.value })
-                }
-                className="w-full px-3 pt-2 pb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                onChange={(e) => handleFieldChange('label', e.target.value)}
+                className={`w-full px-3 pt-2 pb-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
+                  formErrors.label
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}
                 placeholder="برچسب دستورالعمل"
               />
+              {formErrors.label && (
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <FaExclamationTriangle className="text-red-500" />
+                  {formErrors.label}
+                </p>
+              )}
             </div>
 
             <div>
@@ -95,10 +167,7 @@ const CreateInstructionPage = () => {
                 <select
                   value={instruction.status}
                   onChange={(e) =>
-                    setInstruction({
-                      ...instruction,
-                      status: Number(e.target.value),
-                    })
+                    handleFieldChange('status', Number(e.target.value))
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
@@ -116,12 +185,20 @@ const CreateInstructionPage = () => {
             <textarea
               rows={6}
               value={instruction.text}
-              onChange={(e) =>
-                setInstruction({ ...instruction, text: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              onChange={(e) => handleFieldChange('text', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
+                formErrors.text
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-600'
+              }`}
               placeholder="متن دستورالعمل..."
             />
+            {formErrors.text && (
+              <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                <FaExclamationTriangle className="text-red-500" />
+                {formErrors.text}
+              </p>
+            )}
           </div>
         </div>
       </div>

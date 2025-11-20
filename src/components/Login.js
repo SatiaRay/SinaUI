@@ -16,10 +16,8 @@ const Login = () => {
     }
   }, [user, navigate]);
 
-  // پاک‌سازی ورودی ایمیل: حذف فاصله‌ها، ویرگول فارسی و کاراکترهای علامت‌گذاری راست‌به‌چپ
   const sanitizeEmail = (value) => {
     if (!value) return value;
-    // حذف ویرگول فارسی (،) و فاصله و کاراکترهای جهت‌دهی ونال‌سپیس
     return String(value).replace(/[\u200E\u200F\s،\u060C]/g, '');
   };
 
@@ -36,7 +34,6 @@ const Login = () => {
   };
 
   const validateEmail = (email) => {
-    // regex استاندارد پایه‌ای برای ایمیل (ساده و قابل اعتماد برای client-side)
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
@@ -44,7 +41,6 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // client-side validation (ما از native validation مرورگر استفاده نمی‌کنیم)
     const newErrors = {};
     if (!formData.email) newErrors.email = 'ایمیل الزامی است';
     else if (!validateEmail(formData.email))
@@ -87,11 +83,8 @@ const Login = () => {
           return;
         }
 
-        // موفق: AuthContext ست می‌کند و useEffect ریدایرکت می‌کند
         return;
       }
-
-      // اگر authLogin رفتار قدیمی داشت، اجازه بده useEffect مدیریت کند
     } catch (err) {
       const serverData = err?.response?.data;
       if (serverData) {
@@ -134,7 +127,6 @@ const Login = () => {
           </div>
         )}
 
-        {/* جلوگیری از validation بومی مرورگر */}
         <form
           className="mt-6 space-y-6 w-full"
           onSubmit={handleSubmit}

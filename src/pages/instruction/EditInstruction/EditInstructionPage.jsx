@@ -8,28 +8,24 @@ import {
 } from 'store/api/ai-features/instructionApi';
 import { EditInstructionLoading } from './EditInstructionLoading';
 import { Sppiner } from '../../../components/ui/sppiner';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 const EditInstructionPage = () => {
-  /**
-   * Distruct instruction_id from uri
-   */
   const { id } = useParams();
-
-  /**
-   * Navigator
-   */
   const navigate = useNavigate();
 
   /**
-   * Fetching Instruction data using RTK Query hook
+   * State for form errors
    */
+  const [formErrors, setFormErrors] = useState({
+    label: '',
+    text: '',
+  });
+
   const { data, isSuccess, isLoading, isError } = useGetInstructionQuery({
     id,
   });
 
-  /**
-   * Instruction object state prop
-   */
   const [instruction, setInstruction] = useState(null);
 
   useEffect(() => {
@@ -41,21 +37,49 @@ const EditInstructionPage = () => {
       });
   }, [isSuccess, data]);
 
-  /**
-   * Update instruction request hook
-   */
   const [
     updateInstruction,
     {
       isLoading: isUpdating,
       isSuccess: isUpdateSucceed,
       isError: isUpdateFailed,
+      error,
     },
   ] = useUpdateInstructionMutation();
 
   /**
-   * Notify successful mutation and navigate user to index page
+   * Handle 422 validation errors
    */
+  useEffect(() => {
+    if (isUpdateFailed && error?.status === 422) {
+      // Reset previous errors
+      setFormErrors({ label: '', text: '' });
+
+      // Extract validation errors from response
+      if (error.data?.detail) {
+        const newErrors = { label: '', text: '' };
+
+        error.data.detail.forEach((err) => {
+          if (err.loc && Array.isArray(err.loc)) {
+            const field = err.loc[err.loc.length - 1]; // Get last item which is field name
+            if (field === 'label' || field === 'text') {
+              newErrors[field] = err.msg || 'این فیلد الزامی است';
+            }
+          }
+        });
+
+        setFormErrors(newErrors);
+      }
+
+      notify.error('لطفا اطلاعات فرم را بررسی کنید');
+    } else if (isUpdateFailed) {
+      console.log(error);
+      notify.error(
+        'ویرایش دستورالعمل با خطا مواجه شد. لطفا کمی بعد تر مجددا تلاش کنید.'
+      );
+    }
+  }, [isUpdateFailed, error]);
+
   useEffect(() => {
     if (isUpdateSucceed) {
       notify.success('دستورالعمل با موفقیت ویرایش شد !');
@@ -64,23 +88,29 @@ const EditInstructionPage = () => {
   }, [isUpdateSucceed]);
 
   /**
-   * Notify failure mutation
+   * Clear error when user starts typing in a field
    */
-  useEffect(() => {
-    if (isUpdateFailed)
-      notify.error('ویرایش دستورالعمل با خطا مواجه شد. لطفا کمی بعد تر مجددا تلاش کنید.');
-  }, [isUpdateFailed]);
+  const handleFieldChange = (field, value) => {
+    setInstruction({ ...instruction, [field]: value });
+
+    // Clear error for this field when user starts typing
+    if (formErrors[field]) {
+      setFormErrors({
+        ...formErrors,
+        [field]: '',
+      });
+    }
+  };
 
   /**
    * Update instruction handler
    */
   const handleUpdateInstruction = () => {
+    // Clear previous errors before submitting
+    setFormErrors({ label: '', text: '' });
     updateInstruction({ id, data: instruction });
   };
 
-  /**
-   * Display loading page on loading state
-   */
   if (isLoading || !instruction) return <EditInstructionLoading />;
 
   return (
@@ -95,7 +125,7 @@ const EditInstructionPage = () => {
           <div className="flex gap-2 max-md:justify-between">
             <button
               onClick={handleUpdateInstruction}
-              disabled={false}
+              disabled={isUpdating}
               className="px-4 py-2 flex items-center justify-center max-md:w-1/2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
               {isUpdating ? <Sppiner size={8} /> : 'ذخیره'}
@@ -118,12 +148,20 @@ const EditInstructionPage = () => {
               <input
                 type="text"
                 value={instruction.label}
-                onChange={(e) =>
-                  setInstruction({ ...instruction, label: e.target.value })
-                }
-                className="w-full px-3 pt-2 pb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                onChange={(e) => handleFieldChange('label', e.target.value)}
+                className={`w-full px-3 pt-2 pb-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
+                  formErrors.label
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}
                 placeholder="برچسب دستورالعمل"
               />
+              {formErrors.label && (
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <FaExclamationTriangle className="text-red-500" />
+                  {formErrors.label}
+                </p>
+              )}
             </div>
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -132,10 +170,7 @@ const EditInstructionPage = () => {
               <select
                 value={instruction.status}
                 onChange={(e) =>
-                  setInstruction({
-                    ...instruction,
-                    status: Number(e.target.value),
-                  })
+                  handleFieldChange('status', Number(e.target.value))
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
@@ -152,12 +187,20 @@ const EditInstructionPage = () => {
             <textarea
               rows={6}
               value={instruction.text}
-              onChange={(e) =>
-                setInstruction({ ...instruction, text: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              onChange={(e) => handleFieldChange('text', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
+                formErrors.text
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-600'
+              }`}
               placeholder="متن دستورالعمل..."
             />
+            {formErrors.text && (
+              <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                <FaExclamationTriangle className="text-red-500" />
+                {formErrors.text}
+              </p>
+            )}
           </div>
         </div>
       </div>
