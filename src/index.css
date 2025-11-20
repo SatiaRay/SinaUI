@@ -473,3 +473,13 @@ code {
     --skeleton-base-color: #4b5563;      /* gray-600 */
     --skeleton-highlight-color: #6b7280; /* gray-500 */
 }
+
+.main-content {
+    margin-right: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    .main-content {
+        margin-right: 0;
+    }
+}

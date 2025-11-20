@@ -9,7 +9,11 @@ import {
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
-import { CreateInstruction, InstructionIndex, EditInstruction } from './pages/instruction/Index';
+import {
+  CreateInstruction,
+  InstructionIndex,
+  EditInstruction,
+} from './pages/instruction/Index';
 import Status1 from './components/Chat/Status';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
@@ -17,7 +21,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Workflow from './components/Workflow/WorkflowIndex';
 import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
 import { AuthProvider } from './contexts/AuthContext';
-import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
+// import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
@@ -37,13 +41,11 @@ import {
 function App() {
   return (
     <AuthProvider>
-      <VoiceAgentProvider>
-        <Router
-          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-        >
-          <AppContent />
-        </Router>
-      </VoiceAgentProvider>
+      {/*<VoiceAgentProvider>*/}
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AppContent />
+      </Router>
+      {/*</VoiceAgentProvider>*/}
     </AuthProvider>
   );
 }
@@ -70,7 +72,7 @@ function AppContent() {
   return (
     <div
       id="khan"
-      className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
+      className={`min-h-screen main-content bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
         isPrivateRoute
           ? sidebarCollapsed
             ? 'md:mr-0'
