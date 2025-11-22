@@ -23,17 +23,17 @@ export const WorkflowIndexLoading = () => {
         <div className="flex justify-between items-center w-full mb-5">
           <h3 className="text-2xl md:text-3xl">گردش کارها</h3>
           {/* Desktop: Action Buttons Skeleton (Import + Create) */}
-          <div className="flex gap-3 hidden md:block">
+          <div className="flex flex-row gap-3 hidden md:flex">
             <Skeleton
-              baseColor="#374151"
-              highlightColor="#5c626b"
+              baseColor="var(--skeleton-base-color)"
+              highlightColor="var(--skeleton-highlight-color)"
               height={45}
               width={120}
               className="w-full"
             />
             <Skeleton
-              baseColor="#374151"
-              highlightColor="#5c626b"
+              baseColor="var(--skeleton-base-color)"
+              highlightColor="var(--skeleton-highlight-color)"
               height={45}
               width={120}
               className="w-full"
@@ -43,14 +43,14 @@ export const WorkflowIndexLoading = () => {
           {/* Mobile: Action Buttons Skeleton (Import + Create) */}
           <div className="flex gap-3 md:hidden">
             <Skeleton
-              baseColor="#374151"
-              highlightColor="#5c626b"
+              baseColor="var(--skeleton-base-color)"
+              highlightColor="var(--skeleton-highlight-color)"
               height={35}
               width={90}
             />
             <Skeleton
-              baseColor="#374151"
-              highlightColor="#5c626b"
+              baseColor="var(--skeleton-base-color)"
+              highlightColor="var(--skeleton-highlight-color)"
               height={35}
               width={90}
             />
@@ -67,8 +67,8 @@ export const WorkflowIndexLoading = () => {
                 {['نام', 'وضعیت', 'عملیات'].map((header, index) => (
                   <th key={index} className="px-4 py-3 text-center">
                     <Skeleton
-                      baseColor="#374151"
-                      highlightColor="#5c626b"
+                      baseColor="var(--skeleton-base-color)"
+                      highlightColor="var(--skeleton-highlight-color)"
                       height={20}
                       width={70}
                       className="mx-auto"
@@ -86,8 +86,8 @@ export const WorkflowIndexLoading = () => {
                   {/* Name */}
                   <td className="px-4 py-4 text-center">
                     <Skeleton
-                      baseColor="#374151"
-                      highlightColor="#5c626b"
+                      baseColor="var(--skeleton-base-color)"
+                      highlightColor="var(--skeleton-highlight-color)"
                       height={20}
                       width={120}
                       className="mx-auto"
@@ -96,8 +96,8 @@ export const WorkflowIndexLoading = () => {
                   {/* Status Badge */}
                   <td className="px-4 py-4 text-center">
                     <Skeleton
-                      baseColor="#374151"
-                      highlightColor="#5c626b"
+                      baseColor="var(--skeleton-base-color)"
+                      highlightColor="var(--skeleton-highlight-color)"
                       height={26}
                       width={70}
                       className="mx-auto rounded-full"
@@ -107,23 +107,23 @@ export const WorkflowIndexLoading = () => {
                   <td className="px-4 py-4">
                     <div className="flex justify-center gap-2">
                       <Skeleton
-                        baseColor="#374151"
-                        highlightColor="#5c626b"
+                        baseColor="var(--skeleton-base-color)"
+                        highlightColor="var(--skeleton-highlight-color)"
                         height={36}
                         width={80}
                         className="rounded-lg"
                       />
                       <div className="hidden lg:flex flex-row gap-2">
                         <Skeleton
-                          baseColor="#374151"
-                          highlightColor="#5c626b"
+                          baseColor="var(--skeleton-base-color)"
+                          highlightColor="var(--skeleton-highlight-color)"
                           height={36}
                           width={60}
                           className="rounded-lg hidden"
                         />
                         <Skeleton
-                          baseColor="#374151"
-                          highlightColor="#5c626b"
+                          baseColor="var(--skeleton-base-color)"
+                          highlightColor="var(--skeleton-highlight-color)"
                           height={36}
                           width={60}
                           className="rounded-lg hidden"
