@@ -54,7 +54,7 @@ function AppContent() {
   const location = useLocation();
   const isPrivateRoute =
     location.pathname !== '/login' && location.pathname !== '/register';
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
     const fetchVersion = async () => {
