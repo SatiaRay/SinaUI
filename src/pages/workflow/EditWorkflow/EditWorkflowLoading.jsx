@@ -158,7 +158,7 @@ export const EditWorkflowLoading = () => {
         {/* Canvas Area */}
         <div className="flex-1 ml-16 relative overflow-auto">
           {/* One realistic centered node (like your screenshot) */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid lg:grid-cols-2 xl:grid-cols-3 gap-10 items-center w-[75%] h-full">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid lg:grid-cols-2 xl:grid-cols-3 gap-10 items-center md:w-[75%] h-full">
             {[3, 2, 1].map((i) => (
               <div
                 className={`${i == 2 ? 'lg:grid hidden h-[65%]' : 'grid'} ${i == 3 ? 'xl:grid hidden h-full' : 'grid'} gap-3 place-items-center`}
