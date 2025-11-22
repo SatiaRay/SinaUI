@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Braces,
   CirclePlay,
@@ -26,6 +26,13 @@ const WorkflowEditorSidebar = ({
    * Sidebar extendable state
    */
   const [extended, setExtended] = useState(false);
+
+  /**
+   * Hide navbar on fullscreen
+   */
+  useEffect(() => {
+    window.parent.postMessage({ type: fullscreen ? 'HIDE_NAVBAR' : 'SHOW_NAVBAR' }, '*')
+  }, [fullscreen])
 
   /**
    * Display util hooks
