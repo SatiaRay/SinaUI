@@ -43,7 +43,7 @@ const WorkflowEditorSidebar = ({
       ></div>
 
       <div
-        className={`absolute left-0 top-0 z-10 bg-white dark:bg-gray-800 shadow-md overflow-x-hidden transition-all duration-300 h-full border-l border-gray-300 dark:border-gray-700 ${
+        className={`absolute left-0 top-0 z-10 bg-white dark:bg-gray-800 shadow-md overflow-x-hidden transition-all duration-300 h-full border-r border-gray-300 dark:border-gray-700 ${
           extended ? 'w-64' : 'w-16'
         }`}
       >
@@ -75,7 +75,7 @@ const WorkflowEditorSidebar = ({
         >
           {/* Menu options  */}
           <div
-            className={`grid gap-2 order-2 md:order-first ${extended ? '' : 'border-t md:border-none border-gray-300 dark:border-gray-500 pt-3 md:pt-0 mt-1'}`}
+            className={`grid gap-2 order-2 md:order-first ${extended ? 'mt-1' : 'border-t md:border-none border-gray-300 dark:border-gray-500 pt-3 md:pt-0'}`}
           >
             {extended && (
               <>
