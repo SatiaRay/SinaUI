@@ -73,105 +73,6 @@ export const formatAxiosError = (error) => {
   };
 };
 
-// =============================
-// Workflow Endpoints
-// =============================
-export const workflowEndpoints = {
-  getWorkflow: async (workflowId) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/workflows/${workflowId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching workflow:', error);
-      throw error;
-    }
-  },
-
-  createWorkflow: async (workflowData) => {
-    try {
-      const response = await axios.post(`${BASE_URL}/workflows`, workflowData);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating workflow:', error);
-      throw error;
-    }
-  },
-
-  updateWorkflow: async (workflowId, workflowData) => {
-    try {
-      const response = await axios.put(
-        `${BASE_URL}/workflows/${workflowId}`,
-        workflowData
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error updating workflow:', error);
-      throw error;
-    }
-  },
-
-  deleteWorkflow: async (workflowId) => {
-    try {
-      const response = await axios.delete(
-        `${BASE_URL}/workflows/${workflowId}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting workflow:', error);
-      throw error;
-    }
-  },
-
-  listWorkflows: async (agentType = null) => {
-    try {
-      const response = await axios.get(
-        `${BASE_URL}/workflows?agent_type=${agentType}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error listing workflows:', error);
-      throw error;
-    }
-  },
-
-  // Export workflow schema
-  exportWorkflow: async (workflow_id) => {
-    try {
-      const res = await axios.get(
-        `${IPD_SERVICE_URL}/workflows/${workflow_id}/export`,
-        {
-          responseType: 'blob',
-        }
-      );
-      return res.data;
-    } catch (err) {
-      handleAxiosError(err, 'خطا در دریافت خروجی');
-    }
-  },
-
-  // Import workflow schema
-  importWorkflow: async (file) => {
-    if (!file) throw new Error('فایل الزامی است');
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const res = await axios.post(
-        `${PYTHON_APP_URL}/workflows/import`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${localStorage.getItem('khan-access-token')}`,
-          },
-        }
-      );
-      return res.data;
-    } catch (err) {
-      handleAxiosError(err, 'خطا در بارگذاری گردش کار');
-    }
-  },
-};
-
 export const getVersion = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/version`);
@@ -435,19 +336,16 @@ export const documentEndpoints = {
       throw err;
     }
   },
-  all: async (
-    page = 1,
-    size = 10
-  ) => {
-    let url = `${KNOWLEDGE_SERVICE_URL}/?page=${page}&size=${size}`;;
-   
+  all: async (page = 1, size = 10) => {
+    let url = `${KNOWLEDGE_SERVICE_URL}/?page=${page}&size=${size}`;
+
     try {
       return await axios.get(url);
     } catch (err) {
       console.error(err.message);
       return null;
     }
-  }
+  },
 };
 
 // =============================
@@ -616,9 +514,11 @@ export const wizardEndpoints = {
   },
 
   // Get wizard by ID
-  getWizard: async (wizardId, enableOnly= true) => {
+  getWizard: async (wizardId, enableOnly = true) => {
     try {
-      const response = await axios.get(`${BASE_URL}/wizards/${wizardId}?enable_only=${enableOnly ? 'true' : 'false'}`);
+      const response = await axios.get(
+        `${BASE_URL}/wizards/${wizardId}?enable_only=${enableOnly ? 'true' : 'false'}`
+      );
       return response.data;
     } catch (error) {
       console.error('Error fetching wizard:', error);
@@ -686,12 +586,14 @@ export const chatEndpoints = {
   },
   getChatHistory: async (sessionId, offset, limit) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`
+      );
       return response.data;
     } catch (error) {
       handleAxiosError(error, 'خطا در دریافت پاسخ');
     }
-  }
+  },
 };
 
 export const authEndpoints = {

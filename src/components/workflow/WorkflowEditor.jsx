@@ -14,9 +14,8 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { v4 as uuidv4 } from 'uuid';
-import { notify } from '../../../ui/toast';
-import { aiFunctionsEndpoints, workflowEndpoints } from '../../../utils/apis';
-import ChatNoHistory from '../../Chat/ChatNoHistory';
+import { notify } from '../../ui/toast';
+import { aiFunctionsEndpoints } from '../../utils/apis';
 import NodeDetails from './NodeDetails';
 import PageViewer from './PageViewer';
 import WorkflowEditorSidebar from './WorkflowEditorSidebar';
@@ -26,6 +25,13 @@ import FunctionNode from './nodes/FunctionNode';
 import ProcessNode from './nodes/ProcessNode';
 import ResponseNode from './nodes/ResponseNode';
 import StartNode from './nodes/StartNode';
+import { useDisplay } from 'hooks/display';
+import { extractEdges, extractNodes, formatNodes } from '@utils/workflowUtility';
+
+/**
+ * Node type definitions for ReactFlow
+ * Maps node type strings to their corresponding React components
+ */
 const nodeTypes = {
   start: StartNode,
   process: ProcessNode,
@@ -35,6 +41,10 @@ const nodeTypes = {
   response: ResponseNode,
 };
 
+/**
+ * Initial nodes configuration for new workflow
+ * Contains a single start node as the entry point
+ */
 const initialNodes = [
   {
     id: '1',
@@ -53,122 +63,122 @@ const initialNodes = [
   },
 ];
 
-const WorkflowEditorContent = () => {
+/**
+ * Main workflow editor component
+ *
+ * @param onChange Calls only on add or remove nodes and edges
+ * @param setSchema Calls after any change in workflow even moving nodes
+ * @returns jsx
+ */
+const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => {
+  // Router hooks for navigation and parameters
   const { workflowId } = useParams();
   const navigate = useNavigate();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // State management for nodes and edges
+  const [nodes, setNodes, onNodesChange] = useNodesState(extractNodes(workflowData));
+  const [nodesCount, setNodesCount] = useState(nodes.length)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(extractEdges(workflowData));
+  const [edgesCount, setEdgesCount] = useState(edges.length)
+
+  // UI state management
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [activePage, setActivePage] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [workflowName, setWorkflowName] = useState('');
-  const [agentType, setAgentType] = useState('');
   const [showFunctionModal, setShowFunctionModal] = useState(false);
   const [aiFunctions, setAiFunctions] = useState([]);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+
+  // React Flow instance for viewport manipulation
   const reactFlowInstance = useReactFlow();
 
+  /**
+   * Hides navbar when chat modal is open
+   * Posts message to parent window to control navbar visibility
+   */
   useEffect(() => {
     if (showChatModal) {
       window.parent.postMessage({ type: 'HIDE_NAVBAR' }, '*');
     }
   }, [showChatModal]);
 
+  /**
+   * Update flow through sending changes to the parent component
+   * through the setSchema prop
+   */
   useEffect(() => {
-    const fetchWorkflow = async () => {
-      if (!workflowId) return;
+    setSchema(formatNodes(nodes, edges))
 
-      try {
-        setLoading(true);
-        setError(null);
-        const workflow = await workflowEndpoints.getWorkflow(workflowId);
+    if(nodes && edges)
+      setNodesCount(nodes.length)
+      setEdgesCount(edges.length)
+  }, [nodes, edges]);
 
-        setWorkflowName(workflow.name || '');
+  /**
+   * Calling onChange prop handler on nodes or edges count change
+   */
+  useEffect(() => {
+    if(nodes && edges)
+      onChange(formatNodes(nodes, edges))
+  }, [nodesCount, edgesCount])
 
-        setAgentType(workflow.agent_type);
+  /**
+   * Display util hooks
+   */
+  const { isDesktop } = useDisplay();
 
-        const workflowNodes = workflow.flow.map((step) => ({
-          id: step.id,
-          type: step.type === 'action' ? 'process' : step.type,
-          position: {
-            x: step.position?.x ?? 50,
-            y: step.position?.y ?? 250,
-          },
-          data: {
-            label: step.label,
-            description: step.description || '',
-            conditions:
-              step.type === 'decision'
-                ? (step.conditions || []).map((c) => c.label)
-                : [],
-            conditionTargets:
-              step.type === 'decision'
-                ? (step.conditions || []).reduce((acc, c) => {
-                    acc[c.label] = c.next;
-                    return acc;
-                  }, {})
-                : {},
-            jsonConfig: null,
-            pageConfig: {
-              showPage: false,
-              pageUrl: '',
-              closeOnAction: false,
-            },
-          },
-        }));
+  /**
+   * Fetches workflow data when component mounts or workflowId changes
+   * Transforms API response into ReactFlow nodes and edges format
+   */
+  // useEffect(() => {
+  //   if (!workflowData || !workflowId) return;
 
-        const workflowEdges = workflow.flow.reduce((acc, step) => {
-          if (step.type === 'decision' && step.conditions) {
-            step.conditions.forEach((condition) => {
-              if (condition.next) {
-                acc.push({
-                  id: `${step.id}-${condition.next}-${condition.label}`,
-                  source: step.id,
-                  target: condition.next,
-                  sourceHandle: condition.label,
-                  type: 'step',
-                  animated: true,
-                  style: { stroke: '#f59e0b' },
-                });
-              }
-            });
-          } else if (step.next) {
-            acc.push({
-              id: `${step.id}-${step.next}`,
-              source: step.id,
-              target: step.next,
-              type: 'step',
-              animated: true,
-              style: { stroke: '#f59e0b' },
-            });
-          }
-          return acc;
-        }, []);
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
 
-        setNodes(workflowNodes);
-        setEdges(workflowEdges);
-      } catch (err) {
-        console.error('Error fetching workflow:', err);
-        setError('خطا در دریافت اطلاعات گردش کار');
-      } finally {
-        setLoading(false);
-      }
-    };
+  //     // Transform workflow steps to ReactFlow nodes
+  //     const workflowNodes = extractNodes(workflowData)
 
-    fetchWorkflow();
-  }, [workflowId, setNodes, setEdges]);
+  //     // Transform workflow connections to ReactFlow edges
+  //     const workflowEdges = extractEdges(workflowData)
 
+  //     setNodes(workflowNodes);
+  //     setEdges(workflowEdges);
+  //   } catch (err) {
+  //     error('Error processing workflow data:', err);
+  //     setError('خطا در پردازش اطلاعات گردش کار');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [workflowData, workflowId, setNodes, setEdges]);
+
+  /**
+   * Convert flow to json and call setSchema handler
+   */
+  // useEffect(() => {
+  //   setSchema(flowToJson(edges))
+  // }, [edges, nodes])
+
+  /**
+   * Handles connection creation between nodes
+   * Validates connection rules and creates appropriate edge
+   */
   const onConnect = useCallback(
     (params) => {
       const sourceNode = nodes.find((node) => node.id === params.source);
 
+      // Set default handle for start nodes
       if (sourceNode?.type === 'start') {
         params.sourceHandle = 'right';
       }
 
+      // Validate decision node connections
       if (sourceNode?.type === 'decision') {
         if (
           !params.sourceHandle ||
@@ -179,6 +189,7 @@ const WorkflowEditorContent = () => {
         }
       }
 
+      // Prevent multiple outgoing connections from non-decision nodes
       if (sourceNode?.type !== 'decision') {
         const existingOutgoingEdges = edges.filter(
           (edge) => edge.source === params.source
@@ -191,6 +202,7 @@ const WorkflowEditorContent = () => {
         }
       }
 
+      // Add new edge to the flow
       setEdges((eds) => {
         return addEdge(
           {
@@ -209,6 +221,10 @@ const WorkflowEditorContent = () => {
     [setEdges, nodes, edges]
   );
 
+  /**
+   * Handles node click events
+   * Selects node and activates page if configured
+   */
   const onNodeClick = useCallback((event, node) => {
     setSelectedNode(node);
 
@@ -217,9 +233,11 @@ const WorkflowEditorContent = () => {
     }
   }, []);
 
+  /**
+   * Updates node data and manages conditional edges for decision nodes
+   */
   const onNodeUpdate = useCallback(
     (nodeId, newData) => {
-      console.log('Updating node:', nodeId, newData); // لاگ برای دیباگ
       setNodes((nds) => {
         const updatedNodes = nds.map((node) => {
           if (node.id === nodeId) {
@@ -235,10 +253,10 @@ const WorkflowEditorContent = () => {
           }
           return node;
         });
-        console.log('Updated nodes:', updatedNodes); // لاگ برای دیباگ
         return updatedNodes;
       });
 
+      // Handle edge management for decision nodes
       if (newData.type === 'decision') {
         setEdges((eds) => {
           const otherEdges = eds.filter((edge) => edge.source !== nodeId);
@@ -263,12 +281,6 @@ const WorkflowEditorContent = () => {
               animated: true,
               style: { stroke: '#f59e0b' },
             }));
-
-          console.log('Updated edges:', [
-            ...otherEdges,
-            ...validEdges,
-            ...newEdges,
-          ]); // لاگ برای دیباگ
           return [...otherEdges, ...validEdges, ...newEdges];
         });
       }
@@ -276,6 +288,9 @@ const WorkflowEditorContent = () => {
     [setNodes, setEdges]
   );
 
+  /**
+   * Fetches available AI functions from the API
+   */
   const fetchAiFunctions = useCallback(async () => {
     try {
       const data = await aiFunctionsEndpoints.getFunctionsMap();
@@ -286,10 +301,15 @@ const WorkflowEditorContent = () => {
     }
   }, []);
 
+  // Fetch AI functions on component mount
   useEffect(() => {
     fetchAiFunctions();
   }, [fetchAiFunctions]);
 
+  /**
+   * Adds a new node to the workflow
+   * @param {string} type - The type of node to add
+   */
   const addNode = (type) => {
     if (type === 'function') {
       setShowFunctionModal(true);
@@ -331,10 +351,13 @@ const WorkflowEditorContent = () => {
         },
       },
     };
-    console.log('Adding new node:', newNode); // لاگ برای دیباگ
     setNodes((nds) => [...nds, newNode]);
   };
 
+  /**
+   * Adds a function node with specific AI function data
+   * @param {Object} functionData - The AI function configuration
+   */
   const addFunctionNode = (functionData) => {
     const { x, y, zoom } = reactFlowInstance.getViewport();
     const centerX = -x + window.innerWidth / 2 / zoom;
@@ -364,10 +387,17 @@ const WorkflowEditorContent = () => {
     setShowFunctionModal(false);
   };
 
+  /**
+   * Closes the active page viewer
+   */
   const handlePageClose = useCallback(() => {
     setActivePage(null);
   }, []);
 
+  /**
+   * Deletes a node and its associated edges
+   * @param {string} nodeId - The ID of the node to delete
+   */
   const deleteNode = useCallback(
     (nodeId) => {
       setNodes((nds) => nds.filter((node) => node.id !== nodeId));
@@ -378,14 +408,23 @@ const WorkflowEditorContent = () => {
     [setNodes, setEdges]
   );
 
+  /**
+   * Handles edge selection
+   */
   const onEdgeClick = useCallback((event, edge) => {
     setSelectedEdge(edge);
   }, []);
 
+  /**
+   * Clears selection when clicking on empty canvas area
+   */
   const onPaneClick = useCallback(() => {
     setSelectedEdge(null);
   }, []);
 
+  /**
+   * Handles keyboard delete key for selected nodes/edges
+   */
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Delete') {
@@ -403,6 +442,10 @@ const WorkflowEditorContent = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedEdge, selectedNode, setEdges, deleteNode]);
 
+  /**
+   * Generates workflow JSON schema from current nodes and edges
+   * @returns {Object} The workflow data structure
+   */
   const generateWorkflowJson = useCallback(() => {
     const workflowschema = nodes
       .filter((node) => node.type !== 'end')
@@ -452,10 +495,14 @@ const WorkflowEditorContent = () => {
       schema: workflowschema,
     };
 
-    console.log('Workflow JSON:', JSON.stringify(workflowData, null, 2));
     return workflowData;
   }, [nodes, edges]);
 
+  /**
+   * Executes the workflow simulation with user input
+   * @param {string} userInput - The input to process through the workflow
+   * @returns {Object} Chat history and session ID
+   */
   const executeWorkflow = async (userInput) => {
     let currentNodeId = nodes.find((node) => node.type === 'start')?.id;
     let chatHistory = [];
@@ -511,197 +558,11 @@ const WorkflowEditorContent = () => {
     return { chatHistory, sessionId };
   };
 
-  const importWorkflow = useCallback(
-    (jsonString) => {
-      try {
-        const workflowData = JSON.parse(jsonString);
-        if (!workflowData.flow || !Array.isArray(workflowData.flow)) {
-          throw new Error('Invalid workflow format');
-        }
-
-        const newNodes = [];
-        const newEdges = [];
-        const xOffset = 250;
-
-        workflowData.flow.forEach((step, index) => {
-          const node = {
-            id: step.id,
-            type: step.type === 'action' ? 'process' : step.type,
-            position: { x: index * xOffset, y: 250 },
-            data: {
-              label: step.label,
-              description: step.description || '',
-              position: step.position,
-              conditions:
-                step.type === 'decision'
-                  ? Object.keys(step.conditions || {})
-                  : [],
-              jsonConfig: null,
-              pageConfig: {
-                showPage: false,
-                pageUrl: '',
-                closeOnAction: false,
-              },
-            },
-          };
-          newNodes.push(node);
-
-          if (step.type === 'decision' && step.conditions) {
-            Object.entries(step.conditions).forEach(([condition, targetId]) => {
-              newEdges.push({
-                id: `${step.id}-${targetId}`,
-                source: step.id,
-                target: targetId,
-                sourceHandle: condition,
-                type: 'step',
-              });
-            });
-          } else if (step.next) {
-            newEdges.push({
-              id: `${step.id}-${step.next}`,
-              source: step.id,
-              target: step.next,
-              type: 'step',
-            });
-          }
-        });
-
-        setNodes(newNodes);
-        setEdges(newEdges);
-      } catch (error) {
-        console.error('Error importing workflow:', error);
-        alert('Error importing workflow: ' + error.message);
-      }
-    },
-    [setNodes, setEdges]
-  );
-
-  const saveWorkflow = useCallback(
-    async (customNodes = nodes, overrideAgentType = null) => {
-      let workflowData = null;
-      try {
-        setLoading(true);
-        setError(null);
-
-        if (!workflowName.trim()) {
-          notify.error('لطفا نام گردش کار را وارد کنید');
-          setLoading(false);
-          return;
-        }
-
-        const usedAgentType = overrideAgentType ?? agentType;
-
-        workflowData = {
-          name: workflowName.trim(),
-          agent_type: usedAgentType,
-          flow: customNodes.map((node) => {
-            const step = {
-              id: node.id,
-              label: node.data.label,
-              description: node.data.description || null,
-              position: node.position,
-            };
-
-            switch (node.type) {
-              case 'start':
-                step.type = 'start';
-                break;
-              case 'process':
-                step.type = 'process';
-                break;
-              case 'function':
-                step.type = 'function';
-                step.functionName = node.data.functionData?.name;
-                step.functionDescription = node.data.functionData?.description;
-                step.functionParameters = node.data.functionData?.parameters;
-                break;
-              case 'response':
-                step.type = 'response';
-                break;
-              case 'decision':
-                step.type = 'decision';
-                const outgoingEdges = edges.filter(
-                  (edge) =>
-                    edge.source === node.id &&
-                    edge.target &&
-                    node.data.conditions.includes(edge.sourceHandle)
-                );
-                step.conditions = outgoingEdges.map((edge) => ({
-                  label: edge.sourceHandle,
-                  next: edge.target,
-                }));
-                break;
-              case 'end':
-                step.type = 'end';
-                break;
-              default:
-                step.type = 'unknown';
-            }
-
-            if (node.type !== 'decision' && node.type !== 'end') {
-              const outgoingEdges = edges.filter(
-                (edge) => edge.source === node.id && edge.target
-              );
-              if (outgoingEdges.length > 0) {
-                step.next = outgoingEdges[0].target;
-              } else {
-                step.next = null;
-              }
-            }
-
-            return step;
-          }),
-        };
-
-        console.log(
-          'Saving workflow data:',
-          JSON.stringify(workflowData, null, 2)
-        ); // لاگ برای دیباگ
-
-        if (workflowId) {
-          await workflowEndpoints.updateWorkflow(workflowId, workflowData);
-          notify.success('گردش کار با موفقیت بروزرسانی شد');
-        } else {
-          const { id } = await workflowEndpoints.createWorkflow(workflowData);
-          navigate(`/workflow/${id}`);
-          notify.success('گردش کار با موفقیت ایجاد شد');
-        }
-
-        // به‌روزرسانی state اصلی
-        setNodes(customNodes);
-      } catch (err) {
-        console.error('Error saving workflow:', err);
-        setError('خطا در ذخیره گردش کار');
-        notify.error('خطا در ذخیره گردش کار');
-        console.log(
-          'Workflow Data Sent:',
-          JSON.stringify(workflowData, null, 2)
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [nodes, edges, workflowId, workflowName, setNodes, agentType]
-  );
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-red-500">{error}</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="h-screen w-full relative" style={{ zIndex: 10 }}>
+    <div
+      className={`min-h-[600px] h-full w-full border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden z-50 ${fullscreen ? 'fixed top-0 left-0 bg-white dark:bg-gray-800 ' : 'relative'}`}
+      style={{ zIndex: 10 }}
+    >
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -714,17 +575,17 @@ const WorkflowEditorContent = () => {
         pauseOnHover
         theme="light"
       />
+
+      {/* Sidebar component for workflow management */}
       <WorkflowEditorSidebar
-        workflowName={workflowName}
-        setWorkflowName={setWorkflowName}
-        agentType={agentType}
-        setAgentType={setAgentType}
         workflowId={workflowId}
-        saveWorkflow={saveWorkflow}
         addNode={addNode}
         setShowChatModal={setShowChatModal}
+        fullscreen={fullscreen}
+        setFullscreen={setFullscreen}
       />
 
+      {/* React Flow canvas for workflow visualization */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -738,24 +599,26 @@ const WorkflowEditorContent = () => {
         fitView
         proOptions={{ hideAttribution: true }}
         style={{ zIndex: 10 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.1 }}
       >
         <Controls />
-        <MiniMap />
+        {isDesktop && <MiniMap />}
         <Background variant="dots" gap={12} size={1} />
       </ReactFlow>
 
+      {/* Node details panel */}
       {selectedNode && (
         <NodeDetails
           node={selectedNode}
           onUpdate={onNodeUpdate}
           onClose={() => setSelectedNode(null)}
           onDelete={deleteNode}
-          saveWorkflow={saveWorkflow}
           nodes={nodes}
           style={{ zIndex: 10 }}
         />
       )}
 
+      {/* Page viewer for node-specific pages */}
       {activePage && (
         <PageViewer
           pageConfig={activePage}
@@ -764,6 +627,7 @@ const WorkflowEditorContent = () => {
         />
       )}
 
+      {/* AI function selection modal */}
       {showFunctionModal && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
@@ -801,6 +665,7 @@ const WorkflowEditorContent = () => {
         </div>
       )}
 
+      {/* Delete confirmation modal */}
       {showDeleteConfirm && selectedNode && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
@@ -847,7 +712,8 @@ const WorkflowEditorContent = () => {
         </div>
       )}
 
-      {showChatModal && (
+      {/* Chat modal for workflow testing */}
+      {/* {showChatModal && (
         <div
           className="fixed inset-0 flex p-6"
           style={{ zIndex: 10, pointerEvents: 'none' }}
@@ -903,15 +769,19 @@ const WorkflowEditorContent = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
 
-const WorkflowEditor = () => {
+/**
+ * Workflow Editor wrapper component with ReactFlowProvider
+ * Provides React Flow context to child components
+ */
+const WorkflowEditor = ({ onChange, setSchema, initFlow }) => {
   return (
     <ReactFlowProvider>
-      <WorkflowEditorContent />
+      <WorkflowEditorContent onChange={onChange} setSchema={setSchema} workflowData={initFlow}/>
     </ReactFlowProvider>
   );
 };

@@ -337,6 +337,11 @@ const Navbar = ({ onSidebarCollapse }) => {
   const [isDesktopExpanded, setIsDesktopExpanded] = useState(false);
 
   /**
+   * Hide navbar state
+   */
+  const [hide, setHide] = useState(false)
+
+  /**
    * Navigation items configuration (documents section removed)
    */
   const navItems = [
@@ -395,15 +400,20 @@ const Navbar = ({ onSidebarCollapse }) => {
       if (event.data.type === 'HIDE_NAVBAR') {
         setIsMobileExpanded(false);
         setIsDesktopExpanded(false);
-        onSidebarCollapse(true);
+        setHide(true)
       } else if (event.data.type === 'SHOW_NAVBAR') {
         setIsDesktopExpanded(false);
-        onSidebarCollapse(false);
+        setHide(false)
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [onSidebarCollapse]);
+
+  /**
+   * Return null if hide state is true
+   */
+  if(hide) return null;
 
   return (
     <div dir="rtl">
