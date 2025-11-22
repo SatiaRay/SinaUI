@@ -99,7 +99,7 @@ const EditWorkflowPage = () => {
   if (isLoading || !workflow) return <EditWorkflowLoading />;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full overflow-auto w-full">
+    <div className="bg-white dark:bg-gray-800 md:rounded-lg shadow flex flex-col h-full overflow-auto w-full">
       <div className="flex-1 flex flex-col p-3 md:p-8 pt-3 md:pt-10">
         <div className="flex justify-between md:items-center mb-4 max-md:flex-col max-md:gap-2">
           <div className="flex items-center gap-4">
