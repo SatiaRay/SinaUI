@@ -70,7 +70,7 @@ const WorkflowEditorSidebar = ({ addNode, setShowChatModal, fullscreen, setFulls
           }`}
         >
           {/* Menu options  */}
-          <div className={`grid gap-2 order-2 md:order-first ${extended ? '' : 'border-t border-gray-300 dark:border-gray-500 pt-3 mt-1'}`}>
+          <div className={`grid gap-2 order-2 md:order-first ${extended ? '' : 'border-t md:border-none border-gray-300 dark:border-gray-500 pt-3 md:pt-0 mt-1'}`}>
             {extended && (
               <>
                 <div className="items-center hidden md:flex">
