@@ -6,7 +6,7 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    var inputElem = document.querySelector('input.tagify'); // the 'input' element which will be transformed into a Tagify component
+    var inputElem = document.querySelector('input.tagify'); // the "input" element which will be transformed into a Tagify component
     var tagify = new Tagify(inputElem, {
       // A list of possible tags. This setting is optional if you want to allow
       // any possible tag to be added without suggesting any to the user.
@@ -89,12 +89,14 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
           <input
             className="tagify border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             onChange={(e) => {
-              try{
-                const tags = JSON.parse(e.target.value).map((item) => item.value)
+              try {
+                const tags = JSON.parse(e.target.value).map(
+                  (item) => item.value
+                );
 
-                handleChange(key, tags)
+                handleChange(key, tags);
               } catch {
-                handleChange(key, [])
+                handleChange(key, []);
               }
             }}
             value={value}
@@ -151,4 +153,3 @@ const SettingsForm = ({ schema, initialValues = {}, onSubmit, isLoading }) => {
 };
 
 export default SettingsForm;
-

@@ -26,11 +26,14 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
   };
 
   const renderAgentBadge = () => {
-    const baseClasses = 'flex items-center gap-2 py-1 px-3 rounded-bl-xl absolute top-0 right-0 text-xs font-semibold';
+    const baseClasses =
+      'flex items-center gap-2 py-1 px-3 rounded-bl-xl absolute top-0 right-0 text-xs font-semibold';
 
     if (document.agent_type === 'text_agent') {
       return (
-        <div className={`${baseClasses} bg-primary-50 text-primary-800 border border-primary-300 dark:bg-primary-700 dark:text-white dark:border-primary-600 shadow-sm`}>
+        <div
+          className={`${baseClasses} bg-primary-50 text-primary-800 border border-primary-300 dark:bg-primary-700 dark:text-white dark:border-primary-600 shadow-sm`}
+        >
           <FaKeyboard className="w-4 h-4" />
           <span>ربات متنی</span>
         </div>
@@ -39,7 +42,9 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
 
     if (document.agent_type === 'voice_agent') {
       return (
-        <div className={`${baseClasses} bg-teal-50 text-teal-800 border border-teal-300 dark:bg-teal-600 dark:text-white dark:border-teal-500 shadow-sm`}>
+        <div
+          className={`${baseClasses} bg-teal-50 text-teal-800 border border-teal-300 dark:bg-teal-600 dark:text-white dark:border-teal-500 shadow-sm`}
+        >
           <FaMicrophone className="w-4 h-4" />
           <span>ربات صوتی</span>
         </div>
@@ -48,7 +53,9 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
 
     if (document.agent_type === 'both') {
       return (
-        <div className={`${baseClasses} bg-violet-50 text-violet-800 border border-violet-300 dark:bg-violet-600 dark:text-white dark:border-violet-500 shadow-sm`}>
+        <div
+          className={`${baseClasses} bg-violet-50 text-violet-800 border border-violet-300 dark:bg-violet-600 dark:text-white dark:border-violet-500 shadow-sm`}
+        >
           <FaRobot className="w-4 h-4" />
           <span>هردو</span>
         </div>
@@ -56,7 +63,9 @@ const DocumentCard = ({ document, onStatusChange, handleDelete }) => {
     }
 
     return (
-      <div className={`${baseClasses} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200`}>
+      <div
+        className={`${baseClasses} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200`}
+      >
         -
       </div>
     );

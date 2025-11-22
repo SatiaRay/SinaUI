@@ -108,10 +108,6 @@ const WorkflowEditorSidebar = ({
             className="text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md"
             style={{ height: '38px', lineHeight: '38px' }} // ارتفاع مشابه input
           />
-
-
-
-
         </div>
         <hr className="border-gray-200 dark:border-gray-700 my-1" />
 

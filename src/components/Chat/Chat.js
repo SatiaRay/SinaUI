@@ -7,10 +7,11 @@ import VoiceBtn from './VoiceBtn';
 import { WizardButtons } from './Wizard/';
 import TextInputWithBreaks from '../../ui/textArea';
 import Message from '../ui/chat/message/Message';
-import { useChat } from '../../contexts/ChatContext';
+import { useChat } from '@contexts/ChatContext';
 import Swal from 'sweetalert2';
 import {
   H2,
+  H3,
   ChatContainer,
   InitialLayoutContainer,
   WelcomeSection,
@@ -36,6 +37,7 @@ import {
   ActionButtonsContainer,
   ClearHistoryButton,
   ErrorMessage,
+  H4,
 } from '../ui/common';
 
 // Optimized table parser with DOM stability
@@ -101,7 +103,7 @@ class StableTableParser {
         if (this.handleTag(fullTag)) {
           processed += fullTag;
         } else {
-          // Tag was handled internally, don't add to processed
+          // Tag was handled internally, don"t add to processed
           continue;
         }
       } else {
@@ -126,7 +128,7 @@ class StableTableParser {
     if (lowerTag.startsWith('<table')) {
       this.state.isInTable = true;
       this.state.tableOpenTag = tag;
-      return false; // Don't add to processed
+      return false; // Don"t add to processed
     } else if (lowerTag === '</table>') {
       this.finalizeCurrentRow();
       this.state.isInTable = false;
@@ -835,12 +837,8 @@ const Chat = ({ services = null }) => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'بله، پاک کن!',
-      cancelButtonText: 'لغو',
-      customClass: {
-        confirmButton: 'swal2-confirm-btn',
-        cancelButton: 'swal2-cancel-btn',
-      },
-      buttonsStyling: false,
+      cancelButtonText: 'لغو', 
+      buttonsStyling: true,
     });
     if (result.isConfirmed) {
       clearHistory();
@@ -850,10 +848,7 @@ const Chat = ({ services = null }) => {
         text: 'تاریخچه چت با موفقیت پاک شد.',
         icon: 'success',
         confirmButtonText: 'باشه',
-        customClass: {
-          confirmButton: 'swal2-ok-btn',
-        },
-        buttonsStyling: false,
+        buttonsStyling: true,
       });
       // after clearing history ensure bottom
       setTimeout(forceScrollToBottomImmediate, 50);
@@ -866,9 +861,12 @@ const Chat = ({ services = null }) => {
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <InitialLayoutContainer>
           <WelcomeSection>
-            <H2>چطور می‌تونم کمکتون کنم؟ 😊🚀🌟</H2>
+            <H3>سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم</H3>
+            <H4>
+              نام من به یاد ابن سینا نماد دانش و خرد ایرانی انتخاب شده است
+            </H4>
             <WelcomeText>
-              سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم
+              سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم 😊🚀🌟
             </WelcomeText>
           </WelcomeSection>
 

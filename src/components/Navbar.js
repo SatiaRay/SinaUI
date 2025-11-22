@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import ThemeToggle from '../contexts/ThemeToggle';
+import { useAuth } from '@contexts/AuthContext';
+import ThemeToggle from '@contexts/ThemeToggle';
+import Swal from 'sweetalert2';
 
 import {
   ArrowLeftEndOnRectangleIcon,
@@ -10,8 +11,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   XMarkIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
-
 import {
   FaRobot,
   FaMicrophone,
@@ -22,6 +23,7 @@ import {
   FaFileAlt,
   FaLink,
   FaFolderOpen,
+  FaChartLine,
 } from 'react-icons/fa';
 
 import { IoDocuments } from 'react-icons/io5';
@@ -55,12 +57,12 @@ const Navbar = ({ onSidebarCollapse }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
   const [documentsDropdownOpen, setDocumentsDropdownOpen] = useState(false);
-
   const navItems = [
     { path: '/chat', label: 'چت', icon: FaRobot },
     { path: '/wizard', label: 'پاسخ‌های هوشمند', icon: FaMagic },
     { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
     { path: '/instructions', label: 'دستورالعمل‌ها', icon: FaBook },
+    { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
   ];
 
   const documentItems = [
@@ -69,6 +71,7 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: '/crawl-url', label: 'جمع‌آوری URL', icon: FaLink },
     { path: '/processes', label: 'فرایندها', icon: FaProjectDiagram },
   ];
+
   const handleLogout = async () => {
     try {
       resetUIState();

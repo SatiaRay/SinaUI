@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { copyToClipboard } from '../../../../../utils/helpers';
+import { copyToClipboard } from '@utils/helpers';
 import { notify } from '../../../../../ui/toast';
 import { TextMessageContent, CopyButton } from '../../../common';
 import { marked } from 'marked';
@@ -8,9 +8,6 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const textRef = useRef(null);
 
-  /**
-   * Copy answer message text to device clipboard
-   */
   const handleCopyAnswer = (textToCopy, messageId) => {
     const temp = document.createElement('div');
     temp.innerHTML = textToCopy;
@@ -28,33 +25,54 @@ const TextMessage = ({ data, messageId, enableCopy = true }) => {
       .catch((err) => console.error('Failed to copy:', err));
   };
 
-  console.log(data.body);
+  const cleanTextContent = (text) => {
+    if (!text) return text;
 
-  let safeBody = data.body.replace(/^(\d+)\.\s+\*\*/gm, '**$1. ');
-  let formattedHtml = marked.parse(safeBody);
-  formattedHtml = String(marked.parse(safeBody));
+    let cleanedText = text.replace(/^\s+|\s+$/g, '');
+    cleanedText = cleanedText.replace(/\n\s*\n\s*\n/g, '\n\n');
 
-  formattedHtml = formattedHtml.replace(
-    /<strong>/g,
-    (match, offset, fullString) => {
-      fullString = String(fullString);
-      const before = fullString.slice(0, offset);
-      const lastPart = before.slice(-50);
-      if (/<hr\b[^>]*>/i.test(lastPart)) {
-        return match;
+    return cleanedText;
+  };
+
+  let contentToRender = '';
+  if (data.role === 'assistant') {
+    let safeBody = data.body.replace(/^(\d+)\.\s+\*\*/gm, '**$1. ');
+
+    safeBody = cleanTextContent(safeBody);
+
+    let formattedHtml = marked.parse(safeBody);
+    formattedHtml = String(formattedHtml);
+
+    formattedHtml = formattedHtml.replace(
+      /<strong>/g,
+      (match, offset, fullString) => {
+        fullString = String(fullString);
+        const before = fullString.slice(0, offset);
+        const lastPart = before.slice(-50);
+        if (/<hr\b[^>]*>/i.test(lastPart)) {
+          return match;
+        }
+        return '<hr>' + match;
       }
+    );
 
-      return '<hr>' + match;
-    }
-  );
-
-  return (
-    <>
+    contentToRender = (
       <TextMessageContent
         ref={textRef}
         dangerouslySetInnerHTML={{ __html: formattedHtml }}
       />
-      {enableCopy && (
+    );
+  } else {
+    const cleanedBody = cleanTextContent(data.body);
+    contentToRender = (
+      <TextMessageContent ref={textRef}>{cleanedBody}</TextMessageContent>
+    );
+  }
+
+  return (
+    <>
+      {contentToRender}
+      {enableCopy && data.role === 'assistant' && (
         <CopyButton
           onClick={() => handleCopyAnswer(data.body, messageId)}
           copied={copiedMessageId === messageId}

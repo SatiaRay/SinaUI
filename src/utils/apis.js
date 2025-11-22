@@ -72,9 +72,10 @@ export const formatAxiosError = (error) => {
   };
 };
 
+// =============================
 // Workflow Endpoints
+// =============================
 export const workflowEndpoints = {
-  // Get workflow by ID
   getWorkflow: async (workflowId) => {
     try {
       const response = await axios.get(`${BASE_URL}/workflows/${workflowId}`);
@@ -85,7 +86,6 @@ export const workflowEndpoints = {
     }
   },
 
-  // Create new workflow
   createWorkflow: async (workflowData) => {
     try {
       const response = await axios.post(`${BASE_URL}/workflows`, workflowData);
@@ -96,7 +96,6 @@ export const workflowEndpoints = {
     }
   },
 
-  // Update existing workflow
   updateWorkflow: async (workflowId, workflowData) => {
     try {
       const response = await axios.put(
@@ -110,7 +109,6 @@ export const workflowEndpoints = {
     }
   },
 
-  // Delete workflow
   deleteWorkflow: async (workflowId) => {
     try {
       const response = await axios.delete(
@@ -123,7 +121,6 @@ export const workflowEndpoints = {
     }
   },
 
-  // List all workflows
   listWorkflows: async (agentType = null) => {
     try {
       const response = await axios.get(
@@ -163,7 +160,7 @@ export const workflowEndpoints = {
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${localStorage.getItem('khan-access-token')}`,
           },
         }
       );
@@ -184,9 +181,10 @@ export const getVersion = async () => {
   }
 };
 
+// =============================
 // Instruction Endpoints
+// =============================
 export const instructionEndpoints = {
-  // Get instruction by ID
   getInstruction: async (instructionId) => {
     try {
       const response = await axios.get(
@@ -199,7 +197,6 @@ export const instructionEndpoints = {
     }
   },
 
-  // Create new instruction
   createInstruction: async (instructionData) => {
     try {
       const response = await axios.post(
@@ -213,7 +210,6 @@ export const instructionEndpoints = {
     }
   },
 
-  // Update existing instruction
   updateInstruction: async (instructionId, instructionData) => {
     try {
       const response = await axios.put(
@@ -227,7 +223,6 @@ export const instructionEndpoints = {
     }
   },
 
-  // Delete instruction
   deleteInstruction: async (instructionId) => {
     try {
       const response = await axios.delete(
@@ -240,7 +235,6 @@ export const instructionEndpoints = {
     }
   },
 
-  // List all instructions
   listInstructions: async (agentType = null, page = 1) => {
     try {
       const response = await axios.get(
@@ -254,6 +248,9 @@ export const instructionEndpoints = {
   },
 };
 
+// =============================
+// AI Functions Endpoints
+// =============================
 export const aiFunctionsEndpoints = {
   getFunctionsMap: async () => {
     try {
@@ -279,9 +276,10 @@ export const aiFunctionsEndpoints = {
   },
 };
 
+// =============================
 // Workspace Endpoints
+// =============================
 export const workspaceEndpoints = {
-  // 1. Create a new workspace
   createWorkspace: async (workspaceData) => {
     try {
       const response = await axios.post(
@@ -295,7 +293,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 2. List all workspaces with pagination
   listWorkspaces: async (page = 1, per_page = 10) => {
     try {
       const response = await axios.get(`${BASE_URL}/workspaces/`, {
@@ -308,7 +305,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 3. Get workspace details by ID
   getWorkspace: async (workspaceId) => {
     try {
       const response = await axios.get(`${BASE_URL}/workspaces/${workspaceId}`);
@@ -319,7 +315,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 4. Update workspace by ID
   updateWorkspace: async (workspaceId, updateData) => {
     try {
       const response = await axios.put(
@@ -333,7 +328,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 5. Delete workspace by ID
   deleteWorkspace: async (workspaceId) => {
     try {
       const response = await axios.delete(
@@ -346,7 +340,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 6. Add user to workspace
   addUserToWorkspace: async (workspaceId, userData) => {
     try {
       const response = await axios.post(
@@ -360,7 +353,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 7. Remove user from workspace
   removeUserFromWorkspace: async (workspaceId, userId) => {
     try {
       const response = await axios.delete(
@@ -373,7 +365,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 8. List users in a workspace
   listWorkspaceUsers: async (workspaceId) => {
     try {
       const response = await axios.get(
@@ -386,7 +377,6 @@ export const workspaceEndpoints = {
     }
   },
 
-  // 9. Select or switch the current workspace for the authenticated user
   selectWorkspace: async (workspaceId) => {
     try {
       const response = await axios.patch(
@@ -413,7 +403,6 @@ export const domainEndpoints = {
 };
 
 export const documentEndpoints = {
-  // add document manuallay
   addDocumentManually: async (data) => {
     try {
       const response = await axios.post(
@@ -511,6 +500,9 @@ export const documentEndpoints = {
   },
 };
 
+// =============================
+// Voice Agent Endpoints
+// =============================
 export const voiceAgentEndpoints = {
   getVoiceAgentInstruction: async () => {
     try {
@@ -534,12 +526,13 @@ export const voiceAgentEndpoints = {
   },
 };
 
+// =============================
+// File Endpoints
+// =============================
 export const fileEndpoints = {
   uploadFiles: async (files) => {
     try {
       const formData = new FormData();
-
-      // Append all files under the same key "files"
       files.forEach((file) => {
         formData.append('files', file);
       });
@@ -555,6 +548,93 @@ export const fileEndpoints = {
   },
 };
 
+// =============================
+// Monitoring Endpoints
+// =============================
+export const monitoringEndpoints = {
+  getRecentLogs: async ({
+    hours = 48,
+    min_duration,
+    max_duration,
+    has_errors,
+    tool_name,
+    page = 1,
+    per_page = 20,
+  }) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/function-calling-logs/`, {
+        params: {
+          hours,
+          min_duration,
+          max_duration,
+          has_errors,
+          tool_name,
+          page,
+          per_page,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching recent logs:', error);
+      throw error;
+    }
+  },
+
+  getToolStats: async (days = 7, top_n = 10) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/function-calling-logs/stats/tools`,
+        { params: { days, top_n } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching tool stats:', error);
+      throw error;
+    }
+  },
+
+  getUserStats: async (user_id, days = 30) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/function-calling-logs/stats/user/${user_id}`,
+        { params: { days } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+      throw error;
+    }
+  },
+
+  searchLogs: async (query, limit = 10) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/function-calling-logs/search`,
+        { params: { query, limit } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error searching logs:', error);
+      throw error;
+    }
+  },
+
+  getLogById: async (id) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/function-calling-logs/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching log details:', error);
+      throw error;
+    }
+  },
+};
+
+// =============================
+// Wizard Endpoints
+// =============================
 export const wizardEndpoints = {
   getRootWizards: async () => {
     try {
@@ -574,6 +654,7 @@ export const wizardEndpoints = {
       throw error;
     }
   },
+
   createWizard: async (wizardData) => {
     try {
       const response = await axios.post(`${BASE_URL}/wizards`, wizardData);
@@ -595,7 +676,6 @@ export const wizardEndpoints = {
     }
   },
 
-  // Update existing wizard
   updateWizard: async (wizardId, wizardData) => {
     try {
       const response = await axios.put(
@@ -608,7 +688,7 @@ export const wizardEndpoints = {
       throw error;
     }
   },
-  // Toggle status  wizard
+
   toggleStatusWizard: async (wizardId, endpoint) => {
     try {
       const response = await axios.post(
@@ -616,12 +696,11 @@ export const wizardEndpoints = {
       );
       return response.data;
     } catch (error) {
-      console.error('Error updating wizard:', error);
+      console.error('Error toggling wizard status:', error);
       throw error;
     }
   },
 
-  // Delete wizard
   deleteWizard: async (wizardId) => {
     try {
       const response = await axios.delete(`${BASE_URL}/wizards/${wizardId}`);

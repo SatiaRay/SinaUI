@@ -1,7 +1,7 @@
 import UploadImage from './UploadImage';
-import { useChat } from '../../../../../../contexts/ChatContext';
+import { useChat } from '@contexts/ChatContext';
 import React, { useEffect, useState, useCallback } from 'react';
-import { fileEndpoints } from '../../../../../../utils/apis';
+import { fileEndpoints } from '@utils/apis';
 
 const MetaMessage = ({ messageId, metadata }) => {
   const {

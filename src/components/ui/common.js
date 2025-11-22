@@ -11,8 +11,29 @@ export const H2 = styled.h2`
   }
 `;
 
-// ChatContainer — main wrapper for the chat interface
-// Uses dvh to avoid scroll jumps when browser address bar appears/disappears on mobile.
+export const H3 = styled.h2`
+  font-size: 18px !important;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px !important;
+
+  .dark & {
+    color: #f9fafb;
+  }
+`;
+
+export const H4 = styled.h2`
+  font-size: 16px !important;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px !important;
+
+  .dark & {
+    color: #f9fafb;
+  }
+`;
+
+// Chat Container Components
 export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -432,6 +453,7 @@ export const TextMessageContent = styled.div`
   /* ===== پایه ===== */
   @apply text-gray-800 dark:text-gray-100;
   line-height: 1.9;
+  white-space: pre-wrap;
   padding: 0.75rem;
   direction: rtl;
   unicode-bidi: isolate;

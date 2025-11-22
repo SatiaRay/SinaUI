@@ -1,7 +1,7 @@
 import React from 'react';
-import OptionMessage from './components/OptionMessage';
-import ImageMessage from './components/ImageMessage';
-import TextMessage from './components/TextMessage';
+import OptionMessage from '@components/ui/chat/message/components/OptionMessage';
+import ImageMessage from '@components/ui/chat/message/components/ImageMessage';
+import TextMessage from '@components/ui/chat/message/components/TextMessage';
 import SentMessage from './SentMessage';
 import ReceivedMessage from './ReceivedMessage';
 import { ErrorMessage } from './ErrorMessage';
@@ -38,7 +38,7 @@ const Message = ({ messageId, data }) => {
           case 'image':
             return <ImageMessage data={data} messageId={messageId} />;
           case 'error':
-            return <ErrorMessage data={data}/>
+            return <ErrorMessage data={data} />;
           default:
             return null;
         }

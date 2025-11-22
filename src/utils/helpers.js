@@ -14,7 +14,9 @@ export const formatTimestamp = (
         hour12: false,
       });
     }
-    const date = new Date(timestamp.endsWith('Z') ? timestamp : `${timestamp}Z`);
+    const date = new Date(
+      timestamp.endsWith('Z') ? timestamp : `${timestamp}Z`
+    );
     if (isNaN(date.getTime())) {
       console.error('Invalid timestamp:', timestamp);
       return '--:--';

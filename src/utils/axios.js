@@ -7,7 +7,7 @@ axios.defaults.baseURL =
 // Add a request interceptor to include the auth token
 axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('khan-access-token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
