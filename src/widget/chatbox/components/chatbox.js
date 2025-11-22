@@ -1,11 +1,10 @@
 import styled from 'styled-components';
-import Chat from '@components/Chat/Chat';
-import { ChatProvider } from '@contexts/ChatContext';
-import { AuthProvider } from '@contexts/AuthContext';
+import Chat from '../../../components/Chat/Chat';
+import { ChatProvider } from '../../../contexts/ChatContext';
 import { SiChatbot } from 'react-icons/si';
 import { IoClose } from 'react-icons/io5';
-import { useState, useEffect, useRef } from 'react';
-import ChatSkeletonLoader from './chatSkeletonLoader';
+import { useState, useEffect } from 'react';
+import { AuthProvider } from '../../../contexts/AuthContext';
 
 const Box = styled.div`
   position: fixed;
@@ -15,7 +14,7 @@ const Box = styled.div`
   right: ${(props) => (props.fullscreen ? '0' : 'auto')};
   width: ${(props) => (props.fullscreen ? '100vw' : '450px')};
   height: ${(props) => (props.fullscreen ? '100dvh' : '750px')};
-  background-color: ${(props) => (props.theme === 'dark' ? '#1a1a1a' : '#fff')};
+  background-color: #fff;
   border-radius: ${(props) => (props.fullscreen ? '0' : '16px')};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   display: flex;
@@ -70,14 +69,6 @@ const Messages = styled.div`
   padding: 0 10px;
 `;
 
-const ContentTransition = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  transition: opacity 0.6s ease-in-out;
-  opacity: ${(props) => (props.isVisible ? 1 : 0)};
-`;
-
 const Close = styled.div`
   position: absolute;
   top: 50%;
@@ -97,7 +88,7 @@ const Close = styled.div`
   }
 `;
 
-const ChatBoxTrigger = styled.div`
+const ChatBoxTrigger = styled.button`
   position: fixed;
   bottom: 30px;
   left: 30px;
@@ -105,7 +96,7 @@ const ChatBoxTrigger = styled.div`
   height: 70px;
   z-index: 100;
   color: white !important;
-  background-color: #dc1435 !important;
+  background-color: #dc143c !important;
   border-radius: 100%;
   display: flex;
   justify-content: center;
@@ -136,14 +127,10 @@ const ChatBox = (props) => {
     satiaToken,
     satiaCustomer,
     headeroff,
-    theme = 'light',
   } = props;
 
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
-  const [isSkeletonActive, setIsSkeletonActive] = useState(false);
-  const [contentVisible, setContentVisible] = useState(false);
-  const skeletonTimerRef = useRef(null);
 
   useEffect(() => {
     if (isVisible || fullscreen) document.body.style.overflow = 'hidden';
@@ -151,48 +138,10 @@ const ChatBox = (props) => {
     return () => (document.body.style.overflow = '');
   }, [isVisible, fullscreen]);
 
-  useEffect(() => {
-    console.log('useEffect triggered:', {
-      isVisible,
-      isStatic,
-      fullscreen,
-      isSkeletonActive,
-    });
-    if (isVisible || isStatic || fullscreen) {
-      if (!isSkeletonActive) {
-        setIsSkeletonActive(true);
-        setContentVisible(true);
-
-        if (skeletonTimerRef.current) {
-          clearTimeout(skeletonTimerRef.current);
-        }
-
-        skeletonTimerRef.current = setTimeout(() => {
-
-          setTimeout(() => {
-            setIsSkeletonActive(false);
-            skeletonTimerRef.current = null;
-          }, 600);
-
-          setIsSkeletonActive(false);
-          skeletonTimerRef.current = null;
-        }, 1200);
-      }
-
-      return () => {
-        if (skeletonTimerRef.current) {
-          clearTimeout(skeletonTimerRef.current);
-          skeletonTimerRef.current = null;
-        }
-      };
-    }
-  }, [isVisible, isStatic, fullscreen]);
-
   if (!accessToken) {
-    console.error(
-      '[ChatBox] ⚠️ Access token missing: The chat box cannot be initialized without a valid access token. Please provide a valid token to enable chat functionality.'
-    );
-    return null;
+    console.error('Khan access token not found');
+
+    return;
   }
 
   localStorage.setItem('khan-access-token', accessToken);
@@ -205,7 +154,6 @@ const ChatBox = (props) => {
     <div id="khan-chatbox">
       <Box
         fullscreen={fullscreen}
-        theme={theme}
         style={{
           display: isVisible || isStatic || fullscreen ? 'flex' : 'none',
         }}
@@ -226,23 +174,12 @@ const ChatBox = (props) => {
           </Header>
         )}
         <MessagesWrapper>
-        <Messages
-            className={
-              isSkeletonActive
-                ? 'overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
-                : ''
-            }
-            style={isSkeletonActive ? { overflow: 'hidden' } : {}}
-          >
-            {isSkeletonActive ? (
-              <ChatSkeletonLoader theme={theme} />
-            ) : (
-              <AuthProvider>
-                <ChatProvider>
-                  <Chat services={services} />
-                </ChatProvider>
-              </AuthProvider>
-            )}
+          <Messages>
+            <AuthProvider>
+              <ChatProvider>
+                <Chat services={services} />
+              </ChatProvider>
+            </AuthProvider>
           </Messages>
         </MessagesWrapper>
       </Box>

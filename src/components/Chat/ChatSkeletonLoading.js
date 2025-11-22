@@ -1,302 +1,488 @@
-// ChatSkeletonLoading.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import styled from 'styled-components';
 
 /**
- * ChatSkeletonLoading (Tailwind + class-based dark mode)
+ * ChatSkeletonLoading - Responsive skeleton loader for chat interfaces
  *
- * - Uses Tailwind classes for layout & background
- * - Detects `dark` class on documentElement so skeleton colors match app dark mode
- * - Props:
- *    - initialLayout (boolean) : true -> welcome/empty state skeleton,
- *                                false -> chat skeleton (messages + input)
+ * Features:
+ * - Adapts to container size (not window size) using ResizeObserver
+ * - Handles both initial welcome layout and chat layout
+ * - Responsive to both width and height constraints
+ * - Dark/light theme support
+ * - Compact modes for small containers
  */
 
-/* color pairs tuned to Tailwind dark/light tokens */
+// color pairs tuned to dark/light themes
 const THEMES = {
   light: {
-    base: '#e5e7eb', // gray-200
-    highlight: '#f3f4f6', // gray-100
-    userBubble: '#dbeafe', // light blue-ish
+    base: '#e5e7eb',
+    highlight: '#f3f4f6',
+    userBubble: '#dbeafe',
     assistantBubble: '#f3f4f6',
   },
   dark: {
-    base: '#0b1220', // deep navy (blend with dark app bg)
-    highlight: '#142033', // subtle highlight on dark
-    userBubble: '#08243a', // darker blue for user bubble
-    assistantBubble: '#0b1722', // assistant bubble tone
+    base: '#0b1220',
+    highlight: '#142033',
+    userBubble: '#08243a',
+    assistantBubble: '#0b1722',
   },
 };
 
+// Styled Components
+const Container = styled.div`
+  background-color: ${(props) => props.theme.bg};
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+`;
+
+const InitialLayoutContainer = styled(Container)`
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+`;
+
+const ChatLayoutContainer = styled(Container)`
+  padding: 0.5rem;
+`;
+
+const ContentWrapper = styled.div`
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 0.5rem;
+
+  @media (min-width: 640px) {
+    max-width: 28rem;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 768px) {
+    max-width: 48rem;
+    padding: 0;
+  }
+`;
+
+const TitleSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: ${(props) => (props.$compact ? '0.5rem' : '1.5rem')};
+  width: 100%;
+  align-items: center;
+
+  @media (min-width: 768px) {
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+`;
+
+const InputBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+
+  @media (min-width: 768px) {
+    max-width: 56.25rem;
+  }
+`;
+
+const InputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #4b5563;
+  border-radius: 1rem;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+`;
+
+const InputSkeletonWrapper = styled.div`
+  flex: 1;
+`;
+
+const QuickButtonsContainer = styled.div`
+  display: ${(props) => (props.$compact ? 'none' : 'flex')};
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+`;
+
+const MessagesContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Important for flexbox scrolling */
+`;
+
+const MessagesWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => (props.$compact ? '0.5rem' : '1rem')};
+  padding: ${(props) => (props.$compact ? '0.25rem 0' : '0.5rem 0')};
+  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 0.5rem;
+
+  @media (min-width: 640px) {
+    max-width: 24rem;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 768px) {
+    max-width: 48rem;
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+`;
+
+const MessageBubble = styled.div`
+  display: flex;
+  justify-content: ${(props) => (props.$isUser ? 'flex-end' : 'flex-start')};
+  display: ${(props) => (props.$hidden ? 'none' : 'flex')};
+`;
+
+const BottomSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0.5rem 0.5rem 0;
+  flex-shrink: 0; /* Prevent shrinking */
+
+  @media (min-width: 768px) {
+    max-width: 61.25rem;
+    padding: 1rem 1rem 0;
+  }
+`;
+
+const ChatQuickButtons = styled.div`
+  display: ${(props) => (props.$compact ? 'none' : 'flex')};
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+`;
+
+const ChatInputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #4b5563;
+  border-radius: 1rem;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    gap: 0.75rem;
+  }
+`;
+
+// Mobile-first responsive skeleton dimensions
+const getSkeletonWidth = (mobileWidth, desktopWidth) => `
+  width: ${mobileWidth};
+  
+  @media (min-width: 768px) {
+    width: ${desktopWidth};
+  }
+`;
+
+const ResponsiveSkeleton = styled(Skeleton)`
+  ${(props) =>
+    props.$mobileWidth &&
+    props.$desktopWidth &&
+    getSkeletonWidth(props.$mobileWidth, props.$desktopWidth)}
+`;
+
 export const ChatSkeletonLoading = ({ initialLayout = true }) => {
-  // viewport tracking for responsiveness
-  const [width, setWidth] = useState(
-    typeof window !== 'undefined' ? window.innerWidth : 1200
-  );
-  // detect whether the app currently has class 'dark' on documentElement
+  const [isDark, setIsDark] = useState(false);
+  const [themeKey, setThemeKey] = useState(0);
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const containerRef = useRef(null);
+
+  // Detect dark/light theme
   const getIsDark = () =>
     typeof document !== 'undefined' &&
     document.documentElement.classList.contains('dark');
-  const [isDark, setIsDark] = useState(false); // Start with false initially
-  // key for forcing re-render when theme changes
-  const [themeKey, setThemeKey] = useState(0);
 
   useEffect(() => {
-    // Set initial theme after mount to ensure Tailwind classes are applied
     setIsDark(getIsDark());
 
-    // update width on resize
-    const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize, { passive: true });
+    // Observe container size changes using ResizeObserver
+    const updateSize = () => {
+      if (containerRef.current) {
+        const { clientWidth, clientHeight } = containerRef.current;
+        setContainerSize({ width: clientWidth, height: clientHeight });
+      }
+    };
 
-    // observe class changes on <html> to detect dark mode toggles (class-based)
-    const docEl =
-      typeof document !== 'undefined' ? document.documentElement : null;
-    let mo = null;
-    if (docEl && typeof MutationObserver !== 'undefined') {
-      mo = new MutationObserver(() => {
-        const newIsDark = getIsDark();
-        setIsDark(newIsDark);
-        // force re-render by changing key
-        setThemeKey((prev) => prev + 1);
-      });
-      mo.observe(docEl, { attributes: true, attributeFilter: ['class'] });
+    const observer = new ResizeObserver(updateSize);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
     }
 
+    // Also observe theme changes
+    const docEl =
+      typeof document !== 'undefined' ? document.documentElement : null;
+    let themeObserver = null;
+
+    if (docEl && typeof MutationObserver !== 'undefined') {
+      themeObserver = new MutationObserver(() => {
+        const newIsDark = getIsDark();
+        setIsDark(newIsDark);
+        setThemeKey((prev) => prev + 1);
+      });
+      themeObserver.observe(docEl, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+    }
+
+    // Initial size update
+    updateSize();
+
     return () => {
-      window.removeEventListener('resize', handleResize);
-      if (mo) mo.disconnect();
+      observer.disconnect();
+      if (themeObserver) themeObserver.disconnect();
     };
   }, []);
 
   const theme = isDark ? THEMES.dark : THEMES.light;
-  const isMobile = width < 768;
 
-  // Show nothing until we know the theme to prevent flash
+  // Prevent flash of wrong theme
   if (typeof window !== 'undefined' && !isDark && getIsDark()) {
     return null;
   }
 
+  // Calculate compact modes based on actual container height - NO FALLBACK!
+  const containerHeight = containerSize.height;
+
+  // Use more aggressive compact thresholds for widget
+  const isCompact = containerHeight > 0 && containerHeight < 500;
+  const isVeryCompact = containerHeight > 0 && containerHeight < 350;
+  /**
+   * StyledSkeleton component with responsive width and theme support
+   */
+  const StyledSkeleton = ({
+    height,
+    mobileWidth,
+    desktopWidth,
+    circle = false,
+    className = '',
+    baseColor = theme.base,
+    highlightColor = theme.highlight,
+  }) => (
+    <ResponsiveSkeleton
+      key={themeKey}
+      height={height}
+      $mobileWidth={mobileWidth}
+      $desktopWidth={desktopWidth}
+      circle={circle}
+      baseColor={baseColor}
+      highlightColor={highlightColor}
+      className={className}
+    />
+  );
+
   /* ----------------- Initial / welcome skeleton ----------------- */
   const InitialView = () => (
-    <div
-      className={`min-h-screen bg-neutral-50 dark:bg-gray-900 transition-all duration-300 h-screen flex items-center justify-center p-6`}
+    <InitialLayoutContainer
+      theme={{ bg: isDark ? '#111827' : '#fafafa' }}
+      ref={containerRef}
     >
-      <div
-        className={`w-full ${isMobile ? 'max-w-xl' : 'max-w-3xl'} text-center`}
-      >
-        {/* big title area */}
-        <div className="mb-6 space-y-3">
-          <Skeleton
-            key={`title-1-${themeKey}`}
-            height={36}
-            width={isMobile ? 260 : 420}
-            baseColor={theme.base}
-            highlightColor={theme.highlight}
-            className="mx-auto rounded"
-          />
-          <Skeleton
-            key={`title-2-${themeKey}`}
-            height={28}
-            width={isMobile ? 300 : 520}
-            baseColor={theme.base}
-            highlightColor={theme.highlight}
-            className="mx-auto rounded"
-          />
-          <Skeleton
-            key={`title-3-${themeKey}`}
-            height={18}
-            width={isMobile ? 220 : 380}
-            baseColor={theme.base}
-            highlightColor={theme.highlight}
-            className="mx-auto rounded"
-          />
-        </div>
-
-        {/* input bar (mic - text area - send) */}
-        <div className="flex items-center justify-center">
-          <div
-            className="flex items-center gap-3 px-3 py-2 border border-gray-600 rounded-2xl w-full"
-            style={{ maxWidth: isMobile ? '100%' : 900 }}
-          >
-            <div className="flex-shrink-0">
-              <Skeleton
-                key={`mic-${themeKey}`}
-                height={42}
-                width={42}
-                circle
-                baseColor={theme.base}
-                highlightColor={theme.highlight}
+      <ContentWrapper>
+        <TitleSection $compact={isCompact}>
+          {/* Hide some title elements in very compact mode */}
+          {!isVeryCompact && (
+            <>
+              <StyledSkeleton
+                height={isCompact ? 24 : 32}
+                mobileWidth="12rem"
+                desktopWidth="16rem"
               />
-            </div>
-
-            <div style={{ flex: 1 }}>
-              <Skeleton
-                key={`input-${themeKey}`}
-                height={52}
-                width="100%"
-                baseColor={theme.base}
-                highlightColor={theme.highlight}
-                className="rounded-lg"
+              <StyledSkeleton
+                height={isCompact ? 18 : 24}
+                mobileWidth="14rem"
+                desktopWidth="20rem"
               />
-            </div>
+            </>
+          )}
+          {/* Always show at least one title element */}
+          <StyledSkeleton
+            height={isCompact ? 16 : 16}
+            mobileWidth="10rem"
+            desktopWidth="14rem"
+          />
+        </TitleSection>
 
-            <div className="flex-shrink-0">
-              <Skeleton
-                key={`send-${themeKey}`}
-                height={42}
-                width={42}
-                circle
-                baseColor={theme.base}
-                highlightColor={theme.highlight}
+        <InputBar>
+          <InputContainer>
+            <StyledSkeleton
+              height={isCompact ? 28 : 36}
+              mobileWidth="28px"
+              desktopWidth="42px"
+              circle
+            />
+            <InputSkeletonWrapper>
+              <StyledSkeleton
+                height={isCompact ? 36 : 44}
+                mobileWidth="100%"
+                desktopWidth="100%"
               />
-            </div>
-          </div>
-        </div>
+            </InputSkeletonWrapper>
+            <StyledSkeleton
+              height={isCompact ? 28 : 36}
+              mobileWidth="28px"
+              desktopWidth="42px"
+              circle
+            />
+          </InputContainer>
+        </InputBar>
 
-        {/* wizard quick buttons */}
-        <div className="mt-8 flex justify-center gap-4 flex-wrap">
+        {/* Quick buttons are hidden in compact mode */}
+        <QuickButtonsContainer $compact={isCompact || isVeryCompact}>
           {[0, 1, 2].map((i) => (
-            <Skeleton
-              key={`wizard-${i}-${themeKey}`}
-              height={56}
-              width={isMobile ? 100 : 160}
-              baseColor={theme.base}
-              highlightColor={theme.highlight}
-              className="rounded-xl"
+            <StyledSkeleton
+              key={i}
+              height={isCompact ? 32 : 44}
+              mobileWidth="4rem"
+              desktopWidth="8rem"
             />
           ))}
-        </div>
-      </div>
-    </div>
+        </QuickButtonsContainer>
+      </ContentWrapper>
+    </InitialLayoutContainer>
   );
 
   /* ----------------- Chat / normal skeleton ----------------- */
-  const ChatView = () => (
-    <div
-      className={`min-h-screen bg-neutral-50 dark:bg-gray-900 transition-all duration-300 h-screen flex flex-col p-6`}
-    >
-      {/* messages scrollable area */}
-      <div className="flex-1 overflow-auto">
-        <div
-          className={`mx-auto ${isMobile ? 'max-w-sm' : 'max-w-3xl'} py-6 space-y-6`}
-        >
-          <div style={{ height: 12 }} />
+  const ChatView = () => {
+    // Dynamic message count based on container height - FIXED!
+    const messageCount = isVeryCompact ? 1 : isCompact ? 2 : 3;
 
-          {/* user message (right) */}
-          <div className="flex justify-end">
-            <Skeleton
-              key={`user-msg-1-${themeKey}`}
-              height={64}
-              width={isMobile ? 160 : 220}
-              baseColor={theme.userBubble}
-              highlightColor={theme.highlight}
-              className="rounded-2xl"
-            />
-          </div>
+    // Message configuration with conditional hiding
+    const messages = [
+      {
+        isUser: true,
+        height: isCompact ? 40 : 56,
+        mobileWidth: '8rem',
+        desktopWidth: '12rem',
+        hidden: false,
+      },
+      {
+        isUser: false,
+        height: isCompact ? 36 : 44,
+        mobileWidth: '10rem',
+        desktopWidth: '18rem',
+        hidden: isVeryCompact && messageCount < 2,
+      },
+      {
+        isUser: true,
+        height: isCompact ? 40 : 44,
+        mobileWidth: '6rem',
+        desktopWidth: '10rem',
+        hidden: isCompact && messageCount < 3,
+      },
+    ].slice(0, messageCount);
 
-          {/* assistant message (left) */}
-          <div className="flex justify-start">
-            <Skeleton
-              key={`assistant-msg-1-${themeKey}`}
-              height={52}
-              width={isMobile ? 220 : 360}
-              baseColor={theme.assistantBubble}
-              highlightColor={theme.highlight}
-              className="rounded-2xl"
-            />
-          </div>
-
-          {/* another user message (right) */}
-          <div className="flex justify-end">
-            <Skeleton
-              key={`user-msg-2-${themeKey}`}
-              height={52}
-              width={isMobile ? 150 : 200}
-              baseColor={theme.userBubble}
-              highlightColor={theme.highlight}
-              className="rounded-2xl"
-            />
-          </div>
-
-          {/* assistant message (left) */}
-          <div className="flex justify-start">
-            <Skeleton
-              key={`assistant-msg-2-${themeKey}`}
-              height={80}
-              width={isMobile ? 240 : 400}
-              baseColor={theme.assistantBubble}
-              highlightColor={theme.highlight}
-              className="rounded-2xl"
-            />
-          </div>
-
-          {/* user message (right) */}
-          <div className="flex justify-end">
-            <Skeleton
-              key={`user-msg-3-${themeKey}`}
-              height={64}
-              width={isMobile ? 160 : 240}
-              baseColor={theme.userBubble}
-              highlightColor={theme.highlight}
-              className="rounded-2xl"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* bottom input area */}
-      <div
-        style={{ maxWidth: isMobile ? '100%' : 980 }}
-        className="mx-auto w-full px-4"
+    return (
+      <ChatLayoutContainer
+        theme={{ bg: isDark ? '#111827' : '#fafafa' }}
+        ref={containerRef}
       >
-        {/* wizard quick buttons - simplified */}
-        <div className="flex gap-3 flex-wrap mb-4 justify-center">
-          {[0, 1, 2].map((i) => (
-            <Skeleton
-              key={`quick-btn-${i}-${themeKey}`}
-              height={48}
-              width={isMobile ? 90 : 140}
-              baseColor={theme.base}
-              highlightColor={theme.highlight}
-              className="rounded-xl"
-            />
-          ))}
-        </div>
+        <MessagesContainer>
+          <MessagesWrapper $compact={isCompact}>
+            {/* Dynamic messages based on container size */}
+            {messages.map((message, index) => (
+              <MessageBubble
+                key={index}
+                $isUser={message.isUser}
+                $hidden={message.hidden}
+              >
+                <StyledSkeleton
+                  height={message.height}
+                  mobileWidth={message.mobileWidth}
+                  desktopWidth={message.desktopWidth}
+                  baseColor={
+                    message.isUser ? theme.userBubble : theme.assistantBubble
+                  }
+                />
+              </MessageBubble>
+            ))}
+          </MessagesWrapper>
+        </MessagesContainer>
 
-        {/* bottom input bar */}
-        <div className="flex items-center gap-3 p-2 rounded-2xl border border-gray-600">
-          <Skeleton
-            key={`input-mic-${themeKey}`}
-            height={44}
-            width={44}
-            circle
-            baseColor={theme.base}
-            highlightColor={theme.highlight}
-          />
-          <div style={{ flex: 1 }}>
-            <Skeleton
-              key={`main-input-${themeKey}`}
-              height={52}
-              width="100%"
-              baseColor={theme.base}
-              highlightColor={theme.highlight}
-              className="rounded-md"
+        <BottomSection>
+          {/* Quick buttons hidden in very compact mode */}
+          <ChatQuickButtons $compact={isVeryCompact}>
+            {[0, 1].map((i) => (
+              <StyledSkeleton
+                key={i}
+                height={isCompact ? 32 : 40}
+                mobileWidth="4rem"
+                desktopWidth="7rem"
+              />
+            ))}
+          </ChatQuickButtons>
+
+          {/* Input container - always visible */}
+          <ChatInputContainer>
+            <StyledSkeleton
+              height={isCompact ? 32 : 40}
+              mobileWidth="32px"
+              desktopWidth="44px"
+              circle
             />
-          </div>
-          <Skeleton
-            key={`send-btn-${themeKey}`}
-            height={44}
-            width={44}
-            circle
-            baseColor={theme.base}
-            highlightColor={theme.highlight}
-          />
-        </div>
-      </div>
-    </div>
-  );
+            <InputSkeletonWrapper>
+              <StyledSkeleton
+                height={isCompact ? 36 : 44}
+                mobileWidth="100%"
+                desktopWidth="100%"
+              />
+            </InputSkeletonWrapper>
+            <StyledSkeleton
+              height={isCompact ? 32 : 40}
+              mobileWidth="32px"
+              desktopWidth="44px"
+              circle
+            />
+          </ChatInputContainer>
+        </BottomSection>
+      </ChatLayoutContainer>
+    );
+  };
 
   return initialLayout ? <InitialView /> : <ChatView />;
 };

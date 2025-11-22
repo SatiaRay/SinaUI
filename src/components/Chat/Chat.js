@@ -849,7 +849,7 @@ const ChatInner = ({ services = null }) => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'بله، پاک کن!',
-      cancelButtonText: 'لغو', 
+      cancelButtonText: 'لغو',
       buttonsStyling: true,
     });
     if (result.isConfirmed) {
@@ -871,7 +871,9 @@ const ChatInner = ({ services = null }) => {
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <InitialLayoutContainer>
           <WelcomeSection>
-            <H3>سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم</H3>
+            <H3>
+              سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم
+            </H3>
             <H4>
               نام من به یاد ابن سینا نماد دانش و خرد ایرانی انتخاب شده است
             </H4>
@@ -999,7 +1001,7 @@ const ChatInner = ({ services = null }) => {
 /**
  * Lazy loading configuration for chat component
  */
-const LAZY_LOAD_DELAY_MS = 200;
+const LAZY_LOAD_DELAY_MS = 500;
 
 const ChatLazy = lazy(
   () =>
