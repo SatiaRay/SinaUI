@@ -6,8 +6,8 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom';
-import Chat from './components/Chat/Chat';
-import CrawlUrl from './components/Chat/CrawlUrl';
+import Chat from './components/chat/Chat';
+import CrawlUrl from './components/chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
 import {
   WorkflowIndexPage,
@@ -19,7 +19,7 @@ import {
   InstructionIndex,
   EditInstruction,
 } from './pages/instruction';
-import Status1 from './components/Chat/Status';
+import Status1 from './components/chat/Status';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
