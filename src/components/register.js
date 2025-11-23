@@ -2,7 +2,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
-import { notify } from '../ui/toast';
+import { notify } from './ui/toast';
 import NetworkBackground3D from './NetworkBackground2D';
 
 const Register = () => {

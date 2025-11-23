@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Chat from '@components/Chat/Chat';
+import Chat from '@components/chat/Chat';
 import { ChatProvider } from '@contexts/ChatContext';
 import { AuthProvider } from '@contexts/AuthContext';
 import { SiChatbot } from 'react-icons/si';
