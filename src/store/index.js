@@ -2,7 +2,9 @@ import { configureStore } from '@reduxjs/toolkit';
 import knowledgeApi from './api/knowledgeApi';
 import monitoringApi from './api/monitoringLogsApi';
 import documentSlice from './features/documentSlice';
-import monitoringSlice from './features/monitoringSlice';
+import aiApi from './api/aiApi';
+import workflowSlice from './features/workflowSlice';
+import instructionSlice from './features/instructionSlice';
 
 /**
  * Main Redux store configuration
@@ -15,25 +17,16 @@ const store = configureStore({
   reducer: {
     // Feature slices
     document: documentSlice.reducer,
-    monitoring: monitoringSlice.reducer,
-
-    // API reducers
+    instruction: instructionSlice.reducer,
+    workflow: workflowSlice.reducer,
     [knowledgeApi.reducerPath]: knowledgeApi.reducer,
-    [monitoringApi.reducerPath]: monitoringApi.reducer,
+    [aiApi.reducerPath]: aiApi.reducer,
   },
-
-  /**
-   * Middleware configuration
-   * Extends default middleware with RTK Query APIs
-   */
-  middleware: (getDefaultMiddleware) => {
-    /**
-     * Get default middleware including thunk, serializable check, etc.
-     * Concatenate RTK Query middleware for API caching and synchronization
-     */
-    let middlewares = getDefaultMiddleware()
-      .concat(knowledgeApi.middleware)
-      .concat(monitoringApi.middleware);
+  middleware: (getDefault) => {
+    let middlewares = getDefault().concat(
+      knowledgeApi.middleware,
+      aiApi.middleware
+    );
 
     return middlewares;
   },
