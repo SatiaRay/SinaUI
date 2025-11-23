@@ -18,7 +18,6 @@ import {
   InstructionIndex,
   EditInstruction,
 } from './pages/instruction';
-import Status1 from './components/chat/Status';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
@@ -200,14 +199,6 @@ function privateRoutes() {
           }
         />
       </Route>
-      <Route
-        path="/processes"
-        element={
-          <PrivateRoute>
-            <Status1 />
-          </PrivateRoute>
-        }
-      />
       <Route path="/wizard">
         <Route
           index
