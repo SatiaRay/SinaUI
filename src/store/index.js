@@ -19,6 +19,7 @@ const store = configureStore({
     document: documentSlice.reducer,
     instruction: instructionSlice.reducer,
     workflow: workflowSlice.reducer,
+    monitoring: monitoringApi.reducer,
     [knowledgeApi.reducerPath]: knowledgeApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
   },
