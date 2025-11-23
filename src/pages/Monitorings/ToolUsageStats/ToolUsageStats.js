@@ -7,7 +7,7 @@ import {
   CardsGridSkeleton,
   ChartSkeleton,
 } from './ToolUsageSkeletons';
-import MonitoringError from '../MonitoringError/MonitoringError';
+import Error from '../../../components/Error';
 
 /**
  * Color palette for chart and cards
@@ -358,11 +358,11 @@ export default function ToolUsageStats() {
     },
   };
 
-  // If there's an API error (not validation error), show only the MonitoringError component
+  // If there's an API error (not validation error), show only the Error component
   if (isError && !validationError) {
     return (
       <>
-        <MonitoringError error={error} onRetry={handleRetry} />
+        <Error error={error} onRetry={handleRetry} />
       </>
     );
   }

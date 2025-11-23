@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import { useGetRecentLogsQuery } from '../../../store/api/ai-features/monitoringLogsApi';
 import LogCard from '../../../components/Monitoring/LogCard';
 import { LogsSkeleton, FiltersSkeleton } from './LogsSkeletons';
-import MonitoringError from '../MonitoringError/MonitoringError';
+import Error from '../../../components/Error';
 
 /**
  * RecentLogsPage Component
@@ -140,11 +140,11 @@ const RecentLogsPage = () => {
     }
   }, [currentPage, totalPages]);
 
-  // If there's an error, show only the MonitoringError component
+  // If there's an error, show only the Error component
   if (isError) {
     return (
       <>
-        <MonitoringError error={error} onRetry={handleRetry} />
+        <Error error={error} onRetry={handleRetry} />
       </>
     );
   }

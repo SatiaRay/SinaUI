@@ -16,7 +16,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { SearchSectionSkeleton, LogDetailSkeleton } from './LogSearchSkeletons';
-import MonitoringError from '../MonitoringError/MonitoringError';
+import Error from '../../../components/Error';
 import Swal from 'sweetalert2';
 
 /**
@@ -286,7 +286,7 @@ const LogSearchPage = () => {
   if (isApiError) {
     return (
       <>
-        <MonitoringError error={error} onRetry={handleRetry} />
+        <Error error={error} onRetry={handleRetry} />
       </>
     );
   }
