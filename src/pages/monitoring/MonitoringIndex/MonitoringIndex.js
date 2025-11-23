@@ -60,7 +60,7 @@ const MonitoringIndex = () => {
   ];
 
   return (
-    <div className="flex flex-1 flex-col items-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
+    <div className="flex flex-1 flex-col items-center bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
       {/* Header Section */}
       <div className="text-center mb-8 md:mb-16 max-w-2xl">
         <h1 className="text-3xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4 md:mb-6">
