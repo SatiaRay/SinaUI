@@ -4,6 +4,7 @@ import { useGetRecentLogsQuery } from '../../../store/api/ai-features/monitoring
 import LogCard from '../../../components/Monitoring/LogCard';
 import { LogsSkeleton, FiltersSkeleton } from './LogsSkeletons';
 import Error from '../../../components/Error';
+import { useDisplay } from 'hooks/display';
 
 /**
  * RecentLogsPage Component
@@ -21,6 +22,11 @@ const RecentLogsPage = () => {
   const [localSearchQuery, setLocalSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState(0);
+
+  /**
+   * Response props
+   */
+  const { height, isLargeDisplay } = useDisplay();
 
   /**
    * Calculate active filters count
@@ -361,7 +367,7 @@ const RecentLogsPage = () => {
         )}
 
         {/* Loading State - Show skeletons for logs */}
-        {isLoading && <LogsSkeleton count={12} />}
+        {isLoading && <LogsSkeleton count={Math.floor(height / 150)} />}
 
         {/* Empty State */}
         {!isLoading && logs.length === 0 && (
