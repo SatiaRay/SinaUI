@@ -7,7 +7,6 @@ import {
   useLocation,
 } from 'react-router-dom';
 import Chat from './components/chat/Chat';
-import CrawlUrl from './components/chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
 import {
   WorkflowIndexPage,
@@ -209,7 +208,6 @@ function privateRoutes() {
           </PrivateRoute>
         }
       />
-      <Route path="crawl-url" element={<CrawlUrl />} />
       <Route path="/wizard">
         <Route
           index
