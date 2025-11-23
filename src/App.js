@@ -9,24 +9,26 @@ import {
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
-import { WorkflowIndexPage, EditWorkflowPage, CreateWorkflowPage } from './pages/workflow';
+import {
+  WorkflowIndexPage,
+  EditWorkflowPage,
+  CreateWorkflowPage,
+} from './pages/workflow';
 import {
   CreateInstruction,
   InstructionIndex,
   EditInstruction,
-} from './pages/instruction'
+} from './pages/instruction';
 import Status1 from './components/Chat/Status';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import { WorkflowEditor } from './pages/workflow';
 import { AuthProvider } from './contexts/AuthContext';
-// import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
 import ChatBoxPreview from './pages/widget/chat-box-perview';
-import Setting from './pages/setting';
 import { ChatProvider } from './contexts/ChatContext';
 import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
@@ -38,6 +40,7 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
+// import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
   return (

@@ -1,5 +1,5 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
-import systemApi from '../api/SystemApi';
+import systemApi from '../api/ai-features/SystemApi';
 
 const settingAdapter = createEntityAdapter();
 

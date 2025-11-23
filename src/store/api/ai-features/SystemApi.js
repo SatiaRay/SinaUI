@@ -1,19 +1,6 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import aiApi from '../aiApi';
 
-const systemApi = createApi({
-  reducerPath: 'khan-system',
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8000',
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem('khan-access-token');
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-      headers.set('Accept', 'application/json');
-      return headers;
-    },
-  }),
-  tagTypes: ['System', 'Settings'],
+const systemApi = aiApi.injectEndpoints({
   endpoints: (builder) => ({
     /**
      * Get settings schema
@@ -82,8 +69,6 @@ const systemApi = createApi({
   }),
 });
 
-export default systemApi;
-
 export const {
   useGetSettingsSchemaQuery,
   useGetSettingsQuery,
@@ -91,4 +76,6 @@ export const {
   useDownloadSystemExportQuery,
   useLazyDownloadSystemExportQuery,
   useUploadSystemImportMutation,
-} = systemApi;
+} = aiApi;
+
+export default systemApi;

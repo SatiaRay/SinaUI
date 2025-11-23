@@ -11,7 +11,7 @@ const aiApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Wizard', 'Instruction', 'Workflow'],
+  tagTypes: ['Wizard', 'Instruction', 'Workflow', 'Settings', 'System'],
   endpoints: () => ({}),
 });
 

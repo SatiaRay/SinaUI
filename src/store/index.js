@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import knowledgeApi from './api/knowledgeApi';
 import documentSlice from './features/documentSlice';
 import settingSlice from './features/settingSlice';
-import systemApi from './api/SystemApi';
+import systemApi from './api/ai-features/SystemApi';
 import aiApi from './api/aiApi';
 import workflowSlice from './features/workflowSlice';
 import instructionSlice from './features/instructionSlice';
@@ -22,7 +22,7 @@ const store = configureStore({
     );
 
     return middlewares;
-  }
+  },
 });
 
 export default store;
