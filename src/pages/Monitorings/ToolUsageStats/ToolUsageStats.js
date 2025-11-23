@@ -1,7 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ResponsiveBar } from '@nivo/bar';
 import { useGetToolStatsQuery } from '../../../store/api/ai-features/monitoringLogsApi';
-import { Loader2, Calendar, BarChart3 } from 'lucide-react';
+import {
+  Loader2,
+  Calendar,
+  BarChart3,
+  Filter,
+  ChevronDown,
+} from 'lucide-react';
 import {
   HeaderSkeleton,
   CardsGridSkeleton,
@@ -28,41 +34,6 @@ const colors = [
   '#A581F8',
   '#F071B0',
   '#49C8BA',
-  '#26539D',
-  '#0A7653',
-  '#9D6507',
-  '#3F419A',
-  '#593B9D',
-  '#972E62',
-  '#0D766A',
-  '#1B3C71',
-  '#07553B',
-  '#714905',
-  '#2E2F6F',
-  '#402A71',
-  '#6D2146',
-  '#09554C',
-  '#BFD6FC',
-  '#B1E8D6',
-  '#FCDFB0',
-  '#CCCDFA',
-  '#D9CAFC',
-  '#F9C4DE',
-  '#B3E8E2',
-  '#93BAFA',
-  '#7CD8BA',
-  '#FACA79',
-  '#A9ABF7',
-  '#BFA5FA',
-  '#F59AC7',
-  '#7ED8CE',
-  '#306BCA',
-  '#0D986A',
-  '#C98209',
-  '#5154C6',
-  '#724BCA',
-  '#C23B7D',
-  '#109788',
 ];
 
 /**
@@ -82,7 +53,7 @@ const truncateLabel = (label, maxLength = 12) =>
  */
 const ValidationError = ({ message }) => (
   <div
-    className="p-4 mb-4 bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-lg flex items-start gap-3 animate-fadeIn"
+    className="p-4 mb-4 bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-xl flex items-start gap-3 animate-fadeIn"
     role="alert"
     aria-live="polite"
   >
@@ -106,11 +77,11 @@ const ValidationError = ({ message }) => (
  */
 const StatCard = ({ tool, loading }) => (
   <div
-    className="rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-200 dark:border-gray-700
-      bg-white dark:bg-gray-900 transition-all hover:shadow-xl hover:scale-[1.02] h-full animate-fadeIn"
+    className="rounded-2xl shadow-lg p-6 flex flex-col items-center border border-gray-200 dark:border-gray-700
+      bg-white dark:bg-gray-800 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] h-full animate-fadeIn group"
     style={{ borderTop: `4px solid ${tool.color}` }}
   >
-    <p className="font-bold text-lg mb-2 text-gray-800 dark:text-white text-center break-words whitespace-normal">
+    <p className="font-bold text-lg mb-3 text-gray-800 dark:text-white text-center break-words whitespace-normal line-clamp-2">
       {tool.fullName}
     </p>
 
@@ -121,32 +92,63 @@ const StatCard = ({ tool, loading }) => (
     ) : (
       <div className="text-center w-full">
         <p
-          className="text-2xl font-extrabold mb-1 drop-shadow"
+          className="text-3xl font-extrabold mb-2 drop-shadow-sm group-hover:scale-105 transition-transform duration-300"
           style={{ color: tool.color }}
         >
           {tool.total.toLocaleString()}
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           تعداد فراخوانی
         </p>
 
-        <div className="grid grid-cols-2 gap-2 text-xs border-t border-gray-100 dark:border-gray-800 pt-3">
-          <div className="text-gray-500 dark:text-gray-400">میانگین مدت:</div>
-          <div className="text-gray-800 dark:text-white">
+        <div className="grid grid-cols-2 gap-3 text-sm border-t border-gray-100 dark:border-gray-700 pt-4">
+          <div className="text-gray-500 dark:text-gray-400 text-left">
+            میانگین مدت:
+          </div>
+          <div className="text-gray-800 dark:text-white text-right font-medium">
             {tool.avg_duration.toFixed(2)}ms
           </div>
 
-          <div className="text-gray-500 dark:text-gray-400">تعداد خطا:</div>
+          <div className="text-gray-500 dark:text-gray-400 text-left">
+            تعداد خطا:
+          </div>
           <div
-            className={
-              tool.error_count > 0 ? 'text-red-500 font-bold' : 'text-green-500'
-            }
+            className={`text-right font-medium ${
+              tool.error_count > 0 ? 'text-red-500' : 'text-green-500'
+            }`}
           >
             {tool.error_count.toLocaleString()}
           </div>
         </div>
       </div>
     )}
+  </div>
+);
+
+/**
+ * CustomSelect Component for better dark mode support
+ */
+const CustomSelect = ({ value, onChange, options }) => (
+  <div className="relative flex-1 min-w-0">
+    <select
+      value={value}
+      onChange={onChange}
+      className="w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-xl
+               bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+               appearance-none cursor-pointer transition-all duration-200"
+    >
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+          className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+        >
+          {option.label}
+        </option>
+      ))}
+    </select>
+    <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 pointer-events-none" />
   </div>
 );
 
@@ -159,6 +161,8 @@ export default function ToolUsageStats() {
   const [days, setDays] = useState(7);
   const [inputValue, setInputValue] = useState('7');
   const [validationError, setValidationError] = useState(null);
+  const [sortBy, setSortBy] = useState('total'); // total | errors | duration
+  const [isDark, setIsDark] = useState(false);
 
   /**
    * RTK Query hook for fetching tool statistics
@@ -186,53 +190,58 @@ export default function ToolUsageStats() {
   };
 
   /**
-   * Get current dark mode state
-   * @returns {boolean} True if dark mode is enabled
-   */
-  const getIsDark = useCallback(() => {
-    if (typeof window === 'undefined') return false;
-    return document.documentElement.classList.contains('dark');
-  }, []);
-
-  const [isDark, setIsDark] = useState(getIsDark);
-
-  /**
    * Effect to monitor dark mode changes
    * Updates theme when system or user preference changes
    */
   useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
+    const updateDarkMode = () => {
+      const isDarkMode = document.documentElement.classList.contains('dark');
+      setIsDark(isDarkMode);
+    };
 
-    const mo = new MutationObserver(() => {
-      setIsDark(getIsDark());
+    // Initial check
+    updateDarkMode();
+
+    // Observe class changes on html element
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          updateDarkMode();
+        }
+      });
     });
 
-    mo.observe(document.documentElement, {
+    observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class'],
     });
 
-    const mm =
-      window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-    const onPrefChange = () => setIsDark(getIsDark());
-    mm && mm.addEventListener && mm.addEventListener('change', onPrefChange);
+    // Listen for system preference changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e) => {
+      // Only update if no manual theme is set
+      const hasManualTheme = localStorage.getItem('theme');
+      if (!hasManualTheme) {
+        updateDarkMode();
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
 
     return () => {
-      mo.disconnect();
-      mm &&
-        mm.removeEventListener &&
-        mm.removeEventListener('change', onPrefChange);
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
     };
-  }, [getIsDark]);
+  }, []);
 
   /**
-   * Format tool statistics data for display
+   * Format and sort tool statistics data for display
    * Transforms API response to component-friendly format
    */
   const toolStats = React.useMemo(() => {
     if (!statsData) return [];
 
-    return statsData.map((tool, index) => ({
+    const formattedData = statsData.map((tool, index) => ({
       key: tool.tool,
       label: truncateLabel(tool.tool.split('.').pop(), 12),
       fullName: tool.tool,
@@ -241,7 +250,20 @@ export default function ToolUsageStats() {
       error_count: tool.error_count,
       color: colors[index % colors.length],
     }));
-  }, [statsData]);
+
+    // Sort data based on selected criteria
+    return formattedData.sort((a, b) => {
+      switch (sortBy) {
+        case 'errors':
+          return b.error_count - a.error_count;
+        case 'duration':
+          return b.avg_duration - a.avg_duration;
+        case 'total':
+        default:
+          return b.total - a.total;
+      }
+    });
+  }, [statsData, sortBy]);
 
   /**
    * Handle days input change with validation
@@ -298,7 +320,9 @@ export default function ToolUsageStats() {
    * Adapts to dark/light mode
    */
   const nivoTheme = {
-    background: isDark ? '#1f2937' : '#ffffff',
+    background: 'transparent',
+    textColor: isDark ? '#e5e7eb' : '#374151',
+    fontSize: 12,
     axis: {
       domain: {
         line: {
@@ -313,15 +337,13 @@ export default function ToolUsageStats() {
         },
         text: {
           fill: isDark ? '#e5e7eb' : '#374151',
-          fontSize: 12,
-          fontFamily: 'inherit',
+          fontSize: 11,
         },
       },
       legend: {
         text: {
           fill: isDark ? '#e5e7eb' : '#374151',
           fontSize: 12,
-          fontFamily: 'inherit',
         },
       },
     },
@@ -336,14 +358,12 @@ export default function ToolUsageStats() {
       text: {
         fill: isDark ? '#e5e7eb' : '#374151',
         fontSize: 11,
-        fontFamily: 'inherit',
       },
     },
     labels: {
       text: {
         fill: isDark ? '#e5e7eb' : '#374151',
         fontSize: 11,
-        fontFamily: 'inherit',
       },
     },
     tooltip: {
@@ -352,11 +372,17 @@ export default function ToolUsageStats() {
         color: isDark ? '#e5e7eb' : '#374151',
         fontSize: '12px',
         borderRadius: '6px',
-        boxShadow:
-          '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
       },
     },
   };
+
+  // Select options for sorting
+  const sortOptions = [
+    { value: 'total', label: 'مرتب‌سازی بر اساس تعداد' },
+    { value: 'errors', label: 'مرتب‌سازی بر اساس خطا' },
+    { value: 'duration', label: 'مرتب‌سازی بر اساس مدت' },
+  ];
 
   // If there's an API error (not validation error), show only the Error component
   if (isError && !validationError) {
@@ -368,40 +394,57 @@ export default function ToolUsageStats() {
   }
 
   return (
-    <div className="min-h-screen flex-1 flex-col p-4 bg-gray-50 dark:bg-gray-800 rounded-lg gap-6 overflow-y-auto scrollbar-hide">
+    <div className="min-h-screen flex-1 flex-col p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 gap-6 overflow-y-auto scrollbar-hide">
       {/* Header Section - Show skeleton when loading */}
       {isLoading ? (
         <HeaderSkeleton />
       ) : (
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-primary-600 dark:text-primary-400" />
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-              آمار استفاده از ابزارها
-            </h2>
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+              <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                آمار استفاده از ابزارها
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                تحلیل عملکرد و استفاده از ابزارهای سیستم
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
-            <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-300" />
-            <label
-              htmlFor="days-input"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
-            >
-              بازه زمانی:
-            </label>
-            <input
-              id="days-input"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={inputValue}
-              onChange={handleDaysChange}
-              onKeyDown={handleKeyDown}
-              className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-center bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500"
-              placeholder="7"
-            />
-            <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-              روز گذشته
-            </span>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            {/* Sort Filter */}
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 min-w-[200px]">
+              <Filter className="h-4 w-4 text-gray-500 dark:text-gray-300 flex-shrink-0" />
+              <CustomSelect
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                options={sortOptions}
+              />
+            </div>
+
+            {/* Days Filter */}
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700">
+              <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-300 flex-shrink-0" />
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                بازه زمانی:
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={inputValue}
+                onChange={handleDaysChange}
+                onKeyDown={handleKeyDown}
+                className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-center bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="7"
+              />
+              <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                روز گذشته
+              </span>
+            </div>
           </div>
         </div>
       )}
@@ -415,7 +458,7 @@ export default function ToolUsageStats() {
       {isLoading ? (
         <CardsGridSkeleton count={8} />
       ) : (
-        <div className={`grid ${gridClasses()} gap-4 mb-6`}>
+        <div className={`grid ${gridClasses()} gap-4 sm:gap-6 mb-8`}>
           {toolStats.map((tool) => (
             <StatCard key={tool.key} tool={tool} loading={isLoading} />
           ))}
@@ -424,22 +467,23 @@ export default function ToolUsageStats() {
 
       {/* Chart Section - Show skeleton when loading */}
       {isLoading ? (
-        <ChartSkeleton />
+        <ChartSkeleton isDark={isDark} />
       ) : (
-        <div className="w-full bg-white dark:bg-gray-900 rounded-xl shadow-md p-4 mt-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              نمودار تعداد فراخوانی و خطاهای ابزارها
+        <div className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+              نمودار مقایسه‌ای ابزارها
             </h3>
+
             {/* Chart Legend */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded"
                   style={{ background: errorColor }}
                 />
                 <span className="text-sm text-gray-600 dark:text-gray-300">
-                  خطا
+                  تعداد خطاها
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -448,7 +492,7 @@ export default function ToolUsageStats() {
                   style={{ background: toolStats[0]?.color ?? '#3B82F6' }}
                 />
                 <span className="text-sm text-gray-600 dark:text-gray-300">
-                  فراخوانی
+                  تعداد فراخوانی‌ها
                 </span>
               </div>
             </div>
@@ -456,17 +500,17 @@ export default function ToolUsageStats() {
 
           {/* Chart Content */}
           {toolStats.length === 0 ? (
-            <div className="flex items-center justify-center h-[50vh]">
+            <div className="flex items-center justify-center h-[400px]">
               <div className="text-center">
-                <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                  <BarChart3 className="h-12 w-12 text-gray-400" />
+                <div className="mx-auto w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                  <BarChart3 className="h-10 w-10 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
                   هیچ داده‌ای برای نمایش وجود ندارد
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className="text-gray-500 dark:text-gray-400 max-w-md">
                   در بازه زمانی انتخاب شده هیچ استفاده‌ای از ابزارها ثبت نشده
-                  است.
+                  است. بازه زمانی یا فیلترها را تغییر دهید.
                 </p>
               </div>
             </div>
@@ -476,7 +520,7 @@ export default function ToolUsageStats() {
               style={{
                 height: `${Math.min(80, toolStats.length * 20 + 40)}vh`,
                 maxHeight: '600px',
-                minHeight: '300px',
+                minHeight: '400px',
               }}
             >
               <ResponsiveBar

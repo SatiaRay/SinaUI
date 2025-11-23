@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Filter, X } from 'lucide-react';
 import { useGetRecentLogsQuery } from '../../../store/api/ai-features/monitoringLogsApi';
 import LogCard from '../../../components/Monitoring/LogCard';
 import { LogsSkeleton, FiltersSkeleton } from './LogsSkeletons';
@@ -19,6 +19,21 @@ const RecentLogsPage = () => {
   const [maxDuration, setMaxDuration] = useState('');
   const [page, setPage] = useState(1);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(0);
+
+  /**
+   * Calculate active filters count
+   */
+  useEffect(() => {
+    let count = 0;
+    if (hasErrors !== 'all') count++;
+    if (hours !== 24) count++;
+    if (minDuration) count++;
+    if (maxDuration) count++;
+    if (searchQuery) count++;
+    setActiveFilters(count);
+  }, [hasErrors, hours, minDuration, maxDuration, searchQuery]);
 
   /**
    * Validate hours input - maximum 3 digits (0-999)
@@ -56,6 +71,19 @@ const RecentLogsPage = () => {
 
     return () => clearTimeout(timer);
   }, [localSearchQuery]);
+
+  /**
+   * Clear all filters
+   */
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setLocalSearchQuery('');
+    setHasErrors('all');
+    setHours(24);
+    setMinDuration('');
+    setMaxDuration('');
+    setPage(1);
+  };
 
   /**
    * Prepare query parameters for API call
@@ -153,110 +181,182 @@ const RecentLogsPage = () => {
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-hide">
       <div className="max-w-[1600px] mx-auto">
         {/* Page Header */}
-        <h1 className="text-2xl font-bold text-center mb-6 dark:text-white">
-          لاگ‌های اخیر
-        </h1>
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold dark:text-white mb-2">
+            لاگ‌های اخیر
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            مشاهده و مدیریت لاگ‌های سیستم
+          </p>
+        </div>
 
-        {/* Filters Section - Show skeleton when loading */}
-        {isLoading ? (
-          <FiltersSkeleton />
-        ) : (
-          <div className="bg-white dark:bg-gray-800 shadow-sm rounded-xl p-4 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Search Input */}
-              <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="جستجو بر اساس نام ابزار..."
-                  value={localSearchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-3 pr-10 py-3 text-base border rounded-lg
-                           dark:bg-gray-700 dark:text-white dark:border-gray-600
-                           focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-
-              {/* Error Filter Dropdown */}
-              <select
-                value={hasErrors}
-                onChange={(e) => {
-                  setHasErrors(e.target.value);
-                  handleFilterChange();
-                }}
-                className="w-full px-3 py-3 text-base border rounded-lg
-                         dark:bg-gray-700 dark:text-white dark:border-gray-600
-                         focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="all">همه</option>
-                <option value="true">فقط خطاها</option>
-                <option value="false">فقط بدون خطا</option>
-              </select>
-
-              {/* Hours Range Input with validation */}
+        {/* Main Search and Filter Bar */}
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-2xl p-4 mb-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+            {/* Search Input */}
+            <div className="flex-1 relative min-w-0">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
-                type="number"
-                inputMode="numeric"
-                min="0"
-                max="999"
-                placeholder="بازه ساعتی (۰-۹۹۹)"
-                value={hours}
-                onChange={(e) => {
-                  handleHoursChange(e.target.value);
-                  handleFilterChange();
-                }}
-                className="w-full px-4 py-3 text-base border rounded-lg
-                         dark:bg-gray-700 dark:text-white dark:border-gray-600
-                         focus:outline-none focus:ring-2 focus:ring-primary-500
-                         appearance-none
-                         [&::-webkit-outer-spin-button]:appearance-none
-                         [&::-webkit-inner-spin-button]:appearance-none"
-              />
-
-              {/* Minimum Duration Input */}
-              <input
-                type="number"
-                inputMode="numeric"
-                min="0"
-                placeholder="حداقل مدت (ms)"
-                value={minDuration}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === '' || Number(val) >= 0) {
-                    setMinDuration(val);
-                    handleFilterChange();
-                  }
-                }}
-                className="w-full px-4 py-3 text-base border rounded-lg
-                         dark:bg-gray-700 dark:text-white dark:border-gray-600
-                         focus:outline-none focus:ring-2 focus:ring-primary-500
-                         appearance-none
-                         [&::-webkit-outer-spin-button]:appearance-none
-                         [&::-webkit-inner-spin-button]:appearance-none"
-              />
-
-              {/* Maximum Duration Input */}
-              <input
-                type="number"
-                inputMode="numeric"
-                min="0"
-                placeholder="حداکثر مدت (ms)"
-                value={maxDuration}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === '' || Number(val) >= 0) {
-                    setMaxDuration(val);
-                    handleFilterChange();
-                  }
-                }}
-                className="w-full px-4 py-3 text-base border rounded-lg
-                         dark:bg-gray-700 dark:text-white dark:border-gray-600
-                         focus:outline-none focus:ring-2 focus:ring-primary-500
-                         appearance-none
-                         [&::-webkit-outer-spin-button]:appearance-none
-                         [&::-webkit-inner-spin-button]:appearance-none"
+                type="text"
+                placeholder="جستجو بر اساس نام ابزار..."
+                value={localSearchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full pl-3 pr-10 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-xl
+                         dark:bg-gray-700 dark:text-white
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                         transition-all duration-200"
               />
             </div>
+
+            {/* Filter Toggle Button */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-3 rounded-xl border transition-all duration-200
+                ${
+                  showFilters
+                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400'
+                    : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
+                }`}
+            >
+              <Filter className="w-4 h-4" />
+              <span>فیلترها</span>
+              {activeFilters > 0 && (
+                <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {activeFilters}
+                </span>
+              )}
+            </button>
+
+            {/* Clear Filters Button */}
+            {activeFilters > 0 && (
+              <button
+                onClick={clearAllFilters}
+                className="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600
+                         bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400
+                         hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200"
+              >
+                <X className="w-4 h-4" />
+                <span>پاک کردن</span>
+              </button>
+            )}
+          </div>
+
+          {/* Advanced Filters - Collapsible */}
+          {showFilters && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Error Filter Dropdown */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    وضعیت خطا
+                  </label>
+                  <select
+                    value={hasErrors}
+                    onChange={(e) => {
+                      setHasErrors(e.target.value);
+                      handleFilterChange();
+                    }}
+                    className="w-full px-3 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-xl
+                             dark:bg-gray-700 dark:text-white
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             transition-all duration-200"
+                  >
+                    <option value="all">همه لاگ‌ها</option>
+                    <option value="true">فقط خطاها</option>
+                    <option value="false">فقط موفق</option>
+                  </select>
+                </div>
+
+                {/* Hours Range Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    بازه زمانی (ساعت)
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    max="999"
+                    placeholder="مثلاً 24"
+                    value={hours}
+                    onChange={(e) => {
+                      handleHoursChange(e.target.value);
+                      handleFilterChange();
+                    }}
+                    className="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-xl
+                             dark:bg-gray-700 dark:text-white
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             appearance-none
+                             [&::-webkit-outer-spin-button]:appearance-none
+                             [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+
+                {/* Minimum Duration Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    حداقل مدت (میلی‌ثانیه)
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    placeholder="مثلاً 100"
+                    value={minDuration}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || Number(val) >= 0) {
+                        setMinDuration(val);
+                        handleFilterChange();
+                      }
+                    }}
+                    className="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-xl
+                             dark:bg-gray-700 dark:text-white
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             appearance-none
+                             [&::-webkit-outer-spin-button]:appearance-none
+                             [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+
+                {/* Maximum Duration Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    حداکثر مدت (میلی‌ثانیه)
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    placeholder="مثلاً 5000"
+                    value={maxDuration}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || Number(val) >= 0) {
+                        setMaxDuration(val);
+                        handleFilterChange();
+                      }
+                    }}
+                    className="w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-xl
+                             dark:bg-gray-700 dark:text-white
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             appearance-none
+                             [&::-webkit-outer-spin-button]:appearance-none
+                             [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Results Summary */}
+        {!isLoading && logs.length > 0 && (
+          <div className="mb-4 px-2">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              نمایش {logs.length} لاگ از {totalItems} نتیجه
+              {activeFilters > 0 && ` (${activeFilters} فیلتر فعال)`}
+            </p>
           </div>
         )}
 
@@ -272,11 +372,19 @@ const RecentLogsPage = () => {
             <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
               هیچ لاگی یافت نشد
             </h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              {searchQuery
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              {searchQuery || activeFilters > 0
                 ? 'لاگ‌هایی با معیارهای جستجوی شما مطابقت ندارند.'
                 : 'در بازه زمانی انتخاب شده هیچ لاگی وجود ندارد.'}
             </p>
+            {activeFilters > 0 && (
+              <button
+                onClick={clearAllFilters}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                پاک کردن همه فیلترها
+              </button>
+            )}
           </div>
         )}
 
@@ -291,36 +399,38 @@ const RecentLogsPage = () => {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-6">
+              <div className="flex justify-center items-center gap-4 mt-8">
                 {/* Previous Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-lg text-sm font-medium
-                           bg-gray-200 dark:bg-gray-700
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+                           bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600
                            text-gray-700 dark:text-gray-200
-                           disabled:opacity-50 hover:bg-gray-300
-                           dark:hover:bg-gray-600 transition
-                           focus:outline-none focus:ring-2 focus:ring-primary-500"
+                           disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-600
+                           transition-all duration-200
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   قبلی
                 </button>
 
                 {/* Page Indicator */}
-                <span className="text-sm dark:text-gray-300">
-                  صفحه {currentPage} از {totalPages}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm dark:text-gray-300">
+                    صفحه {currentPage} از {totalPages}
+                  </span>
+                </div>
 
                 {/* Next Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-lg text-sm font-medium
-                           bg-gray-200 dark:bg-gray-700
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
+                           bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600
                            text-gray-700 dark:text-gray-200
-                           disabled:opacity-50 hover:bg-gray-300
-                           dark:hover:bg-gray-600 transition
-                           focus:outline-none focus:ring-2 focus:ring-primary-500"
+                           disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-600
+                           transition-all duration-200
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   بعدی
                 </button>
