@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import knowledgeApi from './api/knowledgeApi';
-import monitoringApi from './api/monitoringLogsApi';
+import monitoringApi from './api/ai-features/monitoringLogsApi';
 import documentSlice from './features/documentSlice';
 import aiApi from './api/aiApi';
 import workflowSlice from './features/workflowSlice';

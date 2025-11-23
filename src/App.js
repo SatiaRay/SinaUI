@@ -30,10 +30,13 @@ import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
 import { ChatProvider } from './contexts/ChatContext';
-import MonitoringPage from '@components/Monitoring/MonitoringPage';
-import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
-import LogSearchPage from '@components/Monitoring/LogSearchPage';
-import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
+
+import {
+  MonitoringIndex,
+  RecentLogsPage,
+  LogSearchPage,
+  ToolUsageStats,
+} from '@pages/Monitorings';
 import {
   CreateWizardPage,
   EditWizardPage,

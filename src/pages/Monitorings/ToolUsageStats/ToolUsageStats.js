@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ResponsiveBar } from '@nivo/bar';
-import { useGetToolStatsQuery } from '../../../store/api/monitoringLogsApi';
+import { useGetToolStatsQuery } from '../../../store/api/ai-features/monitoringLogsApi';
 import { Loader2, Calendar, BarChart3 } from 'lucide-react';
 import {
   HeaderSkeleton,

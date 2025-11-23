@@ -1,19 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import aiApi from '../aiApi';
 
-const MonitoringApi = createApi({
-  reducerPath: 'monitoringAPI',
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_AI_SERVICE || 'http://127.0.0.1:8050',
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem('khan-access-token');
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-      headers.set('Accept', 'application/json');
-      return headers;
-    },
-  }),
-  tagTypes: ['Logs', 'Stats'],
+const MonitoringApi = aiApi.injectEndpoints({
   endpoints: (builder) => ({
     /**
      * Get recent function calling logs with filters
@@ -106,12 +94,12 @@ const MonitoringApi = createApi({
   }),
 });
 
-export default MonitoringApi;
-
 export const {
   useGetRecentLogsQuery,
   useGetToolStatsQuery,
   useGetUserStatsQuery,
   useSearchLogsQuery,
   useGetLogByIdQuery,
-} = MonitoringApi;
+} = aiApi;
+
+export default MonitoringApi;

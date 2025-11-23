@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useGetLogByIdQuery } from '../../../store/api/monitoringLogsApi';
+import { useGetLogByIdQuery } from '../../../store/api/ai-features/monitoringLogsApi';
 import {
   Loader2,
   Calendar,

@@ -1,5 +1,5 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
-import MonitoringApi from '../api/monitoringLogsApi';
+import MonitoringApi from '../api/ai-features/monitoringLogsApi';
 
 /**
  * Entity adapter for managing logs state with normalized structure
