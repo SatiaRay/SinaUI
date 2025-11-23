@@ -81,7 +81,7 @@ const StatCard = ({ tool, loading }) => (
       bg-white dark:bg-gray-800 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] h-full animate-fadeIn group"
     style={{ borderTop: `4px solid ${tool.color}` }}
   >
-    <p className="font-bold text-lg mb-3 text-gray-800 dark:text-white text-center break-words whitespace-normal line-clamp-2">
+    <p className="font-bold text-lg mb-3 text-gray-800 dark:text-white text-center break-words whitespace-normal line-clamp-2 md:truncate md:w-40">
       {tool.fullName}
     </p>
 
