@@ -9,40 +9,44 @@ import {
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
-import CreateInstruction from './components/Chat/Instruction/CreateInstruction';
-import EditInstruction from './components/Chat/Instruction/EditInstruction';
-import InstructionIndex from './components/Chat/Instruction/InstructionIndex';
+import { WorkflowIndexPage, EditWorkflowPage, CreateWorkflowPage } from './pages/workflow';
+import {
+  CreateInstruction,
+  InstructionIndex,
+  EditInstruction,
+} from './pages/instruction'
 import Status1 from './components/Chat/Status';
-import Wizard from './components/Chat/Wizard';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
-import Workflow from './components/Workflow/WorkflowIndex';
-import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
+import { WorkflowEditor } from './pages/workflow';
 import { AuthProvider } from './contexts/AuthContext';
-import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
-import VoiceAgentConversation from './pages/VoiceAgentConversation';
-import AiToolsFunctionTester from './pages/AiToolsFunctionTester';
+// import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
 import ChatBoxPreview from './pages/widget/chat-box-perview';
+import Setting from './pages/setting';
 import { ChatProvider } from './contexts/ChatContext';
 import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
 import LogSearchPage from '@components/Monitoring/LogSearchPage';
 import ToolUsageStats from '@components/Monitoring/ToolUsageStats';
+import {
+  CreateWizardPage,
+  EditWizardPage,
+  ShowWizardPage,
+  WizardIndexPage,
+} from '@pages/wizard';
 
 function App() {
   return (
     <AuthProvider>
-      <VoiceAgentProvider>
-        <Router
-          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-        >
-          <AppContent />
-        </Router>
-      </VoiceAgentProvider>
+      {/*<VoiceAgentProvider>*/}
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AppContent />
+      </Router>
+      {/*</VoiceAgentProvider>*/}
     </AuthProvider>
   );
 }
@@ -51,7 +55,7 @@ function AppContent() {
   const location = useLocation();
   const isPrivateRoute =
     location.pathname !== '/login' && location.pathname !== '/register';
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
     const fetchVersion = async () => {
@@ -69,7 +73,7 @@ function AppContent() {
   return (
     <div
       id="khan"
-      className={`min-h-screen bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
+      className={`min-h-screen main-content bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
         isPrivateRoute
           ? sidebarCollapsed
             ? 'md:mr-0'
@@ -115,17 +119,6 @@ function privateRoutes() {
             }
           />
         </Route>
-        /** VOICE AGENT CONVERSATION */
-        <Route path="/voice-agent">
-          <Route
-            path=""
-            element={
-              <PrivateRoute>
-                <VoiceAgentConversation />
-              </PrivateRoute>
-            }
-          />
-        </Route>
         <Route path="/monitoring">
           <Route
             path=""
@@ -156,16 +149,6 @@ function privateRoutes() {
             element={
               <PrivateRoute>
                 <ToolUsageStats />
-              </PrivateRoute>
-            }
-          />
-        </Route>
-        <Route path="/ai-tools">
-          <Route
-            path=""
-            element={
-              <PrivateRoute>
-                <AiToolsFunctionTester />
               </PrivateRoute>
             }
           />
@@ -221,28 +204,28 @@ function privateRoutes() {
         }
       />
       <Route path="crawl-url" element={<CrawlUrl />} />
-      <Route
-        path="/wizard"
-        element={
-          <PrivateRoute>
-            <Wizard />
-          </PrivateRoute>
-        }
-      />
-      <Route path="/workflow">
+      <Route path="/wizard">
         <Route
           index
           element={
             <PrivateRoute>
-              <Workflow />
+              <WizardIndexPage />
             </PrivateRoute>
           }
         />
         <Route
-          path=":workflowId"
+          path=":wizard_id"
           element={
             <PrivateRoute>
-              <WorkflowEditor />
+              <ShowWizardPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="edit/:wizard_id"
+          element={
+            <PrivateRoute>
+              <EditWizardPage />
             </PrivateRoute>
           }
         />
@@ -250,13 +233,39 @@ function privateRoutes() {
           path="create"
           element={
             <PrivateRoute>
-              <WorkflowEditor />
+              <CreateWizardPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      <Route path="/workflow">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <WorkflowIndexPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path=":id"
+          element={
+            <PrivateRoute>
+              <EditWorkflowPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="create"
+          element={
+            <PrivateRoute>
+              <CreateWorkflowPage />
             </PrivateRoute>
           }
         />
       </Route>
       {/* Instruction Routes */}
-      <Route path="/instructions">
+      <Route path="/instruction">
         <Route
           index
           element={

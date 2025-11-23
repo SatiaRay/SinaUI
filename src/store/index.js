@@ -3,21 +3,26 @@ import knowledgeApi from './api/knowledgeApi';
 import documentSlice from './features/documentSlice';
 import settingSlice from './features/settingSlice';
 import systemApi from './api/SystemApi';
+import aiApi from './api/aiApi';
+import workflowSlice from './features/workflowSlice';
+import instructionSlice from './features/instructionSlice';
 
 const store = configureStore({
   reducer: {
     document: documentSlice.reducer,
+    instruction: instructionSlice.reducer,
+    workflow: workflowSlice.reducer,
     [knowledgeApi.reducerPath]: knowledgeApi.reducer,
-    setting: settingSlice.reducer,
-    [systemApi.reducerPath]: systemApi.reducer,
+    [aiApi.reducerPath]: aiApi.reducer,
   },
   middleware: (getDefault) => {
-    let middlewares = getDefault()
-      .concat(knowledgeApi.middleware)
-      .concat(systemApi.middleware);
+    let middlewares = getDefault().concat(
+      knowledgeApi.middleware,
+      aiApi.middleware
+    );
 
     return middlewares;
-  },
+  }
 });
 
 export default store;
