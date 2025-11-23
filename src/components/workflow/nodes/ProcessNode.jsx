@@ -1,19 +1,19 @@
 import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 
-const EndNode = ({ data }) => {
+const ProcessNode = ({ data }) => {
   return (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white dark:bg-black/50 border-2 border-primary-200 dark:border-primary-700">
+    <div className="px-4 py-2 shadow-md rounded-md bg-white dark:bg-black/50 border-2 border-blue-200 dark:border-blue-600">
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3 h-3 !bg-primary-600 hover:!bg-primary-700 transition-colors"
+        className="w-3 h-3 !bg-blue-600 hover:!bg-blue-600 transition-colors"
       />
       <div className="flex items-center">
-        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-primary-50 dark:bg-primary-700">
+        <div className="rounded-full w-12 h-12 flex items-center justify-center bg-blue-50 dark:bg-blue-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-primary-600 dark:text-white"
+            className="h-6 w-6 text-blue-600 dark:text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -22,13 +22,7 @@ const EndNode = ({ data }) => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
             />
           </svg>
         </div>
@@ -44,8 +38,13 @@ const EndNode = ({ data }) => {
           </div>
         </div>
       </div>
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-3 h-3 !bg-blue-600 hover:!bg-blue-600 transition-colors"
+      />
     </div>
   );
 };
 
-export default memo(EndNode);
+export default memo(ProcessNode);

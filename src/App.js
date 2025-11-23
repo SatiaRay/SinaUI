@@ -9,23 +9,22 @@ import {
 import Chat from './components/Chat/Chat';
 import CrawlUrl from './components/Chat/CrawlUrl';
 import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
+import { WorkflowIndexPage, EditWorkflowPage, CreateWorkflowPage } from './pages/workflow';
 import {
   CreateInstruction,
   InstructionIndex,
   EditInstruction,
-} from './pages/instruction/Index';
+} from './pages/instruction'
 import Status1 from './components/Chat/Status';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
-import Workflow from './components/Workflow/WorkflowIndex';
-import WorkflowEditor from './components/Workflow/editor/WorkflowEditor';
+import { WorkflowEditor } from './pages/workflow';
 import { AuthProvider } from './contexts/AuthContext';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
 import Setting from './pages/setting';
-import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
 import MonitoringPage from '@components/Monitoring/MonitoringPage';
 import RecentLogsPage from '@components/Monitoring/RecentLogsPage';
@@ -54,7 +53,7 @@ function AppContent() {
   const location = useLocation();
   const isPrivateRoute =
     location.pathname !== '/login' && location.pathname !== '/register';
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
     const fetchVersion = async () => {
@@ -242,15 +241,15 @@ function privateRoutes() {
           index
           element={
             <PrivateRoute>
-              <Workflow />
+              <WorkflowIndexPage />
             </PrivateRoute>
           }
         />
         <Route
-          path=":workflowId"
+          path=":id"
           element={
             <PrivateRoute>
-              <WorkflowEditor />
+              <EditWorkflowPage />
             </PrivateRoute>
           }
         />
@@ -258,7 +257,7 @@ function privateRoutes() {
           path="create"
           element={
             <PrivateRoute>
-              <WorkflowEditor />
+              <CreateWorkflowPage />
             </PrivateRoute>
           }
         />

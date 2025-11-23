@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 import ThemeToggle from '@contexts/ThemeToggle';
 
@@ -24,33 +24,53 @@ import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
  * @param {Function} props.onNavigate - Navigation handler
  * @param {Function} props.closeSidebar - Close sidebar handler
  * @param {boolean} props.showContent - Show content state
+ * @param {string} props.activePath - Active path for highlighting
  */
-const NavList = ({ items, onNavigate, closeSidebar, showContent }) => (
+const NavList = ({
+  items,
+  onNavigate,
+  closeSidebar,
+  showContent,
+  activePath,
+}) => (
   <ul className="flex flex-col gap-2">
-    {items.map(({ path, label, icon: Icon }) => (
-      <li key={path} className="text-right">
-        <button
-          onClick={() => {
-            onNavigate(path);
-            closeSidebar?.();
-          }}
-          className="flex items-center gap-2 w-full text-right text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap"
-        >
-          {Icon && (
-            <Icon className="w-4 h-4 text-gray-300 group-hover:text-white" />
-          )}
-          <span
-            className={`transition-all duration-500 ease-in-out ${
-              showContent
-                ? 'opacity-100 translate-x-0'
-                : 'opacity-0 translate-x-4'
+    {items.map(({ path, label, icon: Icon }) => {
+      const isActive = activePath === path;
+      return (
+        <li key={path} className="text-right">
+          <button
+            onClick={() => {
+              onNavigate(path);
+              closeSidebar?.();
+            }}
+            className={`flex items-center gap-2 w-full text-right px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap ${
+              isActive
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
             }`}
           >
-            {label}
-          </span>
-        </button>
-      </li>
-    ))}
+            {Icon && (
+              <Icon
+                className={`w-4 h-4 ${
+                  isActive
+                    ? 'text-white'
+                    : 'text-gray-300 group-hover:text-white'
+                }`}
+              />
+            )}
+            <span
+              className={`transition-all duration-500 ease-in-out ${
+                showContent
+                  ? 'opacity-100 translate-x-0'
+                  : 'opacity-0 translate-x-4'
+              }`}
+            >
+              {label}
+            </span>
+          </button>
+        </li>
+      );
+    })}
   </ul>
 );
 
@@ -65,6 +85,7 @@ const NavList = ({ items, onNavigate, closeSidebar, showContent }) => (
  * @param {Function} props.onToggle - Toggle handler
  * @param {boolean} props.isMobile - Mobile flag
  * @param {boolean} props.overlayVisible - Overlay visibility
+ * @param {string} props.activePath - Active path for highlighting
  */
 const ExpandableSidebar = ({
   items,
@@ -75,6 +96,7 @@ const ExpandableSidebar = ({
   onToggle,
   isMobile = false,
   overlayVisible = false,
+  activePath,
 }) => {
   const [showContent, setShowContent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -337,9 +359,15 @@ const BlurOverlay = ({ onClose, isVisible }) => (
 const Navbar = ({ onSidebarCollapse }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const [isDesktopExpanded, setIsDesktopExpanded] = useState(false);
+
+  /**
+   * Hide navbar state
+   */
+  const [hide, setHide] = useState(false)
 
   /**
    * Navigation items configuration (documents section removed)
@@ -400,15 +428,20 @@ const Navbar = ({ onSidebarCollapse }) => {
       if (event.data.type === 'HIDE_NAVBAR') {
         setIsMobileExpanded(false);
         setIsDesktopExpanded(false);
-        onSidebarCollapse(true);
+        setHide(true)
       } else if (event.data.type === 'SHOW_NAVBAR') {
         setIsDesktopExpanded(false);
-        onSidebarCollapse(false);
+        setHide(false)
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [onSidebarCollapse]);
+
+  /**
+   * Return null if hide state is true
+   */
+  if(hide) return null;
 
   return (
     <div dir="rtl">
@@ -430,6 +463,7 @@ const Navbar = ({ onSidebarCollapse }) => {
           onToggle={toggleMobileSidebar}
           isMobile={true}
           overlayVisible={isMobileExpanded}
+          activePath={location.pathname}
         />
       </div>
 
@@ -447,6 +481,7 @@ const Navbar = ({ onSidebarCollapse }) => {
           onToggle={toggleDesktopSidebar}
           isMobile={false}
           overlayVisible={false}
+          activePath={location.pathname}
         />
       </div>
     </div>
