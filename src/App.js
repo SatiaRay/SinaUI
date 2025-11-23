@@ -36,7 +36,7 @@ import {
   RecentLogsPage,
   LogSearchPage,
   ToolUsageStats,
-} from '@pages/Monitorings';
+} from '@pages/monitoring';
 import {
   CreateWizardPage,
   EditWizardPage,
