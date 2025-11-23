@@ -70,14 +70,6 @@ const Messages = styled.div`
   padding: 0 10px;
 `;
 
-const ContentTransition = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  transition: opacity 0.6s ease-in-out;
-  opacity: ${(props) => (props.isVisible ? 1 : 0)};
-`;
-
 const Close = styled.div`
   position: absolute;
   top: 50%;
@@ -142,7 +134,6 @@ const ChatBox = (props) => {
   const [isVisible, setIsVisible] = useState(false);
   const [fullscreen, setFullscreen] = useState(fullscreenProp || false);
   const [isSkeletonActive, setIsSkeletonActive] = useState(false);
-  const [contentVisible, setContentVisible] = useState(false);
   const skeletonTimerRef = useRef(null);
 
   useEffect(() => {
@@ -161,20 +152,20 @@ const ChatBox = (props) => {
     if (isVisible || isStatic || fullscreen) {
       if (!isSkeletonActive) {
         setIsSkeletonActive(true);
-        setContentVisible(true);
 
         if (skeletonTimerRef.current) {
           clearTimeout(skeletonTimerRef.current);
         }
 
         skeletonTimerRef.current = setTimeout(() => {
-          setContentVisible(false);
 
           setTimeout(() => {
             setIsSkeletonActive(false);
-            setContentVisible(true);
             skeletonTimerRef.current = null;
           }, 600);
+
+          setIsSkeletonActive(false);
+          skeletonTimerRef.current = null;
         }, 1200);
       }
 
@@ -225,18 +216,23 @@ const ChatBox = (props) => {
           </Header>
         )}
         <MessagesWrapper>
-          <Messages>
-            <ContentTransition isVisible={contentVisible}>
-              {isSkeletonActive ? (
-                <ChatSkeletonLoader theme={theme} />
-              ) : (
-                <AuthProvider>
-                  <ChatProvider>
-                    <Chat services={services} />
-                  </ChatProvider>
-                </AuthProvider>
-              )}
-            </ContentTransition>
+        <Messages
+            className={
+              isSkeletonActive
+                ? 'overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+                : ''
+            }
+            style={isSkeletonActive ? { overflow: 'hidden' } : {}}
+          >
+            {isSkeletonActive ? (
+              <ChatSkeletonLoader theme={theme} />
+            ) : (
+              <AuthProvider>
+                <ChatProvider>
+                  <Chat services={services} />
+                </ChatProvider>
+              </AuthProvider>
+            )}
           </Messages>
         </MessagesWrapper>
       </Box>

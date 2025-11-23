@@ -11,6 +11,28 @@ export const H2 = styled.h2`
   }
 `;
 
+export const H3 = styled.h2`
+  font-size: 18px !important;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px !important;
+
+  .dark & {
+    color: #f9fafb;
+  }
+`;
+
+export const H4 = styled.h2`
+  font-size: 16px !important;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px !important;
+
+  .dark & {
+    color: #f9fafb;
+  }
+`;
+
 // Chat Container Components
 export const ChatContainer = styled.div`
   display: flex;
