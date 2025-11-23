@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ClipLoader } from 'react-spinners';
-import Dropzone from '../../../../../../ui/Dropzone';
+import Dropzone from '../../../../Dropzone';
 import { fileEndpoints } from '../../../../../../utils/apis';
 import imageCompression from 'browser-image-compression';
 import styled from 'styled-components';

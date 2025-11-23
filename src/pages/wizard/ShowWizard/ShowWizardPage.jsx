@@ -6,7 +6,7 @@ import {
   useDeleteWizardMutation,
   useUpdateWizardMutation,
 } from 'store/api/ai-features/wizardApi';
-import { notify } from '../../../ui/toast';
+import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { GoPlusCircle } from 'react-icons/go';
 import {ShowWizardLoading} from './ShowWizardLoading';

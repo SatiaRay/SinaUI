@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { notify } from '../../../ui/toast';
+import { notify } from '../../../components/ui/toast';
 import { Sppiner } from '../../../components/ui/sppiner';
 import {
   useGetWorkflowQuery,
   useUpdateWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
-import CustomDropdown from 'ui/dropdown';
+import CustomDropdown from '@components/ui/dropdown';
 import { EditWorkflowLoading } from './EditWorkflowLoading';
 import WorkflowEditor from '@components/workflow/WorkflowEditor';
 

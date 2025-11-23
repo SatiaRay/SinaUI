@@ -1,4 +1,4 @@
-import { SkeletonLoading } from '../../../ui/loading/skeletonLoading';
+import { SkeletonLoading } from '../../../components/ui/loading/skeletonLoading';
 import { useDisplay } from '../../../hooks/display';
 import Skeleton from 'react-loading-skeleton';
 

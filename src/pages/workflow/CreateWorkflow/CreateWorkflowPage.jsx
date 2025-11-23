@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { notify } from '../../../ui/toast';
+import { notify } from '../../../components/ui/toast';
 import { Sppiner } from '../../../components/ui/sppiner';
 import { useStoreWorkflowMutation } from 'store/api/ai-features/workflowApi';
-import CustomDropdown from 'ui/dropdown';
+import CustomDropdown from '@components/ui/dropdown';
 
 const CreateWorkflowPage = () => {
   /**

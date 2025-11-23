@@ -1,4 +1,4 @@
-import axios from '../contexts/axios';
+import axios from '../contexts/Axios';
 
 // API Base URL
 const BASE_URL = process.env.REACT_APP_CHAT_API_URL;

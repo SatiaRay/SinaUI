@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { confirm } from '../ui/alert/confirmation';
 import { useUpdateWizardMutation } from 'store/api/ai-features/wizardApi';
-import { notify } from '../../ui/toast';
+import { notify } from '../ui/toast';
 
 const WizardCard = ({ wizard, handleDelete }) => {
   /**

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { GoPlusCircle } from 'react-icons/go';
 import { Pagination } from '../../../components/ui/pagination';
 import { confirm } from '../../../components/ui/alert/confirmation';
-import { notify } from '../../../ui/toast';
+import { notify } from '../../../components/ui/toast';
 import { InstructionIndexLoading } from './InstructionIndexLoading';
 import {
   useDeleteInstructionMutation,

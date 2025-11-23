@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLazyDownloadSystemExportQuery } from '../../store/api/ai-features/SystemApi';
-import { notify } from '../../ui/toast';
+import { notify } from '../ui/toast';
 
 /**
  * Export Component - Handles system settings export functionality

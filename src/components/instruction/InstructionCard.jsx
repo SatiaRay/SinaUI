@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { notify } from '../../ui/toast';
+import { notify } from '../ui/toast';
 import { useUpdateInstructionMutation } from 'store/api/ai-features/instructionApi';
 
 const InstructionCard = ({ instruction, handleDelete }) => {

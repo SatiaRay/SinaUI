@@ -7,7 +7,7 @@ import {
 } from 'store/api/ai-features/wizardApi';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Pagination } from '../../../components/ui/pagination';
-import { notify } from '../../../ui/toast';
+import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
 import { GoPlusCircle } from 'react-icons/go';

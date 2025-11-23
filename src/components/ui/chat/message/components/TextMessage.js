@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { copyToClipboard } from '@utils/helpers';
-import { notify } from '../../../../../ui/toast';
+import { notify } from '../../../toast';
 import { TextMessageContent, CopyButton } from '../../../common';
 import { marked } from 'marked';
 

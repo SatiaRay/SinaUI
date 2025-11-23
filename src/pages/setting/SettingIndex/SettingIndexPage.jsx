@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { notify } from '../../../ui/toast';
-import { Export } from '@components/setting/export';
-import SettingsForm from '@components/setting/form';
-import { Import } from '@components/setting/import';
+import { notify } from '../../../components/ui/toast';
+import { Export } from '@components/setting/Export';
+import SettingsForm from '@components/setting/Form';
+import { Import } from '@components/setting/Import';
 import {
   useGetSettingsSchemaQuery,
   useGetSettingsQuery,

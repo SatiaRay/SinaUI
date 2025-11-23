@@ -7,7 +7,7 @@ import {
   useExportWorkflowMutation,
   useImportWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
-import { notify } from '../../../ui/toast';
+import { notify } from '../../../components/ui/toast';
 import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';
 import Error from '@components/Error';
 import { GoPlusCircle } from 'react-icons/go';

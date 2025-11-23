@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useUploadSystemImportMutation } from '../../store/api/ai-features/SystemApi';
-import { notify } from '../../ui/toast';
+import { notify } from '../ui/toast';
 
 /**
  * Import Component - Handles system settings import functionality

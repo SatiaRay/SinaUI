@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { notify } from '../../ui/toast';
+import { notify } from '../ui/toast';
 
 const NodeDetails = ({
   node,
