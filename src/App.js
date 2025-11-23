@@ -25,10 +25,10 @@ import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import { WorkflowEditor } from './pages/workflow';
 import { AuthProvider } from './contexts/AuthContext';
-// import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
-import Setting from './pages/setting';
+import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
+import ChatBoxPreview from './pages/widget/chat-box-perview';
 import { ChatProvider } from './contexts/ChatContext';
 
 import {
@@ -43,6 +43,7 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
+// import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
   return (
