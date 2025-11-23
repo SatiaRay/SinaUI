@@ -1,6 +1,6 @@
 // WizardIndexPage.js
 import React, { useState, useEffect } from 'react';
-import WizardCard from '../../../components/Wizard/WizardCard';
+import WizardCard from '../../../components/wizard/WizardCard';
 import {
   useGetWizardsQuery,
   useDeleteWizardMutation,

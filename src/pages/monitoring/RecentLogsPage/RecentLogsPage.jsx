@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Search, Filter, X } from 'lucide-react';
 import { useGetRecentLogsQuery } from '../../../store/api/ai-features/monitoringLogsApi';
-import LogCard from '../../../components/Monitoring/LogCard';
+import LogCard from '../../../components/monitoring/LogCard';
 import { LogsSkeleton, FiltersSkeleton } from './LogsSkeletons';
 import Error from '../../../components/Error';
 import { useDisplay } from 'hooks/display';

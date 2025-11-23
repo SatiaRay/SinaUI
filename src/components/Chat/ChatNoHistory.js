@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { chatEndpoints, wizardEndpoints } from '../../utils/apis';
-import { WizardButton, WizardButtons } from '../Wizard';
+import { WizardButton, WizardButtons } from '../wizard';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { v4 as uuidv4 } from 'uuid';

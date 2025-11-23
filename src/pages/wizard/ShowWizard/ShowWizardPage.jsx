@@ -10,7 +10,7 @@ import { notify } from '../../../ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { GoPlusCircle } from 'react-icons/go';
 import {ShowWizardLoading} from './ShowWizardLoading';
-import WizardCard from '../../../components/Wizard/WizardCard'; // Import WizardCard
+import WizardCard from '../../../components/wizard/WizardCard'; // Import WizardCard
 
 const ShowWizardPage = () => {
   const { wizard_id } = useParams();
