@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import 'typeface-vazir';
-import '@contexts/axios'; // Import axios configuration
+import '@contexts/Axios'; // Import axios configuration
 import 'react-toastify/dist/ReactToastify.css';
 import reportWebVitals from './reportWebVitals';
 import ChatBoxPreview from '@pages/widget/chat-box-perview';
