@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import CustomDropdown from '../../../components/ui/dropdown';
+import CustomDropdown from '@components/ui/CustomDropdown';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { notify } from '../../../components/ui/toast';
 import {
@@ -50,7 +50,11 @@ const EditWizardPage = () => {
    */
   const [
     updateWizard,
-    { isLoading: isUpdating, isSuccess: isUpdateSuccess, isError: isUpdateError },
+    {
+      isLoading: isUpdating,
+      isSuccess: isUpdateSuccess,
+      isError: isUpdateError,
+    },
   ] = useUpdateWizardMutation();
 
   /**
@@ -134,9 +138,7 @@ const EditWizardPage = () => {
             <input
               type="text"
               value={wizard.title}
-              onChange={(e) =>
-                setWizard({ ...wizard, title: e.target.value })
-              }
+              onChange={(e) => setWizard({ ...wizard, title: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               placeholder="عنوان ویزارد"
             />
@@ -153,12 +155,8 @@ const EditWizardPage = () => {
                 { value: 'question', label: 'سوال' },
               ]}
               value={wizard.wizard_type}
-              onChange={(value) =>
-                setWizard({ ...wizard, wizard_type: value })
-              }
+              onChange={(value) => setWizard({ ...wizard, wizard_type: value })}
               placeholder="انتخاب نوع ویزارد"
-              className="w-full"
-              parentStyle="w-full"
             />
           </div>
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import CustomDropdown from '../../../components/ui/dropdown';
+import CustomDropdown from '@components/ui/CustomDropdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { notify } from '../../../components/ui/toast';
 import { ckEditorConfig } from '../../../configs';
@@ -18,7 +18,7 @@ const CreateWizardPage = () => {
   /**
    * Query string parameters
    */
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams();
 
   /**
    * Wizard object state
@@ -27,7 +27,7 @@ const CreateWizardPage = () => {
     title: '',
     context: '',
     wizard_type: 'answer',
-    parent_id: searchParams.get('parent_id') ?? null
+    parent_id: searchParams.get('parent_id') ?? null,
   });
 
   /**
@@ -42,10 +42,8 @@ const CreateWizardPage = () => {
   useEffect(() => {
     if (isSuccess) {
       notify.success('ویزارد با موفقیت ایجاد شد!');
-      if(wizard.parent_id)
-        navigate(`/wizard/${wizard.parent_id}`);
-      else
-        navigate('/wizard')
+      if (wizard.parent_id) navigate(`/wizard/${wizard.parent_id}`);
+      else navigate('/wizard');
     }
   }, [isSuccess, navigate]);
 
@@ -97,9 +95,7 @@ const CreateWizardPage = () => {
             <input
               type="text"
               value={wizard.title}
-              onChange={(e) =>
-                setWizard({ ...wizard, title: e.target.value })
-              }
+              onChange={(e) => setWizard({ ...wizard, title: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               placeholder="عنوان ویزارد"
             />
@@ -116,12 +112,8 @@ const CreateWizardPage = () => {
                 { value: 'question', label: 'سوال' },
               ]}
               value={wizard.wizard_type}
-              onChange={(value) =>
-                setWizard({ ...wizard, wizard_type: value })
-              }
+              onChange={(value) => setWizard({ ...wizard, wizard_type: value })}
               placeholder="انتخاب نوع ویزارد"
-              className="w-full"
-              parentStyle="w-full"
             />
           </div>
 
