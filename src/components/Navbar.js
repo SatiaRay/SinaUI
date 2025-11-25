@@ -25,6 +25,7 @@ import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
  * @param {Function} props.closeSidebar - Close sidebar handler
  * @param {boolean} props.showContent - Show content state
  * @param {string} props.activePath - Active path for highlighting
+ * @param {boolean} props.isMobile - Mobile flag
  */
 const NavList = ({
   items,
@@ -32,6 +33,7 @@ const NavList = ({
   closeSidebar,
   showContent,
   activePath,
+  isMobile = false,
 }) => (
   <ul className="flex flex-col gap-2">
     {items.map(({ path, label, icon: Icon }) => {
@@ -41,7 +43,10 @@ const NavList = ({
           <button
             onClick={() => {
               onNavigate(path);
-              closeSidebar?.();
+              // Only close sidebar on mobile devices
+              if (isMobile) {
+                closeSidebar?.();
+              }
             }}
             className={`flex items-center gap-2 w-full text-right px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap ${
               isActive
@@ -207,12 +212,16 @@ const ExpandableSidebar = ({
                     closeSidebar={() => onToggle(false)}
                     showContent={showContent}
                     activePath={activePath}
+                    isMobile={isMobile}
                   />
                   {/* Settings button */}
                   <button
                     onClick={() => {
                       onNavigate('/setting');
-                      onToggle(false);
+                      // Only close sidebar on mobile when navigating to settings
+                      if (isMobile) {
+                        onToggle(false);
+                      }
                     }}
                     className={`flex mt-1 items-center gap-2 w-full text-right px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap ${
                       activePath === '/setting'
@@ -384,12 +393,13 @@ const Navbar = ({ onSidebarCollapse }) => {
   const location = useLocation();
 
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
-  const [isDesktopExpanded, setIsDesktopExpanded] = useState(false);
+  const [isDesktopExpanded, setIsDesktopExpanded] = useState(false); // Start with false to prevent flash
+  const [isInitialized, setIsInitialized] = useState(false);
 
   /**
    * Hide navbar state
    */
-  const [hide, setHide] = useState(false)
+  const [hide, setHide] = useState(false);
 
   /**
    * Navigation items configuration (documents section removed)
@@ -402,6 +412,41 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: '/instruction', label: 'دستورالعمل‌ها', icon: FaBook },
     { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
   ];
+
+  /**
+   * Load sidebar state from localStorage on component mount
+   * If field doesn't exist, set it with default value (true)
+   */
+  useEffect(() => {
+    const savedSidebarState = localStorage.getItem('khan-sidebar-expanded');
+
+    if (savedSidebarState === null || savedSidebarState === undefined) {
+      // Field doesn't exist, set it with default value (true)
+      localStorage.setItem('khan-sidebar-expanded', JSON.stringify(true));
+      setIsDesktopExpanded(true);
+      onSidebarCollapse(false);
+    } else {
+      // Field exists, use the saved value (can be true or false)
+      const isExpanded = JSON.parse(savedSidebarState);
+      setIsDesktopExpanded(isExpanded);
+      onSidebarCollapse(!isExpanded);
+    }
+
+    // Mark as initialized to prevent the save effect from running
+    setIsInitialized(true);
+  }, [onSidebarCollapse]);
+
+  /**
+   * Save sidebar state to localStorage whenever it changes, but only after initialization
+   */
+  useEffect(() => {
+    if (isInitialized) {
+      localStorage.setItem(
+        'khan-sidebar-expanded',
+        JSON.stringify(isDesktopExpanded)
+      );
+    }
+  }, [isDesktopExpanded, isInitialized]);
 
   /**
    * Handle user logout
@@ -421,7 +466,7 @@ const Navbar = ({ onSidebarCollapse }) => {
    */
   const resetUIState = () => {
     setIsMobileExpanded(false);
-    setIsDesktopExpanded(false);
+    setIsDesktopExpanded(true);
     onSidebarCollapse(false);
   };
 
@@ -433,12 +478,11 @@ const Navbar = ({ onSidebarCollapse }) => {
   };
 
   /**
-   * Toggle desktop sidebar
+   * Toggle desktop sidebar and save state
    */
   const toggleDesktopSidebar = () => {
     const newState = !isDesktopExpanded;
     setIsDesktopExpanded(newState);
-    // Only call onSidebarCollapse when sidebar is collapsed (not expanded)
     onSidebarCollapse(!newState);
   };
 
@@ -450,10 +494,10 @@ const Navbar = ({ onSidebarCollapse }) => {
       if (event.data.type === 'HIDE_NAVBAR') {
         setIsMobileExpanded(false);
         setIsDesktopExpanded(false);
-        setHide(true)
+        setHide(true);
       } else if (event.data.type === 'SHOW_NAVBAR') {
-        setIsDesktopExpanded(false);
-        setHide(false)
+        setIsDesktopExpanded(true);
+        setHide(false);
       }
     };
     window.addEventListener('message', handleMessage);
@@ -461,9 +505,16 @@ const Navbar = ({ onSidebarCollapse }) => {
   }, [onSidebarCollapse]);
 
   /**
+   * Auto-close mobile sidebar on navigation - ONLY FOR MOBILE
+   */
+  useEffect(() => {
+    setIsMobileExpanded(false);
+  }, [location.pathname]);
+
+  /**
    * Return null if hide state is true
    */
-  if(hide) return null;
+  if (hide) return null;
 
   return (
     <div dir="rtl">
@@ -475,7 +526,7 @@ const Navbar = ({ onSidebarCollapse }) => {
           isVisible={isMobileExpanded}
         />
 
-        {/* Mobile Expandable Sidebar */}
+        {/* Mobile Expandable Sidebar - Always collapsed by default */}
         <ExpandableSidebar
           items={navItems}
           onNavigate={navigate}
@@ -493,7 +544,7 @@ const Navbar = ({ onSidebarCollapse }) => {
       <div className="hidden md:block">
         {/* No blur overlay for desktop - sidebar is part of layout */}
 
-        {/* Desktop Expandable Sidebar */}
+        {/* Desktop Expandable Sidebar - Uses saved state from localStorage */}
         <ExpandableSidebar
           items={navItems}
           onNavigate={navigate}

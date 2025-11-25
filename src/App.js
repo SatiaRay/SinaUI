@@ -59,7 +59,13 @@ function AppContent() {
   const location = useLocation();
   const isPrivateRoute =
     location.pathname !== '/login' && location.pathname !== '/register';
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const savedState = localStorage.getItem('khan-sidebar-expanded');
+    if (savedState === null || savedState === undefined) {
+      return false;
+    }
+    return !JSON.parse(savedState);
+  });
   const [appVersion, setAppVersion] = useState(null);
   useEffect(() => {
     const fetchVersion = async () => {
