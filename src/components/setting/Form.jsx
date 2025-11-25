@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import CustomDropdown from '../ui/dropdown';
+import CustomDropdown from '../ui/CustomDropdown';
 import Tagify from '@yaireo/tagify';
 
 /**

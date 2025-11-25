@@ -46,7 +46,7 @@ const WorkflowIndexPage = () => {
   /**
    * Store workflows from request response data to state prop for optimistic mutation
    */
-  if (isSuccess && !workflows) setWorkflows(data)
+  if (isSuccess && !workflows) setWorkflows(data);
 
   /**
    * Mutations: RTK Query auto-generated async thunks
@@ -87,18 +87,18 @@ const WorkflowIndexPage = () => {
         reverseButtons: false,
       });
       if (result.isConfirmed) {
-        setWorkflows(workflows.filter(workflow => workflow.id != workflowId))
+        setWorkflows(workflows.filter((workflow) => workflow.id != workflowId));
 
         await deleteWorkflow({ id: workflowId }).unwrap();
 
-        notify.success("گردش کاری حذف شد")
+        notify.success('گردش کاری حذف شد');
       }
     } catch (err) {
       console.error('Error in deletion process:', err);
       notify.error('خطا در حذف گردش کار! لطفاً دوباره تلاش کنید');
-      setWorkflows(data)
+      setWorkflows(data);
     }
-  }
+  };
 
   /**
    * Handler: Export workflow as downloadable JSON file
@@ -300,8 +300,10 @@ const WorkflowIndexPage = () => {
                     </td>
                     {/* Status column: Hardcoded as "فعال" for now */}
                     <td className="px-4 py-4">
-                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${workflow.status ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"}`}>
-                        {workflow.status ? "فعال" : "غیر فعال"}
+                      <span
+                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${workflow.status ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}
+                      >
+                        {workflow.status ? 'فعال' : 'غیر فعال'}
                       </span>
                     </td>
                     {/* Actions column: Desktop buttons + mobile dropdown */}
