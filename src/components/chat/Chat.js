@@ -296,22 +296,6 @@ const Chat = ({ services = null }) => {
   const deltaTimeoutRef = useRef(null);
   const [isServiceUnavailable, setIsServiceUnabailable] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
-  
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-  
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-    };
-  }, []);
-
   // استفاده از parser بهینه شده
   const tableParserRef = useRef(new StableTableParser());
   const scrollStabilizerRef = useRef({
