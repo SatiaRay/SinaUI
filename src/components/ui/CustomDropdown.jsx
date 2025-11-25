@@ -32,7 +32,7 @@ const CustomDropdown = ({
   const selectedOption = options.find((opt) => opt.value === value);
 
   return (
-    <div ref={ref} className={`relative w-48 ${parentStyle}`}>
+    <div ref={ref} className={`relative ${parentStyle}`}>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}

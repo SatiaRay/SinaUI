@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { notify } from '../../../components/ui/toast';
 import { Sppiner } from '../../../components/ui/sppiner';
 import { useStoreWorkflowMutation } from 'store/api/ai-features/workflowApi';
-import CustomDropdown from '@components/ui/dropdown';
+import CustomDropdown from '@components/ui/CustomDropdown';
 
 const CreateWorkflowPage = () => {
   /**
@@ -111,8 +111,6 @@ const CreateWorkflowPage = () => {
                   { value: '0', label: 'غیرفعال' },
                 ]}
                 value={Number(workflow.status).toString()}
-                className="w-full"
-                parentStyle="w-full"
               />
             </div>
           </div>
