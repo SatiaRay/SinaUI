@@ -342,6 +342,15 @@ const Chat = ({ services = null }) => {
   } = useChat();
 
   /**
+   * Disable container overflow
+   */
+  useEffect(() => {
+    window.parent.postMessage({type: 'CONTAINER_OVERFLOW_HIDDEN'});
+
+    return () => window.parent.postMessage({type: 'CONTAINER_OVERFLOW_AUTO'})
+  }, []);
+
+  /**
    * Setup service
    */
   useEffect(() => {
@@ -837,7 +846,7 @@ const Chat = ({ services = null }) => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'بله، پاک کن!',
-      cancelButtonText: 'لغو', 
+      cancelButtonText: 'لغو',
       buttonsStyling: true,
     });
     if (result.isConfirmed) {
@@ -861,7 +870,9 @@ const Chat = ({ services = null }) => {
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <InitialLayoutContainer>
           <WelcomeSection>
-            <H3>سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم</H3>
+            <H3>
+              سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم
+            </H3>
             <H4>
               نام من به یاد ابن سینا نماد دانش و خرد ایرانی انتخاب شده است
             </H4>
