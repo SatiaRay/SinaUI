@@ -42,7 +42,7 @@ export const ChatContainer = styled.div`
   padding-bottom: 1.75rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  height: 100%;
+  height: calc(var(--vh, 1vh) * 100);
   width: 100%;
   max-width: 860px;
   margin-left: auto;
