@@ -128,6 +128,7 @@ export const ChatProvider = ({ children }) => {
       const data = await wizardEndpoints.getRootWizards();
       setRootWizards(data);
       setCurrentWizards(data);
+      setWizardPath([]);
     } catch (err) {
       setError(err.message);
     }
@@ -342,8 +343,27 @@ export const ChatProvider = ({ children }) => {
   };
   
   /**
+   * Handles wizard back navigation (one level up)
+   */
+  const handleWizardBack = () => {
+    setWizardPath((prev) => {
+      if (prev.length === 0) return prev;
+
+      const newPath = prev.slice(0, -1);
+
+      if (newPath.length === 0) {
+        setCurrentWizards(rootWizards);
+      } else {
+        const parent = newPath[newPath.length - 1];
+        setCurrentWizards(parent.children || []);
+      }
+
+      return newPath;
+    });
+  };
+
+  /**
    * Handles wizard selection
-   *
    * @param {object} wizardData selected wizard data
    */
   const handleWizardSelect = (wizardData) => {
@@ -351,41 +371,36 @@ export const ChatProvider = ({ children }) => {
       handleWizardBack();
       return;
     }
+  
     if (wizardData.wizard_type === 'question') {
       sendMessage(stripHtmlTags(wizardData.context));
       return;
     }
-    sendData({
-      event: 'wizard',
-      wizard_id: wizardData.id,
-    });
-    if (wizardData.children?.length) {
+    sendData({ event: 'wizard', wizard_id: wizardData.id });
+
+    const children = wizardData.children;
+
+    const hasChildren =
+      Array.isArray(children) && children.length > 0;
+
+    const isLeaf =
+      (Array.isArray(children) && children.length === 0) ||
+      ((children == null) && wizardPath.length > 0);
+  
+    if (hasChildren) {
       goToChildren(wizardData);
       return;
     }
-    setTimeout(resetWizardToRoot, 400);
-  };
   
-  const handleWizardBack = () => {
-    setWizardPath((prev) => {
-      if (prev.length === 0) return prev;
-  
-      const newPath = prev.slice(0, -1);
-  
-      if (newPath.length === 0) {
-        setCurrentWizards(rootWizards);
-      } else {
-        const parent = newPath[newPath.length - 1];
-        setCurrentWizards(parent.children || []);
-      }
-  
-      return newPath;
-    });
+    if (isLeaf) {
+      setTimeout(resetWizardToRoot, 400);
+    }
   };
   
   const clearHistory = () => {
     setHistory({ ids: [], entities: {} });
     localStorage.removeItem('chat_session_id');
+    setWizardPath([]); 
     if (socketRef.current) {
       if (socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.close();
