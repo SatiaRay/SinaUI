@@ -9,6 +9,8 @@ import TextInputWithBreaks from '../ui/textArea';
 import Message from '../ui/chat/message/Message';
 import { useChat } from '@contexts/ChatContext';
 import Swal from 'sweetalert2';
+import { ReactTyped } from 'react-typed';
+import { TypeAnimation } from 'react-type-animation';
 import {
   H2,
   H3,
@@ -869,6 +871,8 @@ const Chat = ({ services = null }) => {
       {/* حالت اولیه - قبل از ارسال اولین پیام */}
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <InitialLayoutContainer>
+          
+
           <WelcomeSection>
             <H3>
               سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم
@@ -876,11 +880,24 @@ const Chat = ({ services = null }) => {
             <H4>
               نام من به یاد ابن سینا نماد دانش و خرد ایرانی انتخاب شده است
             </H4>
-            <WelcomeText>
-              سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم 😊🚀🌟
+            <WelcomeText aria-label='پیام خوش‌آمدگویی'>
+              <TypeAnimation
+                sequence={[
+                  'سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم 😊🚀🌟',
+                  1000, 
+                  'اینجا هستم تا سریع، دقیق و دوستانه کمکت کنم ✨',
+                  1000, 
+                  'هر چیزی خواستی بپرس؛ با هم جلو می‌ریم 💡',
+                  1000, 
+                ]}
+                speed={50}                
+                deletionSpeed={100}         
+                repeat={Infinity}         
+                cursor={true}
+                style={{ display: 'inline-block' }}
+              />
             </WelcomeText>
           </WelcomeSection>
-
           <InputContainer>
             <SendButton
               onClick={() => sendMessageDecorator(question)}
