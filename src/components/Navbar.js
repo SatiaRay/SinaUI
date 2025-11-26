@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
-import ThemeToggle from '@contexts/ThemeToggle';
 
 import {
   ArrowLeftEndOnRectangleIcon,
@@ -16,6 +15,7 @@ import {
   FaChartLine,
 } from 'react-icons/fa';
 import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
+import ThemeToggleBtn from './ui/ThemeToggleBtn';
 
 /**
  * Navigation list component with animations
@@ -166,7 +166,7 @@ const ExpandableSidebar = ({
               }`}
             >
               <div className="border-0">
-                <ThemeToggle />
+                <ThemeToggleBtn/>
               </div>
               {/* Toggle button in header when expanded */}
               <button
@@ -342,7 +342,7 @@ const ExpandableSidebar = ({
                     <>
                       <div className="flex flex-col items-center gap-2">
                         <div className="border-0">
-                          <ThemeToggle />
+                          <ThemeToggleBtn/>
                         </div>
                         <div className="w-7 h-7 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full cursor-default">
                           {getBadgeLetters(user?.name)}

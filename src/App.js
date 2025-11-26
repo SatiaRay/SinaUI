@@ -41,16 +41,21 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
+import { ThemeProvider } from '@contexts/ThemeContext';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
   return (
     <AuthProvider>
-      {/*<VoiceAgentProvider>*/}
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AppContent />
-      </Router>
-      {/*</VoiceAgentProvider>*/}
+      <ThemeProvider>
+        {/*<VoiceAgentProvider>*/}
+        <Router
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
+          <AppContent />
+        </Router>
+        {/*</VoiceAgentProvider>*/}
+      </ThemeProvider>
     </AuthProvider>
   );
 }

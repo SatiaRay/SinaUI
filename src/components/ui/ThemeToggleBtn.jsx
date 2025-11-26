@@ -1,26 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useTheme } from '@contexts/ThemeContext';
 
-const ThemeToggle = () => {
-  const [theme, setTheme] = useState(() => {
-    // Get theme from localStorage or default to "light"
-    return localStorage.getItem('theme') || 'light';
-  });
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-
-    const editorWrappers = document.querySelectorAll('.ckeditor-wrapper');
-    editorWrappers.forEach((wrapper) => {
-      wrapper.classList.toggle('dark', theme === 'dark');
-    });
-
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-  };
+const ThemeToggleBtn = () => {
+  /**
+   * Using them hook
+   */
+  const {theme, toggleTheme} = useTheme()
 
   return (
     <button
@@ -66,4 +51,4 @@ const ThemeToggle = () => {
   );
 };
 
-export default ThemeToggle;
+export default ThemeToggleBtn;
