@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactFlow, {
   Background,
@@ -26,7 +25,11 @@ import ProcessNode from './nodes/ProcessNode';
 import ResponseNode from './nodes/ResponseNode';
 import StartNode from './nodes/StartNode';
 import { useDisplay } from 'hooks/display';
-import { extractEdges, extractNodes, formatNodes } from '@utils/workflowUtility';
+import {
+  extractEdges,
+  extractNodes,
+  formatNodes,
+} from '@utils/workflowUtility';
 
 /**
  * Node type definitions for ReactFlow
@@ -70,16 +73,24 @@ const initialNodes = [
  * @param setSchema Calls after any change in workflow even moving nodes
  * @returns jsx
  */
-const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => {
+const WorkflowEditorContent = ({
+  onChange,
+  setSchema,
+  workflowData = null,
+}) => {
   // Router hooks for navigation and parameters
   const { workflowId } = useParams();
   const navigate = useNavigate();
 
   // State management for nodes and edges
-  const [nodes, setNodes, onNodesChange] = useNodesState(extractNodes(workflowData));
-  const [nodesCount, setNodesCount] = useState(nodes.length)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(extractEdges(workflowData));
-  const [edgesCount, setEdgesCount] = useState(edges.length)
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    extractNodes(workflowData)
+  );
+  const [nodesCount, setNodesCount] = useState(nodes.length);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(
+    extractEdges(workflowData)
+  );
+  const [edgesCount, setEdgesCount] = useState(edges.length);
 
   // UI state management
   const [selectedNode, setSelectedNode] = useState(null);
@@ -111,20 +122,18 @@ const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => 
    * through the setSchema prop
    */
   useEffect(() => {
-    setSchema(formatNodes(nodes, edges))
+    setSchema(formatNodes(nodes, edges));
 
-    if(nodes && edges)
-      setNodesCount(nodes.length)
-      setEdgesCount(edges.length)
+    if (nodes && edges) setNodesCount(nodes.length);
+    setEdgesCount(edges.length);
   }, [nodes, edges]);
 
   /**
    * Calling onChange prop handler on nodes or edges count change
    */
   useEffect(() => {
-    if(nodes && edges)
-      onChange(formatNodes(nodes, edges))
-  }, [nodesCount, edgesCount])
+    if (nodes && edges) onChange(formatNodes(nodes, edges));
+  }, [nodesCount, edgesCount]);
 
   /**
    * Display util hooks
@@ -563,19 +572,6 @@ const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => 
       className={`min-h-[600px] h-full w-full border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden z-50 ${fullscreen ? 'fixed top-0 left-0 bg-white dark:bg-gray-800 ' : 'relative'}`}
       style={{ zIndex: 10 }}
     >
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={true}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-
       {/* Sidebar component for workflow management */}
       <WorkflowEditorSidebar
         workflowId={workflowId}
@@ -781,7 +777,11 @@ const WorkflowEditorContent = ({ onChange, setSchema, workflowData = null }) => 
 const WorkflowEditor = ({ onChange, setSchema, initFlow }) => {
   return (
     <ReactFlowProvider>
-      <WorkflowEditorContent onChange={onChange} setSchema={setSchema} workflowData={initFlow}/>
+      <WorkflowEditorContent
+        onChange={onChange}
+        setSchema={setSchema}
+        workflowData={initFlow}
+      />
     </ReactFlowProvider>
   );
 };
