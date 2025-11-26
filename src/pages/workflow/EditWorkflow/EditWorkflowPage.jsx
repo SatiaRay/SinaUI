@@ -7,7 +7,7 @@ import {
   useGetWorkflowQuery,
   useUpdateWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
-import CustomDropdown from '@components/ui/dropdown';
+import CustomDropdown from '@components/ui/CustomDropdown';
 import { EditWorkflowLoading } from './EditWorkflowLoading';
 import WorkflowEditor from '@components/workflow/WorkflowEditor';
 
@@ -151,8 +151,6 @@ const EditWorkflowPage = () => {
                   { value: '0', label: 'غیرفعال' },
                 ]}
                 value={Number(workflow.status).toString()}
-                className="w-full"
-                parentStyle="w-full"
               />
             </div>
           </div>

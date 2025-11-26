@@ -57,6 +57,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
+  const [containerOverflowHidden, setContainerOverflowHidden] = useState(false);
   const isPrivateRoute =
     location.pathname !== '/login' && location.pathname !== '/register';
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -67,6 +68,25 @@ function AppContent() {
     return !JSON.parse(savedState);
   });
   const [appVersion, setAppVersion] = useState(null);
+
+  /**
+   * Setup window event on container overflow hidden
+   */
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data.type === 'CONTAINER_OVERFLOW_HIDDEN') {
+        setContainerOverflowHidden(true);
+      } else if (event.data.type === 'CONTAINER_OVERFLOW_AUTO') {
+        setContainerOverflowHidden(false);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  /**
+   * Fetch App Version
+   */
   useEffect(() => {
     const fetchVersion = async () => {
       try {
@@ -94,7 +114,9 @@ function AppContent() {
       {isPrivateRoute && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
       {isPrivateRoute && (
-        <div className="md:container mx-auto md:px-10 py-0 md:py-3 lg:px-0 w-[100%] lg:w-[90%] xl:w-[85%] xxl:w-[1400px]">
+        <div
+          className={`md:container mx-auto md:px-10 py-0 md:py-2 lg:px-0 w-[100%] lg:w-[90%] xl:w-[85%] xxl:w-[1400px] ${containerOverflowHidden ? 'overflow-hidden' : ''}`}
+        >
           {privateRoutes()}
         </div>
       )}
