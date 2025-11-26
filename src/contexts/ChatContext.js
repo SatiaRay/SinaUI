@@ -24,6 +24,7 @@ export const ChatProvider = ({ children }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const [optionMessageTriggered, setOptionMessageTriggered] = useState(false);
   const [history, setHistory] = useState({ ids: [], entities: {} });
+  const [wizardPath, setWizardPath] = useState([]);
   const auth = useAuth();
   const token = auth?.token;
 
@@ -324,26 +325,64 @@ export const ChatProvider = ({ children }) => {
   };
 
   /**
+   * Resets wizard navigation to the root level
+   */
+  const resetWizardToRoot = () => {
+    setWizardPath([]);
+    setCurrentWizards(rootWizards);
+  };
+  
+  /**
+   * Navigates one level deeper in the wizard hierarchy
+   * @param {object} wizardData 
+   */
+  const goToChildren = (wizardData) => {
+    setWizardPath((prev) => [...prev, wizardData]);
+    setCurrentWizards(wizardData.children);
+  };
+  
+  /**
    * Handles wizard selection
    *
    * @param {object} wizardData selected wizard data
    */
   const handleWizardSelect = (wizardData) => {
+    if (wizardData?.__type === 'back') {
+      handleWizardBack();
+      return;
+    }
     if (wizardData.wizard_type === 'question') {
       sendMessage(stripHtmlTags(wizardData.context));
       return;
-    } else
-      sendData({
-        event: 'wizard',
-        wizard_id: wizardData.id,
-      });
-
-    if (wizardData.children && wizardData.children.length > 0) {
-      setCurrentWizards(wizardData.children);
-    } else {
-      setCurrentWizards(rootWizards);
     }
+    sendData({
+      event: 'wizard',
+      wizard_id: wizardData.id,
+    });
+    if (wizardData.children?.length) {
+      goToChildren(wizardData);
+      return;
+    }
+    setTimeout(resetWizardToRoot, 400);
   };
+  
+  const handleWizardBack = () => {
+    setWizardPath((prev) => {
+      if (prev.length === 0) return prev;
+  
+      const newPath = prev.slice(0, -1);
+  
+      if (newPath.length === 0) {
+        setCurrentWizards(rootWizards);
+      } else {
+        const parent = newPath[newPath.length - 1];
+        setCurrentWizards(parent.children || []);
+      }
+  
+      return newPath;
+    });
+  };
+  
   const clearHistory = () => {
     setHistory({ ids: [], entities: {} });
     localStorage.removeItem('chat_session_id');
@@ -379,6 +418,7 @@ export const ChatProvider = ({ children }) => {
     setCurrentWizards,
     rootWizards,
     setRootWizards,
+    wizardPath,          
     copiedMessageId,
     setCopiedMessageId,
     optionMessageTriggered,
@@ -397,6 +437,7 @@ export const ChatProvider = ({ children }) => {
     sendData,
     setService,
     handleWizardSelect,
+    handleWizardBack,
     addNewMessage,
     updateMessage,
     removeMessage,
