@@ -26,11 +26,11 @@ const DocumentIndexPage = () => {
 
   /**
    * Pagination per page length
-   * 
-   * Define perpage length according device type for fill client device 
+   *
+   * Define perpage length according device type for fill client device
    * height freee spaces for beauty and better user experince
    */
-  const perpage = isDesktop ? ((Math.floor(((height - 200) / 115)) * 3)) : 20;
+  const perpage = isDesktop ? Math.floor((height - 200) / 115) * 3 : 20;
 
   /**
    * List of documents
@@ -95,7 +95,7 @@ const DocumentIndexPage = () => {
    * Display document cards list
    */
   return (
-    <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
+    <div className="h-full flex flex-col justify-start md:pb-0">
       {/* Page header  */}
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h3 className="text-3xl">مستندات</h3>
@@ -130,13 +130,15 @@ const DocumentIndexPage = () => {
       )}
 
       {/* Pagination  */}
-      <Pagination
-        page={page}
-        perpage={perpage}
-        totalPages={data.pages}
-        totalItems={data.total}
-        handlePageChange={setPage}
-      />
+      <div className='pb-5 md:pb-0'>
+        <Pagination
+          page={page}
+          perpage={perpage}
+          totalPages={data.pages}
+          totalItems={data.total}
+          handlePageChange={setPage}
+        />
+      </div>
     </div>
   );
 };
