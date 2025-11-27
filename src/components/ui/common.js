@@ -66,7 +66,6 @@ export const InitialLayoutContainer = styled.div`
 
 export const WelcomeSection = styled.div`
   text-align: center;
-  margin-bottom: 2rem;
 `;
 
 export const WelcomeText = styled.p`
@@ -82,12 +81,14 @@ export const InputContainer = styled.div`
   margin-left: auto;
   margin-right: auto;
   display: flex;
-  background-color: #f5f5f5;
-  border-radius: 10px;
-  border: 1px solid #d4d4d4 !important;
+  background-color: #f3f4f6;
+  border-radius: 30px;
+  box-shadow:rgba(31, 41, 55, 0.12) 0px 0px 10px;
 
   .dark & {
-    background-color: inherit !important;
+    background-color: #1f2937 !important;
+    border:1px solid rgba(250, 250, 250, 0.05) !important;
+    box-shadow: none !important;
   }
 `;
 
@@ -101,12 +102,13 @@ export const InputWrapper = styled.div`
   min-height: 3rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  background-color: none !important;
+  border-radius: inherit;
+  padding-bottom: 5px;
   gap: 0.5rem;
   position: relative;
 
   .dark & {
-    background-color: #111827;
+    background-color: #1f2937 !important;
   }
 `;
 
@@ -129,6 +131,7 @@ export const SendButton = styled.button`
   svg {
     width: 1.5rem;
     height: 1.5rem;
+    fill: currentColor;
     background: transparent;
   }
 `;
@@ -345,6 +348,11 @@ export const ClearHistoryButton = styled.button`
   svg {
     height: 1.25rem;
     width: 1.25rem;
+    color: #1e40af;
+  }
+
+  .dark & svg {
+    color: #0284c7;
   }
 `;
 
@@ -862,28 +870,45 @@ export const WizardButtonsContainer = styled.div`
 
 export const WizardButtonStyled = styled.button`
   flex-grow: 1;
-  padding: 0.25rem 0.5rem; /* py-1 px-2 */
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  background-color: #dbeafe; /* bg-blue-100 */
-  color: #1e40af; /* text-blue-800 */
-  border-radius: 0.5rem; /* rounded-lg */
-  transition: background-color 0.2s ease-in-out;
-  box-sizing: border-box;
-  margin-right: 0.125rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(243, 244, 246, 0.7); /* glassy light bg */
+  backdrop-filter: saturate(160%) blur(8px);
+
+  color: #1f2937;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
 
   &:hover {
-    background-color: #bfdbfe; /* hover:bg-blue-200 */
+    background: rgba(229, 231, 235, 0.8); /* slightly brighter */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 
-  /* Dark mode styles (triggered by .dark parent) */
-  .dark & {
-    background-color: rgba(30, 64, 175, 0.38) !important; /* bg-blue-100 */
-    color: #93c5fd; /* dark:text-blue-300 */
+  &:active {
+    background: rgba(209, 213, 219, 0.8);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.05);
+  }
 
-    // &:hover {
-    //   background-color: #1e40af; /* dark:hover:bg-blue-800 */
-    // }
+  /* --- DARK MODE (Grok style) --- */
+  .dark & {
+    background: rgba(55, 65, 81, 0.45); /* gray-700 glass */
+    color: #e5e7eb; /* light text */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:hover {
+      background: rgba(75, 85, 99, 0.55); /* lighter gray hover */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    &:active {
+      background: rgba(31, 41, 55, 0.55);
+      box-shadow: none;
+    }
   }
 `;
 
@@ -908,20 +933,22 @@ export const VoiceButtonStyled = styled.button`
   }
 
   /* Loader spacing */
+
   .loader {
     margin-bottom: 0.25rem; /* mb-1 */
     margin-left: 0.125rem; /* ml-0.5 */
   }
 
   /* Icon */
+
   svg {
     width: 1.25rem; /* w-6 */
     height: 1.25rem; /* h-6 */
-    color: #2563eb; /* text-blue-600 */
+    color: #1e40af;
   }
 
   &:hover {
-    background-color: #dbeafe;
+    background-color: #cecdcd;
   }
 
   .dark &:hover {
@@ -929,14 +956,14 @@ export const VoiceButtonStyled = styled.button`
   }
 
   /* ✅ Dark mode */
+
   .dark & svg {
-    color: #3b82f6; /* dark:text-blue-400 */
+    color: #0284c7;
   }
 `;
 
 export const EditableInput = styled.div`
   width: 100%; /* w-full */
-  background-color: none !important; /* bg-gray-50 */
   color: #1f2937; /* text-gray-800 */
   padding: 0.875rem 0; /* py-3.5 px-2 */
   white-space: pre-wrap; /* whitespace-pre-wrap */
@@ -958,8 +985,8 @@ export const EditableInput = styled.div`
 
   /* Dark mode styles */
   .dark & {
-    background-color: #111827; /* dark:bg-gray-900 */
-    color: #f9fafb; /* dark:text-gray-100 */
+    background-color: #1f2937 !important;
+    color: #f9fafb;
   }
 `;
 
