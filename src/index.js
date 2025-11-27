@@ -7,7 +7,7 @@ import '@contexts/Axios'; // Import axios configuration
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import reportWebVitals from './reportWebVitals';
-import { Provider } from "react-redux";
+import { Provider } from 'react-redux';
 import store from './store';
 import ViewportHeightFix from '@components/ViewportHeightFix';
 
@@ -16,7 +16,7 @@ const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
-    <ViewportHeightFix/>
+    <ViewportHeightFix />
     <Provider store={store}>
       <App />
     </Provider>
@@ -30,6 +30,8 @@ root.render(
       pauseOnFocusLoss
       draggable
       pauseOnHover
+      style={{ zIndex: 9999 }}
+      toastStyle={{ zIndex: 9999 }}
     />
   </React.StrictMode>
 );
