@@ -87,7 +87,7 @@ export const InputContainer = styled.div`
 
   .dark & {
     background-color: #1f2937 !important;
-    border: none !important;
+    border:1px solid rgba(250, 250, 250, 0.05) !important;
     box-shadow: none !important;
   }
 `;
