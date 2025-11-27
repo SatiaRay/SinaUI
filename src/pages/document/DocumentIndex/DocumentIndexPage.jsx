@@ -51,6 +51,13 @@ const DocumentIndexPage = () => {
   }, [isLoading, page, data]);
 
   /**
+   * Auto scroll top on page state change
+   */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [page]);
+
+  /**
    * Delete document api hook
    */
   const [deleteDocument, result] = useDeleteDocumentMutation();
