@@ -4,6 +4,7 @@ export const SkeletonLoading = ({
   rows = 1,
   cols = 1,
   height = 20,
+  width = null,
   containerClassName = 'flex flex-row gap-2 my-3',
   className = '',
 }) => {
@@ -14,6 +15,7 @@ export const SkeletonLoading = ({
       containerClassName={containerClassName}
       className={className}
       height={height}
+      width={width}
     />
   ));
 
