@@ -1,5 +1,5 @@
 // DocumentIndex.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DocumentCard from '../../../components/document/DocumentCard';
 import knowledgeApi, {
   useDeleteDocumentMutation,
@@ -33,7 +33,9 @@ const DocumentIndexPage = () => {
   /**
    * Store documents from request response data to state prop for optimistic mutation
    */
-  if (isSuccess && !documents) setDocuments(data.documents);
+  useEffect(() => {
+    if (isSuccess && data) setDocuments(data.documents);
+  }, [isLoading, page, data]);
 
   /**
    * Delete document api hook
@@ -69,7 +71,7 @@ const DocumentIndexPage = () => {
   /**
    * Display error message when fetching fails
    */
-  if (isError) <p className='text-center'>مشکلی پیش آمده است 🛑</p>;
+  if (isError) <p className="text-center">مشکلی پیش آمده است 🛑</p>;
 
   /**
    * Prevent map documents when it is null
