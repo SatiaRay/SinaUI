@@ -1,6 +1,5 @@
 import { SkeletonLoading } from '../../../components/ui/loading/skeletonLoading';
 import { useDisplay } from '../../../hooks/display';
-import Skeleton from 'react-loading-skeleton';
 
 export const DocumentIndexLoading = () => {
   /**
@@ -12,12 +11,9 @@ export const DocumentIndexLoading = () => {
     <div className="text-center container mx-auto mt-3 md:mt-0 px-3 md:px-0">
       <div className="flex justify-between md:pl-2 mb-6 items-center">
         <h3 className="text-3xl">مستندات</h3>
-
-        <Skeleton
-          baseColor="var(--skeleton-base-color)"
-          highlightColor="var(--skeleton-highlight-color)"
+        <SkeletonLoading
           height={45}
-          className="inline"
+          containerClassName="inline"
           width={110}
         />
       </div>
