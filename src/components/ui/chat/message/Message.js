@@ -26,9 +26,17 @@ const Message = ({ messageId, data }) => {
       {(() => {
         switch (data.type) {
           case 'text':
+            const cleanedData = {
+              ...data,
+              body: data.body
+                .split('\n')
+                .map((line) => line.trim())
+                .filter((line) => line)
+                .join(''),
+            };
             return (
               <TextMessage
-                data={data}
+                data={cleanedData}
                 messageId={messageId}
                 enableCopy={data.role == 'assistant'}
               />
