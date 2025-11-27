@@ -84,11 +84,12 @@ export const InputContainer = styled.div`
   display: flex;
   background-color: #f3f4f6;
   border-radius: 30px;
-  border: 1px solid #d4d4d4 !important;
+  box-shadow:rgba(31, 41, 55, 0.12) 0px 0px 10px;
 
   .dark & {
     background-color: #1f2937 !important;
     border: none !important;
+    box-shadow: none !important;
   }
 `;
 
