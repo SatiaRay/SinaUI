@@ -82,12 +82,13 @@ export const InputContainer = styled.div`
   margin-left: auto;
   margin-right: auto;
   display: flex;
-  background-color: #f5f5f5;
-  border-radius: 10px;
+  background-color: #f3f4f6;
+  border-radius: 30px;
   border: 1px solid #d4d4d4 !important;
 
   .dark & {
-    background-color: inherit !important;
+    background-color: #1f2937 !important;
+    border: 0.5px solid #737373 !important;
   }
 `;
 
@@ -101,12 +102,13 @@ export const InputWrapper = styled.div`
   min-height: 3rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  background-color: none !important;
+  border-radius: inherit;
+  padding-bottom: 5px;
   gap: 0.5rem;
   position: relative;
 
   .dark & {
-    background-color: #111827;
+    background-color: #1f2937 !important;
   }
 `;
 
@@ -129,6 +131,7 @@ export const SendButton = styled.button`
   svg {
     width: 1.5rem;
     height: 1.5rem;
+    fill: currentColor;
     background: transparent;
   }
 `;
@@ -345,6 +348,11 @@ export const ClearHistoryButton = styled.button`
   svg {
     height: 1.25rem;
     width: 1.25rem;
+    color: #1f2937;
+  }
+
+  .dark & svg {
+    color: #9ca3af;
   }
 `;
 
@@ -908,20 +916,22 @@ export const VoiceButtonStyled = styled.button`
   }
 
   /* Loader spacing */
+
   .loader {
     margin-bottom: 0.25rem; /* mb-1 */
     margin-left: 0.125rem; /* ml-0.5 */
   }
 
   /* Icon */
+
   svg {
     width: 1.25rem; /* w-6 */
     height: 1.25rem; /* h-6 */
-    color: #2563eb; /* text-blue-600 */
+    color: #1f2937;
   }
 
   &:hover {
-    background-color: #dbeafe;
+    background-color: #cecdcd;
   }
 
   .dark &:hover {
@@ -929,14 +939,14 @@ export const VoiceButtonStyled = styled.button`
   }
 
   /* ✅ Dark mode */
+
   .dark & svg {
-    color: #3b82f6; /* dark:text-blue-400 */
+    color: #9ca3af;
   }
 `;
 
 export const EditableInput = styled.div`
   width: 100%; /* w-full */
-  background-color: none !important; /* bg-gray-50 */
   color: #1f2937; /* text-gray-800 */
   padding: 0.875rem 0; /* py-3.5 px-2 */
   white-space: pre-wrap; /* whitespace-pre-wrap */
@@ -958,8 +968,8 @@ export const EditableInput = styled.div`
 
   /* Dark mode styles */
   .dark & {
-    background-color: #111827; /* dark:bg-gray-900 */
-    color: #f9fafb; /* dark:text-gray-100 */
+    background-color: #1f2937 !important;
+    color: #f9fafb;
   }
 `;
 
