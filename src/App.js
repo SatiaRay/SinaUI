@@ -41,16 +41,21 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
+import { ThemeProvider } from '@contexts/ThemeContext';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
   return (
     <AuthProvider>
-      {/*<VoiceAgentProvider>*/}
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AppContent />
-      </Router>
-      {/*</VoiceAgentProvider>*/}
+      <ThemeProvider>
+        {/*<VoiceAgentProvider>*/}
+        <Router
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
+          <AppContent />
+        </Router>
+        {/*</VoiceAgentProvider>*/}
+      </ThemeProvider>
     </AuthProvider>
   );
 }
@@ -106,8 +111,8 @@ function AppContent() {
       className={`min-h-screen main-content bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
         isPrivateRoute
           ? sidebarCollapsed
-            ? 'md:mr-0'
-            : 'md:mr-64'
+            ? 'mr-10'
+            : 'mr-10 md:mr-64'
           : 'flex items-center justify-center'
       }`}
     >

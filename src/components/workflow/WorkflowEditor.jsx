@@ -30,6 +30,7 @@ import {
   extractNodes,
   formatNodes,
 } from '@utils/workflowUtility';
+import { useTheme } from '@contexts/ThemeContext';
 
 /**
  * Node type definitions for ReactFlow
@@ -81,6 +82,11 @@ const WorkflowEditorContent = ({
   // Router hooks for navigation and parameters
   const { workflowId } = useParams();
   const navigate = useNavigate();
+
+  /**
+   * Using theme hook
+   */
+  const { theme } = useTheme();
 
   // State management for nodes and edges
   const [nodes, setNodes, onNodesChange] = useNodesState(
@@ -598,7 +604,14 @@ const WorkflowEditorContent = ({
         defaultViewport={{ x: 0, y: 0, zoom: 0.1 }}
       >
         <Controls />
-        {isDesktop && <MiniMap />}
+        {isDesktop && (
+          <MiniMap
+          className={'border dark:border-gray-600 border-gray-300 rounded'}
+          nodeColor={theme === 'dark' ? '#374151' : '#ccc'}
+            maskColor={theme === 'dark' ? '#1F2937' : '#ffffff80'}
+            maskStrokeColor="#ffffff80"
+          />
+        )}
         <Background variant="dots" gap={12} size={1} />
       </ReactFlow>
 
