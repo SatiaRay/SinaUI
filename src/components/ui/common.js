@@ -66,7 +66,6 @@ export const InitialLayoutContainer = styled.div`
 
 export const WelcomeSection = styled.div`
   text-align: center;
-  margin-bottom: 2rem;
 `;
 
 export const WelcomeText = styled.p`
