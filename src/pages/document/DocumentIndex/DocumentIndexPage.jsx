@@ -11,13 +11,26 @@ import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
 import { GoPlusCircle } from 'react-icons/go';
 import { DocumentIndexLoading } from './DocumentIndexLoading';
+import { useDisplay } from 'hooks/display';
 
 const DocumentIndexPage = () => {
+  /**
+   * Display util hook
+   */
+  const { isDesktop, height } = useDisplay();
+
   /**
    * Pagination props
    */
   const [page, setPage] = useState(1);
-  const perpage = 20;
+
+  /**
+   * Pagination per page length
+   * 
+   * Define perpage length according device type for fill client device 
+   * height freee spaces for beauty and better user experince
+   */
+  const perpage = isDesktop ? ((Math.floor(((height - 200) / 115)) * 3)) : 20;
 
   /**
    * List of documents
