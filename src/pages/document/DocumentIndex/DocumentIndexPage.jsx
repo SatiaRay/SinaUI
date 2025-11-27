@@ -10,6 +10,7 @@ import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
 import { GoPlusCircle } from 'react-icons/go';
+import { TbVectorBezier2 } from 'react-icons/tb';
 import { DocumentIndexLoading } from './DocumentIndexLoading';
 
 const DocumentIndexPage = () => {
@@ -69,7 +70,7 @@ const DocumentIndexPage = () => {
   /**
    * Display error message when fetching fails
    */
-  if (isError) <p className='text-center'>مشکلی پیش آمده است 🛑</p>;
+  if (isError) <p className="text-center">مشکلی پیش آمده است 🛑</p>;
 
   /**
    * Prevent map documents when it is null
@@ -90,6 +91,13 @@ const DocumentIndexPage = () => {
         >
           <span>سند جدید</span>
           <GoPlusCircle size={22} className="pr-2 box-content" />
+        </Link>
+        <Link
+          to={'/document/create'}
+          className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+        >
+          <span>جستجوری برداری</span>
+          <TbVectorBezier2 size={22} className="pr-2 box-content" />
         </Link>
       </div>
 
