@@ -40,7 +40,7 @@ const DocumentIndexPage = () => {
   /**
    * Fetch documents list api hook
    */
-  const { data, isLoading, isSuccess, isError, error } =
+  const { data, isFetching, isSuccess, isError, error } =
     knowledgeApi.useGetAllDocumentsQuery({ page, perpage });
 
   /**
@@ -48,7 +48,7 @@ const DocumentIndexPage = () => {
    */
   useEffect(() => {
     if (isSuccess && data) setDocuments(data.documents);
-  }, [isLoading, page, data]);
+  }, [isFetching, page, data]);
 
   /**
    * Auto scroll top on page state change
@@ -86,7 +86,7 @@ const DocumentIndexPage = () => {
   /**
    * Show skeleton loading
    */
-  if (isLoading) return <DocumentIndexLoading />;
+  if (isFetching) return <DocumentIndexLoading />;
 
   /**
    * Display error message when fetching fails
