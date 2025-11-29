@@ -2,72 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Search, Clock, Activity, Database } from 'lucide-react';
 import VectorSearchLoading from './VectorSearchLoading';
 import { VectorDocumentCard } from '@components/document/vector-searching/VectorDocumentCard';
-
-/**
- * Mock data for vector search collections
- * This will be replaced with actual API data later
- */
-const mockVectorData = {
-  items: [
-    {
-      id: 1,
-      title: 'مستندات فنی',
-      description: 'مجموعه‌ای از مستندات فنی و راهنماهای سیستم',
-      status: 'active',
-      documentCount: 1247,
-      lastUpdated: '۲ ساعت پیش',
-      dimensions: 768,
-    },
-    {
-      id: 2,
-      title: 'مقالات علمی',
-      description: 'مقالات و پژوهش‌های علمی در زمینه هوش مصنوعی',
-      status: 'active',
-      documentCount: 856,
-      lastUpdated: '۱ روز پیش',
-      dimensions: 1024,
-    },
-    {
-      id: 3,
-      title: 'پرسش‌های متداول',
-      description: 'پرسش‌های پرتکرار و پاسخ‌های مربوط به سرویس',
-      status: 'inactive',
-      documentCount: 342,
-      lastUpdated: '۳ روز پیش',
-      dimensions: 512,
-    },
-    {
-      id: 4,
-      title: 'مستندات API',
-      description: 'مستندات کامل رابط برنامه‌نویسی نرم‌افزار',
-      status: 'active',
-      documentCount: 567,
-      lastUpdated: '۵ ساعت پیش',
-      dimensions: 768,
-    },
-    {
-      id: 5,
-      title: 'دانش‌پایه داخلی',
-      description: 'اطلاعات و دانش داخلی سازمان و شرکت',
-      status: 'active',
-      documentCount: 2105,
-      lastUpdated: 'هم اکنون',
-      dimensions: 1536,
-    },
-    {
-      id: 6,
-      title: 'مقالات بازاریابی',
-      description: 'محتواهای بازاریابی و معرفی محصولات',
-      status: 'inactive',
-      documentCount: 189,
-      lastUpdated: '۱ هفته پیش',
-      dimensions: 512,
-    },
-  ],
-  total_count: 6,
-  page: 1,
-  total_pages: 1,
-};
+import { useVectorSearchQuery } from 'store/api/knowledgeApi';
+import { skipToken } from '@reduxjs/toolkit/query';
 
 /**
  * VectorSearchingPage Component
@@ -75,7 +11,9 @@ const mockVectorData = {
  * Uses mock data temporarily until API is ready
  */
 const VectorSearchingPage = () => {
-  // State for search parameters
+  /**
+   * State for search parameters
+   */
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
@@ -109,31 +47,28 @@ const VectorSearchingPage = () => {
   };
 
   /**
-   * Mock data filtering based on search query
-   * This will be replaced with actual API call later
+   * Search API - with debounce and minimum character (3)
+   */
+  const isValidQuery = searchQuery && searchQuery.length >= 3;
+  const {
+    data = [],
+    isFetching,
+    isError,
+  } = useVectorSearchQuery(isValidQuery ? searchQuery : skipToken, { skip: !isValidQuery });
+
+  /**
+   * Decide which data to show: API if valid, fallback to mock
    */
   const filteredData = useMemo(() => {
-    if (!searchQuery) {
-      return mockVectorData;
+    if (isValidQuery && data) {
+      return data;
     }
-
-    const filteredItems = mockVectorData.items.filter(
-      (item) =>
-        item.title.includes(searchQuery) ||
-        item.description.includes(searchQuery)
-    );
-
-    return {
-      ...mockVectorData,
-      items: filteredItems,
-      total_count: filteredItems.length,
-    };
-  }, [searchQuery]);
+    return []
+  }, [isValidQuery, data, searchQuery]);
 
   /**
    * Extract vector searches and pagination info from filtered data
    */
-  const vectorSearches = filteredData.items || [];
   const totalPages = filteredData.total_pages || 1;
   const currentPage = filteredData.page || page;
   const totalItems = filteredData.total_count || 0;
@@ -142,8 +77,8 @@ const VectorSearchingPage = () => {
    * Compute variable for define serach result
    */
   const nothingFound = useMemo(
-    () => searchQuery && vectorSearches.length < 0,
-    [searchQuery, vectorSearches]
+    () => searchQuery && data.length < 0,
+    [searchQuery, data]
   );
 
   /**
@@ -155,15 +90,9 @@ const VectorSearchingPage = () => {
     setPage(Math.max(1, Math.min(newPage, totalPages)));
   };
 
-  /**
-   * Mock loading state for demonstration
-   * Remove this when real API is implemented
-   */
-  const [isLoading, setIsLoading] = useState(false);
-
   return (
     <div
-      className={`flex p-3 sm:p-4 md:p-6 overflow-y-auto scrollbar-hide w-full h-full ${searchQuery && vectorSearches.length > 0 ? 'items-start' : 'items-center'}`}
+      className={`flex p-3 sm:p-4 md:p-6 overflow-y-auto scrollbar-hide w-full h-full ${searchQuery && data.length > 0 ? 'items-start' : 'items-center'}`}
     >
       <div className="mx-auto w-full">
         {/* Page Header */}
@@ -178,7 +107,7 @@ const VectorSearchingPage = () => {
 
         {/* Search Bar */}
         <div
-          className={`bg-white dark:bg-gray-800 shadow-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6 border border-gray-200 dark:border-gray-700 mx-auto ${vectorSearches.length > 0 ? 'w-full' : 'w-[75%]'}`}
+          className={`bg-white dark:bg-gray-800 shadow-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6 border border-gray-200 dark:border-gray-700 mx-auto ${data.length > 0 ? 'w-full' : 'w-[75%]'}`}
         >
           <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-start lg:items-center">
             {/* Search Input */}
@@ -211,20 +140,20 @@ const VectorSearchingPage = () => {
         </div>
 
         {/* Results Summary */}
-        {!isLoading && vectorSearches.length > 0 && (
+        {!isFetching && data.length > 0 && (
           <div className="mb-3 sm:mb-4 px-1 sm:px-2">
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              نمایش {vectorSearches.length} مستند از {totalItems} نتیجه
+              نمایش {data.length} مستند از {totalItems} نتیجه
               {searchQuery && ' (جستجو فعال)'}
             </p>
           </div>
         )}
 
         {/* Loading State - Show skeletons for vector searches */}
-        {isLoading && <VectorSearchLoading count={6} />}
+        {isFetching && <VectorSearchLoading count={6} />}
 
         {/* Empty State */}
-        {!isLoading && searchQuery && vectorSearches.length === 0 && (
+        {!isFetching && searchQuery && data.length === 0 && (
           <div className="text-center py-8 sm:py-12">
             <div className="mx-auto w-16 h-16 sm:w-24 sm:h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3 sm:mb-4">
               <Search className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
@@ -249,13 +178,13 @@ const VectorSearchingPage = () => {
         )}
 
         {/* Vector Searches Grid */}
-        {!isLoading && vectorSearches.length > 0 && (
+        {!isFetching && data && data.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-              {vectorSearches.map((collection) => (
+              {data.map((document) => (
                 <VectorDocumentCard
-                  key={collection.id}
-                  collection={collection}
+                  key={document.id}
+                  document={document}
                 />
               ))}
             </div>
