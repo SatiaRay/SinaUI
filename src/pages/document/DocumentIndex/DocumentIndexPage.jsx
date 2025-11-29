@@ -85,20 +85,22 @@ const DocumentIndexPage = () => {
       {/* Page header  */}
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h3 className="text-3xl">مستندات</h3>
-        <Link
-          to={'/document/create'}
-          className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
-        >
-          <span>سند جدید</span>
-          <GoPlusCircle size={22} className="pr-2 box-content" />
-        </Link>
-        <Link
-          to={'/document/vector-search'}
-          className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
-        >
-          <span>جستجوری برداری</span>
-          <TbVectorBezier2 size={22} className="pr-2 box-content" />
-        </Link>
+        <div className='flex flex-row-reverse gap-1'>
+          <Link
+            to={'/document/create'}
+            className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+          >
+            <span>سند جدید</span>
+            <GoPlusCircle size={22} className="pr-2 box-content" />
+          </Link>
+          <Link
+            to={'/document/vector-search'}
+            className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+          >
+            <span>جستجوری برداری</span>
+            <TbVectorBezier2 size={22} className="pr-2 box-content" />
+          </Link>
+        </div>
       </div>
 
       {/* Documents card list */}
