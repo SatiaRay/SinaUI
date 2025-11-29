@@ -93,7 +93,7 @@ const DocumentIndexPage = () => {
           <GoPlusCircle size={22} className="pr-2 box-content" />
         </Link>
         <Link
-          to={'/document/create'}
+          to={'/document/vector-search'}
           className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
           <span>جستجوری برداری</span>

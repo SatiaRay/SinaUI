@@ -228,7 +228,7 @@ function privateRoutes() {
           }
         />
         <Route
-          path="document/VectorSearch"
+          path="document/vector-search"
           element={
             <PrivateRoute>
               <VectorSearchPage />
