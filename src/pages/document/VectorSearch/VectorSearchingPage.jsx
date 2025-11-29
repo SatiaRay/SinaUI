@@ -139,6 +139,14 @@ const VectorSearchingPage = () => {
   const totalItems = filteredData.total_count || 0;
 
   /**
+   * Compute variable for define serach result
+   */
+  const nothingFound = useMemo(
+    () => searchQuery && vectorSearches.length < 0,
+    [searchQuery, vectorSearches]
+  );
+
+  /**
    * Handle page change
    * Updates page state which will trigger refetch when API is ready
    * @param {number} newPage - Target page number
@@ -154,8 +162,10 @@ const VectorSearchingPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto scrollbar-hide">
-      <div className="max-w-[1600px] mx-auto">
+    <div
+      className={`flex p-3 sm:p-4 md:p-6 overflow-y-auto scrollbar-hide w-full h-full ${searchQuery && vectorSearches.length > 0 ? 'items-start' : 'items-center'}`}
+    >
+      <div className="mx-auto w-full">
         {/* Page Header */}
         <div className="text-center mb-4 sm:mb-6">
           <h1 className="text-xl sm:text-2xl font-bold dark:text-white mb-2">
@@ -167,14 +177,16 @@ const VectorSearchingPage = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6 border border-gray-200 dark:border-gray-700">
+        <div
+          className={`bg-white dark:bg-gray-800 shadow-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6 border border-gray-200 dark:border-gray-700 mx-auto ${vectorSearches.length > 0 ? 'w-full' : 'w-[75%]'}`}
+        >
           <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-start lg:items-center">
             {/* Search Input */}
             <div className="flex-1 relative min-w-0 w-full">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="جستجو در مستندات..."
+                placeholder="متن یا سوال مورد نظر را وارد کنید ..."
                 value={localSearchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 className="w-full pl-3 pr-9 sm:pr-10 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl
@@ -212,7 +224,7 @@ const VectorSearchingPage = () => {
         {isLoading && <VectorSearchLoading count={6} />}
 
         {/* Empty State */}
-        {!isLoading && vectorSearches.length === 0 && (
+        {!isLoading && searchQuery && vectorSearches.length === 0 && (
           <div className="text-center py-8 sm:py-12">
             <div className="mx-auto w-16 h-16 sm:w-24 sm:h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3 sm:mb-4">
               <Search className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
@@ -241,7 +253,10 @@ const VectorSearchingPage = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               {vectorSearches.map((collection) => (
-                <VectorDocumentCard key={collection.id} collection={collection} />
+                <VectorDocumentCard
+                  key={collection.id}
+                  collection={collection}
+                />
               ))}
             </div>
 
