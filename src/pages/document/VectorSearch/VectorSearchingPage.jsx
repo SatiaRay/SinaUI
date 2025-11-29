@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Search, Clock, Activity, Database } from 'lucide-react';
+import { Search } from 'lucide-react';
 import VectorSearchLoading from './VectorSearchLoading';
 import { VectorDocumentCard } from '@components/document/vector-searching/VectorDocumentCard';
 import { useVectorSearchQuery } from 'store/api/knowledgeApi';
@@ -54,7 +54,9 @@ const VectorSearchingPage = () => {
     data = [],
     isFetching,
     isError,
-  } = useVectorSearchQuery(isValidQuery ? searchQuery : skipToken, { skip: !isValidQuery });
+  } = useVectorSearchQuery(isValidQuery ? searchQuery : skipToken, {
+    skip: !isValidQuery,
+  });
 
   /**
    * Decide which data to show: API if valid, fallback to mock
@@ -74,7 +76,6 @@ const VectorSearchingPage = () => {
    */
   const totalPages = filteredData.total_pages || 1;
   const currentPage = filteredData.page || page;
-  const totalItems = filteredData.total_count || 0;
 
   /**
    * Compute variable for define serach result
@@ -184,10 +185,7 @@ const VectorSearchingPage = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               {data.map((document) => (
-                <VectorDocumentCard
-                  key={document.id}
-                  document={document}
-                />
+                <VectorDocumentCard key={document.id} document={document} />
               ))}
             </div>
 
