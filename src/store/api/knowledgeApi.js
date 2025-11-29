@@ -8,7 +8,7 @@ const knowledgeApi = createApi({
 
     prepareHeaders: (headers, { getState }) => {
       // Example: get token from Redux state (adjust to your store shape)
-      const token = localStorage.getItem('khan-access-token')
+      const token = localStorage.getItem('khan-access-token');
 
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
@@ -20,40 +20,51 @@ const knowledgeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Document'],
+  tagTypes: ['Document', 'VectorSearch'],
   endpoints: (builder) => ({
+    vectorSearch: builder.query({
+      query: (query) => `/search?query=${query}`,
+      providesTags: (result, error, arg) => [{ type: 'VectorSearch', query: arg }]
+    }),
     getAllDocuments: builder.query({
-      query: ({perpage, page}) => `/?perpage=${perpage}&page=${page}`,
+      query: ({ perpage, page }) => `/?perpage=${perpage}&page=${page}`,
       providesTags: (result, error, arg) =>
         result
-          ? [...result.documents.map(({ id }) => ({ type: 'Document', id })), { type: 'Document', page: arg.page, perpage: arg.perpage}]
-          : [{ type: 'Document', page: arg.page, perpage: arg.perpage}],
+          ? [
+              ...result.documents.map(({ id }) => ({ type: 'Document', id })),
+              { type: 'Document', page: arg.page, perpage: arg.perpage },
+            ]
+          : [{ type: 'Document', page: arg.page, perpage: arg.perpage }],
     }),
     getDocument: builder.query({
-      query: ({id}) => `/${id}`,
-      providesTags: (result, error, arg) =>
-        [{ type: 'Document', id: result.id }]
+      query: ({ id }) => `/${id}`,
+      providesTags: (result, error, arg) => [
+        { type: 'Document', id: result.id },
+      ],
     }),
     storeDocument: builder.mutation({
       query: (data) => ({
         url: `/`,
         method: 'POST',
-        body: data
+        body: data,
       }),
       invalidatesTags: ['Document'],
     }),
     updateDocument: builder.mutation({
-      query: ({id, data}) => ({
+      query: ({ id, data }) => ({
         url: `/${id}`,
         method: 'PUT',
-        body: data
+        body: data,
       }),
-      invalidatesTags: (result, error, arg) => [{ type: 'Document', id: arg.id }, 'Document'],
+      invalidatesTags: (result, error, arg) => [
+        { type: 'Document', id: arg.id },
+        'Document',
+      ],
     }),
     deleteDocument: builder.mutation({
       query: (id) => ({
         url: `/${id}`,
-        method: 'DELETE'
+        method: 'DELETE',
       }),
       invalidatesTags: ['Document'],
     }),
@@ -62,4 +73,11 @@ const knowledgeApi = createApi({
 
 export default knowledgeApi;
 
-export const { useGetAllDocumentsQuery, useGetDocumentQuery, useUpdateDocumentMutation, useDeleteDocumentMutation, useStoreDocumentMutation } = knowledgeApi;
+export const {
+  useVectorSearchQuery,
+  useGetAllDocumentsQuery,
+  useGetDocumentQuery,
+  useUpdateDocumentMutation,
+  useDeleteDocumentMutation,
+  useStoreDocumentMutation,
+} = knowledgeApi;

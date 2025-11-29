@@ -7,7 +7,12 @@ import {
   useLocation,
 } from 'react-router-dom';
 import Chat from './components/chat/Chat';
-import { CreateDocument, DocumentIndex, EditDocument } from './pages/document';
+import {
+  CreateDocument,
+  DocumentIndex,
+  EditDocument,
+  VectorSearchingPage,
+} from './pages/document';
 import {
   WorkflowIndexPage,
   EditWorkflowPage,
@@ -219,6 +224,14 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <EditDocument />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="document/vector-search"
+          element={
+            <PrivateRoute>
+              <VectorSearchingPage />
             </PrivateRoute>
           }
         />
