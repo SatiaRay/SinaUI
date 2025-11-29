@@ -11,7 +11,7 @@ import {
   CreateDocument,
   DocumentIndex,
   EditDocument,
-  VectorSearchPage,
+  VectorSearchingPage,
 } from './pages/document';
 import {
   WorkflowIndexPage,
@@ -231,7 +231,7 @@ function privateRoutes() {
           path="document/vector-search"
           element={
             <PrivateRoute>
-              <VectorSearchPage />
+              <VectorSearchingPage />
             </PrivateRoute>
           }
         />

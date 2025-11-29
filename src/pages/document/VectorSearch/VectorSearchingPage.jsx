@@ -70,11 +70,11 @@ const mockVectorData = {
 };
 
 /**
- * VectorSearchPage Component
+ * VectorSearchingPage Component
  * Displays vector search collections with search functionality
  * Uses mock data temporarily until API is ready
  */
-const VectorSearchPage = () => {
+const VectorSearchingPage = () => {
   // State for search parameters
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -291,4 +291,4 @@ const VectorSearchPage = () => {
   );
 };
 
-export default VectorSearchPage;
+export default VectorSearchingPage;
