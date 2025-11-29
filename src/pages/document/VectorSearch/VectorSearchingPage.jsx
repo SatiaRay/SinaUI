@@ -60,10 +60,13 @@ const VectorSearchingPage = () => {
    * Decide which data to show: API if valid, fallback to mock
    */
   const filteredData = useMemo(() => {
+    if (!searchQuery) {
+      return [];
+    }
     if (isValidQuery && data) {
       return data;
     }
-    return []
+    return [];
   }, [isValidQuery, data, searchQuery]);
 
   /**
@@ -140,11 +143,10 @@ const VectorSearchingPage = () => {
         </div>
 
         {/* Results Summary */}
-        {!isFetching && data.length > 0 && (
+        {!isFetching && isValidQuery && data.length > 0 && (
           <div className="mb-3 sm:mb-4 px-1 sm:px-2">
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              نمایش {data.length} مستند از {totalItems} نتیجه
-              {searchQuery && ' (جستجو فعال)'}
+              {`${data.length} سند یافت شد.`}
             </p>
           </div>
         )}
@@ -178,7 +180,7 @@ const VectorSearchingPage = () => {
         )}
 
         {/* Vector Searches Grid */}
-        {!isFetching && data && data.length > 0 && (
+        {!isFetching && isValidQuery && data && data.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               {data.map((document) => (
