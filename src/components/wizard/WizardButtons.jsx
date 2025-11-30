@@ -1,25 +1,26 @@
 import React, { useMemo } from 'react';
 import { WizardButtonsContainer } from '../ui/common';
 import WizardButton from './WizardButton';
-import { useChat } from '../../contexts/ChatContext'; 
+import { useChat } from '../../contexts/ChatContext';
 
-/**
- * WizardButtons — render a list of wizard buttons
- */
 const WizardButtons = ({ wizards, onWizardSelect }) => {
   const { wizardPath, handleWizardBack } = useChat();
 
   const wizardsToShow = useMemo(() => {
-    if (wizardPath.length === 0) return wizards;
+    const list = [...wizards];
 
-    const backWizard = {
-      id: '__back__',
-      title: 'بازگشت',
-      __type: 'back',
-    };
+    if (wizardPath.length > 0) {
+      const backButton = {
+        id: '__back__',
+        title: 'بازگشت',
+        icon: '←',
+        __type: 'back',
+      };
+      list.unshift(backButton); 
+    }
 
-    return [backWizard, ...wizards];
-  }, [wizardPath.length, wizards]);
+    return list;
+  }, [wizards, wizardPath.length]);
 
   const handleSelect = (wizard) => {
     if (wizard?.__type === 'back') {

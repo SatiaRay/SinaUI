@@ -25,6 +25,7 @@ export const ChatProvider = ({ children }) => {
   const [optionMessageTriggered, setOptionMessageTriggered] = useState(false);
   const [history, setHistory] = useState({ ids: [], entities: {} });
   const [wizardPath, setWizardPath] = useState([]);
+  const [visitedWizardIds, setVisitedWizardIds] = useState(new Set());
   const auth = useAuth();
   const token = auth?.token;
 
@@ -326,39 +327,40 @@ export const ChatProvider = ({ children }) => {
   };
 
   /**
+   * Mark wizard as visited to prevent duplicate triggers
+   */
+  const markWizardAsVisited = (id) =>
+    setVisitedWizardIds(p => new Set(p).add(id));
+
+  /**
    * Resets wizard navigation to the root level
    */
   const resetWizardToRoot = () => {
     setWizardPath([]);
     setCurrentWizards(rootWizards);
   };
-  
+
   /**
-   * Navigates one level deeper in the wizard hierarchy
+   * Navigates one level deeper in the wizard hierarchy 
    * @param {object} wizardData 
    */
-  const goToChildren = (wizardData) => {
-    setWizardPath((prev) => [...prev, wizardData]);
-    setCurrentWizards(wizardData.children);
+  const goToChildren = (w) => {
+    setWizardPath(p => [...p, w]);
+    setCurrentWizards(w.children);
   };
-  
+
   /**
    * Handles wizard back navigation (one level up)
    */
   const handleWizardBack = () => {
-    setWizardPath((prev) => {
-      if (prev.length === 0) return prev;
-
-      const newPath = prev.slice(0, -1);
-
-      if (newPath.length === 0) {
-        setCurrentWizards(rootWizards);
-      } else {
-        const parent = newPath[newPath.length - 1];
-        setCurrentWizards(parent.children || []);
+    setWizardPath(p => {
+      if (p.length <= 1) { 
+        resetWizardToRoot();
+        return [];
       }
-
-      return newPath;
+      const np = p.slice(0, -1);
+      setCurrentWizards(np.at(-1)?.children || []);
+      return np;
     });
   };
 
@@ -366,39 +368,29 @@ export const ChatProvider = ({ children }) => {
    * Handles wizard selection
    * @param {object} wizardData selected wizard data
    */
-  const handleWizardSelect = (wizardData) => {
-    if (wizardData?.__type === 'back') {
-      handleWizardBack();
-      return;
-    }
-  
-    if (wizardData.wizard_type === 'question') {
-      sendMessage(stripHtmlTags(wizardData.context));
-      return;
-    }
-    sendData({ event: 'wizard', wizard_id: wizardData.id });
+  const handleWizardSelect = (w) => {
+    if (w?.__type === 'back') return handleWizardBack();
 
-    const children = wizardData.children;
-
-    const hasChildren =
-      Array.isArray(children) && children.length > 0;
-
-    const isLeaf =
-      (Array.isArray(children) && children.length === 0) ||
-      ((children == null) && wizardPath.length > 0);
-  
-    if (hasChildren) {
-      goToChildren(wizardData);
-      return;
+    if (w.wizard_type === 'question') {
+      sendMessage(stripHtmlTags(w.context));
+      return resetWizardToRoot();
     }
-  
-    if (isLeaf) {
-      setTimeout(resetWizardToRoot, 400);
+
+    const { id, children = [] } = w;
+
+    if (!visitedWizardIds.has(id)) {
+      sendData({ event: 'wizard', wizard_id: id });
+      markWizardAsVisited(id);
     }
+
+    return children.length
+      ? goToChildren(w)
+      : setTimeout(resetWizardToRoot, 500);
   };
-  
+
   const clearHistory = () => {
     setHistory({ ids: [], entities: {} });
+    setVisitedWizardIds(new Set());
     localStorage.removeItem('chat_session_id');
     setWizardPath([]); 
     if (socketRef.current) {
