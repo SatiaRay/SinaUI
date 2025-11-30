@@ -47,11 +47,10 @@ body {
   display: none; /* Chrome, Safari, Opera */
 }
 
-.main-content .ck.ck-editor__top {
+.ck.ck-editor__top {
   position: sticky !important;
   top: 0 !important;
   z-index: 10 !important; 
-  background: inherit !important;
 }
 
 .dark .ck.ck-editor__editable_inline {
