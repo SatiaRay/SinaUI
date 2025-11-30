@@ -76,8 +76,18 @@ body {
 }
 
 .dark .ck.ck-dropdown__panel .ck.ck-button,
-.dark .ck.ck-dropdown__panel .ck.ck-button__label {
-  color: white !important;
+.dark .ck.ck-dropdown__panel .ck.ck-button__label,
+.dark .ck.ck-dropdown__panel .ck-list__item > .ck-button {
+  background: #374151 !important;
+}
+
+.dark .ck.ck-dropdown__panel .ck-list__item:hover > .ck-button,
+.dark .ck.ck-dropdown__panel .ck.ck-button:hover {
+  background: #1f2937 !important;
+}
+
+.dark .ck.ck-dropdown__panel .ck-list__item:hover .ck-button__label {
+  background: transparent !important;
 }
 
 .dark .ck.ck-input-text {
