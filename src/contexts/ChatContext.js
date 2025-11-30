@@ -42,6 +42,7 @@ export const ChatProvider = ({ children }) => {
   const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const socketRef = useRef(null);
+  const lastInputTypeRef = useRef('text');
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -200,24 +201,32 @@ export const ChatProvider = ({ children }) => {
    * @returns sent message object
    */
   const sendMessage = async (text) => {
-    if (socketRef.current) {
-      const userMessage = {
-        type: 'text',
-        body: text,
-        role: 'user',
-        created_at: new Date().toISOString().slice(0, 19),
-      };
-
-      addNewMessage(userMessage);
-
-      socketRef.current.send(
-        JSON.stringify({
-          event: 'text',
-          text,
-        })
-      );
+    lastInputTypeRef.current = 'text';
+    if (!socketRef.current) return;
+  
+    if (wizardPath.length > 0) {
+      clearWizardMessagesFromHistory();
+      resetWizardToRoot();
+      setVisitedWizardIds(new Set());
     }
+  
+    const userMessage = {
+      type: 'text',
+      body: text,
+      role: 'user',
+      created_at: new Date().toISOString().slice(0, 19),
+    };
+  
+    addNewMessage(userMessage);
+  
+    socketRef.current.send(
+      JSON.stringify({
+        event: 'text',
+        text,
+      })
+    );
   };
+  
 
   /**
    * Uploads image to the socket channel
@@ -327,6 +336,17 @@ export const ChatProvider = ({ children }) => {
   };
 
   /**
+   * Removes all wizard-related messages from chat history.
+   */
+  const clearWizardMessagesFromHistory = () => {
+    setHistory(prev => {
+      const ids = prev.ids.filter(id => !prev.entities[id]?.fromWizard);
+      const entities = ids.reduce((a, id) => (a[id] = prev.entities[id], a), {});
+      return { ids, entities };
+    });
+  };  
+
+  /**
    * Mark wizard as visited to prevent duplicate triggers
    */
   const markWizardAsVisited = (id) =>
@@ -369,6 +389,7 @@ export const ChatProvider = ({ children }) => {
    * @param {object} wizardData selected wizard data
    */
   const handleWizardSelect = (w) => {
+    lastInputTypeRef.current = 'wizard';
     if (w?.__type === 'back') return handleWizardBack();
 
     if (w.wizard_type === 'question') {
@@ -435,6 +456,7 @@ export const ChatProvider = ({ children }) => {
     chatContainerRef,
     chatEndRef,
     socketRef,
+    lastInputTypeRef,
     getSessionId,
     loadRootWizards,
     loadHistory,
