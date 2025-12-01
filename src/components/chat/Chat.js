@@ -365,6 +365,7 @@ const Chat = ({ services = null }) => {
     clearHistory,
     chatContainerRef,
     chatEndRef,
+    lastInputTypeRef,
     sendMessage,
     setService,
     handleWizardSelect,
@@ -616,6 +617,7 @@ const Chat = ({ services = null }) => {
       type: 'option',
       role: 'assistant',
       metadata: optionInfo,
+      fromWizard: true,
       created_at: new Date().toISOString().slice(0, 19),
     };
     addNewMessage(optionMessage);
@@ -628,6 +630,7 @@ const Chat = ({ services = null }) => {
   const socketOnMessageHandler = (event) => {
     try {
       const data = JSON.parse(event.data);
+      console.log('server message:', data);
       if (data.event) {
         switch (data.event) {
           case 'loading':
@@ -721,6 +724,7 @@ const Chat = ({ services = null }) => {
           type: 'text',
           body: '',
           role: 'assistant',
+          fromWizard: lastInputTypeRef.current === 'wizard', 
           created_at: new Date().toISOString().slice(0, 19),
         });
       }
