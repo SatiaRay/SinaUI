@@ -68,6 +68,17 @@ const EditWizardPage = () => {
   }, [isUpdateSuccess, navigate]);
 
   /**
+   * Handle go to previous route
+   */
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/wizard');
+    }
+  };
+  
+  /**
    * Handle update
    */
   const handleUpdate = () => {
@@ -120,7 +131,8 @@ const EditWizardPage = () => {
               {isUpdating ? <Sppiner size={8} /> : 'ذخیره'}
             </button>
             <Link
-              to="/wizard"
+              type="button"
+              onClick={handleBack}
               className="px-6 py-3 max-md:w-1/2 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               بازگشت
