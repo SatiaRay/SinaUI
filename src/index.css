@@ -47,6 +47,12 @@ body {
   display: none; /* Chrome, Safari, Opera */
 }
 
+.ck.ck-editor__top {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important; 
+}
+
 .dark .ck.ck-editor__editable_inline {
   background: #1f2937 !important;
   color: #f9fafb !important;
