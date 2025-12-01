@@ -286,9 +286,9 @@ const WorkflowIndexPage = () => {
           </div>
         )}
 
-        {/* Workflow cards grid - 3 cards per row */}
+        {/* Workflow cards grid - 2 cards per row on tablet, 3 on desktop */}
         {workflows.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {workflows.map((workflow) => (
               <WorkflowCard
                 key={workflow.id}
