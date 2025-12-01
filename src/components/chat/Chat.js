@@ -724,7 +724,7 @@ const Chat = ({ services = null }) => {
           type: 'text',
           body: '',
           role: 'assistant',
-          fromWizard: lastInputTypeRef.current === 'wizard', 
+          fromWizard: lastInputTypeRef.current === 'wizard',
           created_at: new Date().toISOString().slice(0, 19),
         });
       }
@@ -894,13 +894,16 @@ const Chat = ({ services = null }) => {
               </LoadingBotResponse>
             )}
 
-            {/* 50% viewport height empty space */}
+            {/* Dynamic empty space based on chat container height */}
             <div
               style={{
-                height: '50vh', // Exactly 50% of viewport height
-                minHeight: '50vh',
+                height: chatContainerRef.current
+                  ? `${Math.max(100, chatContainerRef.current.clientHeight * 0.5)}px`
+                  : '50vh', // Fallback
+                minHeight: '100px',
                 width: '100%',
                 flexShrink: 0,
+                pointerEvents: 'none', // Prevent interaction
               }}
             />
             <ChatEndRef ref={chatEndRef} />
