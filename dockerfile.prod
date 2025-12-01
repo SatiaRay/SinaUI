@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN npm install -g pnpm
 RUN pnpm install
 COPY . .
-RUN npm run build
+RUN pnpm run build
  
 # Production Stage
 FROM nginx:stable-alpine AS production
