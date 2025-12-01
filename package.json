@@ -79,7 +79,8 @@
   "scripts": {
     "start": "craco start",
     "start:widget": "cross-env REACT_APP_WIDGET=true npx craco start",
-    "build": "craco build && rollup -c",
+    "build": "craco build",
+    "build:full": "craco build && rollup -c",
     "build:widget": "REACT_APP_WIDGET=true craco build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
