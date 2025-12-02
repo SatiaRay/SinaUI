@@ -135,7 +135,7 @@ const InstructionCard = ({ instruction, handleDelete }) => {
         <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <FaEdit className="text-blue-500 w-4 h-4" />
+              <FaEdit className="text-gray-500 w-4 h-4" />
               <span>آخرین بروزرسانی:</span>
               <span className="font-medium text-gray-700 dark:text-gray-300">
                 {new Date(instruction.updated_at).toLocaleDateString('fa-IR')}
