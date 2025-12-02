@@ -71,10 +71,10 @@ const EditWizardPage = () => {
    * Handle go to previous route
    */
   const handleBack = () => {
-    if (window.history.state && window.history.state.idx > 0) {
+    if (window.history.length > 1) {
       navigate(-1);
     } else {
-      navigate('/wizard');
+      navigate('/wizard', { replace: true });
     }
   };
   
