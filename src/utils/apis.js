@@ -3,7 +3,7 @@ import axios from '../contexts/Axios';
 // API Base URL
 const BASE_URL = process.env.REACT_APP_AI_SERVICE;
 const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
-const IPD_SERVICE_URL = process.env.REACT_APP_IPD_SERVICE;
+const IPD_SERVICE_URL = process.env.REACT_APP_IDP_SERVICE;
 const KNOWLEDGE_SERVICE_URL = process.env.REACT_APP_KNOWLEDGE_SERVICE;
 
 // Errors helpers (moved from services/api.js)
