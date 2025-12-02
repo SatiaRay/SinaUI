@@ -1,7 +1,7 @@
 import axios from '../contexts/Axios';
 
 // API Base URL
-const BASE_URL = process.env.REACT_APP_CHAT_API_URL;
+const BASE_URL = process.env.REACT_APP_AI_SERVICE;
 const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
 const IPD_SERVICE_URL = process.env.REACT_APP_IPD_SERVICE;
 const KNOWLEDGE_SERVICE_URL = process.env.REACT_APP_KNOWLEDGE_SERVICE;
@@ -587,7 +587,7 @@ export const chatEndpoints = {
   getChatHistory: async (sessionId, offset, limit) => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_CHAT_API_URL}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`
+        `${process.env.REACT_APP_AI_SERVICE}/chat/history/${sessionId}?offset=${offset}&limit=${limit}`
       );
       return response.data;
     } catch (error) {
