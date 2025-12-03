@@ -27,8 +27,8 @@ jobs:
           id: vars
           run: |
             SHORT_SHA=$(git rev-parse --short HEAD)
-            echo "image=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:$SHORT_SHA" >> $GITHUB_OUTPUT
-            echo "image_latest=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
+            echo "image=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:$SHORT_SHA" >> $GITHUB_OUTPUT
+            echo "image_latest=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
             echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
         - name: Set up QEMU (for multi-platform if needed later)
