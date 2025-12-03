@@ -103,6 +103,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
       - name: Run Semantic Release (no npm install, instant)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
