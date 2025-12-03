@@ -1,221 +1,278 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import {
+  UserPlus,
+  Shield,
+  CalendarDays,
+  Layers3,
+  UserCheck,
+} from 'lucide-react';
+import { GoPlusCircle } from 'react-icons/go';
 
 /**
- * Overview tab section
+ * Tabs config
  */
-export const OverviewSection = ({ workspace }) => {
-  if (!workspace) return null;
+export const TABS = [
+  { key: 'overview', label: 'نمای کلی' },
+  { key: 'members', label: 'اعضا' },
+  { key: 'billing', label: 'صورتحساب' },
+  { key: 'danger', label: 'بخش خطرناک' },
+];
 
-  const rows = [
-    { label: 'نام فضای کاری', value: workspace.name },
-    { label: 'پلن', value: workspace.plan?.toUpperCase() },
-    { label: 'تاریخ ایجاد', value: workspace.created_at },
-    { label: 'نقش شما', value: roleLabel(workspace.my_role) },
-  ];
+/**
+ * InfoRow 
+ */
+export const InfoRow = ({ label, value, variant = 'default', icon }) => {
+  const valueNode =
+    variant === 'badge-blue' ? (
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold
+                       bg-blue-50 text-blue-700 border border-blue-100
+                       dark:bg-blue-900/20 dark:text-blue-200 dark:border-blue-800/50">
+        {value || '—'}
+      </span>
+    ) : variant === 'badge-gray' ? (
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold
+                       bg-gray-100 text-gray-800 border border-gray-200
+                       dark:bg-gray-700/50 dark:text-gray-100 dark:border-gray-600">
+        {value || '—'}
+      </span>
+    ) : (
+      <span className="text-base md:text-lg font-extrabold text-gray-900 dark:text-white">
+        {value || '—'}
+      </span>
+    );
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 md:p-5 space-y-2">
-      {rows.map((r) => (
-        <div
-          key={r.label}
-          className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700/40"
-        >
-          <span className="text-xs md:text-sm text-gray-600 dark:text-gray-300">
-            {r.label}
+    <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl
+                    bg-white/70 dark:bg-gray-800/50
+                    border border-gray-200/70 dark:border-gray-700/60
+                    hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+      <div className="flex items-center gap-2">
+        {icon && (
+          <span className="w-8 h-8 flex items-center justify-center rounded-lg
+                           bg-gray-100 dark:bg-gray-700/60 text-gray-500 dark:text-gray-200">
+            {icon}
           </span>
-          <span className="text-sm md:text-base font-semibold text-gray-900 dark:text-white">
-            {r.value || '—'}
-          </span>
-        </div>
-      ))}
+        )}
+        <span className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300">
+          {label}
+        </span>
+      </div>
+      {valueNode}
     </div>
   );
 };
 
 /**
- * Members tab section 
+ * Overview tab section
  */
-export const MembersSection = ({
-  members = [],
-  isAdmin,
-  onInvite = () => {},
-  onRoleChange = () => {},
-  onRemove = () => {},
-}) => (
-  <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-    {/* Header */}
-    <div className="p-4 md:p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-      <h4 className="text-lg md:text-xl font-semibold">اعضا</h4>
-      {isAdmin && (
-        <button
-          onClick={onInvite}
-          className="pr-4 pl-3 py-2 md:py-3 rounded-lg font-medium transition-all
-                     bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
-        >
-          دعوت عضو
-        </button>
-      )}
-    </div>
+export const OverviewSection = ({ workspace }) => (
+  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 md:p-6
+                  border border-gray-200 dark:border-gray-700">
+    <h4 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+      <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+        <Layers3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+      </div>
+      اطلاعات فضای کاری
+    </h4>
 
-    {/* Desktop table */}
-    <div className="hidden md:block">
-      <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
-        <thead className="bg-neutral-200 dark:bg-gray-700">
-          <tr>
-            {['نام', 'ایمیل', 'نقش', 'تاریخ عضویت', 'عملیات'].map((h) => (
-              <th
-                key={h}
-                className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+    <div className="grid grid-cols-1 gap-3">
+      <InfoRow
+        label="نام فضای کاری"
+        value={workspace.name}
+        icon={<Shield className="w-4 h-4" />}
+      />
+      <InfoRow
+        label="پلن"
+        value={workspace.plan?.toUpperCase()}
+        variant="badge-blue"
+        icon={<Layers3 className="w-4 h-4" />}
+      />
+      <InfoRow
+        label="تاریخ ایجاد"
+        value={workspace.created_at}
+        icon={<CalendarDays className="w-4 h-4" />}
+      />
+      <InfoRow
+        label="نقش شما"
+        value={workspace.my_role === 'owner' ? 'مالک' : workspace.my_role}
+        variant="badge-gray"
+        icon={<UserCheck className="w-4 h-4" />}
+      />
+    </div>
+  </div>
+);
+
+/**
+ * Members tab section
+ */
+export const MembersSection = ({ members = [], workspace, setMembers }) => {
+  const isAdmin =
+    workspace?.my_role === 'owner' || workspace?.my_role === 'admin';
+
+  const [search, setSearch] = useState('');
+
+  const filteredMembers = useMemo(() => {
+    if (!search.trim()) return members;
+    const q = search.toLowerCase();
+    return members.filter(
+      (m) =>
+        m.name?.toLowerCase().includes(q) ||
+        m.email?.toLowerCase().includes(q)
+    );
+  }, [members, search]);
+
+  /**
+   * initials avatar 
+   */
+  const initials = (name = '') => {
+    const parts = name.trim().split(' ');
+    return (
+      (parts[0]?.[0] || '') + (parts[1]?.[0] || '')
+    ).toUpperCase() || 'U';
+  };
+
+  /**
+   * Mock handlers (no api yet)
+   */
+  const handleInvite = () => {};
+  const handleRoleChange = () => {};
+  const handleRemove = () => {};
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 md:p-6
+                    border border-gray-200 dark:border-gray-700">
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+          <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+            <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          </div>
+          اعضای فضای کاری
+        </h4>
+
+        {isAdmin && (
+          <button
+            onClick={handleInvite}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl
+                       font-medium transition-all duration-200 shadow-lg hover:shadow-xl
+                       inline-flex items-center gap-2 flex-row-reverse"
+          >
+            دعوت عضو جدید
+            <GoPlusCircle size={22} className="box-content" />
+          </button>
+        )}
+      </div>
+
+      {/* Search */}
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="جستجوی عضو..."
+        className="w-full sm:w-72 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600
+                   bg-white dark:bg-gray-700 text-sm text-gray-900 dark:text-white
+                   focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+      />
+
+      {/* Members list */}
+      <div className="grid grid-cols-1 gap-3">
+        {filteredMembers.map((m) => (
+          <div
+            key={m.id}
+            className="relative flex items-center gap-3 px-4 py-3 rounded-xl border
+                      border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800
+                      hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors"
+          >
+            {/* Right: avatar + name/email */}
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold
+                          bg-blue-50 text-blue-600 border border-blue-100
+                          dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/40
+                          flex-shrink-0"
               >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          {members.map((m) => {
-            const canEdit = isAdmin && m.role !== 'owner';
-            const canRemove = isAdmin && m.role !== 'owner';
-
-            return (
-              <tr key={m.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                <td className="px-4 py-4 text-sm text-gray-900 dark:text-white">
-                  {m.name || '—'}
-                </td>
-                <td className="px-4 py-4 text-sm text-gray-700 dark:text-gray-200">
-                  {m.email || '—'}
-                </td>
-
-                <td className="px-4 py-4 text-sm">
-                  {canEdit ? (
-                    <select
-                      value={m.role}
-                      onChange={(e) => onRoleChange(m.id, e.target.value)}
-                      className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1
-                                 bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="admin">ادمین</option>
-                      <option value="member">عضو</option>
-                    </select>
-                  ) : (
-                    <Badge>{roleLabel(m.role)}</Badge>
+                {initials(m.name)}
+              </div>
+          
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm md:text-[15px] font-bold text-gray-900 dark:text-white truncate">
+                    {m.name || '—'}
+                  </p>
+                  {m.role === 'owner' && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full
+                                    bg-blue-100 text-blue-700
+                                    dark:bg-blue-900/30 dark:text-blue-200">
+                      مالک
+                    </span>
                   )}
-                </td>
-
-                <td className="px-4 py-4 text-sm text-gray-700 dark:text-gray-200">
-                  {m.joined_at || '—'}
-                </td>
-
-                <td className="px-4 py-4 text-sm">
-                  {canRemove ? (
-                    <button
-                      onClick={() => onRemove(m.id)}
-                      className="text-red-500 hover:text-red-700 border border-red-500
-                                 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors"
-                    >
-                      حذف
-                    </button>
-                  ) : (
-                    '—'
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-
-    {/* Mobile cards */}
-    <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
-      {members.map((m) => {
-        const canEdit = isAdmin && m.role !== 'owner';
-        const canRemove = isAdmin && m.role !== 'owner';
-
-        return (
-          <div key={m.id} className="p-3 space-y-2">
-            <Row label="نام" value={m.name} />
-            <Row label="ایمیل" value={m.email} />
-
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-500 dark:text-gray-400">نقش</span>
-              {canEdit ? (
-                <select
-                  value={m.role}
-                  onChange={(e) => onRoleChange(m.id, e.target.value)}
-                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1
-                             bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="admin">ادمین</option>
-                  <option value="member">عضو</option>
-                </select>
-              ) : (
-                <Badge>{roleLabel(m.role)}</Badge>
-              )}
+                </div>
+                <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                  {m.email}
+                </p>
+              </div>
             </div>
-
-            <Row label="تاریخ عضویت" value={m.joined_at} />
-
-            {canRemove && (
-              <div className="pt-2 flex justify-end">
+          
+            {/* meta */}
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold leading-none
+                              bg-gray-100 text-gray-800
+                              dark:bg-gray-700 dark:text-gray-200 whitespace-nowrap">
+                {m.role === 'owner' ? 'مالک' : m.role === 'admin' ? 'ادمین' : 'عضو'}
+              </span>
+          
+              <span className="hidden sm:inline text-xs text-gray-500 dark:text-gray-400 leading-none whitespace-nowrap">
+                تاریخ عضویت: {m.joined_at || '-'}
+              </span>
+            </div>
+          
+            {/* Left: actions */}
+            {isAdmin && m.role !== 'owner' && (
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <button
-                  onClick={() => onRemove(m.id)}
-                  className="text-red-500 hover:text-red-700 border border-red-500
-                             hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors"
+                  onClick={() => handleRoleChange(m.id)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold
+                            border border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white
+                            transition-colors"
                 >
-                  حذف عضو
+                  تغییر نقش
+                </button>
+                <button
+                  onClick={() => handleRemove(m.id)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold
+                            border border-red-500 text-red-600 hover:bg-red-500 hover:text-white
+                            transition-colors"
+                >
+                  حذف
                 </button>
               </div>
             )}
           </div>
-        );
-      })}
+        ))}
+
+        {filteredMembers.length === 0 && (
+          <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-8">
+            عضوی یافت نشد.
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-/**
- * Billing tab placeholder
- */
 export const BillingPlaceholder = () => (
-  <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 md:p-5">
-    <h4 className="text-lg md:text-xl font-semibold mb-2">صورتحساب</h4>
-    <p className="text-sm text-gray-600 dark:text-gray-300">
-      این بخش فعلاً در دست توسعه است.
+  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6
+                  border border-gray-200 dark:border-gray-700 text-center">
+    <p className="text-gray-600 dark:text-gray-300">
+      بخش صورتحساب به‌زودی اضافه می‌شود.
     </p>
   </div>
 );
 
-/**
- * Danger Zone tab placeholder
- */
 export const DangerZonePlaceholder = () => (
-  <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 md:p-5 border border-red-200 dark:border-red-900/40">
-    <h4 className="text-lg md:text-xl font-semibold text-red-600 dark:text-red-400 mb-2">
-      بخش خطرناک
-    </h4>
-    <p className="text-sm text-gray-600 dark:text-gray-300">
-      عملیات حساس اینجا قرار می‌گیرد.
+  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6
+                  border border-red-200 dark:border-red-700 text-center">
+    <p className="text-red-600 dark:text-red-300">
+      بخش خطرناک (حذف/ترک فضای کاری) بعداً فعال می‌شود.
     </p>
-  </div>
-);
-
-const roleLabel = (r) =>
-  r === 'owner' ? 'مالک' : r === 'admin' ? 'ادمین' : 'عضو';
-
-const Badge = ({ children }) => (
-  <span className="px-3 py-1 inline-flex text-xs font-semibold rounded-full
-                   bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200">
-    {children}
-  </span>
-);
-
-const Row = ({ label, value }) => (
-  <div className="flex justify-between">
-    <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
-    <span className="text-sm text-gray-900 dark:text-white font-medium">
-      {value || '—'}
-    </span>
   </div>
 );
