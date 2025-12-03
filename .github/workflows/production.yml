@@ -64,18 +64,20 @@ jobs:
   # ── 2. Deploy to Production (self-hosted runner) ───────────────────────
   deploy:
     needs: build
-    runs-on: production-server          # ← Your self-hosted runner
-    environment: production              # ← ONE AND ONLY APPROVAL HERE
+    runs-on: production-server
+    environment: production        # ← Approval required here
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Pull the brand new image
         run: |
+          cd /opt/${{ vars.DOCKER_IMAGE_NAME }}
           docker compose -f compose.yml pull web
 
       - name: Deploy with production compose (zero-downtime)
         run: |
+          cd /opt/${{ vars.DOCKER_IMAGE_NAME }}
           docker compose -f compose.yml up -d --remove-orphans
 
       - name: Clean up old images (keep last 3)
@@ -86,7 +88,8 @@ jobs:
         run: |
           echo "Deployed successfully to production"
           echo "Image: ${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest"
-
+          echo "Deployed at: $(date)"
+          
   # ── 3. Create GitHub Release & Tag (only after successful deploy) ──────
   release:
     name: Create GitHub Release
