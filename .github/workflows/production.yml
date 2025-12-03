@@ -72,7 +72,6 @@ jobs:
 
       - name: Pull the brand new image
         run: |
-          cd /opt/${{ vars.DOCKER_IMAGE_NAME }}
           docker compose -f compose.yml pull web
 
       - name: Deploy with production compose (zero-downtime)
