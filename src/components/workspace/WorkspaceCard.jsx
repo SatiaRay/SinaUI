@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { FaTrash, FaEdit, FaCrown, FaUser, FaUsers } from 'react-icons/fa';
+import {
+  FaTrash,
+  FaEdit,
+  FaCrown,
+  FaUser,
+  FaUsers,
+  FaEye,
+} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { notify } from '../ui/toast';
 
@@ -138,6 +145,15 @@ const WorkspaceCard = ({
     e.stopPropagation();
     navigate(`/workspace/edit/${workspace.id}`);
   };
+  /**
+   * Handles show button click with event propagation prevention
+   * @function handleShowClick
+   * @param {React.MouseEvent} e - Mouse event
+   */
+  const handleShowClick = (e) => {
+    e.stopPropagation();
+    navigate(`/workspace/${workspace.id}`);
+  };
 
   const planColors = getPlanColor(localPlan);
 
@@ -211,6 +227,14 @@ const WorkspaceCard = ({
 
             {/* Action buttons */}
             <div className="flex items-center gap-1 md:gap-2 justify-end">
+              {/* Show button */}
+              <button
+                onClick={handleShowClick}
+                className="p-1.5 md:p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200 group/edit"
+                title="نمایش فضای کاری"
+              >
+                <FaEye className="text-blue-500 text-sm md:text-base group-hover/edit:scale-110 transition-transform duration-200" />
+              </button>
               {/* Edit button */}
               <button
                 onClick={handleEditClick}

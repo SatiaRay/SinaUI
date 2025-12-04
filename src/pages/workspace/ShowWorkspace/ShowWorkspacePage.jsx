@@ -204,14 +204,6 @@ const ShowWorkspacePage = () => {
   };
 
   /**
-   * Handle manage projects button click
-   */
-  const handleManageProjects = () => {
-    notify.info('صفحه مدیریت پروژه‌ها - این بخش در حال توسعه است');
-    // navigate(`/w/${workspaceId}/projects/manage`);
-  };
-
-  /**
    * Get role text based on user role
    * @param {string} role - User role in workspace
    * @returns {string} Role text
@@ -227,6 +219,13 @@ const ShowWorkspacePage = () => {
       default:
         return 'عضو';
     }
+  };
+
+  /**
+   * Handle manage projects button click
+   */
+  const handleManageProjects = () => {
+    navigate(`/workspace/${workspace.id}/projects`);
   };
 
   /**
@@ -265,15 +264,13 @@ const ShowWorkspacePage = () => {
               <FaEdit />
               ویرایش فضای کاری
             </Link>
-            {projects.length > 0 && (
-              <button
-                onClick={handleManageProjects}
-                className="px-4 py-2.5 flex items-center justify-center gap-2 rounded-lg font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-md hover:shadow-lg"
-              >
-                <FaTasks />
-                مدیریت پروژه‌ها
-              </button>
-            )}
+            <Link
+              to={`/workspace/${workspace.id}/projects`}
+              className="px-4 py-2.5 flex items-center justify-center gap-2 rounded-lg font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-md hover:shadow-lg"
+            >
+              <FaTasks />
+              مدیریت پروژه‌ها
+            </Link>
           </div>
         </div>
       </div>
@@ -393,72 +390,87 @@ const ShowWorkspacePage = () => {
                     {projects.length} پروژه
                   </div>
                   {projects.length > 0 && (
-                    <button
-                      onClick={handleManageProjects}
+                    <Link
+                      to={`/workspace/${workspace.id}/projects`}
                       className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                     >
                       مشاهده همه
-                    </button>
+                    </Link>
                   )}
                 </div>
               </div>
 
               {/* Projects list or empty state */}
               {projects.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  {projects.slice(0, 4).map((project) => {
-                    const statusInfo = getStatusInfo(project.status);
-                    return (
-                      <div
-                        key={project.id}
-                        className="group bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 transition-all duration-300 hover:shadow-md"
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`${project.color} w-12 h-12 rounded-lg flex items-center justify-center text-white text-xl font-bold`}
-                            >
-                              {project.letter}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-gray-900 dark:text-white text-lg">
-                                {project.name}
-                              </h4>
-                              <span
-                                className={`px-2 py-1 text-xs font-medium rounded-full ${statusInfo.color}`}
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {projects.slice(0, 4).map((project) => {
+                      const statusInfo = getStatusInfo(project.status);
+                      return (
+                        <div
+                          key={project.id}
+                          className="group bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 transition-all duration-300 hover:shadow-md"
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`${project.color} w-12 h-12 rounded-lg flex items-center justify-center text-white text-xl font-bold`}
                               >
-                                {statusInfo.text}
-                              </span>
+                                {project.letter}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-gray-900 dark:text-white text-lg">
+                                  {project.name}
+                                </h4>
+                                <span
+                                  className={`px-2 py-1 text-xs font-medium rounded-full ${statusInfo.color}`}
+                                >
+                                  {statusInfo.text}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                            {project.description}
+                          </p>
+
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center gap-4 text-sm">
+                              <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                                <FaUsers className="text-gray-400" />
+                                <span>{project.memberCount}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                                <FaTasks className="text-gray-400" />
+                                <span>{project.taskCount} کار</span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              آپدیت:{' '}
+                              {new Date(project.updatedAt).toLocaleDateString(
+                                'fa-IR'
+                              )}
                             </div>
                           </div>
                         </div>
+                      );
+                    })}
+                  </div>
 
-                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
-                          {project.description}
-                        </p>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                          <div className="flex items-center gap-4 text-sm">
-                            <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                              <FaUsers className="text-gray-400" />
-                              <span>{project.memberCount}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                              <FaTasks className="text-gray-400" />
-                              <span>{project.taskCount} کار</span>
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            آپدیت:{' '}
-                            {new Date(project.updatedAt).toLocaleDateString(
-                              'fa-IR'
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                  {/* Show "View All" button if there are more than 4 projects */}
+                  {projects.length > 4 && (
+                    <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                      <Link
+                        to={`/workspace/${workspace.id}/projects`}
+                        className="w-full py-3 bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                      >
+                        <span>مشاهده همه {projects.length} پروژه</span>
+                        <FaTasks />
+                      </Link>
+                    </div>
+                  )}
+                </>
               ) : (
                 /* Empty projects state */
                 <div className="text-center py-12 md:py-16">
@@ -478,19 +490,6 @@ const ShowWorkspacePage = () => {
                   >
                     <FaTasks />
                     مدیریت پروژه‌ها
-                  </button>
-                </div>
-              )}
-
-              {/* Show "View All" button if there are more than 4 projects */}
-              {projects.length > 4 && (
-                <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <button
-                    onClick={handleManageProjects}
-                    className="w-full py-3 bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                  >
-                    <span>مشاهده همه {projects.length} پروژه</span>
-                    <FaTasks />
                   </button>
                 </div>
               )}
