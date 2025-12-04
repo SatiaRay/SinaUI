@@ -5,7 +5,6 @@ import { confirm } from '../../../components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
 import {
   FaArrowRight,
-  FaBuilding,
   FaUsers,
   FaCrown,
   FaCheck,
