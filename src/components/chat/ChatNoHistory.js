@@ -338,7 +338,7 @@ const Chat = () => {
 
     initialMessageAddedRef.current = false;
 
-    const url = new URL(process.env.REACT_APP_CHAT_API_URL);
+    const url = new URL(process.env.REACT_APP_AI_SERVICE);
     const hostPort = `${url.hostname}:${url.port}`;
     const storedSessionId = localStorage.getItem('chat_session_id');
     if (!storedSessionId) {

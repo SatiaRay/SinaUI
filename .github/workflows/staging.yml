@@ -1,0 +1,100 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-push:
+      runs-on: ubuntu-latest
+      environment: staging
+      permissions:
+        contents: read
+        packages: write     # if you also push to GHCR
+
+      outputs:
+        image: ${{ steps.vars.outputs.image }}
+        image_latest: ${{ steps.vars.outputs.image_latest }}
+
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0   # needed for proper git short sha
+
+        - name: Generate Image Tags
+          id: vars
+          run: |
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            echo "image=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:$SHORT_SHA" >> $GITHUB_OUTPUT
+            echo "image_latest=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
+            echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+
+        - name: Set up QEMU (for multi-platform if needed later)
+          uses: docker/setup-qemu-action@v3
+
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
+
+        - name: Login to Docker Hub
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_TOKEN }}
+
+        - name: Cache Docker layers
+          uses: actions/cache@v4
+          with:
+            path: /tmp/.buildx-cache
+            key: ${{ runner.os }}-buildx-${{ github.sha }}
+            restore-keys: |
+              ${{ runner.os }}-buildx-
+
+        - name: Build and Push
+          uses: docker/build-push-action@v6
+          with:
+            context: .
+            file: ./dockerfile.prod
+            platforms: linux/amd64   # add linux/arm64 if you want multi-arch
+            push: true
+            tags: |
+              ${{ steps.vars.outputs.image }}
+              ${{ steps.vars.outputs.image_latest }}
+            labels: |
+              org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+              org.opencontainers.image.created=${{ steps.vars.outputs.created }}
+              org.opencontainers.image.revision=${{ github.sha }}
+            build-args: |
+              REACT_APP_NAME=${{ vars.REACT_APP_NAME }}
+              REACT_APP_AI_SERVICE=${{ secrets.REACT_APP_AI_SERVICE }}
+              REACT_APP_KNOWLEDGE_SERVICE=${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}
+              REACT_APP_IDP_SERVICE=${{ secrets.REACT_APP_IDP_SERVICE }}
+              REACT_APP_FORCE_WEBSOCKET_PROTOCOL=${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL }}
+            cache-from: type=local,src=/tmp/.buildx-cache
+            cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+
+  deploy-to-staging:
+    needs: build-and-push
+    runs-on: staging
+    environment: staging
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Pull the brand new image
+        run: |
+          docker compose -f compose.yml pull web
+
+      - name: Deploy with production compose (no override, no dev volumes)
+        run: |
+          docker compose -f compose.yml up -d --remove-orphans
+
+      - name: Clean up old images (keep last 3)
+        run: |
+          docker image prune -f --filter "label=app=${{ vars.DOCKER_IMAGE_NAME }}" --keep-last 3 || true
+
+      - name: Echo the result
+        run: |
+          echo "Deployed successfully"
+          echo "Image: ${{ needs.build-and-push.outputs.image }}"

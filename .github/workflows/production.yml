@@ -1,0 +1,127 @@
+name: Production Release & Deploy
+
+on:
+  push:
+    branches: 
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read       # Will be overridden where needed
+
+jobs:
+  # ── 1. Build & Push Docker image (SHA + :latest) ────────────────────────
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    outputs:
+      image_sha: ${{ steps.vars.outputs.image }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Image Tag (SHA)
+        id: vars
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "image=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:$SHORT_SHA" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Cache Docker layers (fast & reliable)
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-prod-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-buildx-prod-
+
+      - name: Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./dockerfile.prod
+          push: true
+          tags: |
+            ${{ steps.vars.outputs.image }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest
+          build-args: |
+            REACT_APP_NAME=${{ vars.REACT_APP_NAME_PROD || vars.REACT_APP_NAME }}
+            REACT_APP_AI_SERVICE=${{ secrets.REACT_APP_AI_SERVICE_PROD }}
+            REACT_APP_KNOWLEDGE_SERVICE=${{ secrets.REACT_APP_KNOWLEDGE_SERVICE_PROD }}
+            REACT_APP_IDP_SERVICE=${{ secrets.REACT_APP_IDP_SERVICE_PROD }}
+            REACT_APP_FORCE_WEBSOCKET_PROTOCOL=${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL_PROD }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+
+  # ── 2. Deploy to Production (self-hosted runner) ───────────────────────
+  deploy:
+    needs: build
+    runs-on: production-server
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Pull the brand new image
+        run: |
+          docker compose -f compose.yml pull web
+
+      - name: Deploy with production compose (zero-downtime)
+        run: |
+          docker compose -f compose.yml up -d --remove-orphans
+
+      - name: Clean up old images (keep last 3)
+        run: |
+          docker image prune -f --filter "label=app=${{ vars.DOCKER_IMAGE_NAME }}" --keep-last 3 || true
+
+      - name: Echo the result
+        run: |
+          echo "Deployed successfully to production"
+          echo "Image: ${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest"
+          echo "Deployed at: $(date)"
+          
+  # ── 3. Create GitHub Release & Tag (only after successful deploy) ──────
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: needs.deploy.result == 'success'
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx -p semantic-release@25 \
+              -p @semantic-release/commit-analyzer \
+              -p @semantic-release/release-notes-generator \
+              -p @semantic-release/changelog \
+              -p @semantic-release/github \
+              -p @semantic-release/git \
+              semantic-release
+
+      - name: Done
+        run: |
+          echo "GitHub Release and tag created successfully!"

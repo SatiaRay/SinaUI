@@ -1,0 +1,14 @@
+# dockerfile.dev
+FROM node:24.11.1-slim
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+COPY package*.json ./
+RUN pnpm install --include=dev --shamefully-hoist   # creates node_modules in the image
+
+COPY . .
+
+EXPOSE 3000
+CMD ["npx", "craco", "start"]
