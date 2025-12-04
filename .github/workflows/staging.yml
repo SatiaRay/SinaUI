@@ -1,17 +1,15 @@
 name: Deploy to Staging
-
 on:
   push:
     branches:
-      - master
+      # - master
+  workflow_dispatch:
 
 jobs:
+  # ── 1. Build & Push Image (same secrets-aware caching as Production) ──
   build-and-push:
     runs-on: ubuntu-latest
     environment: staging
-    permissions:
-      contents: read
-      packages: write
     outputs:
       image: ${{ steps.vars.outputs.image }}
       image_latest: ${{ steps.vars.outputs.image_latest }}
@@ -26,11 +24,10 @@ jobs:
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
           echo "image=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:$SHORT_SHA" >> $GITHUB_OUTPUT
-          echo "image_latest=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
+          echo "image_latest=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:staging" >> $GITHUB_OUTPUT
           echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
-      # ── THIS IS THE FIX: Cache key that changes when secrets change ──
-      - name: Generate Cache Key (invalidates on secret changes)
+      - name: Generate Cache Key (invalidates when staging secrets change)
         id: cache-key
         run: |
           IDP=$(echo -n "${{ secrets.REACT_APP_IDP_SERVICE }}" | sha256sum | cut -c1-12)
@@ -38,13 +35,8 @@ jobs:
           KNOWLEDGE=$(echo -n "${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}" | sha256sum | cut -c1-12)
           WS=$(echo -n "${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL }}" | sha256sum | cut -c1-12)
           NAME=$(echo -n "${{ vars.REACT_APP_NAME }}" | sha256sum | cut -c1-12)
-
           CACHE_KEY="${{ runner.os }}-buildx-staging-${{ github.sha }}-$IDP-$AI-$KNOWLEDGE-$WS-$NAME"
           echo "cache-key=$CACHE_KEY" >> $GITHUB_OUTPUT
-          echo "Cache key includes secret hashes → rebuilds when staging URLs change"
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -60,23 +52,17 @@ jobs:
         with:
           path: /tmp/.buildx-cache
           key: ${{ steps.cache-key.outputs.cache-key }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-staging-
+          restore-keys: ${{ runner.os }}-buildx-staging-
 
       - name: Build and Push
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./dockerfile.prod
-          platforms: linux/amd64
           push: true
           tags: |
             ${{ steps.vars.outputs.image }}
             ${{ steps.vars.outputs.image_latest }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.created=${{ steps.vars.outputs.created }}
-            org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
             REACT_APP_NAME=${{ vars.REACT_APP_NAME }}
             REACT_APP_AI_SERVICE=${{ secrets.REACT_APP_AI_SERVICE }}
@@ -86,28 +72,65 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
+  # ── 2. Deploy to Staging Server (identical to Production) ─────────────
   deploy-to-staging:
     needs: build-and-push
-    runs-on: staging
+    runs-on: staging                    # your self-hosted staging runner
     environment: staging
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Pull the brand new image
+      - name: Ensure Docker & Nginx are installed
         run: |
-          docker compose -f compose.yml pull web
+          chmod +x ./setup-server.sh
+          ./setup-server.sh
 
-      - name: Deploy with zero-downtime
+      - name: Pull Latest Staging Image
         run: |
-          docker compose -f compose.yml up -d --remove-orphans
+          docker pull ${{ needs.build-and-push.outputs.image_latest }}
 
-      - name: Clean up old images (keep last 3)
+      - name: Extract Build Artifacts
         run: |
-          docker image prune -f --filter "label=app=${{ vars.DOCKER_IMAGE_NAME }}" --keep-last 3 || true
+          sudo mkdir -p ${{ vars.STAGING_ROOT_PATH }}
+          sudo chown -R $USER:$USER ${{ vars.STAGING_ROOT_PATH }}
 
-      - name: Success
+          CONTAINER_ID=$(docker create ${{ needs.build-and-push.outputs.image_latest }})
+          docker cp $CONTAINER_ID:/build/. ${{ vars.STAGING_ROOT_PATH }}/
+          docker rm $CONTAINER_ID
+
+          echo "Build extracted to ${{ vars.STAGING_ROOT_PATH }}"
+
+      - name: Deploy Nginx Config (from template)
+        run: |
+          sudo apt-get update && sudo apt-get install -y gettext-base
+
+          # Backup previous config
+          sudo cp /etc/nginx/sites-available/sina-ui-staging.nginx /etc/nginx/sites-available/sina-ui-staging.nginx.bak || true
+
+          # Inject variables
+          export SERVER_NAME="${{ vars.STAGING_SERVER_NAME }}"
+          export SSL_CERT="${{ secrets.STAGING_SSL_CERT }}"
+          export SSL_KEY="${{ secrets.STAGING_SSL_KEY }}"
+          export ROOT_PATH="${{ vars.STAGING_ROOT_PATH }}"
+
+          envsubst '$SERVER_NAME,$SSL_CERT,$SSL_KEY,$ROOT_PATH' < sina-ui-staging.nginx \
+            | sudo tee /etc/nginx/sites-available/sina-ui-staging.nginx > /dev/null
+
+          sudo ln -sf /etc/nginx/sites-available/sina-ui-staging.nginx /etc/nginx/sites-enabled/sina-ui-staging.nginx || true
+          sudo nginx -t && echo "Nginx config valid"
+
+      - name: Reload Nginx
+        run: |
+          sudo nginx -s reload && echo "Nginx reloaded"
+
+      - name: Cleanup Old Images
+        run: |
+          docker image prune -f --filter "label=app=${{ vars.DOCKER_IMAGE_NAME }}" --keep-last 5 || true
+
+      - name: Success Message
         run: |
           echo "Staging deployed successfully!"
+          echo "URL: https://${{ vars.STAGING_SERVER_NAME }}"
           echo "Image: ${{ needs.build-and-push.outputs.image_latest }}"
-          echo "Deployed at: $(date)"
+          echo "Time: $(date)"
