@@ -54,11 +54,11 @@ jobs:
             ${{ steps.vars.outputs.image }}
             ${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest
           build-args: |
-            REACT_APP_NAME=${{ vars.REACT_APP_NAME_PROD || vars.REACT_APP_NAME }}
-            REACT_APP_AI_SERVICE=${{ secrets.REACT_APP_AI_SERVICE_PROD }}
-            REACT_APP_KNOWLEDGE_SERVICE=${{ secrets.REACT_APP_KNOWLEDGE_SERVICE_PROD }}
-            REACT_APP_IDP_SERVICE=${{ secrets.REACT_APP_IDP_SERVICE_PROD }}
-            REACT_APP_FORCE_WEBSOCKET_PROTOCOL=${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL_PROD }}
+            REACT_APP_NAME=${{ vars.REACT_APP_NAME || vars.REACT_APP_NAME }}
+            REACT_APP_AI_SERVICE=${{ secrets.REACT_APP_AI_SERVICE }}
+            REACT_APP_KNOWLEDGE_SERVICE=${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}
+            REACT_APP_IDP_SERVICE=${{ secrets.REACT_APP_IDP_SERVICE }}
+            REACT_APP_FORCE_WEBSOCKET_PROTOCOL=${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
