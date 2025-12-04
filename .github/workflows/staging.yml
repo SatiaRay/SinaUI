@@ -83,6 +83,11 @@ jobs:
 
       - name: Ensure Docker & Nginx are installed
         run: |
+          # Auto-fix line endings if CRLF detected
+          if grep -q $'\r' ./setup-server.sh; then
+            sudo apt install -y dos2unix
+            dos2unix ./setup-server.sh
+          fi
           chmod +x ./setup-server.sh
           ./setup-server.sh
 
