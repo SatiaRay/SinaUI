@@ -60,6 +60,13 @@ const ACTION_LABELS = {
 
 const toDate = (d) => (d?.toDate?.() ? d.toDate() : null);
 
+const Row = ({ label, value }) => (
+  <div className="mt-2 flex justify-between gap-2 items-start">
+    <span className="text-xs text-gray-500 whitespace-nowrap">{label}</span>
+    <span className="font-medium text-left">{value}</span>
+  </div>
+);
+
 /* -------------------- DatePicker styles -------------------- */
 const DP_INPUT =
   'px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 outline-none w-full ' +
@@ -88,9 +95,7 @@ const WorkspaceAuditLogsPage = () => {
   const [to, setTo] = useState(null);
   const [actorId, setActorId] = useState('');
 
-  /* 
-   * Fake fetching 
-   */
+  /* Fake fetching */
   const [logs, setLogs] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
 
@@ -144,29 +149,28 @@ const WorkspaceAuditLogsPage = () => {
   };
 
   if (isFetching || !logs) return <WorkspaceAuditLogsLoading />;
-
   if (!isAllowed)
     return <div className="p-4 text-center text-red-600">شما دسترسی مشاهده‌ی لاگ‌ها را ندارید.</div>;
 
   return (
     <div className="h-full flex flex-col justify-start md:pb-0">
       <style>{`
-        @media (max-width: 768px) {
-          .audit-table-scroll::-webkit-scrollbar { display: none; }
-          .audit-table-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        @media (max-width: 1279px) {
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         }
       `}</style>
 
       {/* Header */}
-      <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
-        <h3 className="text-3xl">لاگ‌های فضای کاری </h3>
+      <div className="mx-3 md:mx-0 xl:mb-3 pb-3 pt-3 xl:pt-0 border-b border-gray-600 flex justify-between items-center">
+        <h3 className="text-3xl">لاگ‌های فضای کاری</h3>
         <span className="text-sm text-gray-500 dark:text-gray-300">
           شناسه فضای کاری: {workspaceId}
         </span>
       </div>
 
       {/* Filters */}
-      <div className="mx-3 md:mx-0 mt-3 bg-white dark:bg-gray-800 rounded-lg shadow p-3 flex flex-col md:flex-row gap-3 md:items-end">
+      <div className="mx-3 xl:mx-0 mt-3 bg-white dark:bg-gray-800 rounded-lg shadow p-3 flex flex-col xl:flex-row gap-3 xl:items-end">
         <label className="flex flex-col gap-1">
           <span className="text-xs text-gray-500">از تاریخ</span>
           <DatePicker {...dpProps} value={from} onChange={(d) => { setFrom(d); setPage(1); }} />
@@ -201,18 +205,18 @@ const WorkspaceAuditLogsPage = () => {
         </button>
       </div>
 
-      {/* Table */}
-      <div className="p-3 md:p-0 mt-3 flex-1 overflow-y-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow audit-table-scroll overflow-x-auto">
-          <table className="min-w-[980px] w-full text-sm md:min-w-full">
+      {/* Content */}
+      <div className="p-3 xl:p-0 mt-3 flex-1 overflow-y-auto no-scrollbar">
+        {/* Desktop Table */}
+        <div className="hidden xl:block bg-white dark:bg-gray-800 rounded-lg shadow">
+          <table className="w-full text-sm">
             <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
               <tr>
                 {['تاریخ', 'انجام‌دهنده', 'عملیات', 'نوع منبع', 'شناسه منبع', 'متادیتا'].map((h) => (
-                  <th key={h} className="text-right px-3 md:px-4 py-3 whitespace-nowrap">{h}</th>
+                  <th key={h} className="text-right px-4 py-3 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
-
             <tbody>
               {logs.length ? logs.map((l) => {
                 const meta = JSON.stringify(l.metadata || {});
@@ -223,24 +227,22 @@ const WorkspaceAuditLogsPage = () => {
                     key={l.id}
                     className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-all"
                   >
-                    <td className="px-3 md:px-4 py-3 whitespace-nowrap">{fmtDate(l.date)}</td>
-                    <td className="px-3 md:px-4 py-3 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">{fmtDate(l.date)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex flex-col">
                         <span className="font-medium">{l.actor.name}</span>
                         <span className="text-xs text-gray-500">{l.actor.email}</span>
                       </div>
                     </td>
-                    <td className="px-3 md:px-4 py-3 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`px-2 py-1 rounded-md text-xs font-medium ${ACTION_CLASS[l.action]}`}>
                         {ACTION_LABELS[l.action] || l.action}
                       </span>
                     </td>
-                    <td className="px-3 md:px-4 py-3 whitespace-nowrap">{l.resourceType}</td>
-                    <td className="px-3 md:px-4 py-3 whitespace-nowrap">{l.resourceId}</td>
-                    <td className="px-3 md:px-4 py-3 min-w-[220px] whitespace-nowrap">
-                      <span title={meta} className="text-xs text-gray-600 dark:text-gray-300">
-                        {shortMeta}
-                      </span>
+                    <td className="px-4 py-3 whitespace-nowrap">{l.resourceType}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">{l.resourceId}</td>
+                    <td className="px-4 py-3 min-w-[220px]">
+                      <span title={meta} className="text-xs text-gray-600 dark:text-gray-300">{shortMeta}</span>
                     </td>
                   </tr>
                 );
@@ -254,10 +256,55 @@ const WorkspaceAuditLogsPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Cards */}
+        <div className="xl:hidden space-y-2">
+          {logs.length ? logs.map((l) => {
+            const meta = JSON.stringify(l.metadata || {});
+            const shortMeta = meta.length > 80 ? meta.slice(0, 80) + '…' : meta;
+
+            return (
+              <div key={l.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 text-sm">
+                <Row label="تاریخ" value={fmtDate(l.date)} />
+                <Row
+                  label="انجام‌دهنده"
+                  value={
+                    <div className="text-left">
+                      <div className="font-medium">{l.actor.name}</div>
+                      <div className="text-xs text-gray-500">{l.actor.email}</div>
+                    </div>
+                  }
+                />
+                <Row
+                  label="عملیات"
+                  value={
+                    <span className={`px-2 py-1 rounded-md text-xs font-medium ${ACTION_CLASS[l.action]}`}>
+                      {ACTION_LABELS[l.action] || l.action}
+                    </span>
+                  }
+                />
+                <Row label="نوع منبع" value={l.resourceType} />
+                <Row label="شناسه منبع" value={l.resourceId} />
+                <Row
+                  label="متادیتا"
+                  value={
+                    <span title={meta} className="text-xs text-gray-600 dark:text-gray-300 text-left">
+                      {shortMeta}
+                    </span>
+                  }
+                />
+              </div>
+            );
+          }) : (
+            <div className="text-center text-gray-500 dark:text-gray-400 py-8 bg-white dark:bg-gray-800 rounded-lg shadow">
+              لاگی با این فیلترها یافت نشد.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Pagination */}
-      <div className="pb-5 md:pb-0">
+      <div className="pb-5 xl:pb-0">
         <Pagination
           page={page}
           perpage={perpage}
