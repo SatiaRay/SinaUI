@@ -2,7 +2,8 @@ name: Production Release & Deploy
 
 on:
   push:
-    branches: [main, master, feature/automate-deployment]
+    branches: 
+      - master
   workflow_dispatch:
 
 permissions:
