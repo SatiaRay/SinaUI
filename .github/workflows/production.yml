@@ -74,7 +74,7 @@ jobs:
   # ── 2. Deploy to Production (self-hosted runner) ───────
   deploy:
     needs: build
-    runs-on: production-server
+    runs-on: [self-hosted, production-server]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

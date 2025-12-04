@@ -75,7 +75,7 @@ jobs:
   # ── 2. Deploy to Staging Server (identical to Production) ─────────────
   deploy-to-staging:
     needs: build-and-push
-    runs-on: staging                    # your self-hosted staging runner
+    runs-on: [self-hosted, staging]                    # your self-hosted staging runner
     environment: staging
     steps:
       - name: Checkout Code
