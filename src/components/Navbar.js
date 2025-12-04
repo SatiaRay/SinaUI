@@ -23,8 +23,9 @@ import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
  * Custom Theme Toggle Button Component
  * @param {Object} props - Component props
  * @param {Function} props.onThemeChange - Theme change handler
+ * @param {boolean} props.showText - Whether to show text label
  */
-const ThemeToggleButton = ({ onThemeChange }) => {
+const ThemeToggleButton = ({ onThemeChange, showText = true }) => {
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       return document.documentElement.classList.contains('dark');
@@ -56,12 +57,12 @@ const ThemeToggleButton = ({ onThemeChange }) => {
       {isDark ? (
         <>
           <SunIcon className="h-4 w-4" />
-          <span>روز</span>
+          {showText && <span>روز</span>}
         </>
       ) : (
         <>
           <MoonIcon className="h-4 w-4" />
-          <span>شب</span>
+          {showText && <span>شب</span>}
         </>
       )}
     </button>
@@ -321,17 +322,19 @@ const WorkspaceDropdown = ({
             }`}
           >
             {/* Workspace Info - Right aligned */}
-            <div className="flex-1 text-left">
+            <div className="flex-1 text-left min-w-0">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-white">
+                <span className="text-sm font-medium text-white truncate">
                   {workspace.name}
                 </span>
-                <span className="text-xs text-gray-400 font-mono">
+                <span className="text-xs text-gray-400 font-mono flex-shrink-0 ml-2">
                   {workspace.shortcut || `⌘${index + 1}`}
                 </span>
               </div>
               <div className="flex items-center justify-start gap-2 mt-1">
-                <span className="text-xs text-gray-400">{workspace.plan}</span>
+                <span className="text-xs text-gray-400 truncate">
+                  {workspace.plan}
+                </span>
                 {getRoleIcon(workspace.role)}
               </div>
             </div>
@@ -357,7 +360,7 @@ const WorkspaceDropdown = ({
         }}
         className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-700 transition-colors duration-200 text-gray-300 hover:text-white"
       >
-        <span className="flex-1 text-right text-sm font-medium">
+        <span className="flex-1 text-right text-sm font-medium truncate">
           افزودن فضای کاری جدید
         </span>
         <div className="w-8 h-8 border border-dashed border-gray-500 rounded-md flex items-center justify-center flex-shrink-0">
@@ -399,6 +402,7 @@ const ExpandableSidebar = ({
   /**
    * Mock data for workspaces - in real app this would come from API
    * Dynamic workspaces that can be extended later
+   * Added a workspace with very long name for testing purposes
    */
   const [workspaces, setWorkspaces] = useState([
     {
@@ -445,6 +449,15 @@ const ExpandableSidebar = ({
       role: 'admin',
       plan: 'پرو',
       shortcut: '⌘5',
+    },
+    {
+      id: 6,
+      name: 'شرکت توسعه نرم‌افزارهای هوشمند ایران با مسئولیت محدود بسیار طولانی نام برای تست نمایش',
+      color: 'bg-pink-500',
+      letter: 'ش',
+      role: 'admin',
+      plan: 'پرو پیشرفته',
+      shortcut: '⌘6',
     },
   ]);
 
@@ -648,9 +661,12 @@ const ExpandableSidebar = ({
         {/* Header like desktop when expanded */}
         {isExpanded && (
           <header className="p-3 border-b border-gray-700 whitespace-nowrap relative flex-shrink-0">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2 min-w-0">
               {/* Workspace Dropdown Section - Single Line */}
-              <div className="flex-1 text-left relative" ref={workspaceRef}>
+              <div
+                className="flex-1 min-w-0 text-left relative"
+                ref={workspaceRef}
+              >
                 <div
                   onMouseEnter={() => handleWorkspaceHover(true)}
                   onMouseLeave={() => handleWorkspaceHover(false)}
@@ -659,7 +675,7 @@ const ExpandableSidebar = ({
                   <button
                     onClick={handleWorkspaceClick}
                     data-workspace-button="true"
-                    className={`flex items-center justify-start w-full text-white hover:text-gray-200 transition-colors px-2 py-1 rounded-md ${
+                    className={`flex items-center justify-start w-full text-white hover:text-gray-200 transition-colors px-2 py-1 rounded-md min-w-0 ${
                       isHovered || workspaceDropdownOpen ? 'bg-gray-700/50' : ''
                     }`}
                     aria-label="انتخاب فضای کاری"
@@ -674,15 +690,19 @@ const ExpandableSidebar = ({
                           >
                             {currentWorkspace.letter}
                           </div>
-                          <span className="text-sm font-bold truncate">
-                            {currentWorkspace.name}
-                          </span>
-                          <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full shrink-0">
-                            {currentWorkspace.plan}
-                          </span>
-                          {currentWorkspace.role === 'admin' && (
-                            <FaCrown className="w-3 h-3 text-yellow-500 shrink-0" />
-                          )}
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <span className="text-sm font-bold truncate block text-right">
+                              {currentWorkspace.name}
+                            </span>
+                            <div className="flex items-center justify-end gap-1 mt-0.5">
+                              <span className="text-xs bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full truncate max-w-[80px]">
+                                {currentWorkspace.plan}
+                              </span>
+                              {currentWorkspace.role === 'admin' && (
+                                <FaCrown className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                              )}
+                            </div>
+                          </div>
                         </>
                       )}
                     </div>
@@ -701,10 +721,10 @@ const ExpandableSidebar = ({
                 </div>
               </div>
 
-              {/* New Toggle button */}
+              {/* Toggle sidebar button - Always visible */}
               <button
                 onClick={onToggle}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:bg-gray-700 size-7"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:bg-gray-700 size-7 min-w-[28px]"
                 aria-label="Toggle Sidebar"
                 data-sidebar="trigger"
               >
@@ -763,7 +783,7 @@ const ExpandableSidebar = ({
                   </div>
                 </div>
 
-                {/* New Toggle button */}
+                {/* Toggle button */}
                 <button
                   onClick={onToggle}
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:bg-gray-700 size-7"
@@ -873,18 +893,40 @@ const ExpandableSidebar = ({
               )}
             </nav>
 
-            {/* Bottom section - Theme toggle and user info */}
-            <div className="flex-shrink-0 border-t border-gray-700">
+            {/* Bottom section - Theme toggle and user info WITHOUT SEPARATOR */}
+            <div className="flex-shrink-0">
               <div className={`${isExpanded ? 'px-2 py-3' : 'py-3'}`}>
-                {/* Theme Toggle Button - Always at the bottom above user section */}
+                {/* Theme Toggle Button - Simplified: Icon only, aligned to left */}
                 <div className={`mb-3 ${!isExpanded ? 'px-1' : ''}`}>
                   {isExpanded ? (
                     <div
-                      className={`transition-all duration-500 ease-in-out ${
+                      className={`flex justify-end transition-all duration-500 ease-in-out ${
                         showContent ? 'opacity-100' : 'opacity-0'
                       }`}
                     >
-                      <ThemeToggleButton onThemeChange={handleThemeChange} />
+                      <button
+                        onClick={() => {
+                          const isDark =
+                            document.documentElement.classList.contains('dark');
+                          if (isDark) {
+                            document.documentElement.classList.remove('dark');
+                            localStorage.setItem('theme', 'light');
+                            setTheme('light');
+                          } else {
+                            document.documentElement.classList.add('dark');
+                            localStorage.setItem('theme', 'dark');
+                            setTheme('dark');
+                          }
+                        }}
+                        className="flex items-center justify-center p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                        aria-label="تغییر تم"
+                      >
+                        {theme === 'dark' ? (
+                          <SunIcon className="h-4 w-4" />
+                        ) : (
+                          <MoonIcon className="h-4 w-4" />
+                        )}
+                      </button>
                     </div>
                   ) : (
                     <div className="flex justify-center">
@@ -915,7 +957,7 @@ const ExpandableSidebar = ({
                   )}
                 </div>
 
-                {/* User section */}
+                {/* User section - No border on top */}
                 <div
                   className={`flex transition-all duration-500 ease-in-out ${
                     isExpanded
@@ -926,11 +968,11 @@ const ExpandableSidebar = ({
                   {isExpanded ? (
                     // Expanded user section with animations
                     <>
-                      <div className="flex items-center gap-2 flex-1">
-                        <div className="w-8 h-8 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full transition-all duration-500">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="w-8 h-8 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full transition-all duration-500 flex-shrink-0">
                           {getBadgeLetters(user?.name)}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 overflow-hidden">
                           <p
                             className={`text-white text-xs truncate transition-all duration-500 ease-in-out ${
                               showContent
@@ -953,7 +995,7 @@ const ExpandableSidebar = ({
                       </div>
                       <button
                         onClick={onLogout}
-                        className={`flex items-center gap-2 text-gray-300 hover:text-white hover:bg-gray-700 p-2 rounded-md transition-all duration-500 ease-in-out ${
+                        className={`flex items-center gap-2 text-gray-300 hover:text-white hover:bg-gray-700 p-2 rounded-md transition-all duration-500 ease-in-out flex-shrink-0 ${
                           showContent
                             ? 'opacity-100 translate-x-0'
                             : 'opacity-0 translate-x-4'
@@ -964,7 +1006,7 @@ const ExpandableSidebar = ({
                       </button>
                     </>
                   ) : (
-                    // Mini user section - ALWAYS AT BOTTOM
+                    // Mini user section
                     <>
                       <div className="flex flex-col items-center gap-2">
                         <div className="w-7 h-7 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full cursor-default">
