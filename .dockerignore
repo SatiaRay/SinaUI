@@ -1,5 +1,11 @@
 node_modules
-build
-.dockerignore
-Dockerfile
 npm-debug.log
+dockerfile.dev
+dockerfile.prod
+.dockerignore
+.git
+.gitignore
+.gitattributes
+.prettierrc
+.git
+.env
