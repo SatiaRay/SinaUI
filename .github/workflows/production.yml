@@ -2,7 +2,6 @@ name: Production Release & Deploy
 on:
   push:
     branches:
-      - master
   workflow_dispatch:
 permissions:
   contents: read       # Will be overridden where needed
