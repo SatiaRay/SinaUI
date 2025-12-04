@@ -3,7 +3,7 @@ import axios from '../contexts/Axios';
 // API Base URL
 const BASE_URL = process.env.REACT_APP_AI_SERVICE;
 const PYTHON_APP_URL = process.env.REACT_APP_AI_SERVICE;
-const IPD_SERVICE_URL = process.env.REACT_APP_IPD_SERVICE;
+const IDP_SERVICE_URL = process.env.REACT_APP_IDP_SERVICE;
 const KNOWLEDGE_SERVICE_URL = process.env.REACT_APP_KNOWLEDGE_SERVICE;
 
 // Errors helpers (moved from services/api.js)
@@ -608,7 +608,7 @@ export const authEndpoints = {
   },
   register: async ({ name, email, password, phone, password_confirmation }) => {
     try {
-      const res = await axios.post(`${IPD_SERVICE_URL}/api/register`, {
+      const res = await axios.post(`${IDP_SERVICE_URL}/api/register`, {
         name,
         email,
         password,
@@ -640,7 +640,7 @@ export const authEndpoints = {
   },
   login: async (email, password) => {
     try {
-      const res = await axios.post(`${IPD_SERVICE_URL}/api/login`, {
+      const res = await axios.post(`${IDP_SERVICE_URL}/api/login`, {
         email,
         password,
       });
