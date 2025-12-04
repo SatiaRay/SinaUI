@@ -342,23 +342,6 @@ const FlowWorkspacePage = () => {
   const totalPages = Math.ceil(filteredFlows.length / perpage);
 
   /**
-   * Handle new flow creation
-   */
-  const handleNewFlow = () => {
-    notify.info('ایجاد پروژه جدید - این بخش در حال توسعه است');
-    // navigate(`/workspace/${workspaceId}/flows/new`);
-  };
-
-  /**
-   * Handle flow edit
-   * @param {number} flowId - Flow ID
-   */
-  const handleEditFlow = (flowId) => {
-    notify.info(`ویرایش پروژه ${flowId} - این بخش در حال توسعه است`);
-    // navigate(`/workspace/${workspaceId}/flows/${flowId}/edit`);
-  };
-
-  /**
    * Handle flow archive
    * @param {number} flowId - Flow ID
    * @param {string} flowName - Flow name
@@ -404,15 +387,6 @@ const FlowWorkspacePage = () => {
         }
       },
     });
-  };
-
-  /**
-   * Handle flow click
-   * @param {number} flowId - Flow ID
-   */
-  const handleFlowClick = (flowId) => {
-    notify.info(`صفحه پروژه ${flowId} - این بخش در حال توسعه است`);
-    // navigate(`/workspace/${workspaceId}/flows/${flowId}`);
   };
 
   /**
@@ -647,14 +621,22 @@ const FlowWorkspacePage = () => {
                     <div className="flex items-center gap-3">
                       <div
                         className={`${flow.color} w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center text-white text-lg md:text-xl font-bold`}
-                        onClick={() => handleFlowClick(flow.id)}
+                        onClick={() =>
+                          navigate(
+                            `/workspace/${workspaceId}/projects/${flow.id}`
+                          )
+                        }
                       >
                         {flow.letter}
                       </div>
                       <div>
                         <h3
                           className="font-bold text-gray-900 dark:text-white text-base md:text-lg cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                          onClick={() => handleFlowClick(flow.id)}
+                          onClick={() =>
+                            navigate(
+                              `/workspace/${workspaceId}/projects/${flow.id}`
+                            )
+                          }
                         >
                           {flow.name}
                         </h3>
@@ -666,13 +648,13 @@ const FlowWorkspacePage = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleEditFlow(flow.id)}
+                      <Link
+                        to={`/workspace/${workspaceId}/projects/edit/${flow.id}`}
                         className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                         title="ویرایش"
                       >
                         <FaEdit className="text-sm" />
-                      </button>
+                      </Link>
                       <button
                         onClick={() => handleArchiveFlow(flow.id, flow.name)}
                         className="p-1.5 text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-colors"

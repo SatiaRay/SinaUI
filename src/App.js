@@ -54,6 +54,8 @@ import {
   ShowWorkspacePage,
   FlowWorkspacePage,
   CreateFlowWorkspace,
+  EditFlowWorkspacePage,
+  ShowFlowWorkspacePage,
 } from '@pages/workspace';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
@@ -387,6 +389,22 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <CreateFlowWorkspace />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId/projects/edit/:projectId'}
+          element={
+            <PrivateRoute>
+              <EditFlowWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId/projects/:projectId'}
+          element={
+            <PrivateRoute>
+              <ShowFlowWorkspacePage />
             </PrivateRoute>
           }
         />
