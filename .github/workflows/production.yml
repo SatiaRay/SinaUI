@@ -28,6 +28,18 @@ jobs:
           SHORT_SHA=$(git rev-parse --short HEAD)
           echo "image=${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:$SHORT_SHA" >> $GITHUB_OUTPUT
 
+      - name: Generate Cache Key (sensitive to secrets)
+        id: cache-key
+        run: |
+          # Hash the secrets (without exposing values) to invalidate cache on changes
+          IDP_HASH=$(echo -n "${{ secrets.REACT_APP_IDP_SERVICE }}" | sha256sum | cut -c1-8)
+          AI_HASH=$(echo -n "${{ secrets.REACT_APP_AI_SERVICE }}" | sha256sum | cut -c1-8)
+          KNOWLEDGE_HASH=$(echo -n "${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}" | sha256sum | cut -c1-8)
+          WS_HASH=$(echo -n "${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL }}" | sha256sum | cut -c1-8)
+          
+          echo "full-key=${{ runner.os }}-buildx-prod-${{ github.sha }}-$IDP_HASH-$AI_HASH-$KNOWLEDGE_HASH-$WS_HASH" >> $GITHUB_OUTPUT
+          echo "Cache will invalidate if secrets change (hashes: $IDP_HASH, $AI_HASH, $KNOWLEDGE_HASH, $WS_HASH)"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -37,11 +49,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Cache Docker layers (fast & reliable)
+      - name: Cache Docker layers (now invalidates on secret changes)
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-prod-${{ github.sha }}
+          key: ${{ steps.cache-key.outputs.full-key }}
           restore-keys: ${{ runner.os }}-buildx-prod-
 
       - name: Build and Push
@@ -54,7 +66,7 @@ jobs:
             ${{ steps.vars.outputs.image }}
             ${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest
           build-args: |
-            REACT_APP_NAME=${{ vars.REACT_APP_NAME || vars.REACT_APP_NAME }}
+            REACT_APP_NAME=${{ vars.REACT_APP_NAME }}
             REACT_APP_AI_SERVICE=${{ secrets.REACT_APP_AI_SERVICE }}
             REACT_APP_KNOWLEDGE_SERVICE=${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}
             REACT_APP_IDP_SERVICE=${{ secrets.REACT_APP_IDP_SERVICE }}
