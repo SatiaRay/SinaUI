@@ -47,6 +47,8 @@ import {
   WizardIndexPage,
 } from '@pages/wizard';
 import { ThemeProvider } from '@contexts/ThemeContext';
+import { WorkspaceIndexPage } from '@pages/workspace';
+import CreateWorkspacePage from '@pages/workspace/CreateWorkspace/CreateWorkspacePage';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -328,6 +330,25 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <EditInstruction />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      {/* Workspace Routes */}
+      <Route path="/workspace">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <WorkspaceIndexPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/create'}
+          element={
+            <PrivateRoute>
+              <CreateWorkspacePage />
             </PrivateRoute>
           }
         />
