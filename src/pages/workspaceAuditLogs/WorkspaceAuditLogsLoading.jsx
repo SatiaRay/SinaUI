@@ -3,7 +3,7 @@ import { SkeletonLoading } from '../../components/ui/loading/skeletonLoading';
 import { useDisplay } from '../../hooks/display';
 
 export const WorkspaceAuditLogsLoading = () => {
-  /* 
+  /*
    * Response props
    */
   const { height } = useDisplay();
@@ -19,35 +19,91 @@ export const WorkspaceAuditLogsLoading = () => {
         {/* Mobile/Tablet */}
         <div className="flex flex-col gap-2 xl:hidden w-full">
           <div className="flex flex-col gap-1">
-            <SkeletonLoading height={12} width={60} containerClassName="inline ml-auto" />
-            <SkeletonLoading height={42} width="100%" containerClassName="inline" />
+            <SkeletonLoading
+              height={12}
+              width={60}
+              containerClassName="inline ml-auto"
+            />
+            <SkeletonLoading
+              height={42}
+              width="100%"
+              containerClassName="inline"
+            />
           </div>
           <div className="flex flex-col gap-1">
-            <SkeletonLoading height={12} width={60} containerClassName="inline ml-auto" />
-            <SkeletonLoading height={42} width="100%" containerClassName="inline" />
+            <SkeletonLoading
+              height={12}
+              width={60}
+              containerClassName="inline ml-auto"
+            />
+            <SkeletonLoading
+              height={42}
+              width="100%"
+              containerClassName="inline"
+            />
           </div>
           <div className="flex flex-col gap-1">
-            <SkeletonLoading height={12} width={80} containerClassName="inline ml-auto" />
-            <SkeletonLoading height={42} width="100%" containerClassName="inline" />
+            <SkeletonLoading
+              height={12}
+              width={80}
+              containerClassName="inline ml-auto"
+            />
+            <SkeletonLoading
+              height={42}
+              width="100%"
+              containerClassName="inline"
+            />
           </div>
-          <SkeletonLoading height={42} width="100%" containerClassName="inline" />
+          <SkeletonLoading
+            height={42}
+            width="100%"
+            containerClassName="inline"
+          />
         </div>
 
         {/* Desktop */}
         <div className="hidden xl:flex xl:flex-row xl:gap-3 xl:items-end xl:w-full">
           <div className="flex flex-col gap-1">
-            <SkeletonLoading height={12} width={60} containerClassName="inline ml-auto" />
-            <SkeletonLoading height={42} width={165} containerClassName="inline" />
+            <SkeletonLoading
+              height={12}
+              width={60}
+              containerClassName="inline ml-auto"
+            />
+            <SkeletonLoading
+              height={42}
+              width={165}
+              containerClassName="inline"
+            />
           </div>
           <div className="flex flex-col gap-1">
-            <SkeletonLoading height={12} width={60} containerClassName="inline ml-auto" />
-            <SkeletonLoading height={42} width={165} containerClassName="inline" />
+            <SkeletonLoading
+              height={12}
+              width={60}
+              containerClassName="inline ml-auto"
+            />
+            <SkeletonLoading
+              height={42}
+              width={165}
+              containerClassName="inline"
+            />
           </div>
           <div className="flex flex-col gap-1 flex-1">
-            <SkeletonLoading height={12} width={80} containerClassName="inline ml-auto" />
-            <SkeletonLoading height={42} width="100%" containerClassName="inline" />
+            <SkeletonLoading
+              height={12}
+              width={80}
+              containerClassName="inline ml-auto"
+            />
+            <SkeletonLoading
+              height={42}
+              width="100%"
+              containerClassName="inline"
+            />
           </div>
-          <SkeletonLoading height={42} width={140} containerClassName="inline" />
+          <SkeletonLoading
+            height={42}
+            width={140}
+            containerClassName="inline"
+          />
         </div>
       </div>
 
