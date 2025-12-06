@@ -8,17 +8,6 @@ export const WorkspaceAuditLogsLoading = () => {
    */
   const { height } = useDisplay();
 
-  const CardRow = ({ labelW = 55, valueW = '60%', valueH = 10 }) => (
-    <div className="grid grid-cols-2 gap-x-4 items-start">
-      <div className="flex justify-end">
-        <SkeletonLoading height={10} width={labelW} containerClassName="inline" />
-      </div>
-      <div className="flex justify-start">
-        <SkeletonLoading height={valueH} width={valueW} containerClassName="inline" />
-      </div>
-    </div>
-  );
-
   return (
     <div className="text-center container mx-auto mt-3 xl:mt-0 px-3 xl:px-0">
       <div className="flex justify-between xl:pl-2 mb-6 items-center">
@@ -76,12 +65,12 @@ export const WorkspaceAuditLogsLoading = () => {
         </div>
 
         <div className="space-y-2">
-          {Array.from({ length: 9 }).map((_, r) => (
+          {Array.from({ length: 10 }).map((_, r) => (
             <div key={r} className="grid grid-cols-6 gap-3 items-center">
               {Array.from({ length: 6 }).map((_, c) => (
                 <SkeletonLoading
                   key={c}
-                  height={44}
+                  height={50}
                   width="100%"
                   containerClassName="inline"
                 />
@@ -93,44 +82,24 @@ export const WorkspaceAuditLogsLoading = () => {
 
       {/* Mobile/Tablet cards skeleton */}
       <div className="xl:hidden mt-3 space-y-2">
-        {Array.from({ length: 9 }).map((_, i) => (
+        {Array.from({ length: 2 }).map((_, i) => (
           <div
             key={i}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 text-sm space-y-3 text-right"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow p-2 space-y-10"
           >
-            <CardRow labelW={40} valueW="45%" valueH={12} />
-
-            <div className="grid grid-cols-2 gap-x-4 items-start">
-              <div className="flex justify-end">
-                <SkeletonLoading height={10} width={60} containerClassName="inline" />
-              </div>
-              <div className="flex justify-start">
-                <div className="flex flex-col gap-2 w-full items-start text-left">
-                  <SkeletonLoading height={12} width="70%" containerClassName="inline" />
-                  <SkeletonLoading height={10} width="90%" containerClassName="inline" />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-x-4 items-center">
-              <div className="flex justify-end">
-                <SkeletonLoading height={10} width={50} containerClassName="inline" />
-              </div>
-              <div className="flex justify-start">
-                <SkeletonLoading height={24} width={70} containerClassName="inline" />
-              </div>
-            </div>
-
-            <CardRow labelW={55} valueW="35%" valueH={12} />
-
-            <CardRow labelW={65} valueW="45%" valueH={12} />
-
-            <CardRow labelW={55} valueW="60%" valueH={10} />
+            {Array.from({ length: 6 }).map((_, r) => (
+              <SkeletonLoading
+                key={r}
+                height={25}
+                width="100%"
+                containerClassName="inline"
+              />
+            ))}
           </div>
         ))}
       </div>
 
-      <div className="pb-5 xl:pb-0 mt-3 flex justify-center">
+      <div className="pb-5 xl:pb-0 mt-8 flex justify-center">
         <SkeletonLoading height={40} width={220} containerClassName="inline" />
       </div>
     </div>
