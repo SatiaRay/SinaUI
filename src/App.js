@@ -47,6 +47,16 @@ import {
   WizardIndexPage,
 } from '@pages/wizard';
 import { ThemeProvider } from '@contexts/ThemeContext';
+import {
+  WorkspaceIndexPage,
+  CreateWorkspacePage,
+  EditWorkspacePage,
+  ShowWorkspacePage,
+  FlowWorkspacePage,
+  CreateFlowWorkspace,
+  EditFlowWorkspacePage,
+  ShowFlowWorkspacePage,
+} from '@pages/workspace';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -328,6 +338,73 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <EditInstruction />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      {/* Workspace Routes */}
+      <Route path="/workspace">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <WorkspaceIndexPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/create'}
+          element={
+            <PrivateRoute>
+              <CreateWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/edit/:id'}
+          element={
+            <PrivateRoute>
+              <EditWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId'}
+          element={
+            <PrivateRoute>
+              <ShowWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId/projects'}
+          element={
+            <PrivateRoute>
+              <FlowWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId/projects/create'}
+          element={
+            <PrivateRoute>
+              <CreateFlowWorkspace />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId/projects/edit/:projectId'}
+          element={
+            <PrivateRoute>
+              <EditFlowWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId/projects/:projectId'}
+          element={
+            <PrivateRoute>
+              <ShowFlowWorkspacePage />
             </PrivateRoute>
           }
         />
