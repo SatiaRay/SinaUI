@@ -28,11 +28,14 @@ jobs:
         run: npm run build
         env:
           CI: false
+          REACT_APP_NAME: ${{ vars.REACT_APP_NAME }}
+          REACT_APP_IDP_SERVICE: ${{ secrets.REACT_APP_IDP_SERVICE }}
+          REACT_APP_AI_SERVICE: ${{ secrets.REACT_APP_AI_SERVICE }}
+          REACT_APP_KNOWLEDGE_SERVICE: ${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}
+          REACT_APP_FORCE_WEBSOCKET_PROTOCOL: ${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL || 'wss' }}
       - name: Deploy build to web directory
         run: |
-          # Replace /var/www/your-production-dir with your actual path
-          # Example with local copy on runner (or use SCP/rsync for remote):
-          cp -r build/* /var/www/your-production-dir/
+          cp -r build/* ${{ vars.ROOT_PATH }}
       - name: Echo the result
         run: |
           echo "Deployed successfully to production"
