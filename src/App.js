@@ -46,6 +46,9 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
+import {
+  WorkspaceAuditLogs
+} from '@pages/workspaceAuditLogs';
 import { ThemeProvider } from '@contexts/ThemeContext';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
@@ -332,6 +335,14 @@ function privateRoutes() {
           }
         />
       </Route>
+      <Route
+          path="/w/:workspaceId/audit-logs"
+          element={
+            <PrivateRoute>
+              <WorkspaceAuditLogs />
+            </PrivateRoute>
+          }
+        />
     </Routes>
   );
 }
