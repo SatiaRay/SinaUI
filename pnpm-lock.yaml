@@ -110,6 +110,9 @@ importers:
       lucide-react:
         specifier: ^0.536.0
         version: 0.536.0(react@18.3.1)
+      marked:
+        specifier: ^17.0.1
+        version: 17.0.1
       moment-jalaali:
         specifier: ^0.10.4
         version: 0.10.4
@@ -137,9 +140,6 @@ importers:
       react-bootstrap:
         specifier: ^2.10.9
         version: 2.10.10(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-date-object:
-        specifier: ^2.1.9
-        version: 2.1.9
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
@@ -215,6 +215,9 @@ importers:
       typeface-vazir:
         specifier: ^1.0.1
         version: 1.0.1
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.0
       web-vitals:
         specifier: ^2.1.4
         version: 2.1.4
@@ -7481,6 +7484,10 @@ packages:
   utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
+
+  uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
+    hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
@@ -14885,6 +14892,8 @@ snapshots:
     dependencies:
       tmpl: 1.0.5
 
+  marked@17.0.1: {}
+
   marked@4.0.12: {}
 
   math-intrinsics@1.1.0: {}
@@ -17477,6 +17486,8 @@ snapshots:
   utila@0.4.0: {}
 
   utils-merge@1.0.1: {}
+
+  uuid@13.0.0: {}
 
   uuid@8.3.2: {}
 

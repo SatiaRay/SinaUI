@@ -8,7 +8,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { Pagination } from '../../../components/ui/pagination';
 import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { GoPlusCircle } from 'react-icons/go';
 import { TbVectorBezier2 } from 'react-icons/tb';
 import { DocumentIndexLoading } from './DocumentIndexLoading';
@@ -21,15 +21,34 @@ const DocumentIndexPage = () => {
   const { isDesktop, height } = useDisplay();
 
   /**
+   * URL Search Parameters for maintaining state
+   */
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  /**
+   * Get page from URL or default to 1
+   */
+  const initialPage = parseInt(searchParams.get('page')) || 1;
+
+  /**
    * Pagination props
    */
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
+
+  /**
+   * Update URL when page changes
+   */
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('page', page.toString());
+    setSearchParams(newSearchParams);
+  }, [page]);
 
   /**
    * Pagination per page length
    *
-   * Define perpage length according device type for fill client device
-   * height freee spaces for beauty and better user experince
+   * Define per page length according device type for fill client device
+   * height free spaces for beauty and better user experience
    */
   const perpage = isDesktop ? Math.floor((height - 200) / 115) * 3 : 20;
 
@@ -107,7 +126,7 @@ const DocumentIndexPage = () => {
       {/* Page header  */}
       <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
         <h3 className="text-3xl">مستندات</h3>
-        <div className='flex flex-row-reverse gap-1'>
+        <div className="flex flex-row-reverse gap-1">
           <Link
             to={'/document/create'}
             className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -126,7 +145,7 @@ const DocumentIndexPage = () => {
       </div>
 
       {/* Documents card list */}
-      <div className="flex flex-col p-3 md:p-0 md:grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div className="flex flex-col p-3 md:p-0 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
         {documents.map((document) => (
           <DocumentCard
             document={document}
@@ -147,7 +166,7 @@ const DocumentIndexPage = () => {
       )}
 
       {/* Pagination  */}
-      <div className='pb-5 md:pb-0'>
+      <div className="pb-5 md:pb-0">
         <Pagination
           page={page}
           perpage={perpage}
