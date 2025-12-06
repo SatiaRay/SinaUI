@@ -3,11 +3,11 @@ name: Deploy to Staging
 on:
   push:
     branches:
-      - master
+      # - master
 
 jobs:
   deploy:
-    runs-on: staging
+    runs-on: staging-server
     environment: staging
     steps:
       - name: Checkout code
