@@ -26,6 +26,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build static files
         run: npm run build
+        env:
+          CI: false
       - name: Deploy build to web directory
         run: |
           # Replace /var/www/your-production-dir with your actual path
