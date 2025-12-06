@@ -9,8 +9,9 @@ import {
 import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { GoPlusCircle } from 'react-icons/go';
-import {ShowWizardLoading} from './ShowWizardLoading';
-import WizardCard from '../../../components/wizard/WizardCard'; // Import WizardCard
+import { ShowWizardLoading } from './ShowWizardLoading';
+import WizardCard from '../../../components/wizard/WizardCard';
+import { TbVectorBezier2 } from 'react-icons/tb'; // Import WizardCard
 
 const ShowWizardPage = () => {
   const { wizard_id } = useParams();
@@ -19,13 +20,7 @@ const ShowWizardPage = () => {
   /* -------------------------------------------------- */
   /* RTK Query */
   /* -------------------------------------------------- */
-  const {
-    data,
-    isLoading,
-    isSuccess,
-    isError,
-    error,
-  } = useGetWizardQuery(
+  const { data, isLoading, isSuccess, isError, error } = useGetWizardQuery(
     { id: wizard_id },
     {
       skip: !wizard_id,
@@ -120,18 +115,18 @@ const ShowWizardPage = () => {
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
       {/* Static Header */}
-      <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+      <div className="mx-3 md:mx-0 md:mb-6 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
+        <h3 className="text-xl lg:text-3xl font-bold text-gray-900 dark:text-white">
           جزئیات ویزارد
         </h3>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <Link
-            to={`/wizard/create?parent_id=${wizard.id}`}
-            className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            to={'/document/create'}
+            className="px-4 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md"
           >
-            <span className="hidden sm:inline">ویزارد فرزند جدید</span>
-            <span className="sm:hidden">جدید</span>
-            <GoPlusCircle size={22} className="pr-2 box-content" />
+            <span className="ml-2 hidden md:block">ویزارد فرزند جدید</span>
+            <span className="ml-2 md:hidden">جدید</span>
+            <GoPlusCircle size={20} />
           </Link>
           <Link
             to={wizard.parent_id ? `/wizard/${wizard.parent_id}` : '/wizard'}
@@ -155,7 +150,9 @@ const ShowWizardPage = () => {
             </h1>
             <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
               <span>شناسه: {wizard.id}</span>
-              <span>نوع: {wizard.wizard_type === 'answer' ? 'پاسخ' : 'سوال'}</span>
+              <span>
+                نوع: {wizard.wizard_type === 'answer' ? 'پاسخ' : 'سوال'}
+              </span>
               <span>وضعیت: {wizard.enabled ? 'فعال' : 'غیرفعال'}</span>
             </div>
           </div>
