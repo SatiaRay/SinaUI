@@ -96,14 +96,24 @@ jobs:
 
       - name: Extract Build Artifacts
         run: |
-          sudo mkdir -p ${{ vars.ROOT_PATH }}
-          sudo chown -R $USER:$USER ${{ vars.ROOT_PATH }}
+          # Define variables first
+          IMAGE="${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest"
+          ROOT="${{ vars.ROOT_PATH }}"
 
-          CONTAINER_ID=$(docker create ${{ secrets.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest)
-          docker cp $CONTAINER_ID:/build/. ${{ vars.ROOT_PATH }}/
-          docker rm $CONTAINER_ID
+          # Create target directory
+          sudo mkdir -p "$ROOT"
+          sudo chown -R $USER:$USER "$ROOT" || sudo chown -R $(whoami):$(whoami) "$ROOT"
 
-          echo "✅ Artifacts deployed to ${{ vars.ROOT_PATH }}"
+          # Create a named temporary container (never starts)
+          CONTAINER_ID=$(docker create --name sina-ui-temp "$IMAGE")
+
+          # Copy files from image to host
+          docker cp sina-ui-temp:/build/. "$ROOT/"
+
+          # Clean up
+          docker rm sina-ui-temp
+
+          echo "Artifacts deployed to $ROOT"
 
       - name: Deploy Nginx Config from Template
         run: |
