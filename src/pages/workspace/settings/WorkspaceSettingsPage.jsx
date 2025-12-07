@@ -1,19 +1,19 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useMemo, useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 
-import { TABS } from "./Constants";
-import OverviewSection from "./OverviewSection";
-import MembersSection from "./MembersSection";
-import BillingSection from "./BillingSection";
-import DangerZoneSection from "./DangerZoneSection";
+import { TABS } from './Constants';
+import OverviewSection from './OverviewSection';
+import MembersSection from './MembersSection';
+import BillingSection from './BillingSection';
+import DangerZoneSection from './DangerZoneSection';
 import {
   OverviewSectionLoading,
   MembersSectionLoading,
   BillingSectionLoading,
   DangerZoneSectionLoading,
-} from "./WorkspaceSettingsLoading";
+} from './WorkspaceSettingsLoading';
 
-import { MOCK_WORKSPACES, MOCK_MEMBERS } from "../mock";
+import { MOCK_WORKSPACES, MOCK_MEMBERS } from '../mock';
 
 /**
  * WorkspaceSettingsPage
@@ -24,28 +24,22 @@ import { MOCK_WORKSPACES, MOCK_MEMBERS } from "../mock";
  */
 const WorkspaceSettingsPage = () => {
   const { workspaceId } = useParams();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
 
   /**
    * useParams always returns strings in RRv6, so compare as strings
-   */ 
+   */
   const workspace = useMemo(
-    () =>
-      MOCK_WORKSPACES.find(
-        (w) => String(w.id) === String(workspaceId)
-      ),
+    () => MOCK_WORKSPACES.find((w) => String(w.id) === String(workspaceId)),
     [workspaceId]
   );
 
-  const members = useMemo(
-    () => MOCK_MEMBERS[workspaceId] || [],
-    [workspaceId]
-  );
+  const members = useMemo(() => MOCK_MEMBERS[workspaceId] || [], [workspaceId]);
 
   /**
-   * fake loading to show skeletons on tab switch  
-   */ 
+   * fake loading to show skeletons on tab switch
+   */
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => setLoading(false), 600);
@@ -115,8 +109,8 @@ const WorkspaceSettingsPage = () => {
               onClick={() => setActiveTab(key)}
               className={`px-4 py-2 text-sm md:text-base font-medium rounded-t-lg whitespace-nowrap transition ${
                 activeTab === key
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600"
-                  : "text-gray-600 dark:text-gray-300 hover:text-blue-500"
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-blue-500'
               }`}
             >
               {label}

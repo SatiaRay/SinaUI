@@ -1,6 +1,6 @@
-import React from "react";
-import { Shield, CalendarDays, Layers3, UserCheck } from "lucide-react";
-import { InfoRow } from "./Constants";
+import React from 'react';
+import { Shield, CalendarDays, Layers3, UserCheck } from 'lucide-react';
+import { InfoRow } from './Constants';
 
 /**
  * OverviewSection
@@ -37,7 +37,7 @@ const OverviewSection = ({ workspace }) => (
       />
       <InfoRow
         label="نقش شما"
-        value={workspace.my_role === "owner" ? "مالک" : workspace.my_role}
+        value={workspace.my_role === 'owner' ? 'مالک' : workspace.my_role}
         variant="badge-gray"
         icon={<UserCheck className="w-4 h-4" />}
       />
