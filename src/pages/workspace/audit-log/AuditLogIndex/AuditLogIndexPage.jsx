@@ -60,14 +60,12 @@ const dpCommon = {
 /**
  * WorkspaceAuditLogsPage
  * Shows full audit logs history for workspace admins/owners.
- * Route: /w/:workspaceId/audit-logs
  * @return {JSX.Element} audit logs page
  */
 const AuditLogIndexPage = () => {
   const { workspaceId } = useParams();
   const navigate = useNavigate();
 
-  // TODO: Replace with real RBAC
   const isAllowed = true;
 
   const [page, setPage] = useState(1);
@@ -125,7 +123,7 @@ const AuditLogIndexPage = () => {
 
   /**
    * Fake Loading Effect
-   * Simulate loading state on filter/page change until API is ready.
+   * Simulate loading state on filter/page.
    * @return {void}
    */
   useEffect(() => {
@@ -198,9 +196,6 @@ const AuditLogIndexPage = () => {
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50">
             لاگ‌های فضای کاری
           </h3>
-          <p className="text-xs md:text-sm text-gray-500 dark:text-gray-300 mt-1">
-            تاریخچه‌ی کامل اقدامات انجام‌شده در فضای کاری
-          </p>
         </div>
         <div className="text-xs md:text-sm text-gray-500 dark:text-gray-300">
           آیدی فضای کاری: <span>{workspaceId}</span>
