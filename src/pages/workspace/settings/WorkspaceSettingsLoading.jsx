@@ -63,9 +63,9 @@ export const MembersSectionLoading = () => {
 };
 
 /**
- * BillingPlaceholderLoading
+ * BillingSectionLoading
  */
-export const BillingPlaceholderLoading = () => {
+export const BillingSectionLoading = () => {
   return (
     <div
       className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-3
@@ -83,9 +83,9 @@ export const BillingPlaceholderLoading = () => {
 };
 
 /**
- * DangerZonePlaceholderLoading
+ * DangerZoneSectionLoading
  */
-export const DangerZonePlaceholderLoading = () => {
+export const DangerZoneSectionLoading = () => {
   return (
     <div
       className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-3

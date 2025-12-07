@@ -1,1 +1,1 @@
-export { default as  WorkspaceSettingsPage} from './WorkspaceSettings/WorkspaceSettingsPage';
+export { default as  WorkspaceSettingsPage} from './settings/WorkspaceSettingsPage';
