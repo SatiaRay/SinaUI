@@ -1,10 +1,9 @@
-const PYTHON_APP_URL = process.env.REACT_APP_PYTHON_APP_API_HOST;
-const protocol = process.env.REACT_APP_FORCE_WEBSOCKET_PROTOCOL ?? 'wss';
+import { getWebSocketUrl } from './websocket';
 
 export const sockets = {
   voice: (handleTranscribe) => {
     // Create a new WebSocket connection
-    const socket = new WebSocket(`${protocol}://${PYTHON_APP_URL}/ws/voice`);
+    const socket = new WebSocket(getWebSocketUrl('/ws/voice'));
 
     // Handle the open event
     socket.onopen = () => {

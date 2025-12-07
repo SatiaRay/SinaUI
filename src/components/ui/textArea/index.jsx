@@ -48,6 +48,20 @@ const TextInputWithBreaks = ({
     }
   }, [value]);
 
+  // Focus effect - automatically focus when not disabled
+  useEffect(() => {
+    if (!disabled && inputRef.current) {
+      // Small timeout to ensure the component is fully rendered
+      const timer = setTimeout(() => {
+        if (inputRef.current && !disabled) {
+          inputRef.current.focus();
+          placeCaretAtEnd(inputRef.current);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [disabled]); // Re-run when disabled state changes
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {

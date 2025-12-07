@@ -1,5 +1,5 @@
 import { BrushCleaning, LucideAudioLines } from 'lucide-react';
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaRobot } from 'react-icons/fa';
 import { BeatLoader } from 'react-spinners';
 import { notify } from '../ui/toast';
@@ -9,7 +9,6 @@ import TextInputWithBreaks from '../ui/textArea';
 import Message from '../ui/chat/message/Message';
 import { useChat } from '@contexts/ChatContext';
 import Swal from 'sweetalert2';
-import { ReactTyped } from 'react-typed';
 import { TypeAnimation } from 'react-type-animation';
 import {
   H2,
@@ -34,7 +33,6 @@ import {
   LoadingCaption,
   BotIconContainer,
   ChatEndRef,
-  NormalLayoutInputWrapper,
   NormalLayoutSendButton,
   ActionButtonsContainer,
   ClearHistoryButton,
@@ -42,7 +40,10 @@ import {
   H4,
 } from '../ui/common';
 
-// Optimized table parser with DOM stability
+/**
+ * Optimized table parser with DOM stability
+ * @class StableTableParser
+ */
 class StableTableParser {
   constructor() {
     this.state = {
@@ -56,15 +57,19 @@ class StableTableParser {
       isInTable: false,
       buffer: '',
       lastStableHTML: '',
-      finalHTML: '', // اضافه کردن برای نگهداری HTML نهایی
+      finalHTML: '',
     };
 
     this.updateCallbacks = [];
     this.rafId = null;
     this.lastUpdateTime = 0;
-    this.updateThreshold = 0; // ms between updates
+    this.updateThreshold = 0;
   }
 
+  /**
+   * Reset parser state
+   * @method reset
+   */
   reset() {
     this.state = {
       prefix: '',
@@ -85,6 +90,11 @@ class StableTableParser {
     }
   }
 
+  /**
+   * Process delta content
+   * @method processDelta
+   * @param {string} delta - The delta content to process
+   */
   processDelta(delta) {
     this.state.buffer += delta;
 
@@ -95,9 +105,8 @@ class StableTableParser {
       const char = this.state.buffer[i];
 
       if (char === '<') {
-        // Handle HTML tags
         const tagEnd = this.state.buffer.indexOf('>', i);
-        if (tagEnd === -1) break; // Incomplete tag
+        if (tagEnd === -1) break;
 
         const fullTag = this.state.buffer.slice(i, tagEnd + 1);
         i = tagEnd + 1;
@@ -105,11 +114,9 @@ class StableTableParser {
         if (this.handleTag(fullTag)) {
           processed += fullTag;
         } else {
-          // Tag was handled internally, don"t add to processed
           continue;
         }
       } else {
-        // Handle text content
         if (this.state.isInCell) {
           this.state.currentCell += char;
         } else if (!this.state.isInTable) {
@@ -124,17 +131,22 @@ class StableTableParser {
     this.scheduleStableUpdate();
   }
 
+  /**
+   * Handle HTML tags
+   * @method handleTag
+   * @param {string} tag - The HTML tag to handle
+   * @returns {boolean} Whether the tag was processed
+   */
   handleTag(tag) {
     const lowerTag = tag.toLowerCase();
 
     if (lowerTag.startsWith('<table')) {
       this.state.isInTable = true;
       this.state.tableOpenTag = tag;
-      return false; // Don"t add to processed
+      return false;
     } else if (lowerTag === '</table>') {
       this.finalizeCurrentRow();
       this.state.isInTable = false;
-      // ذخیره HTML نهایی وقتی جدول کامل شد
       this.state.finalHTML = this.getCompleteHTML();
       this.scheduleStableUpdate();
       return true;
@@ -167,7 +179,6 @@ class StableTableParser {
       this.scheduleStableUpdate();
       return false;
     } else {
-      // Other tags
       if (this.state.isInCell) {
         this.state.currentCell += tag;
       } else if (this.state.isInRow) {
@@ -181,6 +192,10 @@ class StableTableParser {
     }
   }
 
+  /**
+   * Finalize current row
+   * @method finalizeCurrentRow
+   */
   finalizeCurrentRow() {
     if (this.state.currentCell) {
       this.state.currentRow +=
@@ -199,8 +214,12 @@ class StableTableParser {
     }
   }
 
+  /**
+   * Get stable HTML
+   * @method getStableHTML
+   * @returns {string} The stable HTML content
+   */
   getStableHTML() {
-    // اگر HTML نهایی وجود دارد، از آن استفاده کن
     if (this.state.finalHTML) {
       return this.state.finalHTML;
     }
@@ -224,7 +243,11 @@ class StableTableParser {
     return html;
   }
 
-  // تابع جدید برای گرفتن HTML کامل
+  /**
+   * Get complete HTML
+   * @method getCompleteHTML
+   * @returns {string} The complete HTML content
+   */
   getCompleteHTML() {
     let html = this.state.prefix;
 
@@ -232,7 +255,6 @@ class StableTableParser {
       html += this.state.tableOpenTag + '<tbody>';
       html += this.state.completedRows.join('');
 
-      // اضافه کردن ردیف جاری اگر وجود دارد
       if (this.state.currentRow) {
         html += this.state.currentRow;
         if (this.state.currentCell) {
@@ -251,6 +273,10 @@ class StableTableParser {
     return html;
   }
 
+  /**
+   * Schedule stable update
+   * @method scheduleStableUpdate
+   */
   scheduleStableUpdate() {
     const now = Date.now();
     if (now - this.lastUpdateTime < this.updateThreshold) {
@@ -272,22 +298,42 @@ class StableTableParser {
     });
   }
 
+  /**
+   * Register update callback
+   * @method onUpdate
+   * @param {Function} callback - The callback function
+   */
   onUpdate(callback) {
     this.updateCallbacks.push(callback);
   }
 
+  /**
+   * Force update
+   * @method forceUpdate
+   */
   forceUpdate() {
     const html = this.getStableHTML();
     this.updateCallbacks.forEach((callback) => callback(html));
     this.state.lastStableHTML = html;
   }
 
-  // تابع جدید برای گرفتن HTML نهایی
+  /**
+   * Get final HTML
+   * @method getFinalHTML
+   * @returns {string} The final HTML content
+   */
   getFinalHTML() {
     return this.state.finalHTML || this.getCompleteHTML();
   }
 }
 
+/**
+ * Main Chat Component
+ * @component Chat
+ * @param {Object} props - Component props
+ * @param {Object} props.services - Chat services
+ * @returns {JSX.Element} Chat component
+ */
 const Chat = ({ services = null }) => {
   const [question, setQuestion] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
@@ -298,23 +344,8 @@ const Chat = ({ services = null }) => {
   const deltaTimeoutRef = useRef(null);
   const [isServiceUnavailable, setIsServiceUnabailable] = useState(false);
 
-  // استفاده از parser بهینه شده
+  // Refs for scroll management
   const tableParserRef = useRef(new StableTableParser());
-  const scrollStabilizerRef = useRef({
-    lastScrollTop: 0,
-    isUserScrolling: false,
-    stabilizeTimer: null,
-  });
-
-  const initialMessageAddedRef = useRef(false);
-
-  const autoScrollStateRef = useRef({
-    autoEnabled: true,
-    streaming: false,
-    threshold: 120,
-  });
-
-  // رف برای کنترل اسکرول اولیه
   const initialScrollDoneRef = useRef(false);
   const chatStartRef = useRef(null);
 
@@ -334,6 +365,7 @@ const Chat = ({ services = null }) => {
     clearHistory,
     chatContainerRef,
     chatEndRef,
+    lastInputTypeRef,
     sendMessage,
     setService,
     handleWizardSelect,
@@ -344,12 +376,78 @@ const Chat = ({ services = null }) => {
   } = useChat();
 
   /**
+   * Scroll to maximum possible bottom with 50% viewport space
+   * @method scrollToMaxBottom
+   */
+  const scrollToMaxBottom = () => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const attemptScroll = (attempt = 1) => {
+      setTimeout(() => {
+        // Method 1: Direct maximum scroll
+        const maxScrollTop = container.scrollHeight - container.clientHeight;
+
+        // Scroll to maximum possible position
+        container.scrollTo({
+          top: maxScrollTop,
+          behavior: 'smooth',
+        });
+
+        // Double check and force if needed
+        if (attempt < 2) {
+          setTimeout(() => {
+            // Force to absolute bottom
+            const currentScroll = container.scrollTop;
+            const currentMax = container.scrollHeight - container.clientHeight;
+
+            if (currentScroll < currentMax - 10) {
+              // If not at bottom (with 10px tolerance)
+              container.scrollTo({
+                top: currentMax,
+                behavior: 'instant',
+              });
+            }
+          }, 200);
+        }
+      }, attempt * 100);
+    };
+
+    attemptScroll(1);
+  };
+
+  /**
+   * Force scroll to absolute bottom immediately
+   * @method forceScrollToAbsoluteBottom
+   */
+  const forceScrollToAbsoluteBottom = () => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const maxScroll = container.scrollHeight - container.clientHeight;
+    container.scrollTo({
+      top: maxScroll,
+      behavior: 'instant',
+    });
+
+    // Double check for any rendering delays
+    setTimeout(() => {
+      const newMaxScroll = container.scrollHeight - container.clientHeight;
+      if (container.scrollTop < newMaxScroll - 10) {
+        container.scrollTo({
+          top: newMaxScroll,
+          behavior: 'instant',
+        });
+      }
+    }, 50);
+  };
+
+  /**
    * Disable container overflow
    */
   useEffect(() => {
-    window.parent.postMessage({type: 'CONTAINER_OVERFLOW_HIDDEN'});
-
-    return () => window.parent.postMessage({type: 'CONTAINER_OVERFLOW_AUTO'})
+    window.parent.postMessage({ type: 'CONTAINER_OVERFLOW_HIDDEN' });
+    return () => window.parent.postMessage({ type: 'CONTAINER_OVERFLOW_AUTO' });
   }, []);
 
   /**
@@ -360,14 +458,18 @@ const Chat = ({ services = null }) => {
       Object.keys(services).forEach((name) => setService(name, services[name]));
   }, [isConnected]);
 
-  // Effect برای تغییر چیدمان وقتی اولین پیام ارسال می‌شود
+  /**
+   * Change layout when first message is sent
+   */
   useEffect(() => {
     if (history.ids.length > 0 && initialLayout) {
       setInitialLayout(false);
     }
   }, [history.ids.length, initialLayout]);
 
-  /** Clear all timeouts */
+  /**
+   * Clear all timeouts
+   */
   const clearAllTimeouts = () => {
     if (initialResponseTimeoutRef.current) {
       clearTimeout(initialResponseTimeoutRef.current);
@@ -379,11 +481,12 @@ const Chat = ({ services = null }) => {
     }
   };
 
-  /** Reset chat state to initial values */
+  /**
+   * Reset chat state to initial values
+   */
   const resetChatState = () => {
     setChatLoading(false);
     if (processingMessageId.current) {
-      // استفاده از HTML نهایی قبل از ریست
       const finalHTML = tableParserRef.current.getFinalHTML();
       if (finalHTML) {
         updateMessage(processingMessageId.current, { body: finalHTML });
@@ -391,35 +494,41 @@ const Chat = ({ services = null }) => {
     }
     tableParserRef.current.reset();
     processingMessageId.current = null;
-    initialMessageAddedRef.current = false;
     clearAllTimeouts();
-    autoScrollStateRef.current.streaming = false;
-    autoScrollStateRef.current.autoEnabled = true;
   };
 
-  /** Setup table parser callbacks */
+  /**
+   * Setup table parser callbacks - FIXED VERSION
+   */
   useEffect(() => {
     const parser = tableParserRef.current;
 
-    const handleParserUpdate = (html) => {
-      if (processingMessageId.current) {
-        // استفاده از microtask برای کاهش layout thrashing
-        Promise.resolve().then(() => {
-          updateMessage(processingMessageId.current, { body: html });
-        });
-      }
-    };
+    // Check if onUpdate method exists before using it
+    if (parser && typeof parser.onUpdate === 'function') {
+      const handleParserUpdate = (html) => {
+        if (processingMessageId.current) {
+          Promise.resolve().then(() => {
+            updateMessage(processingMessageId.current, { body: html });
+          });
+        }
+      };
 
-    parser.onUpdate(handleParserUpdate);
+      parser.onUpdate(handleParserUpdate);
 
-    return () => {
-      parser.updateCallbacks = parser.updateCallbacks.filter(
-        (cb) => cb !== handleParserUpdate
-      );
-    };
+      return () => {
+        // Safely remove callback
+        if (parser.updateCallbacks) {
+          parser.updateCallbacks = parser.updateCallbacks.filter(
+            (cb) => cb !== handleParserUpdate
+          );
+        }
+      };
+    }
   }, []);
 
-  /** Register custom WebSocket event handlers */
+  /**
+   * Register custom WebSocket event handlers
+   */
   useEffect(() => {
     registerSocketOnCloseHandler(socketOnCloseHandler);
     registerSocketOnMessageHandler(socketOnMessageHandler);
@@ -431,225 +540,53 @@ const Chat = ({ services = null }) => {
     };
   }, []);
 
-  /** Scroll stabilization */
-  useEffect(() => {
-    const container = chatContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const stabilizer = scrollStabilizerRef.current;
-      stabilizer.lastScrollTop = container.scrollTop;
-      stabilizer.isUserScrolling = true;
-
-      if (stabilizer.stabilizeTimer) {
-        clearTimeout(stabilizer.stabilizeTimer);
-      }
-
-      stabilizer.stabilizeTimer = setTimeout(() => {
-        stabilizer.isUserScrolling = false;
-      }, 100);
-
-      const distanceFromBottom =
-        container.scrollHeight - container.scrollTop - container.clientHeight;
-
-      if (distanceFromBottom > 20) {
-        autoScrollStateRef.current.autoEnabled = false;
-      } else if (distanceFromBottom <= 60) {
-        autoScrollStateRef.current.autoEnabled = true;
-        if (autoScrollStateRef.current.streaming) {
-          // user returned to bottom while stream is active -> follow stream
-          smartScrollToBottom();
-        }
-      }
-    };
-
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  /** Smart scroll to bottom */
-  const forceScrollToBottomImmediate = () => {
-    const container = chatContainerRef.current;
-    if (!container) return;
-    container.scrollTop = container.scrollHeight - container.clientHeight;
-  };
-
-  const smartScrollToBottom = () => {
-    const container = chatContainerRef.current;
-    const stabilizer = scrollStabilizerRef.current;
-    if (!container) return;
-
-    const threshold = autoScrollStateRef.current.threshold; // فاصله حساس از پایین
-    const distanceFromBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight;
-
-    if (distanceFromBottom > threshold) return; // only scroll when near bottom
-
-    if (!autoScrollStateRef.current.autoEnabled) return;
-
-    if (stabilizer.isUserScrolling) return;
-
-    const start = container.scrollTop;
-    const end = container.scrollHeight - container.clientHeight;
-    const duration = 400; // مدت زمان انیمیشن (میلی‌ثانیه)
-    const startTime = performance.now();
-
-    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-    const animate = (time) => {
-      const elapsed = time - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = easeOutCubic(progress);
-      container.scrollTop = start + (end - start) * eased;
-
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-
-    requestAnimationFrame(animate);
-  };
-
-  // اسکرول نرم به آخرین پیام هنگام بارگذاری اولیه
-  const smoothScrollToBottom = () => {
-    const container = chatContainerRef.current;
-    if (!container) return;
-
-    const start = container.scrollTop;
-    const end = container.scrollHeight - container.clientHeight;
-
-    // اگر محتوایی برای اسکرول وجود ندارد، برگرد
-    if (end <= 0) return;
-
-    const duration = 800; // افزایش مدت زمان انیمیشن
-    const startTime = performance.now();
-
-    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-    const animate = (time) => {
-      const elapsed = time - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = easeOutCubic(progress);
-      container.scrollTop = start + (end - start) * eased;
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        // وقتی انیمیشن تمام شد، مطمئن شو که دقیقاً به پایین اسکرول شده
-        container.scrollTop = container.scrollHeight - container.clientHeight;
-      }
-    };
-
-    requestAnimationFrame(animate);
-  };
-
-  // Effect برای اسکرول به ابتدا هنگام بارگذاری اولیه و سپس اسکرول نرم به انتها
+  /**
+   * Auto scroll to bottom when history loads - SIMPLIFIED
+   */
   useEffect(() => {
     if (
       !historyLoading &&
       history.ids.length > 0 &&
       !initialScrollDoneRef.current
     ) {
-      console.log('Starting initial scroll sequence...');
-
       const container = chatContainerRef.current;
-      if (!container) {
-        console.log('Container not found, retrying...');
-        return;
-      }
+      if (!container) return;
 
-      // ابتدا به بالا اسکرول کنید
-      console.log('Scrolling to top...');
-      container.scrollTop = 0;
-
-      // چندین تایمر با تاخیرهای مختلف برای اطمینان از اجرا
-      const timer1 = setTimeout(() => {
-        console.log('First scroll attempt after 300ms');
-        smoothScrollToBottom();
-      }, 300);
-
-      const timer2 = setTimeout(() => {
-        console.log('Second scroll attempt after 800ms');
-        smoothScrollToBottom();
+      // Directly scroll to bottom without any initial top scroll
+      const scrollToBottom = () => {
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        container.scrollTo({
+          top: maxScroll,
+          behavior: 'instant',
+        });
         initialScrollDoneRef.current = true;
-      }, 800);
-
-      const timer3 = setTimeout(() => {
-        console.log('Final scroll attempt after 1500ms');
-        forceScrollToBottomImmediate();
-        initialScrollDoneRef.current = true;
-      }, 1500);
-
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        clearTimeout(timer3);
       };
+
+      // Try immediately
+      scrollToBottom();
+
+      // Try again after a short delay to ensure DOM is ready
+      const timer = setTimeout(scrollToBottom, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [historyLoading, history.ids.length]);
 
-  // Effect جایگزین برای مواقعی که effect اصلی کار نمی‌کند
-  useEffect(() => {
-    if (
-      !historyLoading &&
-      history.ids.length > 0 &&
-      !initialScrollDoneRef.current
-    ) {
-      console.log('Alternative scroll effect triggered');
-
-      const attemptScroll = (attempt = 1) => {
-        const container = chatContainerRef.current;
-        if (container && container.scrollHeight > container.clientHeight) {
-          console.log(`Scroll attempt ${attempt}, container ready`);
-
-          // ابتدا به بالا
-          container.scrollTop = 0;
-
-          // سپس با تاخیر به پایین
-          setTimeout(() => {
-            smoothScrollToBottom();
-            initialScrollDoneRef.current = true;
-          }, 500);
-        } else if (attempt < 5) {
-          // اگر هنوز آماده نیست، دوباره تلاش کن
-          console.log(
-            `Container not ready, retrying in 200ms (attempt ${attempt})`
-          );
-          setTimeout(() => attemptScroll(attempt + 1), 200);
-        } else {
-          // اگر بعد از 5 بار تلاش نشد، مستقیم به پایین برو
-          console.log('Max attempts reached, forcing scroll to bottom');
-          forceScrollToBottomImmediate();
-          initialScrollDoneRef.current = true;
-        }
-      };
-
-      attemptScroll();
-    }
-  }, [historyLoading, history.ids.length]);
-
-  // Effect برای ریست کردن وضعیت اسکرول اولیه وقتی تاریخچه پاک می‌شود
+  /**
+   * Reset initial scroll state when history is cleared
+   */
   useEffect(() => {
     if (history.ids.length === 0) {
       initialScrollDoneRef.current = false;
     }
   }, [history.ids.length]);
 
-  /** Update chat links to open in new tab */
+  /**
+   * Update chat links to open in new tab
+   */
   useEffect(() => {
     return renderMessageLinks();
   }, [history]);
-
-  /** Scroll chat to bottom when loading changes */
-  useEffect(() => {
-    if (chatLoading) {
-      autoScrollStateRef.current.streaming = true;
-      setTimeout(smartScrollToBottom, 50);
-    } else {
-      // when streaming stops, ensure we land at bottom and re-enable auto
-      autoScrollStateRef.current.streaming = false;
-      autoScrollStateRef.current.autoEnabled = true;
-      setTimeout(forceScrollToBottomImmediate, 50);
-    }
-  }, [chatLoading]);
 
   /**
    * Reset loadingCaption state on chatLoading state change
@@ -659,27 +596,8 @@ const Chat = ({ services = null }) => {
   }, [chatLoading]);
 
   /**
-   * Trigger scroll to button function on history loading or change history length
+   * Render chat messages links
    */
-  useEffect(() => {
-    if (
-      !historyLoading &&
-      history.ids.length > 0 &&
-      initialScrollDoneRef.current
-    ) {
-      // For discrete updates (not streaming) always force immediate scroll
-      if (!chatLoading) {
-        setTimeout(() => {
-          forceScrollToBottomImmediate();
-        }, 100);
-      } else {
-        // If stream is active, respect autoEnabled/threshold logic
-        setTimeout(smartScrollToBottom, 100);
-      }
-    }
-  }, [historyLoading, history.ids.length]);
-
-  /** render chat messages links */
   const renderMessageLinks = () => {
     const timer = setTimeout(() => {
       const chatLinks = document.querySelectorAll('.chat-message a');
@@ -691,28 +609,34 @@ const Chat = ({ services = null }) => {
     return () => clearTimeout(timer);
   };
 
-  /** Trigger option message from assistant */
+  /**
+   * Trigger option message from assistant
+   */
   const triggerOptionHandler = (optionInfo) => {
     const optionMessage = {
       type: 'option',
       role: 'assistant',
       metadata: optionInfo,
+      fromWizard: true,
       created_at: new Date().toISOString().slice(0, 19),
     };
     addNewMessage(optionMessage);
     setOptionMessageTriggered(true);
-    // discrete message -> force scroll
-    setTimeout(forceScrollToBottomImmediate, 20);
   };
 
-  /** Handle incoming WebSocket messages */
+  /**
+   * Handle incoming WebSocket messages
+   */
   const socketOnMessageHandler = (event) => {
     try {
       const data = JSON.parse(event.data);
+      console.log('server message:', data);
       if (data.event) {
         switch (data.event) {
           case 'loading':
             setChatLoading(true);
+            // Scroll to maximum bottom
+            scrollToMaxBottom();
             break;
           case 'trigger':
             triggerOptionHandler(data);
@@ -735,22 +659,32 @@ const Chat = ({ services = null }) => {
     }
   };
 
-  /** Handle WebSocket close */
+  /**
+   * Handle WebSocket close
+   */
   const socketOnCloseHandler = () => resetChatState();
 
-  /** Handle WebSocket errors */
+  /**
+   * Handle WebSocket errors
+   */
   const socketOnErrorHandler = (event) => {
     console.error('WebSocket error:', event);
     setError('خطا در ارتباط با سرور');
     resetChatState();
   };
 
-  /** Send message through socket and set 2-minute fallback timeout */
+  /**
+   * Send message through socket and set timeout
+   */
   const sendMessageDecorator = async (text) => {
     await sendMessage(text);
     setQuestion('');
     setError(null);
     setChatLoading(true);
+
+    // Scroll to maximum bottom after sending message
+    scrollToMaxBottom();
+
     clearAllTimeouts();
     initialResponseTimeoutRef.current = setTimeout(() => {
       sendExceptionMessage('مشکلی پیش آمده لطفا بعدا تلاش نمایید.');
@@ -763,7 +697,6 @@ const Chat = ({ services = null }) => {
 
   /**
    * Push exception message to chat history
-   * @param {string} msg Exception message
    */
   const sendExceptionMessage = (msg = 'مشکلی پیش آمده است !') => {
     addNewMessage({
@@ -772,8 +705,6 @@ const Chat = ({ services = null }) => {
       role: 'assistant',
       created_at: new Date().toISOString().slice(0, 19),
     });
-    // discrete message -> force scroll to show error
-    setTimeout(forceScrollToBottomImmediate, 20);
   };
 
   /**
@@ -793,6 +724,7 @@ const Chat = ({ services = null }) => {
           type: 'text',
           body: '',
           role: 'assistant',
+          fromWizard: lastInputTypeRef.current === 'wizard',
           created_at: new Date().toISOString().slice(0, 19),
         });
       }
@@ -804,21 +736,19 @@ const Chat = ({ services = null }) => {
       const delta = data.message || '';
       tableParserRef.current.processDelta(delta);
 
-      // Scroll stabilization
-      // during streaming we only auto-scroll when near bottom and autoEnabled
-      autoScrollStateRef.current.streaming = true;
-      smartScrollToBottom();
+      // NO AUTO-SCROLL DURING STREAMING - per user request
     } catch (err) {
       console.error('handleDeltaResponse error', err);
     }
   };
 
-  /** Finalize assistant message */
+  /**
+   * Finalize assistant message
+   */
   const finishMessageHandler = () => {
     setChatLoading(false);
     try {
       if (processingMessageId.current) {
-        // استفاده از HTML نهایی قبل از ریست
         const finalHTML = tableParserRef.current.getFinalHTML();
         if (finalHTML) {
           updateMessage(processingMessageId.current, { body: finalHTML });
@@ -831,13 +761,13 @@ const Chat = ({ services = null }) => {
       processingMessageId.current = null;
       tableParserRef.current.reset();
       clearAllTimeouts();
-      // stream finished -> ensure we show final content
-      autoScrollStateRef.current.streaming = false;
-      autoScrollStateRef.current.autoEnabled = true;
-      setTimeout(forceScrollToBottomImmediate, 50);
+      // NO AUTO-SCROLL AT END - per user request
     }
   };
 
+  /**
+   * Handle clear history
+   */
   const handleClearHistory = async () => {
     if (history.ids.length === 0) return;
     const result = await Swal.fire({
@@ -861,18 +791,14 @@ const Chat = ({ services = null }) => {
         confirmButtonText: 'باشه',
         buttonsStyling: true,
       });
-      // after clearing history ensure bottom
-      setTimeout(forceScrollToBottomImmediate, 50);
     }
   };
 
   return (
     <ChatContainer>
-      {/* حالت اولیه - قبل از ارسال اولین پیام */}
+      {/* Initial layout - before sending first message */}
       {initialLayout && history.ids.length === 0 && !historyLoading && (
         <InitialLayoutContainer>
-          
-
           <WelcomeSection>
             <H3>
               سلام 👋 من سینا هوش مصنوعی {process.env.REACT_APP_NAME} هستم
@@ -880,19 +806,19 @@ const Chat = ({ services = null }) => {
             <H4>
               نام من به یاد ابن سینا نماد دانش و خرد ایرانی انتخاب شده است
             </H4>
-            <WelcomeText aria-label='پیام خوش‌آمدگویی'>
+            <WelcomeText aria-label="پیام خوش‌آمدگویی">
               <TypeAnimation
                 sequence={[
                   'سوالات خود را بپرسید تا به بهترین شکل پاسخ دهم 😊🚀🌟',
-                  1000, 
+                  1000,
                   'اینجا هستم تا سریع، دقیق و دوستانه کمکت کنم ✨',
-                  1000, 
+                  1000,
                   'هر چیزی خواستی بپرس؛ با هم جلو می‌ریم 💡',
-                  1000, 
+                  1000,
                 ]}
-                speed={50}                
-                deletionSpeed={100}         
-                repeat={Infinity}         
+                speed={50}
+                deletionSpeed={100}
+                repeat={Infinity}
                 cursor={true}
                 style={{ display: 'inline-block' }}
               />
@@ -928,7 +854,7 @@ const Chat = ({ services = null }) => {
         </InitialLayoutContainer>
       )}
 
-      {/* حالت عادی - بعد از ارسال اولین پیام */}
+      {/* Normal layout - after sending first message */}
       {!initialLayout && (
         <>
           <ChatMessagesContainer ref={chatContainerRef}>
@@ -943,7 +869,6 @@ const Chat = ({ services = null }) => {
               <EmptyState>سوال خود را بپرسید تا گفتگو شروع شود</EmptyState>
             ) : (
               <>
-                {/* رفرنس برای ابتدای چت */}
                 <div ref={chatStartRef} style={{ height: 0, width: '100%' }} />
                 {history.ids.map((id) => (
                   <MessageContainer key={id}>
@@ -969,17 +894,24 @@ const Chat = ({ services = null }) => {
               </LoadingBotResponse>
             )}
 
+            {/* Dynamic empty space based on chat container height */}
+            <div
+              style={{
+                height: chatContainerRef.current
+                  ? `${Math.max(100, chatContainerRef.current.clientHeight * 0.5)}px`
+                  : '50vh', // Fallback
+                minHeight: '100px',
+                width: '100%',
+                flexShrink: 0,
+                pointerEvents: 'none', // Prevent interaction
+              }}
+            />
             <ChatEndRef ref={chatEndRef} />
           </ChatMessagesContainer>
 
           {!optionMessageTriggered && !isServiceUnavailable && (
             <>
-              {/* Wizard buttons */}
-              <div
-                style={{
-                  marginBottom: '10px',
-                }}
-              >
+              <div style={{ marginBottom: '10px' }}>
                 <WizardButtons
                   onWizardSelect={handleWizardSelect}
                   wizards={currentWizards}
@@ -1017,8 +949,6 @@ const Chat = ({ services = null }) => {
           )}
         </>
       )}
-
-      {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
     </ChatContainer>
   );
 };

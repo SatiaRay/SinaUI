@@ -35,7 +35,7 @@ const ImageMessage = ({ data }) => {
         </ImagePlaceholder>
       )}
       <ImageElement
-        src={`${process.env.REACT_APP_CHAT_API_URL}${img.url}`}
+        src={`${process.env.REACT_APP_AI_SERVICE}${img.url}`}
         alt={img.filename}
         loaded={loadedImages[idx]}
         onLoad={() => handleLoad(idx)}
