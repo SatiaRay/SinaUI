@@ -77,7 +77,6 @@ function AppContent() {
     }
     return !JSON.parse(savedState);
   });
-  const [appVersion, setAppVersion] = useState(null);
 
   /**
    * Setup window event on container overflow hidden
@@ -92,22 +91,6 @@ function AppContent() {
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  /**
-   * Fetch App Version
-   */
-  useEffect(() => {
-    const fetchVersion = async () => {
-      try {
-        const res = await getVersion();
-        setAppVersion(res.version);
-      } catch (err) {
-        setAppVersion('undefined');
-      }
-    };
-
-    fetchVersion();
   }, []);
 
   return (
@@ -132,13 +115,6 @@ function AppContent() {
       )}
 
       {!isPrivateRoute && publicRoutes()}
-
-      <span
-        className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
-        dir="ltr"
-      >
-        {appVersion}
-      </span>
     </div>
   );
 }

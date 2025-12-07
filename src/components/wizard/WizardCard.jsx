@@ -67,7 +67,6 @@ const WizardCard = ({ wizard, handleDelete }) => {
     e.stopPropagation();
 
     const newEnabled = !status;
-
     confirm({
       title: 'تغییر وضعیت ویزارد',
       text: `آیا مطمئن هستید که می‌خواهید این ویزارد را ${newEnabled ? 'فعال' : 'غیرفعال'} کنید؟`,
@@ -83,7 +82,6 @@ const WizardCard = ({ wizard, handleDelete }) => {
               enabled: newEnabled,
             },
           }).unwrap();
-
           notify.success('وضعیت ویزارد با موفقیت تغییر کرد');
         } catch (err) {
           // Rollback on error

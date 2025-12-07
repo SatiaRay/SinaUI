@@ -1,5 +1,5 @@
 export const getWebSocketUrl = (path) => {
-  const url = new URL(process.env.REACT_APP_CHAT_API_URL);
+  const url = new URL(process.env.REACT_APP_AI_SERVICE);
 
   // Check for forced protocol first
   const forcedProtocol = process.env.REACT_APP_FORCE_WEBSOCKET_PROTOCOL;
