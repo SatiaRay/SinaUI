@@ -48,7 +48,7 @@ import {
 } from '@pages/wizard';
 import {
   WorkspaceAuditLogs
-} from '@pages/workspaceAuditLogs';
+} from '@pages/workspace';
 import { ThemeProvider } from '@contexts/ThemeContext';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 

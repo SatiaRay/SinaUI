@@ -1,6 +1,6 @@
 import React from 'react';
-import { SkeletonLoading } from '../../components/ui/loading/skeletonLoading';
-import { useDisplay } from '../../hooks/display';
+import { SkeletonLoading } from '../../../components/ui/loading/skeletonLoading';
+import { useDisplay } from '../../../hooks/display';
 
 export const WorkspaceAuditLogsLoading = () => {
   /*

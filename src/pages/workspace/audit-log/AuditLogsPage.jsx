@@ -1,20 +1,29 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import DatePicker from 'react-multi-date-picker';
-import persian from 'react-date-object/calendars/persian';
-import persian_fa from 'react-date-object/locales/persian_fa';
-import { Pagination } from '../../components/ui/pagination';
-import { notify } from '../../components/ui/toast';
-import { WorkspaceAuditLogsLoading } from './WorkspaceAuditLogsLoading';
+import React, { useState, useMemo, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
+import { Pagination } from "../../../components/ui/pagination";
+import { notify } from "../../../components/ui/toast";
+import { WorkspaceAuditLogsLoading } from "./AuditLogsLoading";
+import { AuditLogMobileCard } from "./AuditLogMobileCard";
+import {
+  ACTION_LABEL,
+  ACTION_STYLE,
+  fmt,
+} from "./Constants";
 
-/* ==================== Mock Data ==================== */
+/**
+ * Mock Audit Logs
+ * Temporary mock data for audit logs page
+ */
 const MOCK_AUDIT_LOGS = Array.from({ length: 143 }, (_, i) => {
-  const actions = ['create', 'update', 'delete', 'invite', 'login'];
-  const types = ['task', 'board', 'member', 'workspace', 'wizard'];
+  const actions = ["create", "update", "delete", "invite", "login"];
+  const types = ["task", "board", "member", "workspace", "wizard"];
   const actors = [
-    { id: 1, name: 'محیا', email: 'jafari@ttay.io' },
-    { id: 2, name: 'نسترن', email: 'nastaran@ttay.io' },
-    { id: 3, name: 'علی', email: 'ali@ttay.io' },
+    { id: 1, name: "محیا", email: "jafari@ttay.io" },
+    { id: 2, name: "نسترن", email: "nastaran@ttay.io" },
+    { id: 3, name: "علی", email: "ali@ttay.io" },
   ];
 
   const actor = actors[i % 3];
@@ -29,52 +38,34 @@ const MOCK_AUDIT_LOGS = Array.from({ length: 143 }, (_, i) => {
     resourceType,
     resourceId: `${resourceType}_${1000 + i}`,
     metadata:
-      action === 'update'
-        ? { changes: { title: ['old', 'new'], status: ['todo', 'done'] } }
-        : action === 'invite'
-          ? { note: 'Invited via email' }
-          : { ip: `192.168.1.${i % 255}` },
+      action === "update"
+        ? { changes: { title: ["old", "new"], status: ["todo", "done"] } }
+        : action === "invite"
+        ? { note: "Invited via email" }
+        : { ip: `192.168.1.${i % 255}` },
   };
 });
 
-/* ==================== Constants ==================== */
-const fmt = (iso) =>
-  new Date(iso).toLocaleString('fa-IR', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-
-const ACTION_STYLE = {
-  create:
-    'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-  update: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  delete: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  invite:
-    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-  login: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200',
-};
-
-const ACTION_LABEL = {
-  create: 'ایجاد',
-  update: 'ویرایش',
-  delete: 'حذف',
-  invite: 'دعوت',
-  login: 'ورود',
-};
-
-/* ==================== DatePicker Config ==================== */
+/**
+ * DatePicker Common Config
+ * Shared config object for both "from" and "to" date pickers.
+ */
 const dpCommon = {
   calendar: persian,
   locale: persian_fa,
-  placeholder: 'انتخاب تاریخ',
+  placeholder: "انتخاب تاریخ",
   inputClass:
-    'px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 outline-none w-full text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 transition-all',
-  containerClass: 'w-full',
+    "px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 outline-none w-full text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 transition-all",
+  containerClass: "w-full",
   calendarClassName:
-    'bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 rounded-2xl shadow-xl p-2 border border-gray-200 dark:border-gray-700',
+    "bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 rounded-2xl shadow-xl p-2 border border-gray-200 dark:border-gray-700",
 };
 
-/* ==================== Main Component ==================== */
+/**
+ * WorkspaceAuditLogsPage
+ * Main page component for showing workspace audit logs.
+ * @return {JSX.Element} audit logs page
+ */
 const WorkspaceAuditLogsPage = () => {
   const { workspaceId } = useParams();
   const isAllowed = true;
@@ -82,16 +73,26 @@ const WorkspaceAuditLogsPage = () => {
   const [page, setPage] = useState(1);
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
-  const [actorId, setActorId] = useState('');
+  const [actorId, setActorId] = useState("");
 
   const perPage = 10;
 
+  /**
+   * Actors List
+   * Extract unique actors for select filter.
+   * @return {Array<{id:number,name:string,email:string}>} unique actors
+   */
   const actors = useMemo(() => {
     const map = new Map();
     MOCK_AUDIT_LOGS.forEach((l) => map.set(l.actor.id, l.actor));
     return [...map.values()];
   }, []);
 
+  /**
+   * Filtered Logs + Pagination
+   * Applies filters and slices for current page.
+   * @return {{logs:Array, totalPages:number, totalItems:number}} filtered result
+   */
   const { logs, totalPages, totalItems } = useMemo(() => {
     let filtered = MOCK_AUDIT_LOGS;
 
@@ -111,39 +112,37 @@ const WorkspaceAuditLogsPage = () => {
   }, [from, to, actorId, page]);
 
   const [loading, setLoading] = useState(true);
+
+  /**
+   * Fake Loading Effect
+   * Simulate loading state on filter/page change until.
+   */
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(t);
   }, [from, to, actorId, page]);
 
+  /**
+   * Reset Filters
+   * Clears all filters and returns to page 1.
+   * @return {void}
+   */
   const reset = () => {
     setFrom(null);
     setTo(null);
-    setActorId('');
+    setActorId("");
     setPage(1);
-    notify.success('فیلترها پاک شدند');
+    notify.success("فیلترها پاک شدند");
   };
 
   if (loading) return <WorkspaceAuditLogsLoading />;
+
   if (!isAllowed)
     return (
       <div className="p-8 text-center text-red-600">
         شما دسترسی مشاهده‌ی لاگ‌ها را ندارید.
       </div>
     );
-
-  const MetaView = ({ meta }) => {
-    const str = JSON.stringify(meta, null, 2);
-    const short = str.length > 70 ? str.slice(0, 70) + '…' : str;
-    return (
-      <span
-        title={str}
-        className="text-xs text-gray-600 dark:text-gray-300 font-mono"
-      >
-        {short}
-      </span>
-    );
-  };
 
   return (
     <div className="h-full flex flex-col">
@@ -214,12 +213,12 @@ const WorkspaceAuditLogsPage = () => {
           <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
             <tr>
               {[
-                'تاریخ',
-                'انجام‌دهنده',
-                'عملیات',
-                'نوع منبع',
-                'شناسه منبع',
-                'متادیتا',
+                "تاریخ",
+                "انجام‌دهنده",
+                "عملیات",
+                "نوع منبع",
+                "شناسه منبع",
+                "متادیتا",
               ].map((h) => (
                 <th key={h} className="text-right px-6 py-4 font-medium">
                   {h}
@@ -227,6 +226,7 @@ const WorkspaceAuditLogsPage = () => {
               ))}
             </tr>
           </thead>
+
           <tbody>
             {logs.length ? (
               logs.map((l) => (
@@ -235,6 +235,7 @@ const WorkspaceAuditLogsPage = () => {
                   className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">{fmt(l.date)}</td>
+
                   <td className="px-6 py-4">
                     <div>
                       <div className="font-medium">{l.actor.name}</div>
@@ -243,17 +244,24 @@ const WorkspaceAuditLogsPage = () => {
                       </div>
                     </div>
                   </td>
+
                   <td className="px-6 py-4">
                     <span
-                      className={`px-2.5 py-1 rounded-md text-xs font-medium ${ACTION_STYLE[l.action]}`}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium ${
+                        ACTION_STYLE[l.action]
+                      }`}
                     >
                       {ACTION_LABEL[l.action]}
                     </span>
                   </td>
+
                   <td className="px-6 py-4">{l.resourceType}</td>
                   <td className="px-6 py-4 font-mono">{l.resourceId}</td>
+
                   <td className="px-6 py-4">
-                    <MetaView meta={l.metadata} />
+                    <span className="text-xs text-gray-600 dark:text-gray-300 font-mono">
+                      {JSON.stringify(l.metadata)}
+                    </span>
                   </td>
                 </tr>
               ))
@@ -271,53 +279,7 @@ const WorkspaceAuditLogsPage = () => {
       {/* Cards (Mobile) */}
       <div className="xl:hidden mt-4 space-y-4">
         {logs.length ? (
-          logs.map((l) => (
-            <div
-              key={l.id}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 text-sm"
-            >
-              <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-xs text-gray-500">تاریخ</span>
-                <span className="font-medium">{fmt(l.date)}</span>
-              </div>
-
-              <div className="mt-4 space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">انجام‌دهنده</span>
-                  <div className="text-right">
-                    <div className="font-medium">{l.actor.name}</div>
-                    <div className="text-xs text-gray-500">{l.actor.email}</div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500">عملیات</span>
-                  <span
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium ${ACTION_STYLE[l.action]}`}
-                  >
-                    {ACTION_LABEL[l.action]}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-gray-500">نوع منبع</span>
-                  <span>{l.resourceType}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-gray-500">شناسه منبع</span>
-                  <span className="font-mono">{l.resourceId}</span>
-                </div>
-
-                <div className="flex justify-between items-start">
-                  <span className="text-gray-500">متادیتا</span>
-                  <div className="text-left">
-                    <MetaView meta={l.metadata} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
+          logs.map((l) => <AuditLogMobileCard key={l.id} log={l} />)
         ) : (
           <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
             لاگی با این فیلترها یافت نشد.

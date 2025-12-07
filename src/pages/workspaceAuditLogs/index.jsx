@@ -1,1 +1,0 @@
-export { default as WorkspaceAuditLogs} from './WorkspaceAuditLogsPage';
