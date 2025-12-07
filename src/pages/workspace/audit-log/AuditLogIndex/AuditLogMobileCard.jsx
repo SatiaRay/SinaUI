@@ -1,22 +1,17 @@
-import React from "react";
-import { ACTION_LABEL, ACTION_STYLE, fmt } from "./Constants";
+import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ACTION_LABEL, ACTION_STYLE, fmt } from '../Constants';
 
 /**
  * MetaView
- * Small metadata preview with tooltip showing full JSON.
- * @params {object} props component props
- * @params {object} props.meta metadata object of audit log
- * @return {JSX.Element} rendered metadata preview
+ * Short metadata preview with full JSON on hover.
  */
-const MetaView = React.memo(function MetaView({ meta }) {
+const MetaView = React.memo(({ meta }) => {
   const str = JSON.stringify(meta, null, 2);
-  const short = str.length > 70 ? str.slice(0, 70) + "…" : str;
+  const short = str.length > 70 ? str.slice(0, 70) + '…' : str;
 
   return (
-    <span
-      title={str}
-      className="text-xs text-gray-600 dark:text-gray-300 font-mono"
-    >
+    <span title={str} className="text-xs text-gray-600 dark:text-gray-300">
       {short}
     </span>
   );
@@ -24,23 +19,33 @@ const MetaView = React.memo(function MetaView({ meta }) {
 
 /**
  * AuditLogMobileCard
- * Dedicated mobile card UI for a single audit-log item.
- * @params {object} props component props
- * @params {object} props.log audit log item
- * @return {JSX.Element} rendered mobile card
+ * Mobile-friendly audit log card with navigation on click/tap.
  */
-export const AuditLogMobileCard = React.memo(function AuditLogMobileCard({
-  log,
-}) {
+export const AuditLogMobileCard = React.memo(({ log }) => {
+  const navigate = useNavigate();
+  const { workspaceId } = useParams();
+
+  const goToDetail = () => {
+    navigate(`/workspace/${workspaceId}/audit-log/${log.id}`);
+  };
+
   const { date, actor, action, resourceType, resourceId, metadata } = log;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 text-sm">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={goToDetail}
+      onKeyDown={(e) => e.key === 'Enter' && goToDetail()}
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/30 transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    >
+      {/* Header: Date */}
       <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
         <span className="text-xs text-gray-500">تاریخ</span>
         <span className="font-medium">{fmt(date)}</span>
       </div>
 
+      {/* Body */}
       <div className="mt-4 space-y-3">
         <div className="flex justify-between">
           <span className="text-gray-500">انجام‌دهنده</span>
@@ -66,15 +71,18 @@ export const AuditLogMobileCard = React.memo(function AuditLogMobileCard({
 
         <div className="flex justify-between">
           <span className="text-gray-500">شناسه منبع</span>
-          <span className="font-mono">{resourceId}</span>
+          <span>{resourceId}</span>
         </div>
 
         <div className="flex justify-between items-start">
           <span className="text-gray-500">متادیتا</span>
-          <div className="text-left">
-            <MetaView meta={metadata} />
-          </div>
+          <MetaView meta={metadata} />
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-4 text-xs text-blue-600 dark:text-blue-400 font-medium">
+        مشاهده جزئیات →
       </div>
     </div>
   );

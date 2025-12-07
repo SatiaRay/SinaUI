@@ -1,8 +1,8 @@
 import React from 'react';
-import { SkeletonLoading } from '../../../components/ui/loading/skeletonLoading';
-import { useDisplay } from '../../../hooks/display';
+import { SkeletonLoading } from '../../../../components/ui/loading/skeletonLoading';
+import { useDisplay } from '../../../../hooks/display';
 
-export const WorkspaceAuditLogsLoading = () => {
+export const AuditLogIndexLoading = () => {
   /*
    * Response props
    */
@@ -121,12 +121,12 @@ export const WorkspaceAuditLogsLoading = () => {
         </div>
 
         <div className="space-y-2">
-          {Array.from({ length: 10 }).map((_, r) => (
+          {Array.from({ length: 7 }).map((_, r) => (
             <div key={r} className="grid grid-cols-6 gap-3 items-center">
               {Array.from({ length: 6 }).map((_, c) => (
                 <SkeletonLoading
                   key={c}
-                  height={50}
+                  height={70}
                   width="100%"
                   containerClassName="inline"
                 />
@@ -162,4 +162,4 @@ export const WorkspaceAuditLogsLoading = () => {
   );
 };
 
-export default WorkspaceAuditLogsLoading;
+export default AuditLogIndexLoading;
