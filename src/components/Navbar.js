@@ -513,7 +513,7 @@ const ExpandableSidebar = ({
         {/* Scrollable content area - WITH SCROLL */}
         <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
           <div className="flex flex-col min-h-full">
-            {/* Toggle button and workspace badge in mini mode */}
+            {/* Workspace badge in mini mode - Only workspace badge without toggle button */}
             {!isExpanded && (
               <div className="flex flex-col items-center gap-3 py-3 flex-shrink-0">
                 {/* Workspace badge in mini mode */}
@@ -543,31 +543,6 @@ const ExpandableSidebar = ({
                     />
                   </div>
                 </div>
-
-                {/* Toggle button */}
-                <button
-                  onClick={onToggle}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:bg-gray-700 size-7"
-                  aria-label="Toggle Sidebar"
-                  data-sidebar="trigger"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-gray-300"
-                  >
-                    <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-                    <path d="M9 3v18"></path>
-                  </svg>
-                  <span className="sr-only">Toggle Sidebar</span>
-                </button>
               </div>
             )}
 
@@ -657,6 +632,35 @@ const ExpandableSidebar = ({
             {/* Bottom section - Theme toggle and user info WITHOUT SEPARATOR */}
             <div className="flex-shrink-0">
               <div className={`${isExpanded ? 'px-2 py-3' : 'py-3'}`}>
+                {/* Toggle sidebar button in mini mode - Moved to above theme toggle */}
+                {!isExpanded && (
+                  <div className="mb-3 flex justify-center">
+                    <button
+                      onClick={onToggle}
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:bg-gray-700 size-7 min-w-[28px]"
+                      aria-label="Toggle Sidebar"
+                      data-sidebar="trigger"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-gray-300"
+                      >
+                        <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                        <path d="M9 3v18"></path>
+                      </svg>
+                      <span className="sr-only">Toggle Sidebar</span>
+                    </button>
+                  </div>
+                )}
+
                 {/* Theme Toggle Button - Simplified: Icon only, aligned to left */}
                 <div className={`mb-3 ${!isExpanded ? 'px-1' : ''}`}>
                   {isExpanded ? (
