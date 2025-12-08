@@ -15,8 +15,8 @@ import {
   FaBell,
   FaShareAlt,
 } from 'react-icons/fa';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
 import ShowFlowWorkspaceLoading from './ShowFlowWorkspaceLoading';
 import { useDisplay } from '../../../hooks/display';
 

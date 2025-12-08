@@ -7,8 +7,8 @@ import {
   FaTag,
   FaCalendar,
 } from 'react-icons/fa';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
 import { useDisplay } from '../../../hooks/display';
 
 /**

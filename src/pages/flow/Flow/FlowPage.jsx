@@ -17,11 +17,11 @@ import {
   FaArchive,
   FaTrash,
 } from 'react-icons/fa';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
 import FlowWorkspaceLoading from './FlowWorkspaceLoading';
 import { useDisplay } from '../../../hooks/display';
-import { Pagination } from '../../../components/ui/pagination';
+import { Pagination } from '@components/ui/pagination';
 
 /**
  * Import empty state SVG
