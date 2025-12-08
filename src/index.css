@@ -47,6 +47,15 @@ body {
   display: none; /* Chrome, Safari, Opera */
 }
 
+.no-scrollbar::-webkit-scrollbar { 
+  display: none; 
+}
+
+.no-scrollbar { 
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
+
 .ck.ck-editor__top {
   position: sticky !important;
   top: 0 !important;

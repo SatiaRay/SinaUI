@@ -19,33 +19,29 @@ const MetaView = React.memo(({ meta }) => {
 
 /**
  * AuditLogMobileCard
- * Mobile-friendly audit log card with navigation on click/tap.
+ * Mobile-friendly audit log card.
  */
 export const AuditLogMobileCard = React.memo(({ log }) => {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
 
+  /**
+   * Navigate to detail page
+   * @return {void}
+   */
   const goToDetail = () => {
-    navigate(`/workspace/${workspaceId}/audit-log/${log.id}`);
+    navigate(`/w/${workspaceId}/audit-logs/${log.id}`);
   };
 
   const { date, actor, action, resourceType, resourceId, metadata } = log;
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={goToDetail}
-      onKeyDown={(e) => e.key === 'Enter' && goToDetail()}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/30 transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
-    >
-      {/* Header: Date */}
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 text-sm transition">
       <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
         <span className="text-xs text-gray-500">تاریخ</span>
         <span className="font-medium">{fmt(date)}</span>
       </div>
 
-      {/* Body */}
       <div className="mt-4 space-y-3">
         <div className="flex justify-between">
           <span className="text-gray-500">انجام‌دهنده</span>
@@ -80,9 +76,13 @@ export const AuditLogMobileCard = React.memo(({ log }) => {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="mt-4 text-xs text-blue-600 dark:text-blue-400 font-medium">
-        مشاهده جزئیات →
+      <div className="mt-4 flex justify-start">
+        <button
+          onClick={goToDetail}
+          className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:opacity-90 transition"
+        >
+          مشاهده جزئیات →
+        </button>
       </div>
     </div>
   );

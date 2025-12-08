@@ -6,7 +6,7 @@ import persian_fa from 'react-date-object/locales/persian_fa';
 import { Pagination } from '../../../../components/ui/pagination';
 import { notify } from '../../../../components/ui/toast';
 import { AuditLogIndexLoading } from './AuditLogIndexLoading';
-import { AuditLogMobileCard } from './AuditLogMobileCard';
+import { AuditLogMobileCard } from './AuditLogMobileCardPage';
 import { ACTION_LABEL, ACTION_STYLE, fmt } from '../Constants';
 
 /**
@@ -21,6 +21,7 @@ const MOCK_AUDIT_LOGS = Array.from({ length: 143 }, (_, i) => {
     { id: 2, name: 'نسترن', email: 'nastaran@ttay.io' },
     { id: 3, name: 'علی', email: 'ali@ttay.io' },
   ];
+
   const actor = actors[i % 3];
   const action = actions[i % 5];
   const resourceType = types[i % 5];
@@ -53,8 +54,6 @@ const dpCommon = {
   inputClass:
     'px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 outline-none w-full text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500 transition-all',
   containerClass: 'w-full',
-  calendarClassName:
-    'bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 rounded-2xl shadow-xl p-2 border border-gray-200 dark:border-gray-700',
 };
 
 /**
@@ -65,7 +64,6 @@ const dpCommon = {
 const AuditLogIndexPage = () => {
   const { workspaceId } = useParams();
   const navigate = useNavigate();
-
   const isAllowed = true;
 
   const [page, setPage] = useState(1);
@@ -73,7 +71,7 @@ const AuditLogIndexPage = () => {
   const [to, setTo] = useState(null);
   const [actorId, setActorId] = useState('');
 
-  const perPage = 10;
+  const perPage = 8;
 
   /**
    * Navigate to audit log detail page.
@@ -100,7 +98,6 @@ const AuditLogIndexPage = () => {
    */
   const { logs, totalPages, totalItems } = useMemo(() => {
     let list = MOCK_AUDIT_LOGS;
-
     const f = from?.toDate?.();
     const t = to?.toDate?.();
 
@@ -123,7 +120,7 @@ const AuditLogIndexPage = () => {
 
   /**
    * Fake Loading Effect
-   * Simulate loading state on filter/page.
+   * Simulate loading state on filter/page change.
    * @return {void}
    */
   useEffect(() => {
@@ -152,21 +149,16 @@ const AuditLogIndexPage = () => {
       </div>
     );
 
-  const TableRow = ({ log }) => (
+  const Row = ({ log }) => (
     <tr
-      key={log.id}
       onClick={() => goToDetail(log.id)}
-      className="border-b border-gray-100 dark:border-gray-700 hover:bg-indigo-50/60 dark:hover:bg-gray-700/30 transition cursor-pointer"
+      className="border-b border-gray-100 dark:border-gray-700 hover:bg-indigo-50/60 dark:hover:bg-gray-700/30 cursor-pointer transition"
     >
-      <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">
-        {fmt(log.date)}
-      </td>
+      <td className="px-6 py-4 whitespace-nowrap">{fmt(log.date)}</td>
       <td className="px-6 py-4">
-        <div className="flex flex-col">
-          <span className="font-semibold text-gray-900 dark:text-gray-100">
-            {log.actor.name}
-          </span>
-          <span className="text-xs text-gray-500">{log.actor.email}</span>
+        <div>
+          <div className="font-semibold">{log.actor.name}</div>
+          <div className="text-xs text-gray-500">{log.actor.email}</div>
         </div>
       </td>
       <td className="px-6 py-4">
@@ -176,12 +168,8 @@ const AuditLogIndexPage = () => {
           {ACTION_LABEL[log.action]}
         </span>
       </td>
-      <td className="px-6 py-4 text-gray-700 dark:text-gray-200">
-        {log.resourceType}
-      </td>
-      <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
-        {log.resourceId}
-      </td>
+      <td className="px-6 py-4">{log.resourceType}</td>
+      <td className="px-6 py-4 font-mono">{log.resourceId}</td>
       <td className="px-6 py-4 text-xs text-gray-600 dark:text-gray-300">
         {JSON.stringify(log.metadata)}
       </td>
@@ -189,23 +177,17 @@ const AuditLogIndexPage = () => {
   );
 
   return (
-    <div className="flex flex-col gap-4 h-full overflow-y-auto pb-10">
-      {/* Header */}
-      <div className="mx-3 md:mx-0 pb-4 pt-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-        <div>
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-50">
-            لاگ‌های فضای کاری
-          </h3>
+    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto no-scrollbar pb-10">
+      <header className="mx-3 md:mx-0 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+        <h3 className="text-2xl md:text-3xl font-bold">لاگ‌های فضای کاری</h3>
+        <div className="text-sm text-gray-500 dark:text-gray-300">
+          آیدی فضای کاری: <span className="font-mono">{workspaceId}</span>
         </div>
-        <div className="text-xs md:text-sm text-gray-500 dark:text-gray-300">
-          آیدی فضای کاری: <span>{workspaceId}</span>
-        </div>
-      </div>
+      </header>
 
-      {/* Filters */}
-      <div className="mx-3 xl:mx-0 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 flex flex-col xl:flex-row gap-4 xl:items-end">
+      <section className="mx-3 xl:mx-0 mt-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 flex flex-col xl:flex-row gap-4 xl:items-end">
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-500">از تاریخ</span>
+          <label className="text-xs text-gray-500">از تاریخ</label>
           <DatePicker
             {...dpCommon}
             value={from}
@@ -216,7 +198,7 @@ const AuditLogIndexPage = () => {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-500">تا تاریخ</span>
+          <label className="text-xs text-gray-500">تا تاریخ</label>
           <DatePicker
             {...dpCommon}
             value={to}
@@ -227,14 +209,14 @@ const AuditLogIndexPage = () => {
           />
         </div>
         <div className="flex flex-col gap-1 flex-1">
-          <span className="text-xs text-gray-500">انجام‌دهنده</span>
+          <label className="text-xs text-gray-500">انجام‌دهنده</label>
           <select
             value={actorId}
             onChange={(e) => {
               setActorId(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 outline-none text-sm text-gray-800 dark:text-gray-100"
+            className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 outline-none text-sm"
           >
             <option value="">همه</option>
             {actors.map((a) => (
@@ -250,10 +232,10 @@ const AuditLogIndexPage = () => {
         >
           پاک کردن فیلترها
         </button>
-      </div>
+      </section>
 
-      {/* Table (Desktop) */}
-      <div className="hidden xl:block mx-3 xl:mx-0 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      {/* Desktop Table */}
+      <div className="hidden xl:block mx-3 xl:mx-0 mt-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 dark:bg-gray-700/60 text-gray-700 dark:text-gray-200">
             <tr>
@@ -273,7 +255,7 @@ const AuditLogIndexPage = () => {
           </thead>
           <tbody>
             {logs.length ? (
-              logs.map((log) => <TableRow key={log.id} log={log} />)
+              logs.map((log) => <Row key={log.id} log={log} />)
             ) : (
               <tr>
                 <td colSpan={6} className="text-center py-12 text-gray-500">
@@ -285,19 +267,19 @@ const AuditLogIndexPage = () => {
         </table>
       </div>
 
-      {/* Cards (Mobile) */}
-      <div className="xl:hidden mx-3 space-y-4">
+      {/* Mobile Cards */}
+      <div className="xl:hidden mx-3 mt-4 space-y-4">
         {logs.length ? (
           logs.map((l) => <AuditLogMobileCard key={l.id} log={l} />)
         ) : (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
             لاگی با این فیلترها یافت نشد.
           </div>
         )}
       </div>
 
       {/* Pagination */}
-      <div className="mx-3 xl:mx-0 mt-2 pb-6">
+      <div className="mx-3 xl:mx-0 mt-6 pb-6">
         <Pagination
           page={page}
           perpage={perPage}
