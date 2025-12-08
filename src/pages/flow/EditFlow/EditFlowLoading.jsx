@@ -5,7 +5,7 @@ import React from 'react';
  * @component
  * @returns {JSX.Element} Rendered loading skeleton for edit project page
  */
-const EditFlowWorkspaceLoading = () => {
+const EditFlowLoading = () => {
   return (
     <div className="h-full flex flex-col justify-start px-3 md:px-0 pt-4 md:pt-6">
       {/* Header skeleton */}
@@ -106,4 +106,4 @@ const EditFlowWorkspaceLoading = () => {
   );
 };
 
-export default EditFlowWorkspaceLoading;
+export default EditFlowLoading;

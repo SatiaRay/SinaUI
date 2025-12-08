@@ -52,11 +52,8 @@ import {
   CreateWorkspacePage,
   EditWorkspacePage,
   ShowWorkspacePage,
-  FlowWorkspacePage,
-  CreateFlowWorkspace,
-  EditFlowWorkspacePage,
-  ShowFlowWorkspacePage,
 } from '@pages/workspace';
+import { FlowPage, CreateFlow, EditFlowPage, ShowFlowPage } from '@pages/flow';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -352,35 +349,38 @@ function privateRoutes() {
             </PrivateRoute>
           }
         />
+      </Route>
+      {/* Project Routes */}
+      <Route path="/projects">
         <Route
-          path={'/workspace/:workspaceId/projects'}
+          index
           element={
             <PrivateRoute>
-              <FlowWorkspacePage />
+              <FlowPage />
             </PrivateRoute>
           }
         />
         <Route
-          path={'/workspace/:workspaceId/projects/create'}
+          path={'/projects/create'}
           element={
             <PrivateRoute>
-              <CreateFlowWorkspace />
+              <CreateFlow />
             </PrivateRoute>
           }
         />
         <Route
-          path={'/workspace/:workspaceId/projects/edit/:projectId'}
+          path={'/projects/edit/:projectId'}
           element={
             <PrivateRoute>
-              <EditFlowWorkspacePage />
+              <EditFlowPage />
             </PrivateRoute>
           }
         />
         <Route
-          path={'/workspace/:workspaceId/projects/:projectId'}
+          path={'/projects/:projectId'}
           element={
             <PrivateRoute>
-              <ShowFlowWorkspacePage />
+              <ShowFlowPage />
             </PrivateRoute>
           }
         />

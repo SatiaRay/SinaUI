@@ -17,16 +17,22 @@ import {
 } from 'react-icons/fa';
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
-import ShowFlowWorkspaceLoading from './ShowFlowWorkspaceLoading';
+import ShowFlowLoading from './ShowFlowLoading';
 import { useDisplay } from '../../../hooks/display';
 
 /**
- * ShowFlowWorkspacePage Component - Main project detail page
+ * ShowFlowPage Component - Main project detail page
  * @component
  * @returns {JSX.Element} Rendered project detail page
  */
-const ShowFlowWorkspacePage = () => {
-  const { workspaceId, projectId } = useParams();
+const ShowFlowPage = () => {
+  /**
+   * Get workspace ID from localStorage
+   * @type {string|null}
+   */
+  const workspaceId = localStorage.getItem('khan-selected-workspace-id');
+
+  const { projectId } = useParams();
   const navigate = useNavigate();
   const { isMobile, isDesktop } = useDisplay();
 
@@ -52,6 +58,7 @@ const ShowFlowWorkspacePage = () => {
 
   /**
    * Sidebar sections
+   * @type {Array<Object>}
    */
   const sidebarSections = [
     { id: 'overview', name: 'مرور کلی', icon: <FaChartBar /> },
@@ -131,6 +138,13 @@ const ShowFlowWorkspacePage = () => {
       setIsLoading(true);
 
       try {
+        // Check if workspace ID exists in localStorage
+        if (!workspaceId) {
+          notify.error('فضای کاری انتخاب نشده است');
+          navigate('/workspace');
+          return;
+        }
+
         // Simulate API call delay
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -162,8 +176,11 @@ const ShowFlowWorkspacePage = () => {
           },
         ];
 
+        // Parse workspace ID from localStorage (stored as string)
+        const workspaceIdNum = parseInt(workspaceId);
+
         const foundWorkspace = mockWorkspaces.find(
-          (w) => w.id === parseInt(workspaceId)
+          (w) => w.id === workspaceIdNum
         );
 
         if (!foundWorkspace) {
@@ -265,24 +282,25 @@ const ShowFlowWorkspacePage = () => {
           ];
         }
 
+        // Parse project ID from URL params
+        const projectIdNum = parseInt(projectId);
+
         const foundProject = projectsToSearch.find(
-          (p) =>
-            p.id === parseInt(projectId) &&
-            p.workspaceId === parseInt(workspaceId)
+          (p) => p.id === projectIdNum && p.workspaceId === workspaceIdNum
         );
 
         if (!foundProject) {
           // Check if project exists but belongs to different workspace
           const projectInOtherWorkspace = projectsToSearch.find(
-            (p) => p.id === parseInt(projectId)
+            (p) => p.id === projectIdNum
           );
 
           if (projectInOtherWorkspace) {
             notify.error('این پروژه متعلق به این فضای کاری نیست');
-            navigate(`/workspace/${workspaceId}/projects`);
+            navigate(`/projects`);
           } else {
             notify.error('پروژه مورد نظر یافت نشد');
-            navigate(`/workspace/${workspaceId}/projects`);
+            navigate(`/projects`);
           }
           return;
         }
@@ -302,11 +320,12 @@ const ShowFlowWorkspacePage = () => {
    * Handle edit project
    */
   const handleEditProject = () => {
-    navigate(`/workspace/${workspaceId}/projects/edit/${projectId}`);
+    navigate(`/projects/edit/${projectId}`);
   };
 
   /**
    * Handle archive project
+   * @returns {Promise<void>}
    */
   const handleArchiveProject = () => {
     confirm({
@@ -318,8 +337,20 @@ const ShowFlowWorkspacePage = () => {
           : `آیا می‌خواهید پروژه "${project.name}" را آرشیو کنید؟`,
       onConfirm: async () => {
         try {
+          // Check if workspace ID exists
+          if (!workspaceId) {
+            notify.error('فضای کاری انتخاب نشده است');
+            return;
+          }
+
           // Simulate API call delay
           await new Promise((resolve) => setTimeout(resolve, 800));
+
+          // Parse workspace ID from localStorage (stored as string)
+          const workspaceIdNum = parseInt(workspaceId);
+
+          // Parse project ID from URL params
+          const projectIdNum = parseInt(projectId);
 
           // Update project status
           const updatedProject = {
@@ -333,7 +364,7 @@ const ShowFlowWorkspacePage = () => {
             localStorage.getItem('khan-projects') || '[]'
           );
           const updatedProjects = existingProjects.map((p) =>
-            p.id === parseInt(projectId) ? updatedProject : p
+            p.id === projectIdNum ? updatedProject : p
           );
           localStorage.setItem(
             'khan-projects',
@@ -358,6 +389,7 @@ const ShowFlowWorkspacePage = () => {
 
   /**
    * Handle delete project
+   * @returns {Promise<void>}
    */
   const handleDeleteProject = () => {
     confirm({
@@ -367,15 +399,24 @@ const ShowFlowWorkspacePage = () => {
       confirmColor: 'red',
       onConfirm: async () => {
         try {
+          // Check if workspace ID exists
+          if (!workspaceId) {
+            notify.error('فضای کاری انتخاب نشده است');
+            return;
+          }
+
           // Simulate API call delay
           await new Promise((resolve) => setTimeout(resolve, 800));
+
+          // Parse project ID from URL params
+          const projectIdNum = parseInt(projectId);
 
           // Remove from localStorage
           const existingProjects = JSON.parse(
             localStorage.getItem('khan-projects') || '[]'
           );
           const updatedProjects = existingProjects.filter(
-            (p) => p.id !== parseInt(projectId)
+            (p) => p.id !== projectIdNum
           );
           localStorage.setItem(
             'khan-projects',
@@ -385,7 +426,7 @@ const ShowFlowWorkspacePage = () => {
           notify.success('پروژه با موفقیت حذف شد');
 
           // Redirect to projects list page
-          navigate(`/workspace/${workspaceId}/projects`);
+          navigate(`/projects`);
         } catch (error) {
           notify.error('خطا در حذف پروژه');
           console.error('Error deleting project:', error);
@@ -444,7 +485,24 @@ const ShowFlowWorkspacePage = () => {
   };
 
   /**
+   * Calculate days remaining until project end date
+   * @param {string} endDate - Project end date
+   * @returns {string} Days remaining or ∞ if no end date
+   */
+  const calculateDaysRemaining = (endDate) => {
+    if (!endDate) return '∞';
+
+    const today = new Date();
+    const end = new Date(endDate);
+    const diffTime = end - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays > 0 ? diffDays.toString() : '0';
+  };
+
+  /**
    * Render active section content
+   * @returns {JSX.Element} Section content
    */
   const renderSectionContent = () => {
     const statusInfo = getStatusInfo(project.status);
@@ -521,12 +579,7 @@ const ShowFlowWorkspacePage = () => {
                 </h3>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {project.endDate
-                      ? Math.ceil(
-                          (new Date(project.endDate) - new Date()) /
-                            (1000 * 60 * 60 * 24)
-                        )
-                      : '∞'}
+                    {calculateDaysRemaining(project.endDate)}
                   </span>
                   <FaCalendar className="text-gray-400 text-lg" />
                 </div>
@@ -745,7 +798,7 @@ const ShowFlowWorkspacePage = () => {
    * Show loading skeleton if data is loading
    */
   if (isLoading || !workspace || !project) {
-    return <ShowFlowWorkspaceLoading />;
+    return <ShowFlowLoading />;
   }
 
   const statusInfo = getStatusInfo(project.status);
@@ -763,7 +816,7 @@ const ShowFlowWorkspacePage = () => {
           </Link>
           <span>›</span>
           <Link
-            to={`/workspace/${workspaceId}/projects`}
+            to={`/projects`}
             className="hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             پروژه‌ها
@@ -947,4 +1000,4 @@ const ShowFlowWorkspacePage = () => {
   );
 };
 
-export default ShowFlowWorkspacePage;
+export default ShowFlowPage;

@@ -10,15 +10,21 @@ import {
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
 import { useDisplay } from '../../../hooks/display';
-import EditFlowWorkspaceLoading from './EditFlowWorkspaceLoading';
+import EditFlowLoading from './EditFlowLoading';
 
 /**
- * EditFlowWorkspacePage Component - Page for editing an existing project in a workspace
+ * EditFlowPage Component - Page for editing an existing project
  * @component
  * @returns {JSX.Element} Rendered edit project page
  */
-const EditFlowWorkspacePage = () => {
-  const { workspaceId, projectId } = useParams();
+const EditFlowPage = () => {
+  /**
+   * Get workspace ID from localStorage
+   * @type {string|null}
+   */
+  const workspaceId = localStorage.getItem('khan-selected-workspace-id');
+
+  const { projectId } = useParams();
   const navigate = useNavigate();
   const { isMobile, isDesktop } = useDisplay();
 
@@ -69,6 +75,7 @@ const EditFlowWorkspacePage = () => {
 
   /**
    * Available color options
+   * @type {Array<Object>}
    */
   const colorOptions = [
     {
@@ -105,6 +112,7 @@ const EditFlowWorkspacePage = () => {
 
   /**
    * Available status options
+   * @type {Array<Object>}
    */
   const statusOptions = [
     {
@@ -139,6 +147,7 @@ const EditFlowWorkspacePage = () => {
 
   /**
    * Priority options
+   * @type {Array<Object>}
    */
   const priorityOptions = [
     {
@@ -197,6 +206,13 @@ const EditFlowWorkspacePage = () => {
       setIsLoading(true);
 
       try {
+        // Check if workspace ID exists in localStorage
+        if (!workspaceId) {
+          notify.error('فضای کاری انتخاب نشده است');
+          navigate('/workspace');
+          return;
+        }
+
         // Simulate API call delay
         await new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -228,8 +244,11 @@ const EditFlowWorkspacePage = () => {
           },
         ];
 
+        // Parse workspace ID from localStorage (stored as string)
+        const workspaceIdNum = parseInt(workspaceId);
+
         const foundWorkspace = mockWorkspaces.find(
-          (w) => w.id === parseInt(workspaceId)
+          (w) => w.id === workspaceIdNum
         );
 
         if (!foundWorkspace) {
@@ -289,15 +308,16 @@ const EditFlowWorkspacePage = () => {
           ];
         }
 
+        // Parse project ID from URL params
+        const projectIdNum = parseInt(projectId);
+
         const foundProject = projectsToSearch.find(
-          (p) =>
-            p.id === parseInt(projectId) &&
-            p.workspaceId === parseInt(workspaceId)
+          (p) => p.id === projectIdNum && p.workspaceId === workspaceIdNum
         );
 
         if (!foundProject) {
           notify.error('پروژه مورد نظر یافت نشد');
-          navigate(`/workspace/${workspaceId}/projects`);
+          navigate(`/projects`);
           return;
         }
         setProject(foundProject);
@@ -383,6 +403,7 @@ const EditFlowWorkspacePage = () => {
   /**
    * Handle form submission (update project)
    * @param {React.FormEvent} e - Form submit event
+   * @returns {Promise<void>}
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -398,6 +419,12 @@ const EditFlowWorkspacePage = () => {
       return;
     }
 
+    // Check if workspace ID exists
+    if (!workspaceId) {
+      notify.error('فضای کاری انتخاب نشده است');
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -407,6 +434,9 @@ const EditFlowWorkspacePage = () => {
       // Get selected color
       const selectedColor =
         colorOptions.find((c) => c.id === formData.color) || colorOptions[0];
+
+      // Parse workspace ID from localStorage (stored as string)
+      const workspaceIdNum = parseInt(workspaceId);
 
       // Update project object
       const updatedProject = {
@@ -428,15 +458,19 @@ const EditFlowWorkspacePage = () => {
       const existingProjects = JSON.parse(
         localStorage.getItem('khan-projects') || '[]'
       );
+
+      // Parse project ID from URL params
+      const projectIdNum = parseInt(projectId);
+
       const updatedProjects = existingProjects.map((p) =>
-        p.id === parseInt(projectId) ? updatedProject : p
+        p.id === projectIdNum ? updatedProject : p
       );
       localStorage.setItem('khan-projects', JSON.stringify(updatedProjects));
 
       notify.success('تغییرات پروژه با موفقیت ذخیره شد!');
 
       // Redirect to projects list page
-      navigate(`/workspace/${workspaceId}/projects`);
+      navigate(`/projects`);
     } catch (error) {
       notify.error('خطا در ذخیره تغییرات. لطفاً دوباره تلاش کنید.');
       console.error('Error updating project:', error);
@@ -447,6 +481,7 @@ const EditFlowWorkspacePage = () => {
 
   /**
    * Handle project deletion
+   * @returns {Promise<void>}
    */
   const handleDeleteProject = () => {
     confirm({
@@ -457,15 +492,25 @@ const EditFlowWorkspacePage = () => {
       onConfirm: async () => {
         setIsDeleting(true);
         try {
+          // Check if workspace ID exists
+          if (!workspaceId) {
+            notify.error('فضای کاری انتخاب نشده است');
+            setIsDeleting(false);
+            return;
+          }
+
           // Simulate API call delay
           await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          // Parse project ID from URL params
+          const projectIdNum = parseInt(projectId);
 
           // Remove from localStorage
           const existingProjects = JSON.parse(
             localStorage.getItem('khan-projects') || '[]'
           );
           const updatedProjects = existingProjects.filter(
-            (p) => p.id !== parseInt(projectId)
+            (p) => p.id !== projectIdNum
           );
           localStorage.setItem(
             'khan-projects',
@@ -475,7 +520,7 @@ const EditFlowWorkspacePage = () => {
           notify.success('پروژه با موفقیت حذف شد');
 
           // Redirect to projects list page
-          navigate(`/workspace/${workspaceId}/projects`);
+          navigate(`/projects`);
         } catch (error) {
           notify.error('خطا در حذف پروژه');
           console.error('Error deleting project:', error);
@@ -494,25 +539,28 @@ const EditFlowWorkspacePage = () => {
       title: 'انصراف از ویرایش',
       text: 'آیا مطمئن هستید که می‌خواهید از ویرایش پروژه انصراف دهید؟ تغییرات ذخیره نشده از بین خواهند رفت.',
       onConfirm: () => {
-        navigate(`/workspace/${workspaceId}/projects`);
+        navigate(`/projects`);
       },
     });
   };
 
   /**
    * Get selected color object
+   * @type {Object}
    */
   const selectedColor =
     colorOptions.find((c) => c.id === formData.color) || colorOptions[0];
 
   /**
    * Get selected status object
+   * @type {Object}
    */
   const selectedStatus =
     statusOptions.find((s) => s.id === formData.status) || statusOptions[0];
 
   /**
    * Get selected priority object
+   * @type {Object}
    */
   const selectedPriority =
     priorityOptions.find((p) => p.id === formData.priority) ||
@@ -522,7 +570,7 @@ const EditFlowWorkspacePage = () => {
    * Show loading skeleton if data is loading
    */
   if (isLoading || !workspace || !project) {
-    return <EditFlowWorkspaceLoading />;
+    return <EditFlowLoading />;
   }
 
   return (
@@ -532,7 +580,7 @@ const EditFlowWorkspacePage = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
           <div className="flex items-center gap-3 md:gap-4">
             <Link
-              to={`/workspace/${workspaceId}/projects`}
+              to={`/projects`}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
             >
               <FaArrowLeft className="text-lg" />
@@ -697,7 +745,7 @@ const EditFlowWorkspacePage = () => {
               </label>
               <div className="mb-3">
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                     <FaTag />
                   </div>
                   <input
@@ -801,23 +849,41 @@ const EditFlowWorkspacePage = () => {
                   </div>
                 </div>
 
-                {/* Priority */}
+                {/* Priority dropdown */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     اولویت
                   </label>
-                  <select
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {priorityOptions.map((priority) => (
-                      <option key={priority.id} value={priority.id}>
-                        {priority.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      name="priority"
+                      value={formData.priority}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 pl-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    >
+                      {priorityOptions.map((priority) => (
+                        <option key={priority.id} value={priority.id}>
+                          {priority.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -892,4 +958,4 @@ const EditFlowWorkspacePage = () => {
   );
 };
 
-export default EditFlowWorkspacePage;
+export default EditFlowPage;

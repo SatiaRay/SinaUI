@@ -85,8 +85,11 @@ const ShowWorkspacePage = () => {
           },
         ];
 
+        // Parse workspace ID from URL params
+        const workspaceIdNum = parseInt(workspaceId);
+
         const foundWorkspace = mockWorkspaces.find(
-          (w) => w.id === parseInt(workspaceId)
+          (w) => w.id === workspaceIdNum
         );
 
         if (!foundWorkspace) {
@@ -154,7 +157,7 @@ const ShowWorkspacePage = () => {
         ];
 
         const workspaceProjects = mockProjects
-          .filter((project) => project.workspaceId === parseInt(workspaceId))
+          .filter((project) => project.workspaceId === workspaceIdNum)
           .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
         setProjects(workspaceProjects);
@@ -223,9 +226,22 @@ const ShowWorkspacePage = () => {
 
   /**
    * Handle manage projects button click
+   * Saves workspace ID to localStorage and navigates to projects page
    */
   const handleManageProjects = () => {
-    navigate(`/workspace/${workspace.id}/projects`);
+    // Save workspace ID to localStorage
+    localStorage.setItem('khan-selected-workspace-id', workspace.id.toString());
+    navigate(`/projects`);
+  };
+
+  /**
+   * Handle view all projects button click
+   * Saves workspace ID to localStorage and navigates to projects page
+   */
+  const handleViewAllProjects = () => {
+    // Save workspace ID to localStorage
+    localStorage.setItem('khan-selected-workspace-id', workspace.id.toString());
+    navigate(`/projects`);
   };
 
   /**
@@ -264,13 +280,13 @@ const ShowWorkspacePage = () => {
               <FaEdit />
               ویرایش فضای کاری
             </Link>
-            <Link
-              to={`/workspace/${workspace.id}/projects`}
+            <button
+              onClick={handleManageProjects}
               className="px-4 py-2.5 flex items-center justify-center gap-2 rounded-lg font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-md hover:shadow-lg"
             >
               <FaTasks />
               مدیریت پروژه‌ها
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -390,12 +406,12 @@ const ShowWorkspacePage = () => {
                     {projects.length} پروژه
                   </div>
                   {projects.length > 0 && (
-                    <Link
-                      to={`/workspace/${workspace.id}/projects`}
+                    <button
+                      onClick={handleViewAllProjects}
                       className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                     >
                       مشاهده همه
-                    </Link>
+                    </button>
                   )}
                 </div>
               </div>
@@ -461,13 +477,13 @@ const ShowWorkspacePage = () => {
                   {/* Show "View All" button if there are more than 4 projects */}
                   {projects.length > 4 && (
                     <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                      <Link
-                        to={`/workspace/${workspace.id}/projects`}
+                      <button
+                        onClick={handleViewAllProjects}
                         className="w-full py-3 bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                       >
                         <span>مشاهده همه {projects.length} پروژه</span>
                         <FaTasks />
-                      </Link>
+                      </button>
                     </div>
                   )}
                 </>

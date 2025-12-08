@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  useParams,
-  useNavigate,
-  Link,
-  useSearchParams,
-} from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import {
   FaArrowLeft,
   FaPlus,
@@ -19,7 +14,7 @@ import {
 } from 'react-icons/fa';
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
-import FlowWorkspaceLoading from './FlowWorkspaceLoading';
+import FlowLoading from './FlowLoading';
 import { useDisplay } from '../../../hooks/display';
 import { Pagination } from '@components/ui/pagination';
 
@@ -29,12 +24,17 @@ import { Pagination } from '@components/ui/pagination';
 import FlowEmpty from './FlowEmpty.svg';
 
 /**
- * FlowWorkspacePage Component - Displays and manages flows/projects in a workspace
+ * FlowPage Component - Displays and manages flows/projects in a workspace
  * @component
- * @returns {JSX.Element} Rendered flow workspace page
+ * @returns {JSX.Element} Rendered flow page
  */
-const FlowWorkspacePage = () => {
-  const { workspaceId } = useParams();
+const FlowPage = () => {
+  /**
+   * Get workspace ID from localStorage instead of route params
+   * @type {string|null}
+   */
+  const workspaceId = localStorage.getItem('khan-selected-workspace-id');
+
   const navigate = useNavigate();
   const { isDesktop, isMobile, height } = useDisplay();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,12 +62,20 @@ const FlowWorkspacePage = () => {
 
   /**
    * Load workspace and flows data on component mount
+   * @returns {Promise<void>}
    */
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
 
       try {
+        // Check if workspace ID exists in localStorage
+        if (!workspaceId) {
+          notify.error('فضای کاری انتخاب نشده است');
+          navigate('/workspace');
+          return;
+        }
+
         // Simulate API call delay
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -99,14 +107,19 @@ const FlowWorkspacePage = () => {
           },
         ];
 
+        // Parse workspace ID from localStorage (stored as string)
+        const workspaceIdNum = parseInt(workspaceId);
+
         const foundWorkspace = mockWorkspaces.find(
-          (w) => w.id === parseInt(workspaceId)
+          (w) => w.id === workspaceIdNum
         );
+
         if (!foundWorkspace) {
           notify.error('فضای کاری مورد نظر یافت نشد');
           navigate('/workspace');
           return;
         }
+
         setWorkspace(foundWorkspace);
 
         // Load flows (mock data)
@@ -234,7 +247,7 @@ const FlowWorkspacePage = () => {
         ];
 
         const workspaceFlows = mockFlows.filter(
-          (flow) => flow.workspaceId === parseInt(workspaceId)
+          (flow) => flow.workspaceId === workspaceIdNum
         );
         setFlows(workspaceFlows);
       } catch (error) {
@@ -311,6 +324,7 @@ const FlowWorkspacePage = () => {
 
   /**
    * Filter flows based on search term and filters
+   * @type {Array}
    */
   const filteredFlows = flows.filter((flow) => {
     // Search filter
@@ -330,6 +344,7 @@ const FlowWorkspacePage = () => {
 
   /**
    * Paginate filtered flows
+   * @type {Array}
    */
   const paginatedFlows = filteredFlows.slice(
     (page - 1) * perpage,
@@ -338,6 +353,7 @@ const FlowWorkspacePage = () => {
 
   /**
    * Calculate total pages for pagination
+   * @type {number}
    */
   const totalPages = Math.ceil(filteredFlows.length / perpage);
 
@@ -345,6 +361,7 @@ const FlowWorkspacePage = () => {
    * Handle flow archive
    * @param {number} flowId - Flow ID
    * @param {string} flowName - Flow name
+   * @returns {Promise<void>}
    */
   const handleArchiveFlow = (flowId, flowName) => {
     confirm({
@@ -370,6 +387,7 @@ const FlowWorkspacePage = () => {
    * Handle flow delete
    * @param {number} flowId - Flow ID
    * @param {string} flowName - Flow name
+   * @returns {Promise<void>}
    */
   const handleDeleteFlow = (flowId, flowName) => {
     confirm({
@@ -401,6 +419,7 @@ const FlowWorkspacePage = () => {
 
   /**
    * Get unique statuses from flows
+   * @type {Array<string>}
    */
   const uniqueStatuses = ['all', ...new Set(flows.map((flow) => flow.status))];
 
@@ -415,7 +434,7 @@ const FlowWorkspacePage = () => {
    * Show loading skeleton if data is loading
    */
   if (isLoading || !workspace) {
-    return <FlowWorkspaceLoading />;
+    return <FlowLoading />;
   }
 
   return (
@@ -440,7 +459,7 @@ const FlowWorkspacePage = () => {
             </div>
           </div>
           <Link
-            to={`/workspace/${workspaceId}/projects/create`}
+            to={`/projects/create`}
             className="px-4 py-2.5 flex items-center justify-center gap-2 rounded-lg font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-md hover:shadow-lg"
           >
             <FaPlus />
@@ -621,22 +640,14 @@ const FlowWorkspacePage = () => {
                     <div className="flex items-center gap-3">
                       <div
                         className={`${flow.color} w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center text-white text-lg md:text-xl font-bold`}
-                        onClick={() =>
-                          navigate(
-                            `/workspace/${workspaceId}/projects/${flow.id}`
-                          )
-                        }
+                        onClick={() => navigate(`/projects/${flow.id}`)}
                       >
                         {flow.letter}
                       </div>
                       <div>
                         <h3
                           className="font-bold text-gray-900 dark:text-white text-base md:text-lg cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                          onClick={() =>
-                            navigate(
-                              `/workspace/${workspaceId}/projects/${flow.id}`
-                            )
-                          }
+                          onClick={() => navigate(`/projects/${flow.id}`)}
                         >
                           {flow.name}
                         </h3>
@@ -649,7 +660,7 @@ const FlowWorkspacePage = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       <Link
-                        to={`/workspace/${workspaceId}/projects/edit/${flow.id}`}
+                        to={`/projects/edit/${flow.id}`}
                         className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                         title="ویرایش"
                       >
@@ -769,7 +780,7 @@ const FlowWorkspacePage = () => {
                 </button>
               )}
               <Link
-                to={`/workspace/${workspaceId}/projects/create`}
+                to={`/projects/create`}
                 className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors flex items-center gap-2 justify-center"
               >
                 <FaPlus />
@@ -796,4 +807,4 @@ const FlowWorkspacePage = () => {
   );
 };
 
-export default FlowWorkspacePage;
+export default FlowPage;

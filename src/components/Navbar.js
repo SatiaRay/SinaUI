@@ -18,6 +18,7 @@ import {
   FaUser,
 } from 'react-icons/fa';
 import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
+import { MdDashboardCustomize } from 'react-icons/md';
 import { WorkspaceDropdown } from './navbar/workspace-dropdown';
 
 /**
@@ -840,6 +841,7 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: '/wizard', label: 'ویزاردها', icon: FaMagic },
     { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
     { path: '/instruction', label: 'دستورالعمل‌ها', icon: FaBook },
+    { path: '/projects', label: 'پروژه ها', icon: MdDashboardCustomize },
     { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
   ];
 

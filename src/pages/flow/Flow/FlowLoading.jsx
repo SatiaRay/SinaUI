@@ -5,7 +5,7 @@ import React from 'react';
  * @component
  * @returns {JSX.Element} Rendered loading skeleton
  */
-const FlowWorkspaceLoading = () => {
+const FlowLoading = () => {
   return (
     <div className="h-full flex flex-col justify-start px-3 md:px-0 pt-4 md:pt-6">
       {/* Page header skeleton */}
@@ -101,4 +101,4 @@ const FlowWorkspaceLoading = () => {
   );
 };
 
-export default FlowWorkspaceLoading;
+export default FlowLoading;

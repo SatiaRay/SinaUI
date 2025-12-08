@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   FaArrowLeft,
   FaSave,
   FaTasks,
   FaTag,
   FaCalendar,
+  FaChevronDown,
 } from 'react-icons/fa';
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
 import { useDisplay } from '../../../hooks/display';
 
 /**
- * CreateFlowWorkspace Component - Page for creating a new project in a workspace
+ * CreateFlow Component - Page for creating a new project
  * @component
  * @returns {JSX.Element} Rendered create project page
  */
-const CreateFlowWorkspace = () => {
-  const { workspaceId } = useParams();
+const CreateFlow = () => {
+  /**
+   * Get workspace ID from localStorage
+   * @type {string|null}
+   */
+  const workspaceId = localStorage.getItem('khan-selected-workspace-id');
+
   const navigate = useNavigate();
   const { isMobile, isDesktop } = useDisplay();
 
@@ -58,6 +64,7 @@ const CreateFlowWorkspace = () => {
 
   /**
    * Available color options
+   * @type {Array<Object>}
    */
   const colorOptions = [
     {
@@ -94,6 +101,7 @@ const CreateFlowWorkspace = () => {
 
   /**
    * Available status options
+   * @type {Array<Object>}
    */
   const statusOptions = [
     {
@@ -123,6 +131,7 @@ const CreateFlowWorkspace = () => {
 
   /**
    * Priority options
+   * @type {Array<Object>}
    */
   const priorityOptions = [
     {
@@ -151,6 +160,8 @@ const CreateFlowWorkspace = () => {
   /**
    * Convert Gregorian date to Persian date string
    * This is a simplified version - in real app use a library like jalali-moment
+   * @param {string} gregorianDate - Gregorian date string
+   * @returns {string} Persian date string
    */
   const toPersianDate = (gregorianDate) => {
     if (!gregorianDate) return '';
@@ -180,6 +191,7 @@ const CreateFlowWorkspace = () => {
 
   /**
    * Get today's date in Gregorian format for default value
+   * @returns {string} Today's date in YYYY-MM-DD format
    */
   const getTodayGregorian = () => {
     const today = new Date();
@@ -194,6 +206,13 @@ const CreateFlowWorkspace = () => {
       setIsLoading(true);
 
       try {
+        // Check if workspace ID exists in localStorage
+        if (!workspaceId) {
+          notify.error('فضای کاری انتخاب نشده است');
+          navigate('/workspace');
+          return;
+        }
+
         // Simulate API call delay
         await new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -225,8 +244,11 @@ const CreateFlowWorkspace = () => {
           },
         ];
 
+        // Parse workspace ID from localStorage (stored as string)
+        const workspaceIdNum = parseInt(workspaceId);
+
         const foundWorkspace = mockWorkspaces.find(
-          (w) => w.id === parseInt(workspaceId)
+          (w) => w.id === workspaceIdNum
         );
 
         if (!foundWorkspace) {
@@ -319,6 +341,7 @@ const CreateFlowWorkspace = () => {
   /**
    * Handle form submission
    * @param {React.FormEvent} e - Form submit event
+   * @returns {Promise<void>}
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -337,6 +360,13 @@ const CreateFlowWorkspace = () => {
     setIsSaving(true);
 
     try {
+      // Check if workspace ID exists
+      if (!workspaceId) {
+        notify.error('فضای کاری انتخاب نشده است');
+        setIsSaving(false);
+        return;
+      }
+
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
@@ -347,10 +377,13 @@ const CreateFlowWorkspace = () => {
       const selectedColor =
         colorOptions.find((c) => c.id === formData.color) || colorOptions[0];
 
+      // Parse workspace ID from localStorage (stored as string)
+      const workspaceIdNum = parseInt(workspaceId);
+
       // Create project object
       const newProject = {
         id: Date.now(), // Temporary ID
-        workspaceId: parseInt(workspaceId),
+        workspaceId: workspaceIdNum,
         name: formData.name,
         description: formData.description,
         color: selectedColor.class,
@@ -378,7 +411,7 @@ const CreateFlowWorkspace = () => {
       notify.success('پروژه جدید با موفقیت ایجاد شد!');
 
       // Redirect to projects list page
-      navigate(`/workspace/${workspaceId}/projects`);
+      navigate(`/projects`);
     } catch (error) {
       notify.error('خطا در ایجاد پروژه. لطفاً دوباره تلاش کنید.');
       console.error('Error creating project:', error);
@@ -395,25 +428,28 @@ const CreateFlowWorkspace = () => {
       title: 'انصراف از ایجاد پروژه',
       text: 'آیا مطمئن هستید که می‌خواهید از ایجاد پروژه جدید انصراف دهید؟',
       onConfirm: () => {
-        navigate(`/workspace/${workspaceId}/projects`);
+        navigate(`/projects`);
       },
     });
   };
 
   /**
    * Get selected color object
+   * @type {Object}
    */
   const selectedColor =
     colorOptions.find((c) => c.id === formData.color) || colorOptions[0];
 
   /**
    * Get selected status object
+   * @type {Object}
    */
   const selectedStatus =
     statusOptions.find((s) => s.id === formData.status) || statusOptions[0];
 
   /**
    * Get selected priority object
+   * @type {Object}
    */
   const selectedPriority =
     priorityOptions.find((p) => p.id === formData.priority) ||
@@ -463,7 +499,7 @@ const CreateFlowWorkspace = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
           <div className="flex items-center gap-3 md:gap-4">
             <Link
-              to={`/workspace/${workspaceId}/projects`}
+              to={`/projects`}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
             >
               <FaArrowLeft className="text-lg" />
@@ -718,18 +754,28 @@ const CreateFlowWorkspace = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     اولویت
                   </label>
-                  <select
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {priorityOptions.map((priority) => (
-                      <option key={priority.id} value={priority.id}>
-                        {priority.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      name="priority"
+                      value={formData.priority}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 pr-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                        backgroundPosition: 'right 0.75rem center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '1.5em 1.5em',
+                        paddingRight: '2.5rem',
+                        paddingLeft: '1rem',
+                      }}
+                    >
+                      {priorityOptions.map((priority) => (
+                        <option key={priority.id} value={priority.id}>
+                          {priority.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -804,4 +850,4 @@ const CreateFlowWorkspace = () => {
   );
 };
 
-export default CreateFlowWorkspace;
+export default CreateFlow;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { FaCrown, FaUser } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Workspace Dropdown Component
@@ -23,6 +24,7 @@ export const WorkspaceDropdown = ({
   workspaces = [],
 }) => {
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -140,6 +142,22 @@ export const WorkspaceDropdown = ({
     }
   };
 
+  /**
+   * Handle navigation to workspace management page
+   */
+  const handleManageWorkspaces = () => {
+    onClose();
+    navigate('/workspace');
+  };
+
+  /**
+   * Handle add new workspace click
+   */
+  const handleAddNewWorkspace = () => {
+    onClose();
+    navigate('/workspace/create');
+  };
+
   if (!showDropdown) return null;
 
   /**
@@ -223,21 +241,34 @@ export const WorkspaceDropdown = ({
       {/* Separator */}
       <div className="border-t border-gray-700"></div>
 
-      {/* Add New Workspace Button */}
-      <button
-        onClick={() => {
-          console.log('Add new workspace clicked');
-          onClose();
-        }}
-        className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-700 transition-colors duration-200 text-gray-300 hover:text-white"
-      >
-        <span className="flex-1 text-right text-sm font-medium truncate">
-          افزودن فضای کاری جدید
-        </span>
-        <div className="w-8 h-8 border border-dashed border-gray-500 rounded-md flex items-center justify-center flex-shrink-0">
-          <PlusIcon className="w-4 h-4" />
-        </div>
-      </button>
+      {/* Action Buttons */}
+      <div className="space-y-1 p-1">
+        {/* Add New Workspace Button */}
+        <button
+          onClick={handleAddNewWorkspace}
+          className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-700 transition-colors duration-200 text-gray-300 hover:text-white rounded"
+        >
+          <span className="flex-1 text-right text-sm font-medium truncate">
+            افزودن فضای کاری جدید
+          </span>
+          <div className="w-8 h-8 border border-dashed border-gray-500 rounded-md flex items-center justify-center flex-shrink-0">
+            <PlusIcon className="w-4 h-4" />
+          </div>
+        </button>
+
+        {/* Manage Workspaces Button */}
+        <button
+          onClick={handleManageWorkspaces}
+          className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-700 transition-colors duration-200 text-gray-300 hover:text-white rounded"
+        >
+          <span className="flex-1 text-right text-sm font-medium truncate">
+            مدیریت فضاهای کاری
+          </span>
+          <div className="w-8 h-8 border border-dashed border-gray-500 rounded-md flex items-center justify-center flex-shrink-0">
+            <Cog6ToothIcon className="w-4 h-4" />
+          </div>
+        </button>
+      </div>
     </div>
   );
 };
