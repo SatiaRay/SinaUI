@@ -47,6 +47,13 @@ import {
   WizardIndexPage,
 } from '@pages/wizard';
 import { ThemeProvider } from '@contexts/ThemeContext';
+import {
+  WorkspaceIndexPage,
+  CreateWorkspacePage,
+  EditWorkspacePage,
+  ShowWorkspacePage,
+} from '@pages/workspace';
+import { FlowPage, CreateFlow, EditFlowPage, ShowFlowPage } from '@pages/flow';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -77,7 +84,6 @@ function AppContent() {
     }
     return !JSON.parse(savedState);
   });
-  const [appVersion, setAppVersion] = useState(null);
 
   /**
    * Setup window event on container overflow hidden
@@ -92,22 +98,6 @@ function AppContent() {
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  /**
-   * Fetch App Version
-   */
-  useEffect(() => {
-    const fetchVersion = async () => {
-      try {
-        const res = await getVersion();
-        setAppVersion(res.version);
-      } catch (err) {
-        setAppVersion('undefined');
-      }
-    };
-
-    fetchVersion();
   }, []);
 
   return (
@@ -132,13 +122,6 @@ function AppContent() {
       )}
 
       {!isPrivateRoute && publicRoutes()}
-
-      <span
-        className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
-        dir="ltr"
-      >
-        {appVersion}
-      </span>
     </div>
   );
 }
@@ -328,6 +311,76 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <EditInstruction />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      {/* Workspace Routes */}
+      <Route path="/workspace">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <WorkspaceIndexPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/create'}
+          element={
+            <PrivateRoute>
+              <CreateWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/edit/:id'}
+          element={
+            <PrivateRoute>
+              <EditWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId'}
+          element={
+            <PrivateRoute>
+              <ShowWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      {/* Project Routes */}
+      <Route path="/projects">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <FlowPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/projects/create'}
+          element={
+            <PrivateRoute>
+              <CreateFlow />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/projects/edit/:projectId'}
+          element={
+            <PrivateRoute>
+              <EditFlowPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/projects/:projectId'}
+          element={
+            <PrivateRoute>
+              <ShowFlowPage />
             </PrivateRoute>
           }
         />
