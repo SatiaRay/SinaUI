@@ -59,8 +59,7 @@ const AuditLogDetailPage = () => {
       </div>
       {children || (
         <div
-          className={`text-gray-900 dark:text-gray-50 break-all ${
-            mono ? 'font-mono text-sm' : ''
+          className={`text-gray-900 dark:text-gray-50 break-all text-sm
           }`}
         >
           {value}
@@ -148,7 +147,7 @@ const AuditLogDetailPage = () => {
             <div className="p-6">
               <div className="relative">
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-l from-indigo-500/5 via-emerald-500/5 to-fuchsia-500/5 dark:from-indigo-500/10 dark:via-emerald-500/10 dark:to-fuchsia-500/10" />
-                <pre className="relative text-xs md:text-sm bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 p-5 rounded-2xl overflow-auto font-mono text-gray-800 dark:text-gray-100 leading-6">
+                <pre className="relative text-xs md:text-sm bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 p-5 rounded-2xl overflow-auto text-gray-800 dark:text-gray-100 leading-6">
                   {JSON.stringify(log.metadata, null, 2)}
                 </pre>
               </div>

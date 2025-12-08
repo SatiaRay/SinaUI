@@ -169,7 +169,7 @@ const AuditLogIndexPage = () => {
         </span>
       </td>
       <td className="px-6 py-4">{log.resourceType}</td>
-      <td className="px-6 py-4 font-mono">{log.resourceId}</td>
+      <td className="px-6 py-4">{log.resourceId}</td>
       <td className="px-6 py-4 text-xs text-gray-600 dark:text-gray-300">
         {JSON.stringify(log.metadata)}
       </td>
@@ -181,7 +181,7 @@ const AuditLogIndexPage = () => {
       <header className="mx-3 md:mx-0 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
         <h3 className="text-2xl md:text-3xl font-bold">لاگ‌های فضای کاری</h3>
         <div className="text-sm text-gray-500 dark:text-gray-300">
-          آیدی فضای کاری: <span className="font-mono">{workspaceId}</span>
+          آیدی فضای کاری: <span>{workspaceId}</span>
         </div>
       </header>
 
