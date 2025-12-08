@@ -552,26 +552,95 @@ const EditWorkspacePage = () => {
                     </div>
                   </div>
 
-                  {/* Workspace plan */}
+                  {/* Workspace plan - Fixed RTL select padding issue */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       پلن فضای کاری
                     </label>
-                    <select
-                      name="plan"
-                      value={formData.plan}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      {planOptions.map((plan) => (
-                        <option key={plan.id} value={plan.id}>
-                          {plan.name}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      می‌توانید پلن فضای کاری را ارتقا دهید
-                    </p>
+                    <div className="relative">
+                      <select
+                        name="plan"
+                        value={formData.plan}
+                        onChange={handleInputChange}
+                        className="w-full appearance-none pr-12 pl-4 py-3.5 bg-gray-50 dark:bg-gray-900
+                border border-gray-200 dark:border-gray-700 rounded-lg
+                text-gray-900 dark:text-white text-base
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                hover:border-gray-300 dark:hover:border-gray-600 transition-colors duration-200
+                cursor-pointer rtl:text-right"
+                        dir="rtl"
+                        aria-label="انتخاب پلن فضای کاری"
+                        title="پلن فضای کاری را انتخاب کنید"
+                      >
+                        {planOptions.map((plan) => (
+                          <option
+                            key={plan.id}
+                            value={plan.id}
+                            className="py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                          >
+                            {plan.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Custom dropdown arrow with proper RTL positioning */}
+                      <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                        <svg
+                          className="w-5 h-5 text-gray-500 dark:text-gray-400 transform transition-transform duration-200"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+
+                      {/* Plan type icon with proper RTL positioning */}
+                      <div className="absolute inset-y-0 right-3 flex items-center">
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                          {selectedPlan.id === 'free' && (
+                            <FaUser className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                          )}
+                          {selectedPlan.id === 'standard' && (
+                            <FaProjectDiagram className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                          )}
+                          {selectedPlan.id === 'pro' && (
+                            <FaCrown className="w-3.5 h-3.5 text-yellow-600 dark:text-yellow-400" />
+                          )}
+                          {selectedPlan.id === 'enterprise' && (
+                            <FaUsers className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Helper text */}
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <svg
+                        className="w-4 h-4 text-gray-400 dark:text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        می‌توانید پلن فضای کاری را ارتقا دهید
+                      </p>
+                    </div>
                   </div>
 
                   {/* Workspace visibility */}
