@@ -5,7 +5,7 @@ import { TABS } from '../../../components/workspace/settings/Constants';
 import OverviewSection from '../../../components/workspace/settings/OverviewSection';
 import MembersSection from '../../../components/workspace/settings/MembersSection';
 import BillingSection from '../../../components/workspace/settings/BillingSection';
-import DangerZoneSection from '../../../components/workspace/settings/DangerZoneSection';
+import DangerZoneSection from './DangerZoneSection';
 import {
   OverviewSectionLoading,
   MembersSectionLoading,

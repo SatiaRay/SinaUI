@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { UserPlus } from "lucide-react";
 import { GoPlusCircle } from "react-icons/go";
 import Swal from "sweetalert2";
+import { notify } from "../../ui/toast/index"; 
 
 /**
  * MembersSection
@@ -33,17 +34,6 @@ const MembersSection = ({ members: init = [], workspace }) => {
       .slice(0, 2)
       .toUpperCase() || "U";
 
-  const toast = (msg) =>
-    Swal.fire({
-      toast: true,
-      position: "top-end",
-      icon: "success",
-      title: msg,
-      timer: 2000,
-      timerProgressBar: true,
-      showConfirmButton: false,
-    });
-
   const invite = () =>
     Swal.fire({
       title: "دعوت عضو جدید",
@@ -72,7 +62,7 @@ const MembersSection = ({ members: init = [], workspace }) => {
             joined_at: new Date().toLocaleDateString("fa-IR"),
           },
         ]);
-        toast(`Invitation sent to ${email}`);
+        notify.success(`دعوت‌نامه برای ${email} ارسال شد`);
       }
     });
 
@@ -97,7 +87,7 @@ const MembersSection = ({ members: init = [], workspace }) => {
             x.id === id ? { ...x, role: toAdmin ? "admin" : "member" } : x
           )
         );
-        toast(`Role changed for ${m.name}`);
+        notify.success(`نقش ${m.name} با موفقیت تغییر کرد`);
       }
     });
   };
@@ -116,7 +106,7 @@ const MembersSection = ({ members: init = [], workspace }) => {
     }).then((r) => {
       if (r.isConfirmed) {
         setList((p) => p.filter((x) => x.id !== id));
-        toast(`${m.name} removed`);
+        notify.success(`${m.name} با موفقیت حذف شد`);
       }
     });
   };
