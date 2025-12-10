@@ -2,121 +2,150 @@ import { useDisplay } from '../../../hooks/display';
 import { SkeletonLoading } from '@components/ui/loading/skeletonLoading';
 
 /**
- * Loading component for WorkflowIndexPage – fully responsive with desktop table + mobile cards
+ * Loading component for WorkflowIndexPage - Responsive card-based skeleton matching the actual UI
+ * @component
+ * @returns {JSX.Element} Rendered skeleton loading component
  */
 export const WorkflowIndexLoading = () => {
-  /**
-   * useDisplay: Dynamically calculates available height and whether it's a large display
-   */
-  const { height, isLargeDisplay } = useDisplay();
+  const { height } = useDisplay();
 
-  /**
-   * Dynamic row count: Ensures skeleton fills viewport without overflow
-   * 150px per row (approx. card/table row height) → height / 150
-   */
-  const rowCount = Math.max(3, Math.floor(height / 150));
+  // Calculate number of skeleton cards to fill the viewport
+  const cardCount = Math.max(3, Math.floor(height / 220));
 
   return (
-    <div className="container mx-auto w-full p-3 md:p-0">
+    <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
       {/* Header Section Skeleton */}
-      <div className="">
-        <div className="flex justify-between items-center w-full mb-5">
-          <h3 className="text-2xl md:text-3xl">گردش کارها</h3>
-          {/* Desktop: Action Buttons Skeleton (Import + Create) */}
-          <div className="flex flex-row gap-3 hidden md:flex">
-            <SkeletonLoading
-              height={45}
-              width={120}
-              className="w-full"
-            />
-            <SkeletonLoading
-              height={45}
-              width={120}
-              className="w-full"
-            />
-          </div>
+      <div className="mx-3 md:mx-0 md:mb-6 pb-3 pt-3 md:pt-0 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
+        {/* Title Skeleton */}
+        <SkeletonLoading height={36} width={120} className="rounded-lg" />
 
-          {/* Mobile: Action Buttons Skeleton (Import + Create) */}
-          <div className="flex gap-3 md:hidden">
-            <SkeletonLoading
-              height={35}
-              width={90}
-            />
-            <SkeletonLoading
-              height={35}
-              width={90}
-            />
-          </div>
+        {/* Action Buttons Skeleton */}
+        <div className="flex gap-2 items-center">
+          {/* Import Button Skeleton */}
+          <SkeletonLoading
+            height={48}
+            width={130}
+            className="rounded-xl hidden md:block"
+          />
+          <SkeletonLoading
+            height={48}
+            width={90}
+            className="rounded-xl md:hidden"
+          />
+
+          {/* Create Button Skeleton */}
+          <SkeletonLoading
+            height={48}
+            width={130}
+            className="rounded-xl hidden md:block"
+          />
+          <SkeletonLoading
+            height={48}
+            width={90}
+            className="rounded-xl md:hidden"
+          />
         </div>
       </div>
 
-      {/* Desktop Table Skeleton – Hidden on mobile */}
-      <div className="sm:block bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-        <div className="w-full overflow-x-auto">
-          <table className="w-full divide-y divide-gray-300 dark:divide-gray-700">
-            <thead className="bg-neutral-300 dark:bg-gray-700">
-              <tr>
-                {['نام', 'وضعیت', 'عملیات'].map((header, index) => (
-                  <th key={index} className="px-4 py-3 text-center">
+      {/* Main Content Area */}
+      <div className="px-3 md:px-0 mt-6">
+        {/* Skeleton Cards Grid - Matches actual layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {Array.from({ length: cardCount }).map((_, index) => (
+            <div
+              key={index}
+              className="group w-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden"
+            >
+              <div className="p-5 h-full flex flex-col">
+                {/* Card Header - Name and Status */}
+                <div className="flex items-center justify-between mb-4">
+                  {/* Workflow Name Skeleton */}
+                  <div className="flex-1 mr-3">
                     <SkeletonLoading
-                      height={20}
-                      width={70}
-                      className="mx-auto py-2"
-                      containerClassName=''
+                      height={24}
+                      width="70%"
+                      className="rounded-lg"
                     />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {Array.from({ length: rowCount }).map((_, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  {/* Name */}
-                  <td className="px-4 py-4 text-center">
+                  </div>
+
+                  {/* Status Badge Skeleton */}
+                  <div className="flex-shrink-0">
                     <SkeletonLoading
-                      height={20}
-                      width={120}
-                      className="mx-auto"
+                      height={28}
+                      width={80}
+                      className="rounded-full"
                     />
-                  </td>
-                  {/* Status Badge */}
-                  <td className="px-4 py-4 text-center">
+                  </div>
+                </div>
+
+                {/* Separator */}
+                <div className="border-t border-gray-200 dark:border-gray-600 mb-4"></div>
+
+                {/* Action Buttons Skeleton */}
+                <div className="flex items-center justify-between gap-2">
+                  {/* Desktop Action Buttons */}
+                  <div className="hidden sm:flex items-center gap-2 w-full">
                     <SkeletonLoading
-                      height={26}
-                      width={70}
-                      className="mx-auto rounded-full"
+                      height={40}
+                      width="100%"
+                      className="rounded-lg"
                     />
-                  </td>
-                  {/* Actions */}
-                  <td className="px-4 py-4">
-                    <div className="flex justify-center gap-2">
-                      <SkeletonLoading
-                        height={36}
-                        width={80}
-                        className="rounded-lg"
-                      />
-                      <div className="hidden lg:flex flex-row gap-2">
-                        <SkeletonLoading
-                          height={36}
-                          width={60}
-                          className="rounded-lg hidden"
-                        />
-                        <SkeletonLoading
-                          height={36}
-                          width={60}
-                          className="rounded-lg hidden"
-                        />
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <SkeletonLoading
+                      height={40}
+                      width="100%"
+                      className="rounded-lg"
+                    />
+                    <SkeletonLoading
+                      height={40}
+                      width="100%"
+                      className="rounded-lg"
+                    />
+                  </div>
+
+                  {/* Mobile Action Buttons */}
+                  <div className="sm:hidden flex items-center gap-2 w-full">
+                    <SkeletonLoading
+                      height={40}
+                      width="100%"
+                      className="rounded-lg"
+                    />
+                    <SkeletonLoading
+                      height={40}
+                      width="100%"
+                      className="rounded-lg"
+                    />
+                    <SkeletonLoading
+                      height={40}
+                      width="100%"
+                      className="rounded-lg"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Hover Effect Skeleton */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0"></div>
+            </div>
+          ))}
         </div>
+
+        {/* Empty State Skeleton (optional - shows while loading) */}
+        {cardCount === 0 && (
+          <div className="text-center mx-auto py-12">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+              <SkeletonLoading
+                height={24}
+                width="60%"
+                className="mx-auto mb-4 rounded-lg"
+              />
+              <SkeletonLoading
+                height={48}
+                width={200}
+                className="mx-auto rounded-xl"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

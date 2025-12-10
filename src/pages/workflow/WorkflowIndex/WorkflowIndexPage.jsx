@@ -8,7 +8,7 @@ import {
   useImportWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
 import { notify } from '../../../components/ui/toast';
-import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';
+import { WorkflowIndexLoading } from './WorkflowLoading';
 import Error from '@components/Error';
 import { GoPlusCircle } from 'react-icons/go';
 import { LuUpload } from 'react-icons/lu';
