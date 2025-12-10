@@ -47,6 +47,11 @@ import {
   WizardIndexPage,
 } from '@pages/wizard';
 import { ThemeProvider } from '@contexts/ThemeContext';
+import {
+  ApiIntegrationIndexPage,
+  CreateApiIntegrationPage,
+  EditApiIntegrationPage,
+} from '@pages/apiIntegrations';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -304,6 +309,33 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <EditInstruction />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      {/* Instruction Routes */}
+      <Route path="/api-integrations">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <ApiIntegrationIndexPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="create"
+          element={
+            <PrivateRoute>
+              <CreateApiIntegrationPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="edit/:id"
+          element={
+            <PrivateRoute>
+              <EditApiIntegrationPage />
             </PrivateRoute>
           }
         />

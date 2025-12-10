@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fa';
 import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
 import ThemeToggleBtn from './ui/ThemeToggleBtn';
-
+import { RiPlug2Line } from 'react-icons/ri';
 /**
  * Navigation list component with animations
  * @param {Object} props - Component props
@@ -166,7 +166,7 @@ const ExpandableSidebar = ({
               }`}
             >
               <div className="border-0">
-                <ThemeToggleBtn/>
+                <ThemeToggleBtn />
               </div>
               {/* Toggle button in header when expanded */}
               <button
@@ -342,7 +342,7 @@ const ExpandableSidebar = ({
                     <>
                       <div className="flex flex-col items-center gap-2">
                         <div className="border-0">
-                          <ThemeToggleBtn/>
+                          <ThemeToggleBtn />
                         </div>
                         <div className="w-7 h-7 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full cursor-default">
                           {getBadgeLetters(user?.name)}
@@ -410,6 +410,7 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: '/wizard', label: 'ویزاردها', icon: FaMagic },
     { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
     { path: '/instruction', label: 'دستورالعمل‌ها', icon: FaBook },
+    { path: '/api-integrations', label: 'اتصال api', icon: RiPlug2Line },
     { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
   ];
 
