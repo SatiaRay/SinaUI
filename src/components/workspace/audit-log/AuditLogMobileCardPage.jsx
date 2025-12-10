@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ACTION_LABEL, ACTION_STYLE, fmt } from '../Constants';
+import { ACTION_LABEL, ACTION_STYLE, fmt } from '../../../pages/workspace/audit-log/Constants';
 
 /**
  * MetaView
