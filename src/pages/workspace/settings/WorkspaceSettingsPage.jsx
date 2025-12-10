@@ -1,11 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import { TABS } from './Constants';
-import OverviewSection from './OverviewSection';
-import MembersSection from './MembersSection';
-import BillingSection from './BillingSection';
-import DangerZoneSection from './DangerZoneSection';
+import { TABS } from '../../../components/workspace/settings/Constants';
+import OverviewSection from '../../../components/workspace/settings/OverviewSection';
+import MembersSection from '../../../components/workspace/settings/MembersSection';
+import BillingSection from '../../../components/workspace/settings/BillingSection';
+import DangerZoneSection from '../../../components/workspace/settings/DangerZoneSection';
 import {
   OverviewSectionLoading,
   MembersSectionLoading,
