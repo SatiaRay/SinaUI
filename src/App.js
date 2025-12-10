@@ -47,6 +47,11 @@ import {
   WizardIndexPage,
 } from '@pages/wizard';
 import { ThemeProvider } from '@contexts/ThemeContext';
+import {
+  ApiIntegrationIndexPage,
+  CreateApiIntegrationPage,
+  EditApiIntegrationPage,
+} from '@pages/apiIntegrations';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -77,7 +82,6 @@ function AppContent() {
     }
     return !JSON.parse(savedState);
   });
-  const [appVersion, setAppVersion] = useState(null);
 
   /**
    * Setup window event on container overflow hidden
@@ -92,22 +96,6 @@ function AppContent() {
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  /**
-   * Fetch App Version
-   */
-  useEffect(() => {
-    const fetchVersion = async () => {
-      try {
-        const res = await getVersion();
-        setAppVersion(res.version);
-      } catch (err) {
-        setAppVersion('undefined');
-      }
-    };
-
-    fetchVersion();
   }, []);
 
   return (
@@ -132,13 +120,6 @@ function AppContent() {
       )}
 
       {!isPrivateRoute && publicRoutes()}
-
-      <span
-        className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
-        dir="ltr"
-      >
-        {appVersion}
-      </span>
     </div>
   );
 }
@@ -328,6 +309,33 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <EditInstruction />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      {/* Instruction Routes */}
+      <Route path="/api-integrations">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <ApiIntegrationIndexPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="create"
+          element={
+            <PrivateRoute>
+              <CreateApiIntegrationPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="edit/:id"
+          element={
+            <PrivateRoute>
+              <EditApiIntegrationPage />
             </PrivateRoute>
           }
         />
