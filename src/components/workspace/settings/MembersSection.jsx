@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from "react";
-import { UserPlus } from "lucide-react";
-import { GoPlusCircle } from "react-icons/go";
-import Swal from "sweetalert2";
-import { notify } from "../../ui/toast/index"; 
+import React, { useMemo, useState } from 'react';
+import { UserPlus } from 'lucide-react';
+import { GoPlusCircle } from 'react-icons/go';
+import Swal from 'sweetalert2';
+import { notify } from '../../ui/toast/index';
 
 /**
  * MembersSection
@@ -13,53 +13,54 @@ import { notify } from "../../ui/toast/index";
  * @return {JSX.Element} Rendered members section.
  */
 const MembersSection = ({ members: init = [], workspace }) => {
-  const isAdmin = ["owner", "admin"].includes(workspace?.my_role);
-  const [search, setSearch] = useState("");
+  const isAdmin = ['owner', 'admin'].includes(workspace?.my_role);
+  const [search, setSearch] = useState('');
   const [list, setList] = useState(init);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return list;
     const q = search.toLowerCase();
     return list.filter(
-      (m) => m.name?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q)
+      (m) =>
+        m.name?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q)
     );
   }, [list, search]);
 
   const initials = (name) =>
     name
       ?.trim()
-      .split(" ")
+      .split(' ')
       .map((p) => p[0])
-      .join("")
+      .join('')
       .slice(0, 2)
-      .toUpperCase() || "U";
+      .toUpperCase() || 'U';
 
   const invite = () =>
     Swal.fire({
-      title: "دعوت عضو جدید",
-      input: "email",
-      inputLabel: "ایمیل فرد",
-      inputPlaceholder: "مثال: user@test.com",
-      inputValue: "user@test.com",
+      title: 'دعوت عضو جدید',
+      input: 'email',
+      inputLabel: 'ایمیل فرد',
+      inputPlaceholder: 'مثال: user@test.com',
+      inputValue: 'user@test.com',
       showCancelButton: true,
-      confirmButtonText: "ارسال دعوت‌نامه",
-      cancelButtonText: "لغو",
+      confirmButtonText: 'ارسال دعوت‌نامه',
+      cancelButtonText: 'لغو',
       preConfirm: (e) =>
         !e || !/^\S+@\S+\.\S+$/.test(e)
-          ? (Swal.showValidationMessage("ایمیل نامعتبر"), false)
+          ? (Swal.showValidationMessage('ایمیل نامعتبر'), false)
           : e,
     }).then((r) => {
       if (r.isConfirmed) {
         const email = r.value;
-        const name = email.split("@")[0].replace(/^\w/, (c) => c.toUpperCase());
+        const name = email.split('@')[0].replace(/^\w/, (c) => c.toUpperCase());
         setList((p) => [
           ...p,
           {
             id: Date.now(),
             name,
             email,
-            role: "member",
-            joined_at: new Date().toLocaleDateString("fa-IR"),
+            role: 'member',
+            joined_at: new Date().toLocaleDateString('fa-IR'),
           },
         ]);
         notify.success(`دعوت‌نامه برای ${email} ارسال شد`);
@@ -68,23 +69,23 @@ const MembersSection = ({ members: init = [], workspace }) => {
 
   const toggleRole = (id) => {
     const m = list.find((x) => x.id === id);
-    if (!m || m.role === "owner") return;
+    if (!m || m.role === 'owner') return;
 
-    const toAdmin = m.role !== "admin";
-    const roleFa = toAdmin ? "ادمین" : "عضو عادی";
+    const toAdmin = m.role !== 'admin';
+    const roleFa = toAdmin ? 'ادمین' : 'عضو عادی';
 
     Swal.fire({
-      title: "تغییر نقش",
+      title: 'تغییر نقش',
       text: `آیا ${m.name} را به «${roleFa}» تبدیل کنید؟`,
-      icon: "question",
+      icon: 'question',
       showCancelButton: true,
-      confirmButtonText: "بله",
-      cancelButtonText: "خیر",
+      confirmButtonText: 'بله',
+      cancelButtonText: 'خیر',
     }).then((r) => {
       if (r.isConfirmed) {
         setList((p) =>
           p.map((x) =>
-            x.id === id ? { ...x, role: toAdmin ? "admin" : "member" } : x
+            x.id === id ? { ...x, role: toAdmin ? 'admin' : 'member' } : x
           )
         );
         notify.success(`نقش ${m.name} با موفقیت تغییر کرد`);
@@ -97,12 +98,12 @@ const MembersSection = ({ members: init = [], workspace }) => {
     if (!m) return;
 
     Swal.fire({
-      title: "حذف عضو",
+      title: 'حذف عضو',
       text: `آیا ${m.name} حذف شود؟`,
-      icon: "warning",
+      icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: "بله، حذف کن",
-      confirmButtonColor: "#d33",
+      confirmButtonText: 'بله، حذف کن',
+      confirmButtonColor: '#d33',
     }).then((r) => {
       if (r.isConfirmed) {
         setList((p) => p.filter((x) => x.id !== id));
@@ -112,7 +113,7 @@ const MembersSection = ({ members: init = [], workspace }) => {
   };
 
   const getRoleLabel = (role) =>
-    role === "owner" ? "مالک" : role === "admin" ? "ادمین" : "عضو";
+    role === 'owner' ? 'مالک' : role === 'admin' ? 'ادمین' : 'عضو';
 
   return (
     <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 md:p-6 border border-gray-200 dark:border-gray-700">
@@ -168,15 +169,17 @@ const MembersSection = ({ members: init = [], workspace }) => {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-bold text-base text-gray-900 dark:text-white truncate">
-                      {m.name || "—"}
+                      {m.name || '—'}
                     </p>
-                    {m.role === "owner" && (
+                    {m.role === 'owner' && (
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-200">
                         مالک
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{m.email}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    {m.email}
+                  </p>
                 </div>
               </div>
 
@@ -186,7 +189,7 @@ const MembersSection = ({ members: init = [], workspace }) => {
                   {getRoleLabel(m.role)}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  تاریخ عضویت: {m.joined_at || "-"}
+                  تاریخ عضویت: {m.joined_at || '-'}
                 </span>
               </div>
 
@@ -197,11 +200,11 @@ const MembersSection = ({ members: init = [], workspace }) => {
                     {getRoleLabel(m.role)}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    تاریخ عضویت: {m.joined_at || "-"}
+                    تاریخ عضویت: {m.joined_at || '-'}
                   </span>
                 </div>
 
-                {isAdmin && m.role !== "owner" && (
+                {isAdmin && m.role !== 'owner' && (
                   <div className="flex gap-2 w-full lg:w-auto">
                     <button
                       onClick={() => toggleRole(m.id)}

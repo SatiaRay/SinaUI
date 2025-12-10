@@ -1,6 +1,6 @@
-import React from "react";
-import { Shield, CalendarDays, Layers3, UserCheck } from "lucide-react";
-import { InfoRow } from "./Constants";
+import React from 'react';
+import { Shield, CalendarDays, Layers3, UserCheck } from 'lucide-react';
+import { InfoRow } from './Constants';
 
 /**
  * OverviewSection
@@ -29,7 +29,9 @@ const OverviewSection = ({ workspace }) => (
         <InfoRow
           label="نام فضای کاری"
           value={workspace.name}
-          icon={<Shield className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+          icon={
+            <Shield className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          }
         />
       </div>
 
@@ -39,7 +41,9 @@ const OverviewSection = ({ workspace }) => (
           label="پلن"
           value={workspace.plan?.toUpperCase()}
           variant="badge-blue"
-          icon={<Layers3 className="w-4 h-4 text-fuchsia-600 dark:text-fuchsia-400" />}
+          icon={
+            <Layers3 className="w-4 h-4 text-fuchsia-600 dark:text-fuchsia-400" />
+          }
         />
       </div>
 
@@ -48,7 +52,9 @@ const OverviewSection = ({ workspace }) => (
         <InfoRow
           label="تاریخ ایجاد"
           value={workspace.created_at}
-          icon={<CalendarDays className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+          icon={
+            <CalendarDays className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          }
         />
       </div>
 
@@ -56,12 +62,13 @@ const OverviewSection = ({ workspace }) => (
         <div className="absolute inset-y-2 right-2 w-1.5 rounded-full bg-gradient-to-b from-amber-500 to-rose-500 opacity-70 group-hover:opacity-100 transition" />
         <InfoRow
           label="نقش شما"
-          value={workspace.my_role === "owner" ? "مالک" : workspace.my_role}
+          value={workspace.my_role === 'owner' ? 'مالک' : workspace.my_role}
           variant="badge-gray"
-          icon={<UserCheck className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
+          icon={
+            <UserCheck className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          }
         />
       </div>
-
     </div>
   </div>
 );

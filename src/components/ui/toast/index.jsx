@@ -1,19 +1,19 @@
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2';
 
 /**
  * Global toast instance
  */
 const Toast = Swal.mixin({
   toast: true,
-  position: "top-end",
+  position: 'top-end',
   timer: 2000,
   timerProgressBar: true,
   showConfirmButton: false,
   showCloseButton: false,
   customClass: {
     popup:
-      "rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-3",
-    title: "text-sm font-semibold",
+      'rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-3',
+    title: 'text-sm font-semibold',
   },
   didOpen: (toast) => {
     toast.onmouseenter = Swal.stopTimer;
@@ -24,25 +24,25 @@ const Toast = Swal.mixin({
 export const notify = {
   success: (message) =>
     Toast.fire({
-      icon: "success",
+      icon: 'success',
       title: message,
     }),
 
   error: (message) =>
     Toast.fire({
-      icon: "error",
+      icon: 'error',
       title: message,
     }),
 
   info: (message) =>
     Toast.fire({
-      icon: "info",
+      icon: 'info',
       title: message,
     }),
 
   warning: (message) =>
     Toast.fire({
-      icon: "warning",
+      icon: 'warning',
       title: message,
     }),
 };
