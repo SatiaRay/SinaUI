@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 import Icon from './ui/Icon';
-import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
 import ThemeToggleBtn from './ui/ThemeToggleBtn';
 
 /**
