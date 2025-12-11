@@ -1,16 +1,14 @@
 // WizardIndexPage.js
 import React, { useState, useEffect } from 'react';
-import WizardCard from '../../../components/wizard/WizardCard';
+import WizardCard from '@components/wizard/WizardCard';
 import {
   useGetWizardsQuery,
   useDeleteWizardMutation,
 } from 'store/api/ai-features/wizardApi';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Pagination } from '../../../components/ui/pagination';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { notify } from '@components/ui/toast';
 import { Link } from 'react-router-dom';
-import { GoPlusCircle } from 'react-icons/go';
+import Icon from '@components/ui/Icon';
 import { WizardIndexLoading } from './WizardIndexLoading';
 
 const WizardIndexPage = () => {
@@ -90,7 +88,7 @@ const WizardIndexPage = () => {
           className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
           <span>ویزارد جدید</span>
-          <GoPlusCircle size={22} className="pr-2 box-content" />
+          <Icon name="PlusCircle" size={22} className="pr-2 box-content" />
         </Link>
       </div>
 

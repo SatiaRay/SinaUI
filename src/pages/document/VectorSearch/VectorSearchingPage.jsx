@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import Icon from '@components/ui/Icon';
 import VectorSearchLoading from './VectorSearchLoading';
 import { VectorDocumentCard } from '@components/document/vector-searching/VectorDocumentCard';
 import { useVectorSearchQuery } from 'store/api/knowledgeApi';
@@ -116,7 +116,10 @@ const VectorSearchingPage = () => {
           <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-start lg:items-center">
             {/* Search Input */}
             <div className="flex-1 relative min-w-0 w-full">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+              <Icon
+                name="Search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400"
+              />
               <input
                 type="text"
                 placeholder="متن یا سوال مورد نظر را وارد کنید ..."
@@ -159,7 +162,10 @@ const VectorSearchingPage = () => {
         {!isFetching && searchQuery && data.length === 0 && (
           <div className="text-center py-8 sm:py-12">
             <div className="mx-auto w-16 h-16 sm:w-24 sm:h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-              <Search className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
+              <Icon
+                name="Search"
+                className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400"
+              />
             </div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
               سندی یافت نشد

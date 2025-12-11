@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { RiUploadCloud2Fill } from 'react-icons/ri';
-
+import Icon from './Icon';
 const thumbsContainer = {
   display: 'flex',
   flexDirection: 'row',
@@ -229,7 +228,8 @@ const Dropzone = ({
           {...getInputProps()}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
-        <RiUploadCloud2Fill
+        <Icon
+          name="CloudUpload"
           size={150}
           className="justify-self-center text-gray-700  dark:text-white"
         />

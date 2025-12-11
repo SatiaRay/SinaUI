@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, BarChart3, Hash, UserCheck, Search } from 'lucide-react';
+import Icon from '@components/ui/Icon';
 import { useNavigate } from 'react-router-dom';
 
 /**
@@ -24,21 +24,30 @@ const MonitoringIndex = () => {
       id: 'recentLogs',
       title: 'لاگ‌های اخیر',
       desc: 'مشاهده آخرین لاگ‌های ثبت‌شده در سامانه',
-      icon: <FileText className="text-blue-500 dark:text-blue-400" />,
+      icon: (
+        <Icon name="FileText" className="text-blue-500 dark:text-blue-400" />
+      ),
       path: '/monitoring/logs',
     },
     {
       id: 'toolStats',
       title: 'آمار ابزارها',
       desc: 'نمایش میزان استفاده و عملکرد ابزارهای مختلف',
-      icon: <BarChart3 className="text-green-500 dark:text-green-400" />,
+      icon: (
+        <Icon
+          name="ChartColumn"
+          className="text-green-500 dark:text-green-400"
+        />
+      ),
       path: '/monitoring/tools',
     },
     {
       id: 'logById',
       title: 'جزئیات لاگ',
       desc: 'جستجو و نمایش لاگ بر اساس شناسه اختصاصی',
-      icon: <Hash className="text-orange-500 dark:text-orange-400" />,
+      icon: (
+        <Icon name="Hash" className="text-orange-500 dark:text-orange-400" />
+      ),
       path: '/monitoring/log-by-id',
     },
     /*

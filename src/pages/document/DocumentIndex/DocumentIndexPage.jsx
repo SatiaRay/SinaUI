@@ -5,12 +5,11 @@ import knowledgeApi, {
   useDeleteDocumentMutation,
 } from '../../../store/api/knowledgeApi';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Pagination } from '../../../components/ui/pagination';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { Pagination } from '@components/ui/pagination';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
 import { Link, useSearchParams } from 'react-router-dom';
-import { GoPlusCircle } from 'react-icons/go';
-import { TbVectorBezier2 } from 'react-icons/tb';
+import Icon from '@components/ui/Icon';
 import { DocumentIndexLoading } from './DocumentIndexLoading';
 import { useDisplay } from 'hooks/display';
 
@@ -132,14 +131,14 @@ const DocumentIndexPage = () => {
             className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
             <span>سند جدید</span>
-            <GoPlusCircle size={22} className="pr-2 box-content" />
+            <Icon name="PlusCircle" size={22} className="pr-2 box-content" />
           </Link>
           <Link
             to={'/document/vector-search'}
             className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
             <span>جستجوری برداری</span>
-            <TbVectorBezier2 size={22} className="pr-2 box-content" />
+            <Icon name="BezierCurve" size={22} className="pr-2 box-content" />
           </Link>
         </div>
       </div>

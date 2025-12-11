@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { FaTrash, FaEdit, FaSync } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { notify } from '../ui/toast';
 import { useUpdateInstructionMutation } from 'store/api/ai-features/instructionApi';
+import Icon from '../ui/Icon';
 
 /**
  * InstructionCard Component - Displays instruction information with interactive controls
@@ -89,7 +89,7 @@ const InstructionCard = ({ instruction, handleDelete }) => {
       {/* Loading overlay */}
       {isLoading && (
         <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center z-10">
-          <FaSync className="animate-spin text-white text-xl" />
+          <Icon name="RefreshCw" className="animate-spin text-white text-xl" />
         </div>
       )}
 
@@ -135,7 +135,7 @@ const InstructionCard = ({ instruction, handleDelete }) => {
         <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <FaEdit className="text-gray-500 w-4 h-4" />
+              <Icon name="SquarePen" className="text-gray-500 w-4 h-4" />
               <span>آخرین بروزرسانی:</span>
               <span className="font-medium text-gray-700 dark:text-gray-300">
                 {new Date(instruction.updated_at).toLocaleDateString('fa-IR')}
@@ -148,7 +148,10 @@ const InstructionCard = ({ instruction, handleDelete }) => {
               className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 group/delete"
               title="حذف دستورالعمل"
             >
-              <FaTrash className="text-red-500 group-hover/delete:scale-110 transition-transform duration-200" />
+              <Icon
+                name="Trash"
+                className="text-red-500 group-hover/delete:scale-110 transition-transform duration-200"
+              />
             </button>
           </div>
         </div>

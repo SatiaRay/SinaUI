@@ -1,4 +1,3 @@
-import { formatTimestamp } from '../../../../utils/helpers';
 import { ReceivedMessageContainer } from '../../common';
 
 const ReceivedMessage = ({ children, timestamp }) => {
