@@ -20,7 +20,7 @@ export const OverviewSectionLoading = () => {
         {Array.from({ length: 4 }).map((_, i) => (
           <SkeletonLoading
             key={i}
-            height={60}
+            height={80}
             className="w-full rounded-xl !m-0 block"
           />
         ))}
