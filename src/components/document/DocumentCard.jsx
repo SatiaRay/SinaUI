@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { FaTrash, FaEdit, FaSync } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { notify } from '../ui/toast';
 import { useUpdateDocumentMutation } from '../../store/api/knowledgeApi';
+import Icon from '../ui/Icon';
 
 /**
  * DocumentCard Component - Displays document information with interactive controls
@@ -89,7 +89,7 @@ const DocumentCard = ({ document, handleDelete }) => {
       {/* Loading overlay */}
       {isLoading && (
         <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center z-10">
-          <FaSync className="animate-spin text-white text-xl" />
+          <Icon name="RefreshCw" className="animate-spin text-white text-xl" />
         </div>
       )}
 
@@ -128,7 +128,7 @@ const DocumentCard = ({ document, handleDelete }) => {
         <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <FaEdit className="text-blue-500 text-xs" />
+              <Icon name="SquarePen" className="text-blue-500 text-xs" />
               <span>آخرین بروزرسانی:</span>
               <span className="font-medium text-gray-700 dark:text-gray-300">
                 {new Date(document.updated_at).toLocaleDateString('fa-IR')}
@@ -141,7 +141,10 @@ const DocumentCard = ({ document, handleDelete }) => {
               className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 group/delete"
               title="حذف سند"
             >
-              <FaTrash className="text-red-500 group-hover/delete:scale-110 transition-transform duration-200" />
+              <Icon
+                name="Trash"
+                className="text-red-500 group-hover/delete:scale-110 transition-transform duration-200"
+              />
             </button>
           </div>
         </div>

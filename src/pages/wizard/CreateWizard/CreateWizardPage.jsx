@@ -4,9 +4,9 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '@components/ui/CustomDropdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
+import { notify } from '@components/ui/toast';
 import { ckEditorConfig } from '../../../configs';
-import { Sppiner } from '../../../components/ui/sppiner';
+import { Sppiner } from '@components/ui/sppiner';
 import { useCreateWizardMutation } from 'store/api/ai-features/wizardApi';
 
 const CreateWizardPage = () => {

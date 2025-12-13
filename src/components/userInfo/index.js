@@ -1,4 +1,4 @@
-import { UserCircleIcon } from '@heroicons/react/24/outline';
+import Icon from '../ui/Icon';
 import React from 'react';
 
 export default function UserInfo() {
@@ -9,7 +9,7 @@ export default function UserInfo() {
           onClick={toggleUserDropdown}
           className="flex items-center space-x-2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-2 rounded shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
         >
-          <UserCircleIcon className="h-6 w-6 ml-3" />
+          <Icon name="CircleUser" className="h-6 w-6 ml-3" />
           <span className="font-medium">
             {`${user.first_name} ${user.last_name}` || user.email}
           </span>

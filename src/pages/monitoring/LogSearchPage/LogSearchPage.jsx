@@ -1,20 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGetLogByIdQuery } from '../../../store/api/ai-features/monitoringLogsApi';
-import {
-  Loader2,
-  Calendar,
-  Clock,
-  User,
-  Hash,
-  Code,
-  Server,
-  CheckCircle,
-  XCircle,
-  Copy,
-  Search,
-  AlertCircle,
-} from 'lucide-react';
+import Icon from '@components/ui/Icon';
 import { SearchSectionSkeleton, LogDetailSkeleton } from './LogSearchSkeletons';
 import Error from '../../../components/Error';
 import Swal from 'sweetalert2';
@@ -96,7 +83,7 @@ const JsonViewer = ({ data, title }) => {
           onClick={copyToClipboard}
           className="flex items-center gap-1 text-xs px-2 py-1 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-all duration-200 border border-gray-300 dark:border-gray-600"
         >
-          <Copy size={14} />
+          <Icon name="Copy" size={14} />
           {copied ? 'کپی شد!' : 'کپی'}
         </button>
       </div>
@@ -110,7 +97,7 @@ const JsonViewer = ({ data, title }) => {
  * Displays individual log detail with icon and label
  */
 const LogDetailItem = ({
-  icon: Icon,
+  icon: icon,
   label,
   value,
   className = '',
@@ -120,7 +107,10 @@ const LogDetailItem = ({
 
   return (
     <div className={`flex items-start gap-3 py-2 ${className}`}>
-      <Icon className={`h-5 w-5 ${iconColor} mt-0.5 flex-shrink-0`} />
+      <Icon
+        name={icon}
+        className={`h-5 w-5 ${iconColor} mt-0.5 flex-shrink-0`}
+      />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {label}
@@ -138,7 +128,10 @@ const LogDetailItem = ({
  */
 const ValidationError = ({ message }) => (
   <div className="p-4 mb-4 bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-xl flex items-start gap-3">
-    <AlertCircle className="h-6 w-6 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+    <Icon
+      name="AlertCircle"
+      className="h-6 w-6 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5"
+    />
     <div className="flex-1">
       <p className="font-medium text-amber-800 dark:text-amber-200">هشدار</p>
       <p className="text-amber-800 dark:text-amber-200 text-sm mt-1">
@@ -340,7 +333,10 @@ const LogSearchPage = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-2xl">
-              <Search className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <Icon
+                name="Search"
+                className="h-8 w-8 text-blue-600 dark:text-blue-400"
+              />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -364,7 +360,10 @@ const LogSearchPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
               <div className="relative flex-1 max-w-md w-full">
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <Hash className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                  <Icon
+                    name="Hash"
+                    className="h-5 w-5 text-blue-500 dark:text-blue-400"
+                  />
                 </div>
                 <input
                   type="text"
@@ -396,9 +395,12 @@ const LogSearchPage = () => {
                          flex items-center gap-2"
                 >
                   {isLoading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Icon
+                      name="LoaderCircle"
+                      className="h-5 w-5 animate-spin"
+                    />
                   ) : (
-                    <Search className="h-5 w-5" />
+                    <Icon name="Search" className="h-5 w-5" />
                   )}
                   {isLoading ? 'در حال جستجو...' : 'جستجو'}
                 </button>
@@ -422,7 +424,10 @@ const LogSearchPage = () => {
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-600 px-6 py-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-xl">
-                  <Hash className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  <Icon
+                    name="Hash"
+                    className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                  />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-gray-800 dark:text-white">
@@ -450,49 +455,52 @@ const LogSearchPage = () => {
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                       <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
-                        <Server className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <Icon
+                          name="Server"
+                          className="h-5 w-5 text-blue-600 dark:text-blue-400"
+                        />
                       </div>
                       اطلاعات اصلی
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                       <LogDetailItem
-                        icon={Calendar}
+                        icon={'Calendar'}
                         label="تاریخ و زمان"
                         value={formatTimestamp(currentLogData.timestamp)}
                         iconColor="text-purple-500 dark:text-purple-400"
                       />
 
                       <LogDetailItem
-                        icon={Clock}
+                        icon={'Clock'}
                         label="مدت اجرا"
                         value={formatDuration(currentLogData.duration_ms)}
                         iconColor="text-amber-500 dark:text-amber-400"
                       />
 
                       <LogDetailItem
-                        icon={Code}
+                        icon={'Code'}
                         label="ابزار"
                         value={currentLogData.tool}
                         iconColor="text-indigo-500 dark:text-indigo-400"
                       />
 
                       <LogDetailItem
-                        icon={User}
+                        icon={'User'}
                         label="کاربر"
                         value={currentLogData.user_id}
                         iconColor="text-green-500 dark:text-green-400"
                       />
 
                       <LogDetailItem
-                        icon={Hash}
+                        icon={'Hash'}
                         label="شناسه session"
                         value={currentLogData.session_id}
                         iconColor="text-blue-500 dark:text-blue-400"
                       />
 
                       <LogDetailItem
-                        icon={currentLogData.error ? XCircle : CheckCircle}
+                        icon={currentLogData.error ? 'XCircle' : 'CheckCircle'}
                         label="وضعیت"
                         value={currentLogData.error ? 'خطا' : 'موفق'}
                         className={
@@ -509,7 +517,7 @@ const LogSearchPage = () => {
 
                       {currentLogData.tokens_used > 0 && (
                         <LogDetailItem
-                          icon={Hash}
+                          icon={'Hash'}
                           label="تعداد توکن‌ها"
                           value={currentLogData.tokens_used.toLocaleString()}
                           iconColor="text-cyan-500 dark:text-cyan-400"
@@ -522,7 +530,10 @@ const LogSearchPage = () => {
                       <div className="mt-6 bg-red-50 dark:bg-red-900/20 rounded-xl p-5 border border-red-200 dark:border-red-800">
                         <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-4 flex items-center gap-2">
                           <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
-                            <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                            <Icon
+                              name="XCircle"
+                              className="h-5 w-5 text-red-600 dark:text-red-400"
+                            />
                           </div>
                           اطلاعات خطا
                         </h3>
@@ -541,7 +552,10 @@ const LogSearchPage = () => {
                         <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                             <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
-                              <Code className="h-5 w-5 text-green-600 dark:text-green-400" />
+                              <Icon
+                                name="Code"
+                                className="h-5 w-5 text-green-600 dark:text-green-400"
+                              />
                             </div>
                             پارامترهای ورودی
                           </h3>
@@ -557,7 +571,10 @@ const LogSearchPage = () => {
                         <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                             <div className="p-2 bg-teal-100 dark:bg-teal-900/40 rounded-lg">
-                              <Server className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                              <Icon
+                                name="Server"
+                                className="h-5 w-5 text-teal-600 dark:text-teal-400"
+                              />
                             </div>
                             پاسخ
                           </h3>
@@ -576,7 +593,10 @@ const LogSearchPage = () => {
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                           <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
-                            <Code className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                            <Icon
+                              name="Code"
+                              className="h-5 w-5 text-purple-600 dark:text-purple-400"
+                            />
                           </div>
                           متادیتای اضافی
                         </h3>
@@ -592,7 +612,7 @@ const LogSearchPage = () => {
                 !isError && (
                   <div className="text-center py-12">
                     <div className="mx-auto w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                      <Search className="h-10 w-10 text-gray-400" />
+                      <Icon name="Search" className="h-10 w-10 text-gray-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
                       منتظر نتایج جستجو
@@ -611,7 +631,10 @@ const LogSearchPage = () => {
         {!hasSearched && !isLoading && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center border border-gray-200 dark:border-gray-700">
             <div className="mx-auto w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-6">
-              <Search className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+              <Icon
+                name="Search"
+                className="h-10 w-10 text-blue-600 dark:text-blue-400"
+              />
             </div>
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
               منتظر ورودی شما هستیم

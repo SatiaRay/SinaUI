@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
-import { Sppiner } from '../../../components/ui/sppiner';
+import { notify } from '@components/ui/toast';
+import { Sppiner } from '@components/ui/sppiner';
 import {
   useGetWorkflowQuery,
   useUpdateWorkflowMutation,

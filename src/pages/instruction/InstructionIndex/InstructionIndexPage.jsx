@@ -1,10 +1,10 @@
 // InstructionIndexPage.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GoPlusCircle } from 'react-icons/go';
-import { Pagination } from '../../../components/ui/pagination';
-import { confirm } from '../../../components/ui/alert/confirmation';
-import { notify } from '../../../components/ui/toast';
+import Icon from '@components/ui/Icon';
+import { Pagination } from '@components/ui/pagination';
+import { confirm } from '@components/ui/alert/confirmation';
+import { notify } from '@components/ui/toast';
 import { InstructionIndexLoading } from './InstructionIndexLoading';
 import {
   useDeleteInstructionMutation,
@@ -88,7 +88,7 @@ const InstructionIndexPage = () => {
         >
           <span className="hidden md:inline">دستورالعمل جدید</span>
           <span className="md:hidden">جدید</span>
-          <GoPlusCircle size={22} className="pr-2 box-content" />
+          <Icon name="PlusCircle" size={22} className="pr-2 box-content" />
         </Link>
       </div>
 

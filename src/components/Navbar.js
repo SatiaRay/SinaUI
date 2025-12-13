@@ -1,20 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
-
-import {
-  ArrowLeftEndOnRectangleIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from '@heroicons/react/24/outline';
-import {
-  FaMagic,
-  FaProjectDiagram,
-  FaBook,
-  FaCog,
-  FaChartLine,
-} from 'react-icons/fa';
-import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
+import Icon from './ui/Icon';
 import ThemeToggleBtn from './ui/ThemeToggleBtn';
 
 /**
@@ -36,7 +23,7 @@ const NavList = ({
   isMobile = false,
 }) => (
   <ul className="flex flex-col gap-2">
-    {items.map(({ path, label, icon: Icon }) => {
+    {items.map(({ path, label, icon: IconBtn }) => {
       const isActive = activePath === path;
       return (
         <li key={path} className="text-right">
@@ -56,6 +43,7 @@ const NavList = ({
           >
             {Icon && (
               <Icon
+                name={IconBtn}
                 className={`w-4 h-4 ${
                   isActive
                     ? 'text-white'
@@ -166,7 +154,7 @@ const ExpandableSidebar = ({
               }`}
             >
               <div className="border-0">
-                <ThemeToggleBtn/>
+                <ThemeToggleBtn />
               </div>
               {/* Toggle button in header when expanded */}
               <button
@@ -174,7 +162,8 @@ const ExpandableSidebar = ({
                 className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-all duration-500 border-0"
                 aria-label="Close menu"
               >
-                <ChevronLeftIcon
+                <Icon
+                  name="ChevronLeft"
                   className={`h-4 w-4 transition-transform duration-500 ${
                     isExpanded ? 'rotate-180' : 'rotate-0'
                   }`}
@@ -194,7 +183,8 @@ const ExpandableSidebar = ({
                 className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 mx-1 rounded-md transition-all duration-500 border-0 flex-shrink-0"
                 aria-label="Open menu"
               >
-                <ChevronLeftIcon
+                <Icon
+                  name="ChevronLeft"
                   className={`h-4 w-4 transition-transform duration-500 ${
                     isExpanded ? 'rotate-180' : 'rotate-0'
                   }`}
@@ -229,7 +219,8 @@ const ExpandableSidebar = ({
                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                     }`}
                   >
-                    <FaCog
+                    <Icon
+                      name="Settings"
                       className={`w-4 h-4 ${
                         activePath === '/setting'
                           ? 'text-white'
@@ -277,7 +268,7 @@ const ExpandableSidebar = ({
                     }`}
                     aria-label="تنظیمات"
                   >
-                    <FaCog className="h-4 w-4" />
+                    <Icon name="Settings" className="h-4 w-4" />
                   </button>
                 </div>
               )}
@@ -334,7 +325,7 @@ const ExpandableSidebar = ({
                         }`}
                         aria-label="Logout"
                       >
-                        <ArrowLeftEndOnRectangleIcon className="h-4 w-4" />
+                        <Icon name="LogOut" className="h-4 w-4" />
                       </button>
                     </>
                   ) : (
@@ -342,7 +333,7 @@ const ExpandableSidebar = ({
                     <>
                       <div className="flex flex-col items-center gap-2">
                         <div className="border-0">
-                          <ThemeToggleBtn/>
+                          <ThemeToggleBtn />
                         </div>
                         <div className="w-7 h-7 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full cursor-default">
                           {getBadgeLetters(user?.name)}
@@ -352,7 +343,7 @@ const ExpandableSidebar = ({
                           className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors duration-500"
                           aria-label="Logout"
                         >
-                          <ArrowLeftEndOnRectangleIcon className="h-4 w-4" />
+                          <Icon name="LogOut" className="h-4 w-4" />
                         </button>
                       </div>
                     </>
@@ -405,12 +396,12 @@ const Navbar = ({ onSidebarCollapse }) => {
    * Navigation items configuration (documents section removed)
    */
   const navItems = [
-    { path: '/chat', label: 'چت', icon: LuBotMessageSquare },
-    { path: '/document', label: 'پایگاه دانش', icon: LuBrainCircuit },
-    { path: '/wizard', label: 'ویزاردها', icon: FaMagic },
-    { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
-    { path: '/instruction', label: 'دستورالعمل‌ها', icon: FaBook },
-    { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
+    { path: '/chat', label: 'چت', icon: 'MessageSquareText' },
+    { path: '/document', label: 'پایگاه دانش', icon: 'BrainCircuit' },
+    { path: '/wizard', label: 'ویزاردها', icon: 'Sparkles' },
+    { path: '/workflow', label: 'گردش کار', icon: 'Workflow' },
+    { path: '/instruction', label: 'دستورالعمل‌ها', icon: 'BookOpen' },
+    { path: '/monitoring', label: 'مانیتورینگ', icon: 'Activity' },
   ];
 
   /**

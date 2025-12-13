@@ -6,33 +6,30 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom';
-import Chat from './components/chat/Chat';
+import Chat from '@components/chat/Chat';
 import {
   CreateDocument,
   DocumentIndex,
   EditDocument,
   VectorSearchingPage,
-} from './pages/document';
+} from '@pages/document';
 import {
   WorkflowIndexPage,
   EditWorkflowPage,
   CreateWorkflowPage,
-} from './pages/workflow';
+} from '@pages/workflow';
 import {
   CreateInstruction,
   InstructionIndex,
   EditInstruction,
-} from './pages/instruction';
-import Login from './components/Login';
-import Navbar from './components/Navbar';
-import PrivateRoute from './components/PrivateRoute';
-import { WorkflowEditor } from './pages/workflow';
-import { AuthProvider } from './contexts/AuthContext';
-import { getVersion } from './utils/apis';
-import Register from './components/register';
+} from '@pages/instruction';
+import Login from '@components/Login';
+import Navbar from '@components/Navbar';
+import PrivateRoute from '@components/PrivateRoute';
+import { AuthProvider } from '@contexts/AuthContext';
+import Register from '@components/register';
 import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
-import ChatBoxPreview from './pages/widget/chat-box-perview';
-import { ChatProvider } from './contexts/ChatContext';
+import { ChatProvider } from '@contexts/ChatContext';
 
 import {
   MonitoringIndex,

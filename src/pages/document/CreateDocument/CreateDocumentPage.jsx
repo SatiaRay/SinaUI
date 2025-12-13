@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { TagifyInput } from '../../../components/ui/tagifyInput';
+import { TagifyInput } from '@components/ui/tagifyInput';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Link, useNavigate } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
+import { notify } from '@components/ui/toast';
 import { useStoreDocumentMutation } from '../../../store/api/knowledgeApi';
 import { ckEditorConfig } from '../../../configs';
-import { Sppiner } from '../../../components/ui/sppiner';
+import { Sppiner } from '@components/ui/sppiner';
 
-const CreateDocumentPage
- = () => {
+const CreateDocumentPage = () => {
   /**
    * Navigator
    */
@@ -20,9 +19,9 @@ const CreateDocumentPage
    * Document object state prop
    */
   const [document, setDocument] = useState({
-    title: "",
-    text: "",
-    tag: "",
+    title: '',
+    text: '',
+    tag: '',
   });
 
   /**

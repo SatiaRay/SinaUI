@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaTrash, FaEdit, FaDownload } from 'react-icons/fa';
+import Icon from '../ui/Icon';
 import { useNavigate } from 'react-router-dom';
 
 /**
@@ -100,21 +100,21 @@ const WorkflowCard = ({ workflow, handleDelete, handleDownload }) => {
               onClick={handleDownloadClick}
               className="flex-1 py-2.5 text-green-600 border border-green-600 rounded-lg hover:bg-green-600 hover:text-white font-medium text-xs transition-colors duration-200 flex items-center justify-center gap-1 whitespace-nowrap min-w-0"
             >
-              <FaDownload size={12} />
+              <Icon name="Download" size={12} />
               <span className="truncate">دریافت خروجی</span>
             </button>
             <button
               onClick={handleEditClick}
               className="flex-1 py-2.5 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white font-medium text-xs transition-colors duration-200 flex items-center justify-center gap-1 whitespace-nowrap min-w-0"
             >
-              <FaEdit size={12} />
+              <Icon name="SquarePen" size={12} />
               <span className="truncate">ویرایش</span>
             </button>
             <button
               onClick={handleDeleteClick}
               className="flex-1 py-2.5 text-red-600 border border-red-600 rounded-lg hover:bg-red-600 hover:text-white font-medium text-xs transition-colors duration-200 flex items-center justify-center gap-1 whitespace-nowrap min-w-0"
             >
-              <FaTrash size={12} />
+              <Icon name="Trash" size={12} />
               <span className="truncate">حذف</span>
             </button>
           </div>
@@ -126,21 +126,21 @@ const WorkflowCard = ({ workflow, handleDelete, handleDownload }) => {
               className="flex-1 py-2.5 text-green-600 border border-green-600 rounded-lg hover:bg-green-600 hover:text-white transition-colors duration-200 flex items-center justify-center"
               title="دریافت خروجی"
             >
-              <FaDownload size={14} />
+              <Icon name="Download" size={14} />
             </button>
             <button
               onClick={handleEditClick}
               className="flex-1 py-2.5 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors duration-200 flex items-center justify-center"
               title="ویرایش"
             >
-              <FaEdit size={14} />
+              <Icon name="SquarePen" size={14} />
             </button>
             <button
               onClick={handleDeleteClick}
               className="flex-1 py-2.5 text-red-600 border border-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors duration-200 flex items-center justify-center"
               title="حذف"
             >
-              <FaTrash size={14} />
+              <Icon name="Trash" size={14} />
             </button>
           </div>
         </div>
