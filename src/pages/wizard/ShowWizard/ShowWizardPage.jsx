@@ -6,10 +6,10 @@ import {
   useDeleteWizardMutation,
   useUpdateWizardMutation,
 } from 'store/api/ai-features/wizardApi';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
-import { GoPlusCircle } from 'react-icons/go';
-import {ShowWizardLoading} from './ShowWizardLoading';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
+import Icon from '@components/ui/Icon';
+import { ShowWizardLoading } from './ShowWizardLoading';
 import WizardCard from '../../../components/wizard/WizardCard'; // Import WizardCard
 
 const ShowWizardPage = () => {
@@ -19,13 +19,7 @@ const ShowWizardPage = () => {
   /* -------------------------------------------------- */
   /* RTK Query */
   /* -------------------------------------------------- */
-  const {
-    data,
-    isLoading,
-    isSuccess,
-    isError,
-    error,
-  } = useGetWizardQuery(
+  const { data, isLoading, isSuccess, isError, error } = useGetWizardQuery(
     { id: wizard_id },
     {
       skip: !wizard_id,
@@ -131,7 +125,7 @@ const ShowWizardPage = () => {
           >
             <span className="hidden sm:inline">ویزارد فرزند جدید</span>
             <span className="sm:hidden">جدید</span>
-            <GoPlusCircle size={22} className="pr-2 box-content" />
+            <Icon name="PlusCircle" size={22} className="pr-2 box-content" />
           </Link>
           <Link
             to={wizard.parent_id ? `/wizard/${wizard.parent_id}` : '/wizard'}
@@ -155,7 +149,9 @@ const ShowWizardPage = () => {
             </h1>
             <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
               <span>شناسه: {wizard.id}</span>
-              <span>نوع: {wizard.wizard_type === 'answer' ? 'پاسخ' : 'سوال'}</span>
+              <span>
+                نوع: {wizard.wizard_type === 'answer' ? 'پاسخ' : 'سوال'}
+              </span>
               <span>وضعیت: {wizard.enabled ? 'فعال' : 'غیرفعال'}</span>
             </div>
           </div>

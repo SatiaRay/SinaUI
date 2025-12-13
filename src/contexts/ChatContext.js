@@ -1,12 +1,7 @@
 import { createContext, useContext, useRef, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { getWebSocketUrl } from '../utils/websocket';
-import {
-  dataNormalizer,
-  mergeNormalized,
-  packFile,
-  stripHtmlTags,
-} from '../utils/helpers';
+import { getWebSocketUrl } from '@utils/websocket';
+import { dataNormalizer, mergeNormalized, stripHtmlTags } from '@utils/helpers';
 import { useAuth } from './AuthContext';
 import { chatEndpoints, wizardEndpoints } from '../utils/apis';
 
@@ -145,7 +140,11 @@ export const ChatProvider = ({ children }) => {
   const loadHistory = async (sessionId, offset = 0, limit = 20) => {
     setHistoryLoading(true);
     try {
-      const messages = await chatEndpoints.getChatHistory(sessionId, offset, limit);
+      const messages = await chatEndpoints.getChatHistory(
+        sessionId,
+        offset,
+        limit
+      );
 
       if (Array.isArray(messages)) {
         const reversedMessages = dataNormalizer([...messages].reverse());
@@ -203,22 +202,22 @@ export const ChatProvider = ({ children }) => {
   const sendMessage = async (text) => {
     lastInputTypeRef.current = 'text';
     if (!socketRef.current) return;
-  
+
     if (wizardPath.length > 0) {
       clearWizardMessagesFromHistory();
       resetWizardToRoot();
       setVisitedWizardIds(new Set());
     }
-  
+
     const userMessage = {
       type: 'text',
       body: text,
       role: 'user',
       created_at: new Date().toISOString().slice(0, 19),
     };
-  
+
     addNewMessage(userMessage);
-  
+
     socketRef.current.send(
       JSON.stringify({
         event: 'text',
@@ -226,7 +225,6 @@ export const ChatProvider = ({ children }) => {
       })
     );
   };
-  
 
   /**
    * Uploads image to the socket channel
@@ -339,18 +337,21 @@ export const ChatProvider = ({ children }) => {
    * Removes all wizard-related messages from chat history.
    */
   const clearWizardMessagesFromHistory = () => {
-    setHistory(prev => {
-      const ids = prev.ids.filter(id => !prev.entities[id]?.fromWizard);
-      const entities = ids.reduce((a, id) => (a[id] = prev.entities[id], a), {});
+    setHistory((prev) => {
+      const ids = prev.ids.filter((id) => !prev.entities[id]?.fromWizard);
+      const entities = ids.reduce(
+        (a, id) => ((a[id] = prev.entities[id]), a),
+        {}
+      );
       return { ids, entities };
     });
-  };  
+  };
 
   /**
    * Mark wizard as visited to prevent duplicate triggers
    */
   const markWizardAsVisited = (id) =>
-    setVisitedWizardIds(p => new Set(p).add(id));
+    setVisitedWizardIds((p) => new Set(p).add(id));
 
   /**
    * Resets wizard navigation to the root level
@@ -361,11 +362,11 @@ export const ChatProvider = ({ children }) => {
   };
 
   /**
-   * Navigates one level deeper in the wizard hierarchy 
-   * @param {object} wizardData 
+   * Navigates one level deeper in the wizard hierarchy
+   * @param {object} wizardData
    */
   const goToChildren = (w) => {
-    setWizardPath(p => [...p, w]);
+    setWizardPath((p) => [...p, w]);
     setCurrentWizards(w.children);
   };
 
@@ -373,8 +374,8 @@ export const ChatProvider = ({ children }) => {
    * Handles wizard back navigation (one level up)
    */
   const handleWizardBack = () => {
-    setWizardPath(p => {
-      if (p.length <= 1) { 
+    setWizardPath((p) => {
+      if (p.length <= 1) {
         resetWizardToRoot();
         return [];
       }
@@ -413,7 +414,7 @@ export const ChatProvider = ({ children }) => {
     setHistory({ ids: [], entities: {} });
     setVisitedWizardIds(new Set());
     localStorage.removeItem('chat_session_id');
-    setWizardPath([]); 
+    setWizardPath([]);
     if (socketRef.current) {
       if (socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.close();
@@ -446,7 +447,7 @@ export const ChatProvider = ({ children }) => {
     setCurrentWizards,
     rootWizards,
     setRootWizards,
-    wizardPath,          
+    wizardPath,
     copiedMessageId,
     setCopiedMessageId,
     optionMessageTriggered,

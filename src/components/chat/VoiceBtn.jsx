@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import { sockets } from '../../utils/sockets';
+import { sockets } from '@utils/sockets';
 import { BounceLoader, ScaleLoader } from 'react-spinners';
 import { VoiceButtonStyled } from '../ui/common';
 

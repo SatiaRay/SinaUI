@@ -10,8 +10,7 @@ import {
 import { notify } from '../../../components/ui/toast';
 import { WorkflowIndexLoading } from './WorkflowLoading';
 import Error from '@components/Error';
-import { GoPlusCircle } from 'react-icons/go';
-import { LuUpload } from 'react-icons/lu';
+import Icon from '@components/ui/Icon';
 import WorkflowCard from '@components/workflow/WorkflowCard';
 
 /**
@@ -251,7 +250,7 @@ const WorkflowIndexPage = () => {
             >
               <span className="ml-2 hidden md:block">بارگذاری گردش کار</span>
               <span className="ml-2 md:hidden">بارگذاری</span>
-              <LuUpload size={20} />
+              <Icon name="Upload" size={20} />
             </button>
           </>
           {/* Create new workflow button */}
@@ -261,7 +260,7 @@ const WorkflowIndexPage = () => {
           >
             <span className="ml-2 hidden md:block">گردش کار جدید</span>
             <span className="ml-2 md:hidden">جدید</span>
-            <GoPlusCircle size={20} />
+            <Icon name="PlusCircle" size={20} />
           </Link>
         </div>
       </div>
@@ -279,7 +278,7 @@ const WorkflowIndexPage = () => {
                 to={'/workflow/create'}
                 className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors duration-200"
               >
-                <GoPlusCircle size={18} className="ml-2" />
+                <Icon name="PlusCircle" size={18} className="ml-2" />
                 ثبت گردش کار جدید
               </Link>
             </div>
