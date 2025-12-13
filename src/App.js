@@ -46,6 +46,9 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
+import {
+  WorkspaceSettingsPage
+} from '@pages/workspace';
 import { ThemeProvider } from '@contexts/ThemeContext';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
@@ -332,6 +335,12 @@ function privateRoutes() {
           }
         />
       </Route>
+      <Route 
+        path="/w/:workspaceId/settings" 
+        element={
+          <WorkspaceSettingsPage />
+        } 
+      />
     </Routes>
   );
 }
