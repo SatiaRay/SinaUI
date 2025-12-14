@@ -844,8 +844,9 @@ const EditApiIntegrationPage = () => {
   };
 
   // Show loading skeleton
-
-  return <EditApiIntegrationLoading />;
+  if (isLoading) {
+    return <EditApiIntegrationLoading />;
+  }
 
   // Props to pass to child components
   const commonProps = {
