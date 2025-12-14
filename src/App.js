@@ -27,12 +27,11 @@ import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import { WorkflowEditor } from './pages/workflow';
-import { AuthProvider } from './contexts/AuthContext';
-import { getVersion } from './utils/apis';
+import { AuthProvider } from '@contexts/AuthContext';
 import Register from './components/register';
 import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
 import ChatBoxPreview from './pages/widget/chat-box-perview';
-import { ChatProvider } from './contexts/ChatContext';
+import { ChatProvider } from '@contexts/ChatContext';
 
 import {
   MonitoringIndex,
@@ -51,7 +50,7 @@ import {
   ApiIntegrationIndexPage,
   CreateApiIntegrationPage,
   EditApiIntegrationPage,
-} from '@pages/apiIntegrations';
+} from '@pages/api-integrations';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {

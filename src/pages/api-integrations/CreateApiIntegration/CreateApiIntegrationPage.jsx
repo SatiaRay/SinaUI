@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
+import { notify } from '@components/ui/toast';
 import Swal from 'sweetalert2';
 
 // Import components
@@ -44,18 +44,40 @@ const CreateApiIntegrationPage = () => {
   const [testResult, setTestResult] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isVerticalLayout, setIsVerticalLayout] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
-  // Detect mobile screen size
+
+  // Detect screen size
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+
+      // Set mobile flag
+      setIsMobile(width < 768);
+
+      // Simple logic: if window width is less than 1630px, use vertical layout
+      setIsVerticalLayout(width < 1630);
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+    // Initial check
+    checkScreenSize();
 
-    return () => window.removeEventListener('resize', checkMobile);
+    // Add event listener
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
   }, []);
+
+  /**
+   * Handles tab selection change
+   * @function handleTabChange
+   * @param {string} tabId - Selected tab ID
+   */
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+  };
 
   /**
    * Handles form input changes
@@ -363,6 +385,7 @@ const CreateApiIntegrationPage = () => {
       setIsTesting(false);
     }
   };
+
   /**
    * Handles form submission with SweetAlert2 confirmation
    * @async
@@ -483,7 +506,7 @@ const CreateApiIntegrationPage = () => {
         handleSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         isEditMode={false}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
 
       <main className="flex-1 overflow-hidden">
@@ -524,55 +547,116 @@ const CreateApiIntegrationPage = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-                  {activeTab === 'basic' && <ApiBasicInfo {...commonProps} />}
+              {/* Simple layout based on window width */}
+              {isVerticalLayout ? (
+                // Vertical layout (window width < 1630px)
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Main content */}
+                  <div className="space-y-4 sm:space-y-6">
+                    {activeTab === 'basic' && <ApiBasicInfo {...commonProps} />}
 
-                  {activeTab === 'request' && (
-                    <ApiRequestConfig
-                      {...commonProps}
-                      addParameter={addParameter}
-                      updateParameter={updateParameter}
-                      removeParameter={removeParameter}
-                      addHeader={addHeader}
-                      updateHeader={updateHeader}
-                      removeHeader={removeHeader}
-                      showDeleteConfirmation={showDeleteConfirmation}
-                    />
-                  )}
+                    {activeTab === 'request' && (
+                      <ApiRequestConfig
+                        {...commonProps}
+                        addParameter={addParameter}
+                        updateParameter={updateParameter}
+                        removeParameter={removeParameter}
+                        addHeader={addHeader}
+                        updateHeader={updateHeader}
+                        removeHeader={removeHeader}
+                        showDeleteConfirmation={showDeleteConfirmation}
+                      />
+                    )}
 
-                  {activeTab === 'auth' && <ApiAuthConfig {...commonProps} />}
+                    {activeTab === 'auth' && <ApiAuthConfig {...commonProps} />}
 
-                  {activeTab === 'ai' && <ApiAiConfig {...commonProps} />}
+                    {activeTab === 'ai' && <ApiAiConfig {...commonProps} />}
 
-                  {activeTab === 'test' && (
-                    <ApiTestTab
+                    {activeTab === 'test' && (
+                      <ApiTestTab
+                        formData={formData}
+                        handleInputChange={handleInputChange}
+                        testApi={testApi}
+                        isTesting={isTesting}
+                        testResult={testResult}
+                        copyTestResponse={copyTestResponse}
+                        setActiveTab={setActiveTab}
+                        setTestResult={setTestResult}
+                      />
+                    )}
+                  </div>
+
+                  {/* Side components at the bottom */}
+                  <div className="space-y-4 sm:space-y-6">
+                    <QuickTestPanel
                       formData={formData}
-                      handleInputChange={handleInputChange}
                       testApi={testApi}
                       isTesting={isTesting}
                       testResult={testResult}
                       copyTestResponse={copyTestResponse}
-                      setActiveTab={setActiveTab}
-                      setTestResult={setTestResult}
+                      navigateToFullTest={() => setActiveTab('test')}
                     />
-                  )}
-                </div>
 
-                <div className="space-y-4 sm:space-y-6">
-                  <QuickTestPanel
-                    formData={formData}
-                    testApi={testApi}
-                    isTesting={isTesting}
-                    testResult={testResult}
-                    copyTestResponse={copyTestResponse}
-                    navigateToFullTest={() => setActiveTab('test')}
-                  />
+                    <ResponseSchemaPreview formData={formData} />
 
-                  <ResponseSchemaPreview formData={formData} />
-                  <InfoCard />
+                    <InfoCard />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                // Horizontal layout (window width >= 1630px)
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {/* Main content */}
+                  <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                    {activeTab === 'basic' && <ApiBasicInfo {...commonProps} />}
+
+                    {activeTab === 'request' && (
+                      <ApiRequestConfig
+                        {...commonProps}
+                        addParameter={addParameter}
+                        updateParameter={updateParameter}
+                        removeParameter={removeParameter}
+                        addHeader={addHeader}
+                        updateHeader={updateHeader}
+                        removeHeader={removeHeader}
+                        showDeleteConfirmation={showDeleteConfirmation}
+                      />
+                    )}
+
+                    {activeTab === 'auth' && <ApiAuthConfig {...commonProps} />}
+
+                    {activeTab === 'ai' && <ApiAiConfig {...commonProps} />}
+
+                    {activeTab === 'test' && (
+                      <ApiTestTab
+                        formData={formData}
+                        handleInputChange={handleInputChange}
+                        testApi={testApi}
+                        isTesting={isTesting}
+                        testResult={testResult}
+                        copyTestResponse={copyTestResponse}
+                        setActiveTab={setActiveTab}
+                        setTestResult={setTestResult}
+                      />
+                    )}
+                  </div>
+
+                  {/* Sidebar on the right */}
+                  <div className="space-y-4 sm:space-y-6">
+                    <QuickTestPanel
+                      formData={formData}
+                      testApi={testApi}
+                      isTesting={isTesting}
+                      testResult={testResult}
+                      copyTestResponse={copyTestResponse}
+                      navigateToFullTest={() => setActiveTab('test')}
+                    />
+
+                    <ResponseSchemaPreview formData={formData} />
+
+                    <InfoCard />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

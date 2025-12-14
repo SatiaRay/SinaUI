@@ -228,7 +228,7 @@ const ApiIntegrationIndexPage = () => {
   return (
     <div className="h-full flex flex-col justify-start md:pb-0">
       {/* Page header */}
-      <div className="mx-3 md:mx-0 md:mb-6 pb-4 pt-3 md:pt-0 border-b border-gray-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="mx-3 md:mx-0 md:mb-6 pb-4 pt-3 md:pt-0 border-b border-gray-600 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl">
             <TbApi className="text-white text-2xl" />
@@ -243,17 +243,17 @@ const ApiIntegrationIndexPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-row-reverse gap-2">
+        <div className="flex flex-wrap gap-2 justify-start lg:justify-end w-full lg:w-auto">
           <Link
             to={'/api-integrations/create'}
-            className="px-6 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 shadow-lg hover:shadow-xl"
+            className="px-4 sm:px-6 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 shadow-lg hover:shadow-xl whitespace-nowrap min-w-[140px]"
           >
             <span>API جدید</span>
             <GoPlusCircle size={20} className="mr-2" />
           </Link>
           <button
             onClick={() => notify.info('این بخش در نسخه نمایشی فعال نیست')}
-            className="px-6 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
+            className="px-4 sm:px-6 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 whitespace-nowrap min-w-[140px]"
           >
             <span>گزارش استفاده</span>
             <FaChartLine size={18} className="mr-2" />
@@ -348,7 +348,7 @@ const ApiIntegrationIndexPage = () => {
             {integrations.length} از {totalIntegrations} آیتم
           </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {integrations.map((integration) => (
             <ApiIntegrationCard
               key={integration.id}
