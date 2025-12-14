@@ -6,7 +6,7 @@ import persian_fa from 'react-date-object/locales/persian_fa';
 import { Pagination } from '../../../../components/ui/pagination';
 import { notify } from '../../../../components/ui/toast';
 import { AuditLogIndexLoading } from './AuditLogIndexLoading';
-import { AuditLogMobileCard } from '../../../../components/workspace/audit-log/AuditLogMobileCardPage';
+import { AuditLogMobileCard } from '../../../../components/workspace/audit-log/AuditLogMobileCard';
 import { ACTION_LABEL, ACTION_STYLE, fmt } from '../Constants';
 
 /**

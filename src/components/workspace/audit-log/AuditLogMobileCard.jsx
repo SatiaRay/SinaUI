@@ -25,10 +25,6 @@ export const AuditLogMobileCard = React.memo(({ log }) => {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
 
-  /**
-   * Navigate to detail page
-   * @return {void}
-   */
   const goToDetail = () => {
     navigate(`/w/${workspaceId}/audit-logs/${log.id}`);
   };
@@ -53,9 +49,7 @@ export const AuditLogMobileCard = React.memo(({ log }) => {
 
         <div className="flex justify-between items-center">
           <span className="text-gray-500">عملیات</span>
-          <span
-            className={`px-2.5 py-1 rounded-md text-xs font-medium ${ACTION_STYLE[action]}`}
-          >
+          <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${ACTION_STYLE[action]}`}>
             {ACTION_LABEL[action]}
           </span>
         </div>
