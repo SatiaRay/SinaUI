@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
 import {
   FaArrowRight,
@@ -22,6 +22,8 @@ import { useDisplay } from '../../../hooks/display';
 const CreateWorkspacePage = () => {
   const navigate = useNavigate();
   const { isMobile, isDesktop } = useDisplay();
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   /**
    * Loading state for simulating API call
@@ -38,6 +40,30 @@ const CreateWorkspacePage = () => {
     visibility: 'private',
     color: 'blue',
   });
+
+  /**
+   * Effect to observe container width changes
+   */
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(containerRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  /**
+   * Determine if layout should be single column based on container width
+   */
+  const shouldUseSingleColumn = containerWidth > 0 && containerWidth < 1024;
 
   /**
    * Available plan options
@@ -298,7 +324,10 @@ const CreateWorkspacePage = () => {
   const selectedColor = colorOptions.find((c) => c.id === formData.color);
 
   return (
-    <div className="h-full flex flex-col justify-start px-3 md:px-0 pt-4 md:pt-6">
+    <div
+      className="h-full flex flex-col justify-start px-3 md:px-0 pt-4 md:pt-6"
+      ref={containerRef}
+    >
       {/* Page header */}
       <div className="md:mx-0 mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
@@ -319,12 +348,14 @@ const CreateWorkspacePage = () => {
         </div>
       </div>
 
-      {/* Main form content - Two column layout on desktop */}
+      {/* Main form content - Responsive layout based on container width */}
       <div className="max-w-6xl mx-auto w-full">
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
+          <div
+            className={`flex ${shouldUseSingleColumn ? 'flex-col' : 'flex-row'} gap-6 md:gap-8`}
+          >
             {/* Left column - Form inputs */}
-            <div className="lg:w-2/3">
+            <div className={shouldUseSingleColumn ? 'w-full' : 'lg:w-2/3'}>
               <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 shadow-sm">
                 {/* Basic information section */}
                 <div className="mb-8">
@@ -507,8 +538,8 @@ const CreateWorkspacePage = () => {
             </div>
 
             {/* Right column - Preview and additional settings */}
-            <div className="lg:w-1/3">
-              <div className="sticky top-6">
+            <div className={shouldUseSingleColumn ? 'w-full mt-6' : 'lg:w-1/3'}>
+              <div className={shouldUseSingleColumn ? '' : 'sticky top-6'}>
                 {/* Preview card */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 shadow-sm mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">

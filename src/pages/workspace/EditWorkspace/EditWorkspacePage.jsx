@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useLayoutEffect,
+} from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
@@ -26,6 +31,10 @@ const EditWorkspacePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isMobile, isDesktop } = useDisplay();
+
+  // State for container element and width tracking
+  const [containerElement, setContainerElement] = useState(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   /**
    * Loading states
@@ -94,6 +103,39 @@ const EditWorkspacePage = () => {
     { id: 'pro', name: 'پرو' },
     { id: 'enterprise', name: 'سازمانی' },
   ];
+
+  /**
+   * Callback ref to get container element
+   */
+  const containerRef = useCallback((node) => {
+    if (node !== null) {
+      setContainerElement(node);
+    }
+  }, []);
+
+  /**
+   * Effect to observe container width changes
+   */
+  useLayoutEffect(() => {
+    if (!containerElement) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(containerElement);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [containerElement]);
+
+  /**
+   * Determine if layout should be single column based on container width
+   */
+  const shouldUseSingleColumn = containerWidth > 0 && containerWidth < 1024;
 
   /**
    * Load workspace data on component mount
@@ -420,7 +462,10 @@ const EditWorkspacePage = () => {
   }
 
   return (
-    <div className="h-full flex flex-col justify-start px-3 md:px-0 pt-4 md:pt-6">
+    <div
+      className="h-full flex flex-col justify-start px-3 md:px-0 pt-4 md:pt-6"
+      ref={containerRef}
+    >
       {/* Page header */}
       <div className="md:mx-0 mb-6 md:mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
@@ -442,12 +487,14 @@ const EditWorkspacePage = () => {
         </div>
       </div>
 
-      {/* Main form content - Two column layout */}
+      {/* Main form content - Responsive layout based on container width */}
       <div className="max-w-6xl mx-auto w-full">
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
+          <div
+            className={`flex ${shouldUseSingleColumn ? 'flex-col' : 'flex-row'} gap-6 md:gap-8`}
+          >
             {/* Left column - Form inputs */}
-            <div className="lg:w-2/3">
+            <div className={shouldUseSingleColumn ? 'w-full' : 'lg:w-2/3'}>
               <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 shadow-sm">
                 {/* Workspace info header */}
                 <div className="mb-8">
@@ -552,7 +599,7 @@ const EditWorkspacePage = () => {
                     </div>
                   </div>
 
-                  {/* Workspace plan - Fixed RTL select padding issue */}
+                  {/* Workspace plan */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       پلن فضای کاری
@@ -569,8 +616,6 @@ const EditWorkspacePage = () => {
                 hover:border-gray-300 dark:hover:border-gray-600 transition-colors duration-200
                 cursor-pointer rtl:text-right"
                         dir="rtl"
-                        aria-label="انتخاب پلن فضای کاری"
-                        title="پلن فضای کاری را انتخاب کنید"
                       >
                         {planOptions.map((plan) => (
                           <option
@@ -583,7 +628,6 @@ const EditWorkspacePage = () => {
                         ))}
                       </select>
 
-                      {/* Custom dropdown arrow with proper RTL positioning */}
                       <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                         <svg
                           className="w-5 h-5 text-gray-500 dark:text-gray-400 transform transition-transform duration-200"
@@ -591,7 +635,6 @@ const EditWorkspacePage = () => {
                           stroke="currentColor"
                           viewBox="0 0 24 24"
                           xmlns="http://www.w3.org/2000/svg"
-                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -602,7 +645,6 @@ const EditWorkspacePage = () => {
                         </svg>
                       </div>
 
-                      {/* Plan type icon with proper RTL positioning */}
                       <div className="absolute inset-y-0 right-3 flex items-center">
                         <div className="w-6 h-6 rounded-md flex items-center justify-center bg-gray-100 dark:bg-gray-700">
                           {selectedPlan.id === 'free' && (
@@ -621,14 +663,12 @@ const EditWorkspacePage = () => {
                       </div>
                     </div>
 
-                    {/* Helper text */}
                     <div className="flex items-center gap-1.5 mt-2">
                       <svg
                         className="w-4 h-4 text-gray-400 dark:text-gray-500"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
-                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -742,7 +782,7 @@ const EditWorkspacePage = () => {
                   </div>
                 </div>
 
-                {/* Danger Zone - Critical operations with destructive actions */}
+                {/* Danger Zone */}
                 <div className="mt-12 border border-red-200 dark:border-red-800 rounded-2xl overflow-hidden">
                   <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/10 dark:to-red-900/5 p-6">
                     <div className="flex items-center gap-3 mb-6">
@@ -809,8 +849,8 @@ const EditWorkspacePage = () => {
             </div>
 
             {/* Right column - Preview and stats */}
-            <div className="lg:w-1/3">
-              <div className="sticky top-6">
+            <div className={shouldUseSingleColumn ? 'w-full mt-6' : 'lg:w-1/3'}>
+              <div className={shouldUseSingleColumn ? '' : 'sticky top-6'}>
                 {/* Preview card */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 shadow-sm mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
