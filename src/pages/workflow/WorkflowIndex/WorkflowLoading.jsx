@@ -1,5 +1,6 @@
 // src/components/workflow/WorkflowLoading.tsx
 
+import { useDisplay } from 'hooks/display';
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -12,6 +13,8 @@ import 'react-loading-skeleton/dist/skeleton.css';
  * that you already set in your index.css for perfect light/dark mode consistency.
  */
 const WorkflowIndexLoading = () => {
+  const {isDesktop} = useDisplay()
+
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
       <div className="rounded-lg  flex flex-col h-full overflow-hidden w-full">
@@ -20,7 +23,7 @@ const WorkflowIndexLoading = () => {
           {/* Page Title */}
           <Skeleton
             height={32}
-            width={220}
+            width={isDesktop ? 200 : 100}
             borderRadius={8}
             baseColor="var(--skeleton-base-color)"
             highlightColor="var(--skeleton-highlight-color)"
@@ -30,7 +33,7 @@ const WorkflowIndexLoading = () => {
             {/* Import Button */}
             <Skeleton
               height={48}
-              width={160}
+              width={isDesktop ? 160 : 90}
               borderRadius={12}
               baseColor="var(--skeleton-base-color)"
               highlightColor="var(--skeleton-highlight-color)"
@@ -38,7 +41,7 @@ const WorkflowIndexLoading = () => {
             {/* Create New Workflow Button */}
             <Skeleton
               height={48}
-              width={160}
+              width={isDesktop ? 160 : 90}
               borderRadius={12}
               baseColor="var(--skeleton-base-color)"
               highlightColor="var(--skeleton-highlight-color)"
