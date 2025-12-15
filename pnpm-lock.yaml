@@ -131,6 +131,9 @@ importers:
       react-bootstrap:
         specifier: ^2.10.9
         version: 2.10.10(@types/react@19.2.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-date-object:
+        specifier: ^2.1.9
+        version: 2.1.9
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
@@ -9675,6 +9678,11 @@ snapshots:
   '@ckeditor/ckeditor5-restricted-editing@41.4.2':
     dependencies:
       ckeditor5: 41.4.2
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
 
   '@ckeditor/ckeditor5-restricted-editing@45.2.2':
     dependencies:
