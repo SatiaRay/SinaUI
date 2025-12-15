@@ -44,7 +44,7 @@ import {
   WizardIndexPage,
 } from '@pages/wizard';
 import {
-  WorkspaceSettingsPage
+  WorkspaceSettingsPage,
   AuditLogIndex,
   AuditLogDetails,
 } from '@pages/workspace';
