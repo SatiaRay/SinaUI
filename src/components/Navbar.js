@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
+import { useTheme } from '@contexts/ThemeContext';
 import Icon from './ui/Icon';
 import ThemeToggleBtn from './ui/ThemeToggleBtn';
 import { Tooltip } from 'react-tooltip';
@@ -93,7 +94,7 @@ const ExpandableSidebar = ({
 }) => {
   const [showContent, setShowContent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [theme, setTheme] = useState('light');
+  const { theme } = useTheme(); // استفاده از useTheme hook
 
   // Generate unique ID for tooltips to avoid conflicts
   const sidebarId = isMobile ? 'mobile-sidebar' : 'desktop-sidebar';
@@ -110,62 +111,6 @@ const ExpandableSidebar = ({
     const second = parts[1]?.[0] || '';
     return (first + second).toUpperCase();
   };
-
-  // Detect theme changes
-  useEffect(() => {
-    // Function to get current theme
-    const getCurrentTheme = () => {
-      if (typeof window === 'undefined') return 'light';
-
-      // Check localStorage first
-      const storedTheme = localStorage.getItem('theme');
-      if (storedTheme) return storedTheme;
-
-      // Check system preference
-      if (
-        window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-      ) {
-        return 'dark';
-      }
-
-      return 'light';
-    };
-
-    // Set initial theme
-    setTheme(getCurrentTheme());
-
-    // Listen for theme changes in localStorage
-    const handleStorageChange = (e) => {
-      if (e.key === 'theme') {
-        setTheme(e.newValue || 'light');
-      }
-    };
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleSystemThemeChange = (e) => {
-      if (!localStorage.getItem('theme')) {
-        setTheme(e.matches ? 'dark' : 'light');
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
-
-    // Custom event for theme changes (if using ThemeToggleBtn)
-    const handleCustomThemeChange = () => {
-      setTheme(getCurrentTheme());
-    };
-
-    window.addEventListener('themeChange', handleCustomThemeChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      mediaQuery.removeEventListener('change', handleSystemThemeChange);
-      window.removeEventListener('themeChange', handleCustomThemeChange);
-    };
-  }, []);
 
   // Handle animations for opening and closing
   useEffect(() => {
@@ -190,6 +135,12 @@ const ExpandableSidebar = ({
     : `hidden md:block fixed right-0 top-0 bottom-0 bg-gray-100 dark:bg-gray-900 shadow-lg z-30 border-l border-gray-300 dark:border-gray-700 transition-all duration-500 ease-in-out ${
         isExpanded ? 'w-56' : 'w-10'
       }`;
+
+  // Tooltip classes based on theme
+  const tooltipClasses =
+    theme === 'dark'
+      ? '!bg-gray-800 !text-gray-100 !border !border-gray-700'
+      : '!bg-white !text-gray-800 !border !border-gray-200 !shadow-md';
 
   return (
     <div className={sidebarClasses}>
@@ -440,12 +391,9 @@ const ExpandableSidebar = ({
       {/* React Tooltip for mini mode - Responsive to theme */}
       {!isExpanded && (
         <Tooltip
+          key={`${sidebarId}-tooltip-${theme}`}
           id={`${sidebarId}-tooltip`}
-          className={`z-50 !text-xs !py-1 !px-2 !rounded-md !opacity-100 !transition-colors !duration-200 ${
-            theme === 'dark'
-              ? '!bg-gray-800 !text-gray-100 !border !border-gray-700'
-              : '!bg-white !text-gray-800 !border !border-gray-200 !shadow-md'
-          }`}
+          className={`z-50 !text-xs !py-1 !px-2 !rounded-md !opacity-100 !transition-colors !duration-200 ${tooltipClasses}`}
           style={{
             maxWidth: '200px',
             fontWeight: '500',
@@ -487,6 +435,7 @@ const Navbar = ({ onSidebarCollapse }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
 
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const [isDesktopExpanded, setIsDesktopExpanded] = useState(false); // Start with false to prevent flash
@@ -613,7 +562,8 @@ const Navbar = ({ onSidebarCollapse }) => {
   if (hide) return null;
 
   return (
-    <div dir="rtl">
+    <div dir="rtl" className={theme}>
+      {' '}
       {/* Mobile View */}
       <div className="md:hidden">
         {/* Blur Overlay when expanded - Only for mobile */}
@@ -635,7 +585,6 @@ const Navbar = ({ onSidebarCollapse }) => {
           activePath={location.pathname}
         />
       </div>
-
       {/* Desktop View */}
       <div className="hidden md:block">
         {/* No blur overlay for desktop - sidebar is part of layout */}
