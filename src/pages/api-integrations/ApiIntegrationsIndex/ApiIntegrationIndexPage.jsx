@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ApiIntegrationCard } from '@components/apiIntegrations';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Pagination } from '../../../components/ui/pagination';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { Pagination } from '@components/ui/pagination';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
 import { Link, useSearchParams } from 'react-router-dom';
 import { GoPlusCircle } from 'react-icons/go';
 import { TbApi } from 'react-icons/tb';

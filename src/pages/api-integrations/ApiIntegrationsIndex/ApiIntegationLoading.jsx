@@ -11,32 +11,27 @@ export const ApiIntegrationLoading = () => {
   /**
    * Display hook for responsive design
    */
-  const { height, isLargeDisplay } = useDisplay();
+  const { height, isDesktop } = useDisplay();
 
   /**
-   * Calculates number of rows based on available height
+   * Calculate perpage exactly like the main component
    * @constant
    * @type {number}
    */
-  const rowsCount = Math.max(2, Math.floor(height / 180));
-
-  /**
-   * Calculates number of columns based on display size
-   * @constant
-   * @type {number}
-   */
-  const colsCount = !isLargeDisplay ? 1 : 3;
+  const perpage = isDesktop
+    ? Math.max(6, Math.floor((height - 200) / 115) * 3)
+    : 6;
 
   return (
     <div className="h-full flex flex-col justify-start md:pb-0">
       {/* Header skeleton */}
-      <div className="mx-3 md:mx-0 md:mb-6 pb-4 pt-3 md:pt-0 border-b border-gray-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="mx-3 md:mx-0 md:mb-6 pb-4 pt-3 md:pt-0 border-b border-gray-600 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div className="flex items-center gap-3">
           <SkeletonLoading
             width={56}
             height={56}
             className="rounded-xl"
-            containerClassName="inline"
+            containerClassName="inline bg-gradient-to-r from-indigo-500 to-purple-500"
           />
           <div>
             <SkeletonLoading
@@ -46,23 +41,23 @@ export const ApiIntegrationLoading = () => {
               containerClassName="inline"
             />
             <SkeletonLoading
-              width={150}
-              height={16}
+              width={250}
+              height={20}
               className="rounded"
               containerClassName="inline"
             />
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-start lg:justify-end w-full lg:w-auto">
           <SkeletonLoading
-            width={120}
+            width={140}
             height={48}
             className="rounded-xl"
             containerClassName="inline"
           />
           <SkeletonLoading
-            width={120}
+            width={140}
             height={48}
             className="rounded-xl"
             containerClassName="inline"
@@ -88,6 +83,12 @@ export const ApiIntegrationLoading = () => {
                 <SkeletonLoading
                   width={60}
                   height={24}
+                  className="rounded"
+                  containerClassName="inline"
+                />
+                <SkeletonLoading
+                  width={100}
+                  height={12}
                   className="rounded"
                   containerClassName="inline"
                 />
@@ -136,7 +137,7 @@ export const ApiIntegrationLoading = () => {
       </div>
 
       {/* Title and count skeleton */}
-      <div className="mx-3 md:mx-0 mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between px-3 md:px-0">
         <SkeletonLoading
           width={150}
           height={24}
@@ -151,15 +152,85 @@ export const ApiIntegrationLoading = () => {
         />
       </div>
 
-      {/* Cards grid skeleton */}
+      {/* Cards grid skeleton - Fixed to match main component exactly */}
       <div className="p-3 md:p-0">
-        <SkeletonLoading
-          rows={rowsCount}
-          cols={colsCount}
-          height={140}
-          containerClassName={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4`}
-          className="rounded-2xl"
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: perpage }).map((_, index) => (
+            <div
+              key={index}
+              className="p-4 rounded-2xl border border-gray-200 dark:border-gray-700"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <SkeletonLoading
+                    width={48}
+                    height={48}
+                    className="rounded-xl"
+                    containerClassName="inline"
+                  />
+                  <div>
+                    <SkeletonLoading
+                      width={120}
+                      height={20}
+                      className="rounded-lg mb-1"
+                      containerClassName="inline"
+                    />
+                    <SkeletonLoading
+                      width={80}
+                      height={16}
+                      className="rounded"
+                      containerClassName="inline"
+                    />
+                  </div>
+                </div>
+                <SkeletonLoading
+                  width={60}
+                  height={32}
+                  className="rounded-lg"
+                  containerClassName="inline"
+                />
+              </div>
+
+              <SkeletonLoading
+                width="100%"
+                height={40}
+                className="rounded mb-3"
+                containerClassName="inline"
+              />
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <SkeletonLoading
+                    width={80}
+                    height={16}
+                    className="rounded"
+                    containerClassName="inline"
+                  />
+                  <SkeletonLoading
+                    width={60}
+                    height={16}
+                    className="rounded"
+                    containerClassName="inline"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <SkeletonLoading
+                    width={32}
+                    height={32}
+                    className="rounded-lg"
+                    containerClassName="inline"
+                  />
+                  <SkeletonLoading
+                    width={32}
+                    height={32}
+                    className="rounded-lg"
+                    containerClassName="inline"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Pagination skeleton */}
