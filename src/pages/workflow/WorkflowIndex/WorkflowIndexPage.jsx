@@ -8,13 +8,16 @@ import {
   useImportWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
 import { notify } from '../../../components/ui/toast';
-import { WorkflowIndexLoading } from '@pages/workflow/WorkflowIndex/WorkflowLoading';
+import { WorkflowIndexLoading } from './WorkflowIndexLoading';
 import Error from '@components/Error';
-import { GoPlusCircle } from 'react-icons/go';
-import { LuDownload, LuUpload } from 'react-icons/lu';
-import Dropdown from '@components/ui/dropdown';
-import { Edit, Trash } from 'lucide-react';
+import Icon from '@components/ui/Icon';
+import WorkflowCard from '@components/workflow/WorkflowCard';
 
+/**
+ * WorkflowIndexPage Component - Main page for displaying and managing workflows
+ * @component
+ * @returns {JSX.Element} Rendered workflow index page
+ */
 const WorkflowIndexPage = () => {
   /**
    * Hook: Programmatic navigation to create/edit pages
@@ -22,7 +25,7 @@ const WorkflowIndexPage = () => {
   const navigate = useNavigate();
 
   /**
-   * List of workflows
+   * State: List of workflows for optimistic updates
    */
   const [workflows, setWorkflows] = useState(null);
 
@@ -32,7 +35,7 @@ const WorkflowIndexPage = () => {
   const fileInputRef = useRef(null);
 
   /**
-   * Query: Fetch all workflows
+   * Query: Fetch all workflows from API
    */
   const {
     data = [],
@@ -44,7 +47,7 @@ const WorkflowIndexPage = () => {
   } = useGetAllWorkflowsQuery();
 
   /**
-   * Store workflows from request response data to state prop for optimistic mutation
+   * Store workflows from API response to state for optimistic updates
    */
   if (isSuccess && !workflows) setWorkflows(data);
 
@@ -56,21 +59,11 @@ const WorkflowIndexPage = () => {
   const [deleteWorkflow] = useDeleteWorkflowMutation();
 
   /**
-   * Handler: Navigate to workflow edit page with ID validation
-   */
-  const handleEdit = useCallback(
-    (workflowId) => {
-      if (!workflowId) {
-        console.warn('No workflow ID provided for editing');
-        return;
-      }
-      navigate(`/workflow/${workflowId}`);
-    },
-    [navigate]
-  );
-
-  /**
    * Handler: Delete workflow with user confirmation via SweetAlert
+   * @async
+   * @function handleDelete
+   * @param {string} workflowId - ID of the workflow to delete
+   * @returns {Promise<void>}
    */
   const handleDelete = async (workflowId) => {
     if (!workflowId) return;
@@ -87,6 +80,7 @@ const WorkflowIndexPage = () => {
         reverseButtons: false,
       });
       if (result.isConfirmed) {
+        // Optimistic update
         setWorkflows(workflows.filter((workflow) => workflow.id != workflowId));
 
         await deleteWorkflow({ id: workflowId }).unwrap();
@@ -96,12 +90,17 @@ const WorkflowIndexPage = () => {
     } catch (err) {
       console.error('Error in deletion process:', err);
       notify.error('خطا در حذف گردش کار! لطفاً دوباره تلاش کنید');
+      // Rollback on error
       setWorkflows(data);
     }
   };
 
   /**
    * Handler: Export workflow as downloadable JSON file
+   * @async
+   * @function handleDownload
+   * @param {string} workflowId - ID of the workflow to export
+   * @returns {Promise<void>}
    */
   const handleDownload = useCallback(
     async (workflowId) => {
@@ -146,6 +145,7 @@ const WorkflowIndexPage = () => {
 
   /**
    * Handler: Trigger hidden file input for import
+   * @function handleFileSelect
    */
   const handleFileSelect = useCallback(() => {
     fileInputRef.current?.click();
@@ -153,6 +153,10 @@ const WorkflowIndexPage = () => {
 
   /**
    * Handler: Process selected JSON file and import workflow
+   * @async
+   * @function handleFileChange
+   * @param {React.ChangeEvent} e - File input change event
+   * @returns {Promise<void>}
    */
   const handleFileChange = useCallback(
     async (e) => {
@@ -186,6 +190,7 @@ const WorkflowIndexPage = () => {
           timerProgressBar: true,
         });
         e.target.value = '';
+        refetch(); // Refresh the list after import
       } catch (err) {
         console.error('Import failed:', err);
         Swal.fire({
@@ -196,7 +201,7 @@ const WorkflowIndexPage = () => {
         });
       }
     },
-    [importWorkflow]
+    [importWorkflow, refetch]
   );
 
   /**
@@ -214,18 +219,20 @@ const WorkflowIndexPage = () => {
   }
 
   /**
-   * Prevent map workflows when it is null
+   * Prevent rendering workflows when data is null
    */
   if (!workflows) return null;
 
   /**
-   * Render: Main layout with header, actions, and workflow table
+   * Render: Main layout with header, actions, and workflow cards grid
    */
   return (
     <div className="h-full flex flex-col justify-start pb-3 md:pb-0">
       {/* Header: Title + action buttons (import, create) */}
-      <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
-        <h3 className="text-xl lg:text-3xl">گردش کارها</h3>
+      <div className="mx-3 md:mx-0 md:mb-6 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
+        <h3 className="text-xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+          گردش کارها
+        </h3>
         <div className="flex gap-2 items-center">
           <>
             {/* Hidden file input for workflow import */}
@@ -239,139 +246,59 @@ const WorkflowIndexPage = () => {
             {/* Import button: Triggers file selection */}
             <button
               onClick={handleFileSelect}
-              className="pr-4 pl-3 py-2 md:py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="px-4 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 shadow-sm hover:shadow-md"
             >
-              <span className="pl-1 hidden md:block">بارگذاری گردش کار</span>
-              <span className="pl-1 md:hidden">بارگذاری</span>
-              <LuUpload size={24} className="pr-2 pb-1 border-box" />
+              <span className="ml-2 hidden md:block">بارگذاری گردش کار</span>
+              <span className="ml-2 md:hidden">بارگذاری</span>
+              <Icon name="Upload" size={20} />
             </button>
           </>
           {/* Create new workflow button */}
           <Link
             to={'/workflow/create'}
-            className="pr-4 pl-3 py-2 md:py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            className="px-4 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md"
           >
-            <span className="hidden md:block">گردش کار جدید</span>
-            <span className="md:hidden">جدید</span>
-            <GoPlusCircle size={22} className="pr-2 box-content" />
+            <span className="ml-2 hidden md:block">گردش کار جدید</span>
+            <span className="ml-2 md:hidden">جدید</span>
+            <Icon name="PlusCircle" size={20} />
           </Link>
         </div>
       </div>
 
-      {/* Table container with responsive padding */}
-      <div className="px-3 md:px-0 mt-3">
+      {/* Cards container with responsive grid */}
+      <div className="px-3 md:px-0 mt-6">
         {/* Empty workflows list message */}
         {workflows.length < 1 && (
-          <div className="text-center mx-auto">
-            <p>هیچ گردش کار ثبت شده ای یافت نشد.</p>
-            <Link to={'/workflow/create'} className="underline text-blue-300">
-              ثبت گردش کار جدید
-            </Link>
+          <div className="text-center mx-auto py-12">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+              <p className="text-gray-600 dark:text-gray-400 text-lg mb-4">
+                هیچ گردش کار ثبت شده‌ای یافت نشد.
+              </p>
+              <Link
+                to={'/workflow/create'}
+                className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors duration-200"
+              >
+                <Icon name="PlusCircle" size={18} className="ml-2" />
+                ثبت گردش کار جدید
+              </Link>
+            </div>
           </div>
         )}
 
-        {/* Main content */}
+        {/* Workflow cards grid - 2 cards per row on tablet, 3 on desktop */}
         {workflows.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg">
-            {/* Table: Desktop view with columns for name, status, actions */}
-            <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-center">
-              <thead className="bg-neutral-200 dark:bg-gray-700">
-                <tr>
-                  {['نام', 'وضعیت', 'عملیات'].map((header) => (
-                    <th
-                      key={header}
-                      className="px-4 py-3 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {/* Workflow rows: One per workflow */}
-                {workflows.map((workflow) => (
-                  <tr
-                    key={workflow.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
-                    {/* Workflow name column */}
-                    <td className="px-4 pt-6 text-sm text-gray-900 dark:text-white line-clamp-1">
-                      {workflow.name || '-'}
-                    </td>
-                    {/* Status column: Hardcoded as "فعال" for now */}
-                    <td className="px-4 py-4">
-                      <span
-                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${workflow.status ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}
-                      >
-                        {workflow.status ? 'فعال' : 'غیر فعال'}
-                      </span>
-                    </td>
-                    {/* Actions column: Desktop buttons + mobile dropdown */}
-                    <td className="px-4 py-4 text-sm">
-                      {/* Desktop: Inline action buttons */}
-                      <div className="hidden lg:flex justify-center gap-4">
-                        <button
-                          onClick={() => handleDownload(workflow.id)}
-                          className="text-green-600 text-xs border border-green-600 h-8 px-3 rounded-lg hover:bg-green-600 hover:text-white font-bold dark:text-green-400 dark:hover:text-green-200 transition-colors duration-200"
-                        >
-                          دریافت خروجی
-                        </button>
-                        <button
-                          onClick={() => handleEdit(workflow.id)}
-                          className="text-blue-500 hover:text-blue-700 border border-blue-500 hover:bg-blue-500 hover:text-white px-3 rounded-lg"
-                        >
-                          ویرایش
-                        </button>
-                        <button
-                          onClick={() => handleDelete(workflow.id)}
-                          className="text-red-500 hover:text-red-700 border border-red-500 hover:bg-red-500 hover:text-white px-3 rounded-lg"
-                        >
-                          حذف
-                        </button>
-                      </div>
-                      {/* Mobile: Dropdown menu with same actions */}
-                      <Dropdown label="عملیات" className="lg:hidden">
-                        <Dropdown.Option
-                          onClick={() => handleEdit(workflow.id)}
-                        >
-                          <div className="flex flex-row gap-2 items-center text-green-400">
-                            <LuDownload />
-                            <span>دریافت خروجی</span>
-                          </div>
-                        </Dropdown.Option>
-                        <Dropdown.Option
-                          onClick={() => handleEdit(workflow.id)}
-                        >
-                          <div className="flex flex-row gap-2 items-center text-blue-400">
-                            <Edit size={14} />
-                            <span>ویرایش</span>
-                          </div>
-                        </Dropdown.Option>
-                        <Dropdown.Option
-                          onClick={() => handleDelete(workflow.id)}
-                        >
-                          <div className="flex flex-row gap-2 items-center text-red-400">
-                            <Trash size={14} />
-                            <span>حذف</span>
-                          </div>
-                        </Dropdown.Option>
-                      </Dropdown>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {workflows.map((workflow) => (
+              <WorkflowCard
+                key={workflow.id}
+                workflow={workflow}
+                handleDelete={handleDelete}
+                handleDownload={handleDownload}
+              />
+            ))}
           </div>
         )}
       </div>
-      {/* Pagination: Currently commented out (future enhancement) */}
-      {/* <Pagination
-        page={page}
-        perpage={perpage}
-        totalPages={data.pages}
-        totalItems={data.total}
-        handlePageChange={setPage}
-      /> */}
     </div>
   );
 };

@@ -1,8 +1,8 @@
 // CreateInstructionPage.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
-import { Sppiner } from '../../../components/ui/sppiner';
+import { notify } from '@components/ui/toast';
+import { Sppiner } from '@components/ui/sppiner';
 import { useCreateInstructionMutation } from 'store/api/ai-features/instructionApi';
 
 const CreateInstructionPage = () => {
@@ -71,7 +71,7 @@ const CreateInstructionPage = () => {
         </div>
 
         <div className="flex-1 flex flex-col min-h-0">
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 برچسب:

@@ -1,17 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Braces,
-  CirclePlay,
-  Construction,
-  Cpu,
-  Fullscreen,
-  GitPullRequest,
-  Menu,
-  MessageSquareShare,
-  Minimize,
-  PanelLeft,
-  PanelLeftClose,
-} from 'lucide-react';
+import Icon from '../ui/Icon';
 import { useDisplay } from 'hooks/display';
 
 const WorkflowEditorSidebar = ({
@@ -31,8 +19,11 @@ const WorkflowEditorSidebar = ({
    * Hide navbar on fullscreen
    */
   useEffect(() => {
-    window.parent.postMessage({ type: fullscreen ? 'HIDE_NAVBAR' : 'SHOW_NAVBAR' }, '*')
-  }, [fullscreen])
+    window.parent.postMessage(
+      { type: fullscreen ? 'HIDE_NAVBAR' : 'SHOW_NAVBAR' },
+      '*'
+    );
+  }, [fullscreen]);
 
   /**
    * Display util hooks
@@ -87,7 +78,7 @@ const WorkflowEditorSidebar = ({
             {extended && (
               <>
                 <div className="items-center hidden md:flex">
-                  <Menu className="pt-2 box-content" />
+                  <Icon name="Menu" className="pt-2 box-content" />
                   <h3 className={`text-lg my-0 pt-2 mr-2`}>منو</h3>
                 </div>
                 <hr className="border-gray-200 dark:border-gray-700 my-1" />
@@ -100,7 +91,8 @@ const WorkflowEditorSidebar = ({
               style={{ width: extended ? '100%' : '50px' }}
               title="نقطه شروع فرایند"
             >
-              <CirclePlay
+              <Icon
+                name="CirclePlay"
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -112,7 +104,8 @@ const WorkflowEditorSidebar = ({
               style={{ width: extended ? '100%' : '50px' }}
               title="فرایند"
             >
-              <Cpu
+              <Icon
+                name="Cpu"
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -124,7 +117,8 @@ const WorkflowEditorSidebar = ({
               style={{ width: extended ? '100%' : '50px' }}
               title="تصمیم"
             >
-              <GitPullRequest
+              <Icon
+                name="GitPullRequest"
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -136,7 +130,8 @@ const WorkflowEditorSidebar = ({
               style={{ width: extended ? '100%' : '50px' }}
               title="تابع"
             >
-              <Braces
+              <Icon
+                name="Braces"
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -148,7 +143,8 @@ const WorkflowEditorSidebar = ({
               style={{ width: extended ? '100%' : '50px' }}
               title="پاسخ"
             >
-              <MessageSquareShare
+              <Icon
+                name="MessageSquareShare"
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -160,7 +156,8 @@ const WorkflowEditorSidebar = ({
               style={{ width: extended ? '100%' : '50px' }}
               title="پایان"
             >
-              <Construction
+              <Icon
+                name="Construction"
                 className="w-[30px] px-0"
                 style={{ margin: extended ? '0' : 'auto' }}
               />
@@ -189,12 +186,20 @@ const WorkflowEditorSidebar = ({
           >
             <div>
               <button onClick={() => setFullscreen(!fullscreen)}>
-                {fullscreen ? <Minimize /> : <Fullscreen />}
+                {fullscreen ? (
+                  <Icon name="Minimize" />
+                ) : (
+                  <Icon name="Fullscreen" />
+                )}
               </button>
             </div>
             <div>
               <button onClick={() => setExtended(!extended)}>
-                {extended ? <PanelLeftClose /> : <PanelLeft />}
+                {extended ? (
+                  <Icon name="PanelLeftClose" />
+                ) : (
+                  <Icon name="PanelLeft" />
+                )}
               </button>
             </div>
           </div>

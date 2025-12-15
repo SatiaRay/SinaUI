@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TagifyInput } from '../../../components/ui/tagifyInput';
+import { TagifyInput } from '@components/ui/tagifyInput';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
+import { notify } from '@components/ui/toast';
 import {
   useGetDocumentQuery,
   useUpdateDocumentMutation,
 } from '../../../store/api/knowledgeApi';
 import { ckEditorConfig } from '../../../configs';
 import { EditDocumentLoading } from './EditDocumentLoading';
-import { Sppiner } from '../../../components/ui/sppiner';
+import { Sppiner } from '@components/ui/sppiner';
 
 const EditDocumentPage = () => {
   /**
@@ -64,16 +64,18 @@ const EditDocumentPage = () => {
   useEffect(() => {
     if (isUpdateSucceed) {
       notify.success('سند با موفقیت ویرایش شد !');
-      navigate('/document');
+      navigate(-1);
     }
   }, [isUpdateSucceed]);
 
   /**
-   * Notify failure mutation 
+   * Notify failure mutation
    */
   useEffect(() => {
-    if (isUpdateFailed) 
-      notify.error('ویرایش سند با خطا مواجه شد. لطفا کمی بعد تر مجددا تلاش کنید.')
+    if (isUpdateFailed)
+      notify.error(
+        'ویرایش سند با خطا مواجه شد. لطفا کمی بعد تر مجددا تلاش کنید.'
+      );
   }, [isUpdateFailed]);
 
   /**
@@ -81,6 +83,13 @@ const EditDocumentPage = () => {
    */
   const handleUpdateDocument = () => {
     updateDocument({ id: document_id, data: document });
+  };
+
+  /**
+   * Handle back navigation - exactly like browser back button
+   */
+  const handleBack = () => {
+    navigate(-1);
   };
 
   /**
@@ -103,14 +112,14 @@ const EditDocumentPage = () => {
               disabled={false}
               className="px-4 py-2 flex items-center justify-center max-md:w-1/2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
             >
-              {isUpdating ? <Sppiner size={8}/> : 'ذخیره'}
+              {isUpdating ? <Sppiner size={8} /> : 'ذخیره'}
             </button>
-            <Link
-              to={'/document'}
+            <button
+              onClick={handleBack}
               className="px-6 py-3 max-md:w-1/2 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               بازگشت
-            </Link>
+            </button>
           </div>
         </div>
         <div className="flex-1 flex flex-col min-h-0">
