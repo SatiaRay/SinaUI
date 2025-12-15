@@ -8,7 +8,7 @@ import {
   useImportWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
 import { notify } from '../../../components/ui/toast';
-import { WorkflowIndexLoading } from './WorkflowLoading';
+import { WorkflowIndexLoading } from './WorkflowIndexLoading';
 import Error from '@components/Error';
 import Icon from '@components/ui/Icon';
 import WorkflowCard from '@components/workflow/WorkflowCard';
