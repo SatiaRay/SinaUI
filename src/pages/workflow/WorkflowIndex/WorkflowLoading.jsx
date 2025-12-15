@@ -55,12 +55,12 @@ const WorkflowIndexLoading = () => {
                 key={index}
                 className="bg-gray-100 dark:bg-gray-700 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
               >
-                <div className="p-5 flex flex-col h-48">
+                <div className="p-5 flex flex-col ">
                   {/* Card Header: Workflow Name + Status Badge */}
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between">
                     <Skeleton
                       height={24}
-                      width="75%"
+                      width={140}
                       borderRadius={8}
                       baseColor="var(--skeleton-base-color)"
                       highlightColor="var(--skeleton-highlight-color)"
