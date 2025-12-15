@@ -473,3 +473,25 @@ code {
     --skeleton-base-color: #4b5563;      /* gray-600 */
     --skeleton-highlight-color: #6b7280; /* gray-500 */
 }
+
+/* Toast Styles */
+.swal2-popup.swal2-toast {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;   
+}
+
+.swal2-popup.swal2-toast .swal2-icon {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.swal2-popup.swal2-toast .swal2-title,
+.swal2-popup.swal2-toast .swal2-html-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 1.2rem !important;
+}
