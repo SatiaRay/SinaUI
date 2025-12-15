@@ -56,6 +56,7 @@
     "react-scripts": "5.0.1",
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
+    "react-tooltip": "^5.30.0",
     "react-type-animation": "^3.2.0",
     "react-typed": "^2.0.12",
     "reactflow": "^11.11.4",
