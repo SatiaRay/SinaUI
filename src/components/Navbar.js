@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
+import { useTheme } from '@contexts/ThemeContext';
 import Icon from './ui/Icon';
 import ThemeToggleBtn from './ui/ThemeToggleBtn';
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 
 /**
  * Navigation list component with animations
@@ -37,20 +40,18 @@ const NavList = ({
             }}
             className={`flex items-center gap-2 w-full text-right px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap ${
               isActive
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-blue-600 text-white dark:bg-blue-700 dark:text-gray-100'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
-            {Icon && (
-              <Icon
-                name={IconBtn}
-                className={`w-4 h-4 ${
-                  isActive
-                    ? 'text-white'
-                    : 'text-gray-300 group-hover:text-white'
-                }`}
-              />
-            )}
+            <Icon
+              name={IconBtn}
+              className={`w-4 h-4 ${
+                isActive
+                  ? 'text-white dark:text-gray-100'
+                  : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white'
+              }`}
+            />
             <span
               className={`transition-all duration-500 ease-in-out ${
                 showContent
@@ -93,6 +94,10 @@ const ExpandableSidebar = ({
 }) => {
   const [showContent, setShowContent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const { theme } = useTheme(); // استفاده از useTheme hook
+
+  // Generate unique ID for tooltips to avoid conflicts
+  const sidebarId = isMobile ? 'mobile-sidebar' : 'desktop-sidebar';
 
   /**
    * Get badge letters from user name
@@ -124,21 +129,27 @@ const ExpandableSidebar = ({
 
   // Different behavior for mobile vs desktop
   const sidebarClasses = isMobile
-    ? `md:hidden fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg z-30 border-l border-gray-700 transition-all duration-500 ease-in-out ${
+    ? `md:hidden fixed right-0 top-0 bottom-0 bg-gray-100 dark:bg-gray-900 shadow-lg z-30 border-l border-gray-300 dark:border-gray-700 transition-all duration-500 ease-in-out ${
         isExpanded ? 'w-56' : 'w-10'
       }`
-    : `hidden md:block fixed right-0 top-0 bottom-0 bg-gray-800 dark:bg-gray-900 shadow-lg z-30 border-l border-gray-700 transition-all duration-500 ease-in-out ${
+    : `hidden md:block fixed right-0 top-0 bottom-0 bg-gray-100 dark:bg-gray-900 shadow-lg z-30 border-l border-gray-300 dark:border-gray-700 transition-all duration-500 ease-in-out ${
         isExpanded ? 'w-56' : 'w-10'
       }`;
+
+  // Tooltip classes based on theme
+  const tooltipClasses =
+    theme === 'dark'
+      ? '!bg-gray-800 !text-gray-100 !border !border-gray-700'
+      : '!bg-white !text-gray-800 !border !border-gray-200 !shadow-md';
 
   return (
     <div className={sidebarClasses}>
       <div className="flex flex-col h-full">
         {/* Header like desktop when expanded - FIXED in expanded mode */}
         {isExpanded && (
-          <header className="p-4 border-b flex w-full justify-between items-center border-gray-700 whitespace-nowrap relative flex-shrink-0">
+          <header className="p-4 border-b flex w-full justify-between items-center border-gray-300 dark:border-gray-700 whitespace-nowrap relative flex-shrink-0">
             <h1
-              className={`text-white text-lg font-bold flex-1 text-right transition-all duration-500 ease-in-out ${
+              className={`text-gray-900 dark:text-white text-lg font-bold flex-1 text-right transition-all duration-500 ease-in-out ${
                 showContent
                   ? 'opacity-100 translate-x-0'
                   : 'opacity-0 translate-x-4'
@@ -159,7 +170,7 @@ const ExpandableSidebar = ({
               {/* Toggle button in header when expanded */}
               <button
                 onClick={onToggle}
-                className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-all duration-500 border-0"
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-all duration-500 border-0"
                 aria-label="Close menu"
               >
                 <Icon
@@ -180,8 +191,11 @@ const ExpandableSidebar = ({
             {!isExpanded && (
               <button
                 onClick={onToggle}
-                className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 mx-1 rounded-md transition-all duration-500 border-0 flex-shrink-0"
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 mx-1 rounded-md transition-all duration-500 border-0 flex-shrink-0"
                 aria-label="Open menu"
+                data-tooltip-id={`${sidebarId}-tooltip`}
+                data-tooltip-content="باز کردن منو"
+                data-tooltip-place="left"
               >
                 <Icon
                   name="ChevronLeft"
@@ -215,16 +229,16 @@ const ExpandableSidebar = ({
                     }}
                     className={`flex mt-1 items-center gap-2 w-full text-right px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap ${
                       activePath === '/setting'
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                        ? 'bg-blue-600 text-white dark:bg-blue-700 dark:text-gray-100'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     <Icon
                       name="Settings"
                       className={`w-4 h-4 ${
                         activePath === '/setting'
-                          ? 'text-white'
-                          : 'text-gray-300 group-hover:text-white'
+                          ? 'text-white dark:text-gray-100'
+                          : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white'
                       }`}
                     />
                     <span
@@ -241,7 +255,7 @@ const ExpandableSidebar = ({
               ) : (
                 // Mini icons view - same icons, no re-render
                 <div className="flex flex-col items-center gap-3 py-3">
-                  {items.map(({ path, label, icon: Icon }) => {
+                  {items.map(({ path, label, icon: iconName }) => {
                     const isActive = activePath === path;
                     return (
                       <button
@@ -249,12 +263,15 @@ const ExpandableSidebar = ({
                         onClick={() => onNavigate(path)}
                         className={`p-2 rounded-md transition-colors duration-500 ${
                           isActive
-                            ? 'bg-blue-600 text-white'
-                            : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                            ? 'bg-blue-600 text-white dark:bg-blue-700 dark:text-gray-100'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
                         }`}
                         aria-label={label}
+                        data-tooltip-id={`${sidebarId}-tooltip`}
+                        data-tooltip-content={label}
+                        data-tooltip-place="left"
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon name={iconName} className="h-4 w-4" />
                       </button>
                     );
                   })}
@@ -263,10 +280,13 @@ const ExpandableSidebar = ({
                     onClick={() => onNavigate('/setting')}
                     className={`p-2 rounded-md transition-colors duration-500 ${
                       activePath === '/setting'
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                        ? 'bg-blue-600 text-white dark:bg-blue-700 dark:text-gray-100'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
                     }`}
                     aria-label="تنظیمات"
+                    data-tooltip-id={`${sidebarId}-tooltip`}
+                    data-tooltip-content="تنظیمات"
+                    data-tooltip-place="left"
                   >
                     <Icon name="Settings" className="h-4 w-4" />
                   </button>
@@ -297,7 +317,7 @@ const ExpandableSidebar = ({
                         </div>
                         <div className="flex-1 min-w-0">
                           <p
-                            className={`text-white text-xs truncate transition-all duration-500 ease-in-out ${
+                            className={`text-gray-900 dark:text-white text-xs truncate transition-all duration-500 ease-in-out ${
                               showContent
                                 ? 'opacity-100 translate-x-0'
                                 : 'opacity-0 translate-x-4'
@@ -306,7 +326,7 @@ const ExpandableSidebar = ({
                             {user ? `${user.name}` : 'Guest'}
                           </p>
                           <p
-                            className={`text-gray-400 text-xs truncate transition-all duration-500 ease-in-out ${
+                            className={`text-gray-600 dark:text-gray-400 text-xs truncate transition-all duration-500 ease-in-out ${
                               showContent
                                 ? 'opacity-100 translate-x-0'
                                 : 'opacity-0 translate-x-4'
@@ -318,7 +338,7 @@ const ExpandableSidebar = ({
                       </div>
                       <button
                         onClick={onLogout}
-                        className={`flex items-center gap-2 text-gray-300 hover:text-white hover:bg-gray-700 p-2 rounded-md transition-all duration-500 ease-in-out ${
+                        className={`flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-md transition-all duration-500 ease-in-out ${
                           showContent
                             ? 'opacity-100 translate-x-0'
                             : 'opacity-0 translate-x-4'
@@ -332,16 +352,29 @@ const ExpandableSidebar = ({
                     // Mini user section - ALWAYS AT BOTTOM
                     <>
                       <div className="flex flex-col items-center gap-2">
-                        <div className="border-0">
+                        <div
+                          className="border-0"
+                          data-tooltip-id={`${sidebarId}-tooltip`}
+                          data-tooltip-content="تغییر تم"
+                          data-tooltip-place="left"
+                        >
                           <ThemeToggleBtn />
                         </div>
-                        <div className="w-7 h-7 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full cursor-default">
+                        <div
+                          className="w-7 h-7 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full cursor-default"
+                          data-tooltip-id={`${sidebarId}-tooltip`}
+                          data-tooltip-content={user ? user.name : 'کاربر'}
+                          data-tooltip-place="left"
+                        >
                           {getBadgeLetters(user?.name)}
                         </div>
                         <button
                           onClick={onLogout}
-                          className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors duration-500"
+                          className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors duration-500"
                           aria-label="Logout"
+                          data-tooltip-id={`${sidebarId}-tooltip`}
+                          data-tooltip-content="خروج"
+                          data-tooltip-place="left"
                         >
                           <Icon name="LogOut" className="h-4 w-4" />
                         </button>
@@ -354,6 +387,26 @@ const ExpandableSidebar = ({
           </div>
         </div>
       </div>
+
+      {/* React Tooltip for mini mode - Responsive to theme */}
+      {!isExpanded && (
+        <Tooltip
+          key={`${sidebarId}-tooltip-${theme}`}
+          id={`${sidebarId}-tooltip`}
+          className={`z-50 !text-xs !py-1 !px-2 !rounded-md !opacity-100 !transition-colors !duration-200 ${tooltipClasses}`}
+          style={{
+            maxWidth: '200px',
+            fontWeight: '500',
+            fontSize: '0.75rem',
+            lineHeight: '1rem',
+          }}
+          delayShow={300}
+          delayHide={150}
+          noArrow={false}
+          opacity={1}
+          place="left"
+        />
+      )}
     </div>
   );
 };
@@ -382,6 +435,7 @@ const Navbar = ({ onSidebarCollapse }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
 
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const [isDesktopExpanded, setIsDesktopExpanded] = useState(false); // Start with false to prevent flash
@@ -508,7 +562,8 @@ const Navbar = ({ onSidebarCollapse }) => {
   if (hide) return null;
 
   return (
-    <div dir="rtl">
+    <div dir="rtl" className={theme}>
+      {' '}
       {/* Mobile View */}
       <div className="md:hidden">
         {/* Blur Overlay when expanded - Only for mobile */}
@@ -530,7 +585,6 @@ const Navbar = ({ onSidebarCollapse }) => {
           activePath={location.pathname}
         />
       </div>
-
       {/* Desktop View */}
       <div className="hidden md:block">
         {/* No blur overlay for desktop - sidebar is part of layout */}
