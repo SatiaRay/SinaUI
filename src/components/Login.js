@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
-import NetworkBackground3D from './NetworkBackground2D';
+import NetworkBackground3D from './NetworkBackground';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -127,7 +127,6 @@ const Login = () => {
           )}
 
           <div className="space-y-4">
-            {/* Google Button - با hover effect قوی‌تر */}
             <button
               onClick={() => handleOAuth('google')}
               disabled={!!loadingProvider}
@@ -144,7 +143,6 @@ const Login = () => {
               {loadingProvider === 'google' ? 'در حال اتصال...' : 'ورود با Google'}
             </button>
 
-            {/* GitHub Button - hover effect هماهنگ */}
             <button
               onClick={() => handleOAuth('github')}
               disabled={!!loadingProvider}
@@ -224,23 +222,16 @@ const Login = () => {
                 disabled={loadingProvider === 'email' || !canSubmitEmail}
                 className="w-full rounded-xl py-3 font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition disabled:opacity-60"
               >
-                {loadingProvider === 'email' ? 'در حال ورود...' : 'ورود با ایمیل'}
+                {loadingProvider === 'email' ? 'در حال ورود...' : 'ورود'}
               </button>
 
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-center text-sm">
                 <button
                   type="button"
                   onClick={() => setShowEmailForm(false)}
                   className="text-gray-400 hover:text-white transition"
                 >
                   بازگشت
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate('/forgot-password')}
-                  className="text-indigo-400 hover:text-indigo-300 transition"
-                >
-                  فراموشی رمز عبور؟
                 </button>
               </div>
             </form>

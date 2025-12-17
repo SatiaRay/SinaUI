@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 import { notify } from './ui/toast';
-import NetworkBackground3D from './NetworkBackground2D';
+import NetworkBackground3D from './NetworkBackground';
 
 const Register = () => {
   const { register } = useAuth();
@@ -183,9 +183,8 @@ const Register = () => {
               <input
                 name="phone"
                 type="text"
-                dir="ltr"
-                placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-                className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-900/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-left"
+                placeholder="تلفن همراه: ۰۹۱۲۳۴۵۶۷۸۹"
+                className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-900/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-right"
                 value={formData.phone}
                 onChange={handleChange}
               />
