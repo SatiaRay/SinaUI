@@ -111,16 +111,16 @@ const workspaceApi = idpApi.injectEndpoints({
 
     // Switch workspace
     switchWorkspace: builder.mutation({
-      query: (workspaceId) => ({
+      query: (workspace) => ({
         url: '/api/switch-workspace',
         method: 'POST',
-        body: { workspace_id: workspaceId },
+        body: { workspace_id: workspace.id },
       }),
       invalidatesTags: (result, error, arg) => [
         { type: 'Workspace', id: arg },
       ],
       // Transform the response to update token in localStorage
-      onQueryStarted: async (workspaceId, { dispatch, queryFulfilled }) => {
+      onQueryStarted: async (workspace, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
           
@@ -128,6 +128,9 @@ const workspaceApi = idpApi.injectEndpoints({
           if (data.token) {
             localStorage.setItem('khan-access-token', data.token);
           }
+
+          // store current workspace data in localStorage
+          localStorage.setItem('current-workspace', JSON.stringify(workspace));
           
           // You could dispatch additional actions here if needed
           // dispatch(someAction(data.workspace_id));

@@ -109,7 +109,7 @@ export const WorkspaceDropdown = ({
 
     try {
       // Call the switch workspace API
-      const result = await switchWorkspace(workspace.id).unwrap();
+      const result = await switchWorkspace(workspace).unwrap();
       
       // Update Redux store with new workspace
       dispatch(setCurrentWorkspace(workspace.id));
