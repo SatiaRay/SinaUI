@@ -16,9 +16,13 @@ import {
   FaChartLine,
   FaCrown,
   FaUser,
+  FaSpinner,
 } from 'react-icons/fa';
 import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
 import { WorkspaceDropdown } from './navbar/workspace-dropdown';
+import { useGetWorkspacesQuery } from 'store/api/idp-features/workspaceApi';
+import { useSelector } from 'react-redux';
+import { selectActiveWorkspace } from 'store/features/workspaceSlice';
 
 /**
  * Custom Theme Toggle Button Component
@@ -133,17 +137,80 @@ const NavList = ({
 );
 
 /**
+ * Load current workspace from localStorage
+ */
+const loadCurrentWorkspaceFromStorage = () => {
+  try {
+    const savedWorkspace = localStorage.getItem('current-workspace');
+    if (savedWorkspace) {
+      return JSON.parse(savedWorkspace);
+    }
+    return null;
+  } catch (error) {
+    console.error('Error loading workspace from localStorage:', error);
+    return null;
+  }
+};
+
+/**
+ * Get workspace display properties from workspace object
+ */
+const getWorkspaceDisplayProps = (workspace) => {
+  if (!workspace) {
+    return {
+      color: 'bg-blue-500',
+      letter: 'W',
+      plan: 'Free',
+      role: 'member',
+    };
+  }
+
+  // Generate consistent color based on workspace ID
+  const colors = [
+    'bg-blue-500',
+    'bg-green-500',
+    'bg-purple-500',
+    'bg-pink-500',
+    'bg-orange-500',
+    'bg-teal-500',
+    'bg-indigo-500',
+    'bg-red-500',
+    'bg-yellow-500',
+    'bg-cyan-500',
+  ];
+
+  // Get color from metadata or generate based on ID
+  let color = 'bg-blue-500';
+  try {
+    if (workspace.metadata) {
+      const metadata = JSON.parse(workspace.metadata);
+      if (metadata.color) {
+        color = metadata.color.startsWith('#') 
+          ? `bg-[${metadata.color}]` 
+          : `bg-${metadata.color}-500`;
+      }
+    }
+  } catch (e) {
+    // If metadata parsing fails, generate color from ID
+    const colorIndex = workspace.id 
+      ? (parseInt(workspace.id.substring(0, 8), 16) % colors.length)
+      : 0;
+    color = colors[colorIndex];
+  }
+
+  // Get first letter of workspace name
+  const firstLetter = workspace.name?.charAt(0)?.toUpperCase() || 'W';
+
+  return {
+    color,
+    letter: firstLetter,
+    plan: workspace.plan || 'Free',
+    role: 'member', // You might want to get this from workspace membership data
+  };
+};
+
+/**
  * Expandable Sidebar Component - Works for both mobile and desktop
- * @param {Object} props - Component props
- * @param {Array} props.items - Navigation items
- * @param {Function} props.onNavigate - Navigation handler
- * @param {Object} props.user - User object
- * @param {Function} props.onLogout - Logout handler
- * @param {boolean} props.isExpanded - Expanded state
- * @param {Function} props.onToggle - Toggle handler
- * @param {boolean} props.isMobile - Mobile flag
- * @param {boolean} props.overlayVisible - Overlay visibility
- * @param {string} props.activePath - Active path for highlighting
  */
 const ExpandableSidebar = ({
   items,
@@ -159,130 +226,70 @@ const ExpandableSidebar = ({
   const [showContent, setShowContent] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [workspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
-
-  /**
-   * Mock data for workspaces - in real app this would come from API
-   * Dynamic workspaces that can be extended later
-   * Added a workspace with very long name for testing purposes
-   */
-  const [workspaces, setWorkspaces] = useState([
-    {
-      id: 1,
-      name: 'آکمی اینک',
-      color: 'bg-blue-500',
-      letter: 'A',
-      role: 'admin',
-      plan: 'پرو',
-      shortcut: '⌘1',
-    },
-    {
-      id: 2,
-      name: 'آکمی کورپ',
-      color: 'bg-green-500',
-      letter: 'B',
-      role: 'member',
-      plan: 'استاندارد',
-      shortcut: '⌘2',
-    },
-    {
-      id: 3,
-      name: 'ایویل کورپ',
-      color: 'bg-purple-500',
-      letter: 'C',
-      role: 'admin',
-      plan: 'رایگان',
-      shortcut: '⌘3',
-    },
-    {
-      id: 4,
-      name: 'تکنو پارس',
-      color: 'bg-red-500',
-      letter: 'T',
-      role: 'member',
-      plan: 'استاندارد',
-      shortcut: '⌘4',
-    },
-    {
-      id: 5,
-      name: 'ایده پردازان',
-      color: 'bg-yellow-500',
-      letter: 'I',
-      role: 'admin',
-      plan: 'پرو',
-      shortcut: '⌘5',
-    },
-    {
-      id: 6,
-      name: 'شرکت توسعه نرم‌افزارهای هوشمند ایران با مسئولیت محدود بسیار طولانی نام برای تست نمایش',
-      color: 'bg-pink-500',
-      letter: 'ش',
-      role: 'admin',
-      plan: 'پرو پیشرفته',
-      shortcut: '⌘6',
-    },
-  ]);
-
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
   const [theme, setTheme] = useState('light');
   const [isHovered, setIsHovered] = useState(false);
   const workspaceRef = useRef(null);
 
+  // Use RTK Query to fetch workspaces
+  const {
+    data: workspacesData,
+    isLoading: isLoadingWorkspaces,
+    isFetching: isFetchingWorkspaces,
+  } = useGetWorkspacesQuery(
+    { perpage: 20, page: 1 },
+    {
+      refetchOnMountOrArgChange: false,
+      refetchOnFocus: false,
+    }
+  );
+
+  // Use Redux store for active workspace
+  const activeWorkspaceFromStore = useSelector(selectActiveWorkspace);
+
   /**
-   * Initialize current workspace from localStorage on mount
-   * Now only stores workspace ID instead of full workspace object
+   * Load current workspace on component mount
    */
   useEffect(() => {
-    const loadWorkspaceFromStorage = () => {
-      try {
-        // Load saved workspace ID from localStorage
-        const savedWorkspaceId = localStorage.getItem(
-          'khan-selected-workspace-id'
-        );
+    const loadWorkspace = () => {
+      // First try from Redux store
+      if (activeWorkspaceFromStore) {
+        setCurrentWorkspace(activeWorkspaceFromStore);
+        return;
+      }
 
-        if (savedWorkspaceId) {
-          const workspaceId = parseInt(savedWorkspaceId, 10);
+      // Then try from localStorage
+      const savedWorkspace = loadCurrentWorkspaceFromStorage();
+      if (savedWorkspace) {
+        setCurrentWorkspace(savedWorkspace);
+        return;
+      }
 
-          // Find workspace by ID in available workspaces
-          const workspaceExists = workspaces.find((w) => w.id === workspaceId);
-
-          if (workspaceExists) {
-            setCurrentWorkspace(workspaceExists);
-            console.log('Workspace loaded from localStorage ID:', workspaceId);
-          } else {
-            // If saved workspace doesn't exist, use first workspace
-            const defaultWorkspace = workspaces[0];
-            setCurrentWorkspace(defaultWorkspace);
-            localStorage.setItem(
-              'khan-selected-workspace-id',
-              defaultWorkspace.id.toString()
-            );
-            console.log('Saved workspace not found, using default');
-          }
-        } else {
-          // No saved workspace, use first one
-          const defaultWorkspace = workspaces[0];
-          setCurrentWorkspace(defaultWorkspace);
-          localStorage.setItem(
-            'khan-selected-workspace-id',
-            defaultWorkspace.id.toString()
-          );
-          console.log('No saved workspace ID, using default');
-        }
-      } catch (error) {
-        console.error('Error loading workspace ID from localStorage:', error);
-        // Fallback to first workspace
-        const defaultWorkspace = workspaces[0];
-        setCurrentWorkspace(defaultWorkspace);
+      // Finally, use first workspace from fetched data
+      if (workspacesData?.data?.[0]) {
+        setCurrentWorkspace(workspacesData.data[0]);
       }
     };
 
-    loadWorkspaceFromStorage();
-  }, []);
+    loadWorkspace();
+  }, [activeWorkspaceFromStore, workspacesData]);
+
+  /**
+   * Extract workspaces from response
+   */
+  const workspaces = React.useMemo(() => {
+    if (!workspacesData) return [];
+    
+    if (Array.isArray(workspacesData)) return workspacesData;
+    if (workspacesData?.data && Array.isArray(workspacesData.data)) return workspacesData.data;
+    if (workspacesData?.workspaces && Array.isArray(workspacesData.workspaces)) return workspacesData.workspaces;
+    if (workspacesData?.items && Array.isArray(workspacesData.items)) return workspacesData.items;
+    
+    return [];
+  }, [workspacesData]);
 
   /**
    * Get badge letters from user name
-   * @param {string} name - User name
-   * @returns {string} Badge letters
    */
   const getBadgeLetters = (name = '') => {
     if (!name) return 'U';
@@ -301,7 +308,6 @@ const ExpandableSidebar = ({
       const timer = setTimeout(() => setShowContent(true), 100);
       return () => clearTimeout(timer);
     } else {
-      // Start closing animation
       setShowContent(false);
       setIsClosing(true);
       const timer = setTimeout(() => setIsClosing(false), 500);
@@ -311,37 +317,26 @@ const ExpandableSidebar = ({
 
   /**
    * Handle workspace change
-   * @param {Object} workspace - New workspace object
    */
   const handleWorkspaceChange = (workspace) => {
     setCurrentWorkspace(workspace);
     setWorkspaceDropdownOpen(false);
 
-    /**
-     * Store only workspace ID in localStorage instead of full object
-     * This reduces storage usage and improves performance
-     */
-    localStorage.setItem('khan-selected-workspace-id', workspace.id.toString());
-
     // Update document title
     document.title = `${workspace.name} - مدیریت چت`;
 
-    // You could also update favicon here if needed
-    console.log(
-      `Workspace changed to: ${workspace.name} (ID: ${workspace.id})`
-    );
+    console.log(`Workspace changed to: ${workspace.name}`);
   };
 
   /**
    * Handle theme change
-   * @param {string} newTheme - New theme ('light' or 'dark')
    */
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
   };
 
   /**
-   * Toggle workspace dropdown with proper state management
+   * Toggle workspace dropdown
    */
   const toggleWorkspaceDropdown = () => {
     setWorkspaceDropdownOpen((prev) => !prev);
@@ -356,7 +351,7 @@ const ExpandableSidebar = ({
   };
 
   /**
-   * Handle workspace header click - fix toggling issue
+   * Handle workspace header click
    */
   const handleWorkspaceClick = () => {
     setWorkspaceDropdownOpen((prev) => !prev);
@@ -380,7 +375,6 @@ const ExpandableSidebar = ({
         workspaceRef.current &&
         !workspaceRef.current.contains(event.target)
       ) {
-        // Check if click is on workspace button
         const isWorkspaceButton = event.target.closest(
           '[data-workspace-button]'
         );
@@ -395,6 +389,9 @@ const ExpandableSidebar = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Get display properties for current workspace
+  const displayProps = getWorkspaceDisplayProps(currentWorkspace);
 
   // Different behavior for mobile vs desktop
   const sidebarClasses = isMobile
@@ -416,6 +413,15 @@ const ExpandableSidebar = ({
     }`;
   };
 
+  /**
+   * Render workspace loading state
+   */
+  const renderWorkspaceLoading = () => (
+    <div className="flex items-center justify-center p-2">
+      <FaSpinner className="w-4 h-4 text-blue-400 animate-spin" />
+    </div>
+  );
+
   return (
     <div className={sidebarClasses}>
       <div className="flex flex-col h-full">
@@ -423,7 +429,7 @@ const ExpandableSidebar = ({
         {isExpanded && (
           <header className="p-3 border-b border-gray-700 whitespace-nowrap relative flex-shrink-0">
             <div className="flex items-center justify-between gap-2 min-w-0">
-              {/* Workspace Dropdown Section - Single Line */}
+              {/* Workspace Dropdown Section */}
               <div
                 className="flex-1 min-w-0 text-left relative"
                 ref={workspaceRef}
@@ -433,41 +439,53 @@ const ExpandableSidebar = ({
                   onMouseLeave={() => handleWorkspaceHover(false)}
                   className={`relative ${getWorkspaceHeaderClasses()}`}
                 >
-                  <button
-                    onClick={handleWorkspaceClick}
-                    data-workspace-button="true"
-                    className={`flex items-center justify-start w-full text-white hover:text-gray-200 transition-colors px-2 py-1 rounded-md min-w-0 ${
-                      isHovered || workspaceDropdownOpen ? 'bg-gray-700/50' : ''
-                    }`}
-                    aria-label="انتخاب فضای کاری"
-                    aria-expanded={workspaceDropdownOpen}
-                  >
-                    <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
-                      {currentWorkspace && (
-                        <>
-                          {/* Workspace icon with dynamic color from dropdown */}
-                          <div
-                            className={`w-6 h-6 ${currentWorkspace.color} rounded-md flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}
-                          >
-                            {currentWorkspace.letter}
-                          </div>
-                          <div className="flex-1 min-w-0 overflow-hidden">
-                            <span className="text-sm font-bold truncate block text-right">
-                              {currentWorkspace.name}
-                            </span>
-                            <div className="flex items-center justify-end gap-1 mt-0.5">
-                              <span className="text-xs bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full truncate max-w-[80px]">
-                                {currentWorkspace.plan}
+                  {isLoadingWorkspaces ? (
+                    renderWorkspaceLoading()
+                  ) : (
+                    <button
+                      onClick={handleWorkspaceClick}
+                      data-workspace-button="true"
+                      className={`flex items-center justify-start w-full text-white hover:text-gray-200 transition-colors px-2 py-1 rounded-md min-w-0 ${
+                        isHovered || workspaceDropdownOpen ? 'bg-gray-700/50' : ''
+                      }`}
+                      aria-label="انتخاب فضای کاری"
+                      aria-expanded={workspaceDropdownOpen}
+                      disabled={isFetchingWorkspaces}
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
+                        {currentWorkspace ? (
+                          <>
+                            {/* Workspace icon */}
+                            <div
+                              className={`w-6 h-6 ${displayProps.color} rounded-md flex items-center justify-center text-white text-xs font-bold flex-shrink-0 bg-blue-500`}
+                            >
+                              {displayProps.letter}
+                            </div>
+                            <div className="flex-1 min-w-0 overflow-hidden">
+                              <span className="text-sm font-bold truncate block text-right">
+                                {currentWorkspace.name}
                               </span>
-                              {currentWorkspace.role === 'admin' && (
-                                <FaCrown className="w-3 h-3 text-yellow-500 flex-shrink-0" />
-                              )}
+                              <div className="flex items-center justify-end gap-1 mt-0.5">
+                                <span className="text-xs bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full truncate max-w-[80px]">
+                                  {displayProps.plan}
+                                </span>
+                                {displayProps.role === 'admin' && (
+                                  <FaCrown className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-gray-600 rounded-md animate-pulse"></div>
+                            <div className="flex-1">
+                              <div className="h-4 bg-gray-600 rounded w-24 animate-pulse"></div>
                             </div>
                           </div>
-                        </>
-                      )}
-                    </div>
-                  </button>
+                        )}
+                      </div>
+                    </button>
+                  )}
 
                   {/* Workspace Dropdown */}
                   <WorkspaceDropdown
@@ -477,12 +495,11 @@ const ExpandableSidebar = ({
                     currentWorkspace={currentWorkspace}
                     position="header"
                     isExpanded={isExpanded}
-                    workspaces={workspaces}
                   />
                 </div>
               </div>
 
-              {/* Toggle sidebar button - Always visible */}
+              {/* Toggle sidebar button */}
               <button
                 onClick={onToggle}
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 hover:bg-gray-700 size-7 min-w-[28px]"
@@ -490,7 +507,7 @@ const ExpandableSidebar = ({
                 data-sidebar="trigger"
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns="http://www.w3.org2000/svg"
                   width="20"
                   height="20"
                   viewBox="0 0 24 24"
@@ -510,26 +527,30 @@ const ExpandableSidebar = ({
           </header>
         )}
 
-        {/* Scrollable content area - WITH SCROLL */}
+        {/* Scrollable content area */}
         <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
           <div className="flex flex-col min-h-full">
-            {/* Workspace badge in mini mode - Only workspace badge without toggle button */}
+            {/* Workspace badge in mini mode */}
             {!isExpanded && (
               <div className="flex flex-col items-center gap-3 py-3 flex-shrink-0">
-                {/* Workspace badge in mini mode */}
                 <div className="relative" ref={workspaceRef}>
                   <div className="relative">
-                    <button
-                      onClick={handleWorkspaceClick}
-                      data-workspace-button="true"
-                      className={`w-8 h-8 flex items-center justify-center ${
-                        currentWorkspace?.color || 'bg-blue-500'
-                      } text-white text-xs font-bold rounded-md hover:opacity-90 transition-all relative`}
-                      aria-label="انتخاب فضای کاری"
-                      aria-expanded={workspaceDropdownOpen}
-                    >
-                      {currentWorkspace?.letter || 'A'}
-                    </button>
+                    {isLoadingWorkspaces ? (
+                      <div className="w-8 h-8 bg-gray-600 rounded-md animate-pulse"></div>
+                    ) : (
+                      <button
+                        onClick={handleWorkspaceClick}
+                        data-workspace-button="true"
+                        className={`w-8 h-8 flex items-center justify-center ${
+                          displayProps.color
+                        } text-white text-xs font-bold rounded-md hover:opacity-90 transition-all relative bg-blue-500`}
+                        aria-label="انتخاب فضای کاری"
+                        aria-expanded={workspaceDropdownOpen}
+                        disabled={isFetchingWorkspaces}
+                      >
+                        {displayProps.letter}
+                      </button>
+                    )}
 
                     {/* Workspace Dropdown for mini mode */}
                     <WorkspaceDropdown
@@ -539,14 +560,13 @@ const ExpandableSidebar = ({
                       currentWorkspace={currentWorkspace}
                       position="mini"
                       isExpanded={isExpanded}
-                      workspaces={workspaces}
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Navigation section - Takes available space but can grow */}
+            {/* Navigation section */}
             <nav className="flex-1">
               {isExpanded ? (
                 <div className="px-2 py-3">
@@ -563,7 +583,6 @@ const ExpandableSidebar = ({
                   <button
                     onClick={() => {
                       onNavigate('/setting');
-                      // Only close sidebar on mobile when navigating to settings
                       if (isMobile) {
                         onToggle(false);
                       }
@@ -593,7 +612,7 @@ const ExpandableSidebar = ({
                   </button>
                 </div>
               ) : (
-                // Mini icons view - same icons, no re-render
+                // Mini icons view
                 <div className="flex flex-col items-center gap-3 py-3">
                   {items.map(({ path, label, icon: Icon }) => {
                     const isActive = activePath === path;
@@ -629,10 +648,10 @@ const ExpandableSidebar = ({
               )}
             </nav>
 
-            {/* Bottom section - Theme toggle and user info WITHOUT SEPARATOR */}
+            {/* Bottom section */}
             <div className="flex-shrink-0">
               <div className={`${isExpanded ? 'px-2 py-3' : 'py-3'}`}>
-                {/* Toggle sidebar button in mini mode - Moved to above theme toggle */}
+                {/* Toggle sidebar button in mini mode */}
                 {!isExpanded && (
                   <div className="mb-3 flex justify-center">
                     <button
@@ -661,7 +680,7 @@ const ExpandableSidebar = ({
                   </div>
                 )}
 
-                {/* Theme Toggle Button - Simplified: Icon only, aligned to left */}
+                {/* Theme Toggle Button */}
                 <div className={`mb-3 ${!isExpanded ? 'px-1' : ''}`}>
                   {isExpanded ? (
                     <div
@@ -722,7 +741,7 @@ const ExpandableSidebar = ({
                   )}
                 </div>
 
-                {/* User section - No border on top */}
+                {/* User section */}
                 <div
                   className={`flex transition-all duration-500 ease-in-out ${
                     isExpanded
@@ -731,7 +750,7 @@ const ExpandableSidebar = ({
                   }`}
                 >
                   {isExpanded ? (
-                    // Expanded user section with animations
+                    // Expanded user section
                     <>
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <div className="w-8 h-8 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full transition-all duration-500 flex-shrink-0">
@@ -799,9 +818,6 @@ const ExpandableSidebar = ({
 
 /**
  * Background Blur Overlay Component
- * @param {Object} props - Component props
- * @param {Function} props.onClose - Close handler
- * @param {boolean} props.isVisible - Visibility state
  */
 const BlurOverlay = ({ onClose, isVisible }) => (
   <div
@@ -814,8 +830,6 @@ const BlurOverlay = ({ onClose, isVisible }) => (
 
 /**
  * Main Navbar Component
- * @param {Object} props - Component props
- * @param {Function} props.onSidebarCollapse - Sidebar collapse handler
  */
 const Navbar = ({ onSidebarCollapse }) => {
   const { logout, user } = useAuth();
@@ -825,10 +839,6 @@ const Navbar = ({ onSidebarCollapse }) => {
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const [isDesktopExpanded, setIsDesktopExpanded] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-
-  /**
-   * Hide navbar state
-   */
   const [hide, setHide] = useState(false);
 
   /**
@@ -844,7 +854,7 @@ const Navbar = ({ onSidebarCollapse }) => {
   ];
 
   /**
-   * Load sidebar state from localStorage on component mount
+   * Load sidebar state from localStorage
    */
   useEffect(() => {
     const savedSidebarState = localStorage.getItem('khan-sidebar-expanded');
@@ -863,7 +873,7 @@ const Navbar = ({ onSidebarCollapse }) => {
   }, [onSidebarCollapse]);
 
   /**
-   * Save sidebar state to localStorage whenever it changes
+   * Save sidebar state to localStorage
    */
   useEffect(() => {
     if (isInitialized) {
@@ -904,7 +914,7 @@ const Navbar = ({ onSidebarCollapse }) => {
   };
 
   /**
-   * Toggle desktop sidebar and save state
+   * Toggle desktop sidebar
    */
   const toggleDesktopSidebar = () => {
     const newState = !isDesktopExpanded;
@@ -937,9 +947,7 @@ const Navbar = ({ onSidebarCollapse }) => {
     setIsMobileExpanded(false);
   }, [location.pathname]);
 
-  /**
-   * Return null if hide state is true
-   */
+  // Return null if hide state is true
   if (hide) return null;
 
   return (
