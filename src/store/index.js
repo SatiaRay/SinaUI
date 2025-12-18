@@ -6,6 +6,8 @@ import settingSlice from './features/settingSlice';
 import aiApi from './api/aiApi';
 import workflowSlice from './features/workflowSlice';
 import instructionSlice from './features/instructionSlice';
+import idpApi from './api/idpApi';
+import workspaceSlice from './features/workspaceSlice';
 
 /**
  * Main Redux store configuration
@@ -21,14 +23,17 @@ const store = configureStore({
     instruction: instructionSlice.reducer,
     workflow: workflowSlice.reducer,
     setting: settingSlice.reducer,
+    workspace: workspaceSlice.reducer,
     monitoring: monitoringApi.reducer,
     [knowledgeApi.reducerPath]: knowledgeApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
+    [idpApi.reducerPath]: idpApi.reducer,
   },
   middleware: (getDefault) => {
     let middlewares = getDefault().concat(
       knowledgeApi.middleware,
-      aiApi.middleware
+      aiApi.middleware,
+      idpApi.middleware
     );
 
     return middlewares;
