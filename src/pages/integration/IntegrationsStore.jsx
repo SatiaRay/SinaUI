@@ -88,7 +88,7 @@ export const createIntegration = async ({ domain, agentId }) => {
   const normalized = domainCheck.normalized;
 
   if (integrations.some((x) => x.domain === normalized && x.agentId === agentId)) {
-    const err = new Error('برای این دامنه و Agent قبلاً یک Integration ساخته شده است.');
+    const err = new Error('برای این دامنه و Agent قبلاً یک یکپارچه‌سازی‌ ساخته شده است.');
     err.code = 'DUPLICATE';
     err.fieldErrors = { domain: ['Duplicate integration'] };
     throw err;
@@ -105,7 +105,7 @@ export const updateIntegration = async (id, patch) => {
   const idx = integrations.findIndex((x) => x.id === id);
 
   if (idx === -1) {
-    const err = new Error('Integration پیدا نشد.');
+    const err = new Error('یکپارچه‌سازی‌ پیدا نشد.');
     err.code = 'NOT_FOUND';
     throw err;
   }

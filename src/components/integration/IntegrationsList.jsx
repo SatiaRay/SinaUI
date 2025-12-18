@@ -20,7 +20,7 @@ export default function IntegrationsList({
             <th className="text-right font-bold px-4 py-3 border-b border-gray-200 dark:border-gray-800">Domain</th>
             <th className="text-right font-bold px-4 py-3 border-b border-gray-200 dark:border-gray-800">Agent</th>
             <th className="text-right font-bold px-4 py-3 border-b border-gray-200 dark:border-gray-800">Embed ID</th>
-            <th className="text-right font-bold px-4 py-3 border-b border-gray-200 dark:border-gray-800">Actions</th>
+            <th className="text-right font-bold px-4 py-3 border-b border-gray-200 dark:border-gray-800">عملیات</th>
           </tr>
         </thead>
 
@@ -45,27 +45,27 @@ export default function IntegrationsList({
                 <td className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100 break-all">
                   {it.embedId}
                 </td>
-                <td
-                  className="px-4 py-3 border-b border-gray-200 dark:border-gray-800"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex flex-wrap gap-2 justify-end">
-                    <button
-                      disabled={loading}
-                      onClick={() => onEdit(it)}
-                      className="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition disabled:opacity-60"
+                <td className="px-4 py-3 border-b border-gray-200 dark:border-gray-800"
+                    onClick={(e) => e.stopPropagation()}
                     >
-                      Edit
-                    </button>
-                    <button
-                      disabled={loading}
-                      onClick={() => onDelete(it.id)}
-                      className="px-3 py-2 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition disabled:opacity-60"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
+                    <div className="flex flex-wrap gap-2 justify-start">
+                        <button
+                        disabled={loading}
+                        onClick={() => onEdit(it)}
+                        className="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition disabled:opacity-60"
+                        >
+                        ویرایش
+                        </button>
+
+                        <button
+                        disabled={loading}
+                        onClick={() => onDelete(it.id)}
+                        className="px-3 py-2 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition disabled:opacity-60"
+                        >
+                        حذف
+                        </button>
+                    </div>
+                    </td>
               </tr>
             );
           })}
