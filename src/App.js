@@ -23,6 +23,10 @@ import {
   InstructionIndex,
   EditInstruction,
 } from './pages/instruction';
+import { 
+  Integrations,
+  WidgetPreview,
+} from './pages/integration';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
@@ -328,6 +332,24 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <EditInstruction />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      <Route path="/integration">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <Integrations />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="preview"
+          element={
+            <PrivateRoute>
+              <WidgetPreview />
             </PrivateRoute>
           }
         />
