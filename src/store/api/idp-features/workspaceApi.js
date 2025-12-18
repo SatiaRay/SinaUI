@@ -150,6 +150,7 @@ export const {
   useLeaveWorkspaceMutation,
   useRemoveWorkspaceMemberMutation,
   useGetWorkspaceMembersQuery,
+  useSwitchWorkspaceMutation,
 } = workspaceApi;
 
 export default workspaceApi;
