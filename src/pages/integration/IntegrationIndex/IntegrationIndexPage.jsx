@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { buildEmbedSnippet } from './Contract';
+import { buildEmbedSnippet } from '../Contract';
 import {
   listAgents,
   listIntegrations,
   createIntegration,
   deleteIntegration,
   updateIntegration,
-} from './IntegrationsStore';
+} from '../IntegrationsStore';
 
-import { notify } from '../../components/ui/toast';
-import { confirm } from '../../components/ui/alert/confirmation';
-import { Sppiner } from '../../components/ui/sppiner';
+import { notify } from '../../../components/ui/toast';
+import { confirm } from '../../../components/ui/alert/confirmation';
+import { Sppiner } from '../../../components/ui/sppiner';
 
-import IntegrationForm from '../../components/integration/IntegrationForm';
-import EmbedSnippet from '../../components/integration/EmbedSnippet';
-import IntegrationsList from '../../components/integration/IntegrationsList';
-import WidgetPreview from '../../components/integration/WidgetPreview';
-import EditIntegrationModal from '../../components/integration/EditIntegrationModal';
+import IntegrationForm from '../../../components/integration/IntegrationForm';
+import EmbedSnippet from '../../../components/integration/EmbedSnippet';
+import IntegrationsList from '../../../components/integration/IntegrationsList';
+import WidgetPreview from '../../../components/integration/WidgetPreview';
+import EditIntegrationModal from '../../../components/integration/EditIntegrationModal';
 
-import { ChatIntegrationsLoading } from './IntegrationsLoading';
+import { ChatIntegrationsLoading } from './IntegrationIndexLoading';
 
 /**
  * Chat Integrations Management Page
