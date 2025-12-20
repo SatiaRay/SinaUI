@@ -11,11 +11,14 @@ import {
 import { notify } from '../../components/ui/toast';
 import { confirm } from '../../components/ui/alert/confirmation';
 import { Sppiner } from '../../components/ui/sppiner';
+
 import IntegrationForm from '../../components/integration/IntegrationForm';
 import EmbedSnippet from '../../components/integration/EmbedSnippet';
 import IntegrationsList from '../../components/integration/IntegrationsList';
 import WidgetPreview from '../../components/integration/WidgetPreview';
 import EditIntegrationModal from '../../components/integration/EditIntegrationModal';
+
+import { ChatIntegrationsLoading } from './IntegrationsLoading';
 
 /**
  * Chat Integrations Management Page
@@ -27,7 +30,10 @@ const ChatIntegrationsPage = () => {
   const [agents, setAgents] = useState([]);
   const [integrations, setIntegrations] = useState([]);
   const [selected, setSelected] = useState(null);
+
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
   const [fieldErrors, setFieldErrors] = useState({});
   const [editOpen, setEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
@@ -37,6 +43,8 @@ const ChatIntegrationsPage = () => {
     [selected]
   );
 
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
   /**
    * Load Data
    */
@@ -44,17 +52,32 @@ const ChatIntegrationsPage = () => {
     setLoading(true);
     try {
       const [a, ints] = await Promise.all([listAgents(), listIntegrations()]);
+      if (initialLoading) await sleep(300);
+
       setAgents(a);
       setIntegrations(ints);
-      if (selected?.id) setSelected(ints.find(x => x.id === selected.id) || null);
+
+      if (selected?.id) {
+        setSelected(ints.find((x) => x.id === selected.id) || null);
+      }
     } catch {
       notify.error('خطا در بارگذاری اطلاعات');
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  /**
+   * Show Skeleton only on first load
+   */
+  if (initialLoading) {
+    return <ChatIntegrationsLoading />;
+  }
 
   /**
    * Create Handler
@@ -87,8 +110,9 @@ const ChatIntegrationsPage = () => {
       title: 'حذف یکپارچه‌سازی‌',
       text: 'آیا مطمئن هستید که می‌خواهید این یکپارچه‌سازی‌ را حذف کنید؟ این عمل قابل بازگشت نیست.',
       onConfirm: async () => {
-        setIntegrations(prev => prev.filter(i => i.id !== id));
+        setIntegrations((prev) => prev.filter((i) => i.id !== id));
         if (selected?.id === id) setSelected(null);
+
         try {
           await deleteIntegration(id);
           notify.success('یکپارچه‌سازی‌ با موفقیت حذف شد');
@@ -105,10 +129,13 @@ const ChatIntegrationsPage = () => {
    */
   const handleTogglePublic = async () => {
     if (!selected) return;
+
     const newPublic = !selected.isPublic;
 
-    setSelected(prev => ({ ...prev, isPublic: newPublic }));
-    setIntegrations(prev => prev.map(i => (i.id === selected.id ? { ...i, isPublic: newPublic } : i)));
+    setSelected((prev) => ({ ...prev, isPublic: newPublic }));
+    setIntegrations((prev) =>
+      prev.map((i) => (i.id === selected.id ? { ...i, isPublic: newPublic } : i))
+    );
 
     try {
       await updateIntegration(selected.id, { isPublic: newPublic });
@@ -162,7 +189,7 @@ const ChatIntegrationsPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 px-4 py-3 text-white rounded-2xl shadow-md">
+      <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 px-4 py-3 mt-2 text-white rounded-2xl shadow-md">
         <div className="max-w-screen-2xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur">
@@ -170,13 +197,18 @@ const ChatIntegrationsPage = () => {
             </div>
             <h3 className="text-xl font-bold">یکپارچه‌سازی‌های چت</h3>
           </div>
+
           <div className="flex items-center gap-2">
             {loading && <Sppiner size={14} className="text-white" />}
             <span className="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur text-sm font-medium">
               {integrations.length} یکپارچه‌سازی‌
             </span>
             {selected && (
-              <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${selected.isPublic ? 'bg-green-500/30' : 'bg-gray-500/30'}`}>
+              <span
+                className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${
+                  selected.isPublic ? 'bg-green-500/30' : 'bg-gray-500/30'
+                }`}
+              >
                 {selected.isPublic ? 'Public' : 'Private'}
               </span>
             )}
@@ -193,7 +225,9 @@ const ChatIntegrationsPage = () => {
               <div className="mt-0.5 text-lg">⚠️</div>
               <div className="flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <h4 className="text-lg font-bold text-amber-900 dark:text-amber-200">نکته امنیتی</h4>
+                  <h4 className="text-lg font-bold text-amber-900 dark:text-amber-200">
+                    نکته امنیتی
+                  </h4>
                   <span className="inline-flex items-center rounded-full border border-amber-300/60 dark:border-amber-700 px-2.5 py-0.5 text-sm font-semibold text-amber-900 dark:text-amber-200 bg-white/40 dark:bg-black/10">
                     Domain / CORS
                   </span>
@@ -213,11 +247,20 @@ const ChatIntegrationsPage = () => {
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-3 py-2 text-white">
               <h4 className="text-lg font-bold">یکپارچه‌سازی‌ جدید</h4>
             </div>
+
             <div className="p-3">
-              <IntegrationForm agents={agents} loading={loading} fieldErrors={fieldErrors} onSubmit={handleCreate} />
+              <IntegrationForm
+                agents={agents}
+                loading={loading}
+                fieldErrors={fieldErrors}
+                onSubmit={handleCreate}
+              />
+
               {selectedSnippet && (
                 <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <h5 className="text-sm font-semibold mb-2 text-indigo-700 dark:text-indigo-300">Embed Snippet</h5>
+                  <h5 className="text-sm font-semibold mb-2 text-indigo-700 dark:text-indigo-300">
+                    Embed Snippet
+                  </h5>
                   <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-2 border border-indigo-200 dark:border-indigo-800 text-xs">
                     <EmbedSnippet snippet={selectedSnippet} />
                   </div>
@@ -230,17 +273,26 @@ const ChatIntegrationsPage = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-teal-200 dark:border-teal-900">
             <div className="bg-gradient-to-r from-teal-600 to-cyan-600 px-3 py-2 text-white flex justify-between items-center">
               <h4 className="text-lg font-bold">پیش‌نمایش ویجت</h4>
+
               {selected && (
-                <div className="flex gap-1.5">
-                  <button onClick={handleTogglePublic} disabled={loading} className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 disabled:opacity-60 text-xs font-medium transition">
+                <div className="flex gap-1.5 whitespace-nowrap">
+                  <button
+                    onClick={handleTogglePublic}
+                    disabled={loading}
+                    className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 disabled:opacity-60 text-xs font-medium transition"
+                  >
                     {selected.isPublic ? 'خصوصی' : 'عمومی'}
                   </button>
-                  <button onClick={() => openEdit(selected)} className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-medium transition">
+                  <button
+                    onClick={() => openEdit(selected)}
+                    className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-medium transition"
+                  >
                     ویرایش
                   </button>
                 </div>
               )}
             </div>
+
             <div className="p-3">
               {selected ? (
                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg border border-teal-300/70 dark:border-teal-700 overflow-hidden shadow-inner">
@@ -268,6 +320,7 @@ const ChatIntegrationsPage = () => {
             <div className="bg-gradient-to-r from-orange-600 to-pink-600 px-3 py-2 text-white">
               <h4 className="text-lg font-bold">لیست یکپارچه‌سازی‌ها</h4>
             </div>
+
             <div className="p-3">
               {integrations.length === 0 ? (
                 <div className="text-center py-8">
