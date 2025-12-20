@@ -1,12 +1,7 @@
 import { createContext, useContext, useRef, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { getWebSocketUrl } from '../utils/websocket';
-import {
-  dataNormalizer,
-  mergeNormalized,
-  packFile,
-  stripHtmlTags,
-} from '../utils/helpers';
+import { getWebSocketUrl } from '@utils/websocket';
+import { dataNormalizer, mergeNormalized, stripHtmlTags } from '@utils/helpers';
 import { useAuth } from './AuthContext';
 import { chatEndpoints, wizardEndpoints } from '../utils/apis';
 
@@ -24,6 +19,8 @@ export const ChatProvider = ({ children }) => {
   const [copiedMessageId, setCopiedMessageId] = useState(null);
   const [optionMessageTriggered, setOptionMessageTriggered] = useState(false);
   const [history, setHistory] = useState({ ids: [], entities: {} });
+  const [wizardPath, setWizardPath] = useState([]);
+  const [visitedWizardIds, setVisitedWizardIds] = useState(new Set());
   const auth = useAuth();
   const token = auth?.token;
 
@@ -40,6 +37,7 @@ export const ChatProvider = ({ children }) => {
   const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const socketRef = useRef(null);
+  const lastInputTypeRef = useRef('text');
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -127,6 +125,7 @@ export const ChatProvider = ({ children }) => {
       const data = await wizardEndpoints.getRootWizards();
       setRootWizards(data);
       setCurrentWizards(data);
+      setWizardPath([]);
     } catch (err) {
       setError(err.message);
     }
@@ -141,7 +140,11 @@ export const ChatProvider = ({ children }) => {
   const loadHistory = async (sessionId, offset = 0, limit = 20) => {
     setHistoryLoading(true);
     try {
-      const messages = await chatEndpoints.getChatHistory(sessionId, offset, limit);
+      const messages = await chatEndpoints.getChatHistory(
+        sessionId,
+        offset,
+        limit
+      );
 
       if (Array.isArray(messages)) {
         const reversedMessages = dataNormalizer([...messages].reverse());
@@ -197,23 +200,30 @@ export const ChatProvider = ({ children }) => {
    * @returns sent message object
    */
   const sendMessage = async (text) => {
-    if (socketRef.current) {
-      const userMessage = {
-        type: 'text',
-        body: text,
-        role: 'user',
-        created_at: new Date().toISOString().slice(0, 19),
-      };
+    lastInputTypeRef.current = 'text';
+    if (!socketRef.current) return;
 
-      addNewMessage(userMessage);
-
-      socketRef.current.send(
-        JSON.stringify({
-          event: 'text',
-          text,
-        })
-      );
+    if (wizardPath.length > 0) {
+      clearWizardMessagesFromHistory();
+      resetWizardToRoot();
+      setVisitedWizardIds(new Set());
     }
+
+    const userMessage = {
+      type: 'text',
+      body: text,
+      role: 'user',
+      created_at: new Date().toISOString().slice(0, 19),
+    };
+
+    addNewMessage(userMessage);
+
+    socketRef.current.send(
+      JSON.stringify({
+        event: 'text',
+        text,
+      })
+    );
   };
 
   /**
@@ -324,29 +334,87 @@ export const ChatProvider = ({ children }) => {
   };
 
   /**
+   * Removes all wizard-related messages from chat history.
+   */
+  const clearWizardMessagesFromHistory = () => {
+    setHistory((prev) => {
+      const ids = prev.ids.filter((id) => !prev.entities[id]?.fromWizard);
+      const entities = ids.reduce(
+        (a, id) => ((a[id] = prev.entities[id]), a),
+        {}
+      );
+      return { ids, entities };
+    });
+  };
+
+  /**
+   * Mark wizard as visited to prevent duplicate triggers
+   */
+  const markWizardAsVisited = (id) =>
+    setVisitedWizardIds((p) => new Set(p).add(id));
+
+  /**
+   * Resets wizard navigation to the root level
+   */
+  const resetWizardToRoot = () => {
+    setWizardPath([]);
+    setCurrentWizards(rootWizards);
+  };
+
+  /**
+   * Navigates one level deeper in the wizard hierarchy
+   * @param {object} wizardData
+   */
+  const goToChildren = (w) => {
+    setWizardPath((p) => [...p, w]);
+    setCurrentWizards(w.children);
+  };
+
+  /**
+   * Handles wizard back navigation (one level up)
+   */
+  const handleWizardBack = () => {
+    setWizardPath((p) => {
+      if (p.length <= 1) {
+        resetWizardToRoot();
+        return [];
+      }
+      const np = p.slice(0, -1);
+      setCurrentWizards(np.at(-1)?.children || []);
+      return np;
+    });
+  };
+
+  /**
    * Handles wizard selection
-   *
    * @param {object} wizardData selected wizard data
    */
-  const handleWizardSelect = (wizardData) => {
-    if (wizardData.wizard_type === 'question') {
-      sendMessage(stripHtmlTags(wizardData.context));
-      return;
-    } else
-      sendData({
-        event: 'wizard',
-        wizard_id: wizardData.id,
-      });
+  const handleWizardSelect = (w) => {
+    lastInputTypeRef.current = 'wizard';
+    if (w?.__type === 'back') return handleWizardBack();
 
-    if (wizardData.children && wizardData.children.length > 0) {
-      setCurrentWizards(wizardData.children);
-    } else {
-      setCurrentWizards(rootWizards);
+    if (w.wizard_type === 'question') {
+      sendMessage(stripHtmlTags(w.context));
+      return resetWizardToRoot();
     }
+
+    const { id, children = [] } = w;
+
+    if (!visitedWizardIds.has(id)) {
+      sendData({ event: 'wizard', wizard_id: id });
+      markWizardAsVisited(id);
+    }
+
+    return children.length
+      ? goToChildren(w)
+      : setTimeout(resetWizardToRoot, 500);
   };
+
   const clearHistory = () => {
     setHistory({ ids: [], entities: {} });
+    setVisitedWizardIds(new Set());
     localStorage.removeItem('chat_session_id');
+    setWizardPath([]);
     if (socketRef.current) {
       if (socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.close();
@@ -379,6 +447,7 @@ export const ChatProvider = ({ children }) => {
     setCurrentWizards,
     rootWizards,
     setRootWizards,
+    wizardPath,
     copiedMessageId,
     setCopiedMessageId,
     optionMessageTriggered,
@@ -388,6 +457,7 @@ export const ChatProvider = ({ children }) => {
     chatContainerRef,
     chatEndRef,
     socketRef,
+    lastInputTypeRef,
     getSessionId,
     loadRootWizards,
     loadHistory,
@@ -397,6 +467,7 @@ export const ChatProvider = ({ children }) => {
     sendData,
     setService,
     handleWizardSelect,
+    handleWizardBack,
     addNewMessage,
     updateMessage,
     removeMessage,

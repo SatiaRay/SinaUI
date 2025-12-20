@@ -6,18 +6,18 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom';
-import Chat from './components/chat/Chat';
+import Chat from '@components/chat/Chat';
 import {
   CreateDocument,
   DocumentIndex,
   EditDocument,
   VectorSearchingPage,
-} from './pages/document';
+} from '@pages/document';
 import {
   WorkflowIndexPage,
   EditWorkflowPage,
   CreateWorkflowPage,
-} from './pages/workflow';
+} from '@pages/workflow';
 import {
   CreateInstruction,
   InstructionIndex,
@@ -34,9 +34,14 @@ import { WorkflowEditor } from './pages/workflow';
 import { AuthProvider } from './contexts/AuthContext';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
+} from '@pages/instruction';
+import Login from '@components/Login';
+import Navbar from '@components/Navbar';
+import PrivateRoute from '@components/PrivateRoute';
+import { AuthProvider } from '@contexts/AuthContext';
+import Register from '@components/register';
 import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
-import ChatBoxPreview from './pages/widget/chat-box-perview';
-import { ChatProvider } from './contexts/ChatContext';
+import { ChatProvider } from '@contexts/ChatContext';
 
 import {
   MonitoringIndex,
@@ -81,7 +86,6 @@ function AppContent() {
     }
     return !JSON.parse(savedState);
   });
-  const [appVersion, setAppVersion] = useState(null);
 
   /**
    * Setup window event on container overflow hidden
@@ -96,22 +100,6 @@ function AppContent() {
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  /**
-   * Fetch App Version
-   */
-  useEffect(() => {
-    const fetchVersion = async () => {
-      try {
-        const res = await getVersion();
-        setAppVersion(res.version);
-      } catch (err) {
-        setAppVersion('undefined');
-      }
-    };
-
-    fetchVersion();
   }, []);
 
   return (
@@ -136,13 +124,6 @@ function AppContent() {
       )}
 
       {!isPrivateRoute && publicRoutes()}
-
-      <span
-        className="text-xs dark:text-neutral-100 fixed bottom-[2px] left-2 md:left-1"
-        dir="ltr"
-      >
-        {appVersion}
-      </span>
     </div>
   );
 }

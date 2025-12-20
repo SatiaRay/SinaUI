@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+import Icon from './ui/Icon';
 
 const ImagePreview = ({
   images,
@@ -20,14 +16,14 @@ const ImagePreview = ({
         onClick={onClose}
         className="absolute top-4 right-4 text-white hover:text-gray-300"
       >
-        <XMarkIcon className="h-8 w-8" />
+        <Icon name="X" className="h-8 w-8" />
       </button>
 
       <button
         onClick={onPrevious}
         className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300"
       >
-        <ChevronRightIcon className="h-12 w-12" />
+        <Icon name="ChevronRight" className="h-12 w-12" />
       </button>
 
       <div className="relative max-w-4xl max-h-[80vh] mx-4">
@@ -49,7 +45,7 @@ const ImagePreview = ({
         onClick={onNext}
         className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300"
       >
-        <ChevronLeftIcon className="h-12 w-12" />
+        <Icon name="ChevronLeft" className="h-12 w-12" />
       </button>
     </div>
   );

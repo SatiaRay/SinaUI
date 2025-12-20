@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Set the base URL for all API requests
-axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+axios.defaults.baseURL = process.env.REACT_APP_AI_SERVICE;
 
 // Add a request interceptor to include the auth token
 axios.interceptors.request.use(

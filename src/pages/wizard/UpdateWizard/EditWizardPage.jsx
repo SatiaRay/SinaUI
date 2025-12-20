@@ -4,14 +4,14 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import CustomDropdown from '@components/ui/CustomDropdown';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
+import { notify } from '@components/ui/toast';
 import {
   useGetWizardQuery,
   useUpdateWizardMutation,
 } from 'store/api/ai-features/wizardApi';
 import { ckEditorConfig } from '../../../configs';
 import { EditWizardLoading } from './EditWizardLoading';
-import { Sppiner } from '../../../components/ui/sppiner';
+import { Sppiner } from '@components/ui/sppiner';
 
 const EditWizardPage = () => {
   /**
@@ -68,6 +68,17 @@ const EditWizardPage = () => {
   }, [isUpdateSuccess, navigate]);
 
   /**
+   * Handle go to previous route
+   */
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/wizard', { replace: true });
+    }
+  };
+
+  /**
    * Handle update
    */
   const handleUpdate = () => {
@@ -120,7 +131,8 @@ const EditWizardPage = () => {
               {isUpdating ? <Sppiner size={8} /> : 'ذخیره'}
             </button>
             <Link
-              to="/wizard"
+              type="button"
+              onClick={handleBack}
               className="px-6 py-3 max-md:w-1/2 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               بازگشت
