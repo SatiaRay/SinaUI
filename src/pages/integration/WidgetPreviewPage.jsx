@@ -2,37 +2,47 @@ import React, { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { WIDGET_SCRIPT_BASE_URL } from './Contract';
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+/**
+ * Widget Preview Page
+ */
+const WidgetPreviewPage = () => {
+  /**
+   * Extract embedId from URL query
+   */
+  const query = new URLSearchParams(useLocation().search);
+  const embedId = query.get('embedId')?.trim() || '';
 
-export default function WidgetPreviewPage() {
-  const q = useQuery();
-  const embedId = q.get('embedId') || '';
+  /**
+   * Build widget script URL
+   * @return {string} Full script URL with encoded embedId
+   */
+  const scriptSrc = useMemo(
+    () => embedId ? `${WIDGET_SCRIPT_BASE_URL}?id=${encodeURIComponent(embedId)}` : '',
+    [embedId]
+  );
 
-  const scriptSrc = useMemo(() => {
-    const id = String(embedId || '').trim();
-    return `${WIDGET_SCRIPT_BASE_URL}?id=${encodeURIComponent(id)}`;
-  }, [embedId]);
-
+  /**
+   * Load / Unload widget script
+   */
   useEffect(() => {
-    if (!embedId) return;
+    if (!embedId || !scriptSrc) return;
 
-    const existing = document.getElementById('khan-widget-script');
-    if (existing) existing.remove();
+    document.getElementById('khan-widget-script')?.remove();
 
-    const s = document.createElement('script');
-    s.id = 'khan-widget-script';
-    s.src = scriptSrc;
-    s.async = true;
-    document.body.appendChild(s);
+    const script = document.createElement('script');
+    script.id = 'khan-widget-script';
+    script.src = scriptSrc;
+    script.async = true;
+    document.body.appendChild(script);
 
     return () => {
-      const el = document.getElementById('khan-widget-script');
-      if (el) el.remove();
+      document.getElementById('khan-widget-script')?.remove();
     };
   }, [embedId, scriptSrc]);
 
+  /**
+   * Main Render
+   */
   return (
     <div className="w-full h-screen bg-neutral-50 p-4">
       <div className="text-sm text-neutral-700 mb-2">
@@ -42,16 +52,18 @@ export default function WidgetPreviewPage() {
       <div className="border border-neutral-200 rounded-lg bg-white h-[85vh] p-4">
         {!embedId ? (
           <div className="text-neutral-500">
-            embedId ندادید. آدرس را اینطوری باز کنید:
+            embedId مشخص نشده است. آدرس را به شکل زیر باز کنید:
             <br />
-            <code>/integration/preview?embedId=emb_xxx</code>
+            <code className="text-xs">/integration/preview?embedId=emb_xxx</code>
           </div>
         ) : (
           <div className="text-neutral-500 text-sm">
-            اگر ویجت شما خودش UI را روی صفحه inject می‌کند، همینجا باید ظاهر شود.
+            ویجت باید به صورت خودکار در این صفحه ظاهر شود.
           </div>
         )}
       </div>
     </div>
   );
-}
+};
+
+export default WidgetPreviewPage;
