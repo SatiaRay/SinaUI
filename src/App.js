@@ -46,10 +46,7 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
-import {
-  AuditLogIndex,
-  AuditLogDetails,
-} from '@pages/workspace';
+import { AuditLogIndex, AuditLogDetails } from '@pages/workspace';
 import { ThemeProvider } from '@contexts/ThemeContext';
 import {
   WorkspaceIndexPage,
@@ -57,7 +54,12 @@ import {
   EditWorkspacePage,
   ShowWorkspacePage,
 } from '@pages/workspace';
-import { FlowPage, CreateFlow, EditFlowPage, ShowFlowPage } from '@pages/flow';
+import {
+  FlowPage,
+  CreateFlow,
+  EditFlowPage,
+  ShowFlowPage,
+} from '@pages/project';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -390,21 +392,21 @@ function privateRoutes() {
         />
       </Route>
       <Route
-          path="/w/:workspaceId/audit-logs"
-          element={
-            <PrivateRoute>
-              <AuditLogIndex />
-            </PrivateRoute>
-          }
-        />
-      <Route 
-          path="/w/:workspaceId/audit-logs/:logId" 
-          element={
-            <PrivateRoute>
-              <AuditLogDetails />
-            </PrivateRoute>
-          }  
-        />  
+        path="/w/:workspaceId/audit-logs"
+        element={
+          <PrivateRoute>
+            <AuditLogIndex />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/w/:workspaceId/audit-logs/:logId"
+        element={
+          <PrivateRoute>
+            <AuditLogDetails />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }

@@ -1,35 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   FaArrowLeft,
   FaSave,
-  FaTrash,
+  FaTasks,
   FaTag,
   FaCalendar,
+  FaChevronDown,
 } from 'react-icons/fa';
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
 import { useDisplay } from '../../../hooks/display';
-import EditFlowLoading from './EditFlowLoading';
 
 /**
- * EditFlowPage Component - Page for editing an existing project
+ * CreateFlow Component - Page for creating a new project
  * @component
- * @returns {JSX.Element} Rendered edit project page
+ * @returns {JSX.Element} Rendered create project page
  */
-const EditFlowPage = () => {
+const CreateProject = () => {
   /**
    * Get workspace ID from localStorage
    * @type {string|null}
    */
   const workspaceId = localStorage.getItem('khan-selected-workspace-id');
 
-  const { projectId } = useParams();
   const navigate = useNavigate();
   const { isMobile, isDesktop } = useDisplay();
 
   /**
-   * Loading state for workspace and project data
+   * Loading state for workspace data
    */
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,19 +38,9 @@ const EditFlowPage = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   /**
-   * Deleting state for project deletion
-   */
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  /**
    * Workspace data state
    */
   const [workspace, setWorkspace] = useState(null);
-
-  /**
-   * Project data state
-   */
-  const [project, setProject] = useState(null);
 
   /**
    * Form state
@@ -138,11 +127,6 @@ const EditFlowPage = () => {
       name: 'تکمیل شده',
       color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     },
-    {
-      id: 'archived',
-      name: 'آرشیو شده',
-      color: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    },
   ];
 
   /**
@@ -174,35 +158,51 @@ const EditFlowPage = () => {
   ];
 
   /**
-   * Get color ID from class
-   * @param {string} colorClass - The CSS class of the color
-   * @returns {string} The color ID
+   * Convert Gregorian date to Persian date string
+   * This is a simplified version - in real app use a library like jalali-moment
+   * @param {string} gregorianDate - Gregorian date string
+   * @returns {string} Persian date string
    */
-  const getColorIdFromClass = (colorClass) => {
-    const color = colorOptions.find((c) => c.class === colorClass);
-    return color ? color.id : 'blue';
-  };
+  const toPersianDate = (gregorianDate) => {
+    if (!gregorianDate) return '';
 
-  /**
-   * Format date for display
-   * @param {string} dateString - Date string
-   * @returns {string} Formatted date string
-   */
-  const formatDateForDisplay = (dateString) => {
-    if (!dateString) return '';
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('fa-IR');
+      const date = new Date(gregorianDate);
+      const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+
+      // Simple conversion to Persian digits
+      const persianYear = year
+        .toString()
+        .replace(/\d/g, (d) => persianDigits[d]);
+      const persianMonth = month
+        .toString()
+        .replace(/\d/g, (d) => persianDigits[d]);
+      const persianDay = day.toString().replace(/\d/g, (d) => persianDigits[d]);
+
+      return `${persianYear}/${persianMonth}/${persianDay}`;
     } catch (error) {
-      return dateString;
+      return gregorianDate;
     }
   };
 
   /**
-   * Load workspace and project data on component mount
+   * Get today's date in Gregorian format for default value
+   * @returns {string} Today's date in YYYY-MM-DD format
+   */
+  const getTodayGregorian = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  /**
+   * Load workspace data on component mount
    */
   useEffect(() => {
-    const loadData = async () => {
+    const loadWorkspaceData = async () => {
       setIsLoading(true);
 
       try {
@@ -216,7 +216,7 @@ const EditFlowPage = () => {
         // Simulate API call delay
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        // Get workspace data (mock)
+        // Get workspaces from localStorage (mock data)
         const mockWorkspaces = [
           {
             id: 1,
@@ -256,97 +256,25 @@ const EditFlowPage = () => {
           navigate('/workspace');
           return;
         }
+
         setWorkspace(foundWorkspace);
 
-        // Load project from localStorage or mock data
-        const existingProjects = JSON.parse(
-          localStorage.getItem('khan-projects') || '[]'
-        );
-
-        // If no projects in localStorage, use mock data
-        let projectsToSearch = existingProjects;
-        if (projectsToSearch.length === 0) {
-          projectsToSearch = [
-            {
-              id: 1,
-              workspaceId: 1,
-              name: 'پروژه مدیریت وظایف',
-              description: 'سیستم مدیریت وظایف تیمی با قابلیت‌های پیشرفته',
-              color: 'bg-gradient-to-r from-blue-500 to-cyan-500',
-              letter: 'M',
-              status: 'active',
-              taskCount: 24,
-              memberCount: 5,
-              startDate: '2024-01-10',
-              endDate: '2024-03-10',
-              createdAt: '2024-01-10',
-              updatedAt: '2024-01-22',
-              progress: 75,
-              tags: ['مدیریت', 'تیمی', 'سازمانی'],
-              budget: '5000000',
-              priority: 'high',
-            },
-            {
-              id: 2,
-              workspaceId: 1,
-              name: 'پورتال مشتریان',
-              description: 'پورتال اختصاصی برای مدیریت ارتباط با مشتریان',
-              color: 'bg-gradient-to-r from-green-500 to-emerald-500',
-              letter: 'P',
-              status: 'active',
-              taskCount: 18,
-              memberCount: 3,
-              startDate: '2024-01-05',
-              endDate: '2024-02-15',
-              createdAt: '2024-01-05',
-              updatedAt: '2024-01-20',
-              progress: 60,
-              tags: ['مشتریان', 'پورتال', 'CRM'],
-              budget: '3000000',
-              priority: 'medium',
-            },
-          ];
-        }
-
-        // Parse project ID from URL params
-        const projectIdNum = parseInt(projectId);
-
-        const foundProject = projectsToSearch.find(
-          (p) => p.id === projectIdNum && p.workspaceId === workspaceIdNum
-        );
-
-        if (!foundProject) {
-          notify.error('پروژه مورد نظر یافت نشد');
-          navigate(`/projects`);
-          return;
-        }
-        setProject(foundProject);
-
-        // Convert color class to color ID
-        const colorId = getColorIdFromClass(foundProject.color);
-
-        // Set form data with project data
-        setFormData({
-          name: foundProject.name || '',
-          description: foundProject.description || '',
-          status: foundProject.status || 'planning',
-          color: colorId,
-          tags: foundProject.tags || [],
-          startDate: foundProject.startDate || '',
-          endDate: foundProject.endDate || '',
-          budget: foundProject.budget ? foundProject.budget.toString() : '',
-          priority: foundProject.priority || 'medium',
-        });
+        // Set default start date to today
+        const today = getTodayGregorian();
+        setFormData((prev) => ({
+          ...prev,
+          startDate: today,
+        }));
       } catch (error) {
-        notify.error('خطا در بارگذاری اطلاعات');
-        console.error('Error loading data:', error);
+        notify.error('خطا در بارگذاری اطلاعات فضای کاری');
+        console.error('Error loading workspace:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadData();
-  }, [workspaceId, projectId, navigate]);
+    loadWorkspaceData();
+  }, [workspaceId, navigate]);
 
   /**
    * Handle form input changes
@@ -401,7 +329,17 @@ const EditFlowPage = () => {
   };
 
   /**
-   * Handle form submission (update project)
+   * Format budget value with comma separators
+   * @param {string} value - Budget value
+   * @returns {string} Formatted budget
+   */
+  const formatBudget = (value) => {
+    if (!value) return '';
+    return parseInt(value).toLocaleString('fa-IR');
+  };
+
+  /**
+   * Handle form submission
    * @param {React.FormEvent} e - Form submit event
    * @returns {Promise<void>}
    */
@@ -419,17 +357,21 @@ const EditFlowPage = () => {
       return;
     }
 
-    // Check if workspace ID exists
-    if (!workspaceId) {
-      notify.error('فضای کاری انتخاب نشده است');
-      return;
-    }
-
     setIsSaving(true);
 
     try {
+      // Check if workspace ID exists
+      if (!workspaceId) {
+        notify.error('فضای کاری انتخاب نشده است');
+        setIsSaving(false);
+        return;
+      }
+
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      // Generate project letter from name
+      const letter = formData.name.charAt(0).toUpperCase();
 
       // Get selected color
       const selectedColor =
@@ -438,97 +380,44 @@ const EditFlowPage = () => {
       // Parse workspace ID from localStorage (stored as string)
       const workspaceIdNum = parseInt(workspaceId);
 
-      // Update project object
-      const updatedProject = {
-        ...project,
+      // Create project object
+      const newProject = {
+        id: Date.now(), // Temporary ID
+        workspaceId: workspaceIdNum,
         name: formData.name,
         description: formData.description,
         color: selectedColor.class,
-        letter: formData.name.charAt(0).toUpperCase(),
+        letter,
         status: formData.status,
+        taskCount: 0,
+        memberCount: 1, // Creator is the first member
+        progress: 0,
         tags: formData.tags,
         startDate: formData.startDate || null,
         endDate: formData.endDate || null,
         budget: formData.budget || null,
         priority: formData.priority,
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
-      // Update in localStorage
+      // Save to localStorage (simulating API response)
       const existingProjects = JSON.parse(
         localStorage.getItem('khan-projects') || '[]'
       );
+      existingProjects.push(newProject);
+      localStorage.setItem('khan-projects', JSON.stringify(existingProjects));
 
-      // Parse project ID from URL params
-      const projectIdNum = parseInt(projectId);
-
-      const updatedProjects = existingProjects.map((p) =>
-        p.id === projectIdNum ? updatedProject : p
-      );
-      localStorage.setItem('khan-projects', JSON.stringify(updatedProjects));
-
-      notify.success('تغییرات پروژه با موفقیت ذخیره شد!');
+      notify.success('پروژه جدید با موفقیت ایجاد شد!');
 
       // Redirect to projects list page
       navigate(`/projects`);
     } catch (error) {
-      notify.error('خطا در ذخیره تغییرات. لطفاً دوباره تلاش کنید.');
-      console.error('Error updating project:', error);
+      notify.error('خطا در ایجاد پروژه. لطفاً دوباره تلاش کنید.');
+      console.error('Error creating project:', error);
     } finally {
       setIsSaving(false);
     }
-  };
-
-  /**
-   * Handle project deletion
-   * @returns {Promise<void>}
-   */
-  const handleDeleteProject = () => {
-    confirm({
-      title: 'حذف پروژه',
-      text: `آیا مطمئن هستید که می‌خواهید پروژه "${formData.name}" را حذف کنید؟ این عمل غیرقابل بازگشت است.`,
-      confirmText: 'حذف کن',
-      confirmColor: 'red',
-      onConfirm: async () => {
-        setIsDeleting(true);
-        try {
-          // Check if workspace ID exists
-          if (!workspaceId) {
-            notify.error('فضای کاری انتخاب نشده است');
-            setIsDeleting(false);
-            return;
-          }
-
-          // Simulate API call delay
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
-          // Parse project ID from URL params
-          const projectIdNum = parseInt(projectId);
-
-          // Remove from localStorage
-          const existingProjects = JSON.parse(
-            localStorage.getItem('khan-projects') || '[]'
-          );
-          const updatedProjects = existingProjects.filter(
-            (p) => p.id !== projectIdNum
-          );
-          localStorage.setItem(
-            'khan-projects',
-            JSON.stringify(updatedProjects)
-          );
-
-          notify.success('پروژه با موفقیت حذف شد');
-
-          // Redirect to projects list page
-          navigate(`/projects`);
-        } catch (error) {
-          notify.error('خطا در حذف پروژه');
-          console.error('Error deleting project:', error);
-        } finally {
-          setIsDeleting(false);
-        }
-      },
-    });
   };
 
   /**
@@ -536,8 +425,8 @@ const EditFlowPage = () => {
    */
   const handleCancel = () => {
     confirm({
-      title: 'انصراف از ویرایش',
-      text: 'آیا مطمئن هستید که می‌خواهید از ویرایش پروژه انصراف دهید؟ تغییرات ذخیره نشده از بین خواهند رفت.',
+      title: 'انصراف از ایجاد پروژه',
+      text: 'آیا مطمئن هستید که می‌خواهید از ایجاد پروژه جدید انصراف دهید؟',
       onConfirm: () => {
         navigate(`/projects`);
       },
@@ -569,8 +458,38 @@ const EditFlowPage = () => {
   /**
    * Show loading skeleton if data is loading
    */
-  if (isLoading || !workspace || !project) {
-    return <EditFlowLoading />;
+  if (isLoading || !workspace) {
+    return (
+      <div className="h-full flex flex-col justify-start px-3 md:px-0 pt-4 md:pt-6">
+        {/* Header skeleton */}
+        <div className="md:mx-0 mb-6 md:mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse w-10 h-10"></div>
+              <div>
+                <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg mb-2 animate-pulse"></div>
+                <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              </div>
+            </div>
+            <div className="h-10 w-40 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Form skeleton */}
+        <div className="max-w-4xl mx-auto w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 shadow-sm">
+            <div className="space-y-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i}>
+                  <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-2 animate-pulse"></div>
+                  <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -587,37 +506,13 @@ const EditFlowPage = () => {
             </Link>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                ویرایش پروژه
+                ایجاد پروژه جدید
               </h1>
               <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1 md:mt-2">
-                ویرایش "{project.name}" در فضای کاری "{workspace.name}"
+                در فضای کاری "{workspace.name}"
               </p>
             </div>
           </div>
-
-          {/* Delete button */}
-          <button
-            type="button"
-            onClick={handleDeleteProject}
-            disabled={isDeleting}
-            className={`px-4 py-2.5 flex items-center justify-center gap-2 rounded-lg font-medium transition-colors text-sm ${
-              isDeleting
-                ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                : 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg'
-            }`}
-          >
-            {isDeleting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                در حال حذف...
-              </>
-            ) : (
-              <>
-                <FaTrash />
-                حذف پروژه
-              </>
-            )}
-          </button>
         </div>
       </div>
 
@@ -745,18 +640,18 @@ const EditFlowPage = () => {
               </label>
               <div className="mb-3">
                 <div className="relative">
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <FaTag />
-                  </div>
                   <input
                     type="text"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleTagKeyDown}
                     placeholder="تگ را وارد کرده و Enter بزنید"
-                    className="w-full px-10 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 pr-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     maxLength={20}
                   />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <FaTag />
+                  </div>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   برای اضافه کردن تگ، آن را وارد کرده و Enter بزنید (حداکثر ۱۰
@@ -793,36 +688,41 @@ const EditFlowPage = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Start date - Display only */}
+                {/* Start date */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     تاریخ شروع
                   </label>
                   <div className="relative">
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <input
+                      type="date"
+                      name="startDate"
+                      value={formData.startDate}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 pr-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                       <FaCalendar />
-                    </div>
-                    <div className="w-full px-10 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white">
-                      {formData.startDate
-                        ? formatDateForDisplay(formData.startDate)
-                        : 'تعیین نشده'}
                     </div>
                   </div>
                 </div>
 
-                {/* End date - Display only */}
+                {/* End date */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    تاریخ پایان
+                    تاریخ پایان (اختیاری)
                   </label>
                   <div className="relative">
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <input
+                      type="date"
+                      name="endDate"
+                      value={formData.endDate}
+                      onChange={handleInputChange}
+                      min={formData.startDate}
+                      className="w-full px-4 py-3 pr-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                       <FaCalendar />
-                    </div>
-                    <div className="w-full px-10 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white">
-                      {formData.endDate
-                        ? formatDateForDisplay(formData.endDate)
-                        : 'تعیین نشده'}
                     </div>
                   </div>
                 </div>
@@ -849,7 +749,7 @@ const EditFlowPage = () => {
                   </div>
                 </div>
 
-                {/* Priority dropdown */}
+                {/* Priority */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     اولویت
@@ -859,7 +759,15 @@ const EditFlowPage = () => {
                       name="priority"
                       value={formData.priority}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 pl-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      className="w-full px-4 py-3 pr-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                        backgroundPosition: 'right 0.75rem center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '1.5em 1.5em',
+                        paddingRight: '2.5rem',
+                        paddingLeft: '1rem',
+                      }}
                     >
                       {priorityOptions.map((priority) => (
                         <option key={priority.id} value={priority.id}>
@@ -867,22 +775,6 @@ const EditFlowPage = () => {
                         </option>
                       ))}
                     </select>
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -891,7 +783,7 @@ const EditFlowPage = () => {
             {/* Preview section */}
             <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
-                پیش‌نمایش تغییرات
+                پیش‌نمایش پروژه
               </h4>
               <div className="flex items-center gap-4">
                 <div
@@ -941,12 +833,12 @@ const EditFlowPage = () => {
                 {isSaving ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    در حال ذخیره...
+                    در حال ایجاد...
                   </>
                 ) : (
                   <>
                     <FaSave />
-                    ذخیره تغییرات
+                    ایجاد پروژه
                   </>
                 )}
               </button>
@@ -958,4 +850,4 @@ const EditFlowPage = () => {
   );
 };
 
-export default EditFlowPage;
+export default CreateProject;

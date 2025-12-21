@@ -14,21 +14,21 @@ import {
 } from 'react-icons/fa';
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
-import FlowLoading from './FlowLoading';
+import ProjectIndexLoading from './ProjectIndexLoading';
 import { useDisplay } from '../../../hooks/display';
 import { Pagination } from '@components/ui/pagination';
 
 /**
  * Import empty state SVG
  */
-import FlowEmpty from './FlowEmpty.svg';
+import FlowEmpty from './ProjectEmpty.svg';
 
 /**
- * FlowPage Component - Displays and manages flows/projects in a workspace
+ * ProjectIndexPage Component - Displays and manages projects in a workspace
  * @component
- * @returns {JSX.Element} Rendered flow page
+ * @returns {JSX.Element} Rendered project page
  */
-const FlowPage = () => {
+const ProjectIndexPage = () => {
   /**
    * Get workspace ID from localStorage instead of route params
    * @type {string|null}
@@ -58,7 +58,15 @@ const FlowPage = () => {
    */
   const initialPage = parseInt(searchParams.get('page')) || 1;
   const [page, setPage] = useState(initialPage);
-  const perpage = isDesktop ? Math.floor((height - 250) / 180) * 2 : 4;
+
+  /**
+   * Pagination per page length
+   *
+   * Define per page length according to device type to fill client device
+   * height free spaces for better user experience
+   * @type {number}
+   */
+  const perpage = isDesktop ? Math.floor((height - 250) / 180) * 3 : 6;
 
   /**
    * Load workspace and flows data on component mount
@@ -434,7 +442,7 @@ const FlowPage = () => {
    * Show loading skeleton if data is loading
    */
   if (isLoading || !workspace) {
-    return <FlowLoading />;
+    return <ProjectIndexLoading />;
   }
 
   return (
@@ -624,11 +632,16 @@ const FlowPage = () => {
         </div>
       </div>
 
-      {/* Flows grid */}
-      <div className="flex-1">
-        {paginatedFlows.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {paginatedFlows.map((flow) => {
+      {/* Projects grid - Responsive auto-fit with minimum 340px */}
+      <div className="flex flex-col p-0">
+        <div
+          className="grid gap-4 md:gap-6"
+          style={{
+            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          }}
+        >
+          {paginatedFlows.length > 0 ? (
+            paginatedFlows.map((flow) => {
               const statusInfo = getStatusInfo(flow.status);
               return (
                 <div
@@ -639,7 +652,7 @@ const FlowPage = () => {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`${flow.color} w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center text-white text-lg md:text-xl font-bold`}
+                        className={`${flow.color} w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center text-white text-lg md:text-xl font-bold cursor-pointer hover:opacity-90 transition-opacity`}
                         onClick={() => navigate(`/projects/${flow.id}`)}
                       >
                         {flow.letter}
@@ -748,52 +761,55 @@ const FlowPage = () => {
                   </div>
                 </div>
               );
-            })}
-          </div>
-        ) : (
-          /* Empty state */
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 md:p-12 text-center">
-            <div className="flex justify-center mb-6">
-              <img
-                src={FlowEmpty}
-                alt="هیچ پروژه‌ای یافت نشد"
-                className="w-48 h-48 md:w-64 md:h-64"
-              />
-            </div>
-            <h4 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3">
-              {searchTerm || filterStatus !== 'all'
-                ? 'هیچ پروژه‌ای مطابق با فیلترهای شما یافت نشد'
-                : 'هنوز پروژه‌ای در این فضای کاری ایجاد نشده است'}
-            </h4>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto text-sm md:text-base">
-              {searchTerm || filterStatus !== 'all'
-                ? 'سعی کنید فیلترهای جستجو را تغییر دهید یا عبارت دیگری را جستجو کنید.'
-                : 'اولین پروژه خود را ایجاد کنید و کار تیمی را در این فضای کاری شروع کنید.'}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {(searchTerm || filterStatus !== 'all') && (
-                <button
-                  onClick={handleClearFilters}
-                  className="px-5 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            })
+          ) : (
+            /* Empty state - Keep original container */
+            <div
+              className="col-span-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 md:p-12 text-center"
+              style={{ gridColumn: '1 / -1' }}
+            >
+              <div className="flex justify-center mb-6">
+                <img
+                  src={FlowEmpty}
+                  alt="هیچ پروژه‌ای یافت نشد"
+                  className="w-48 h-48 md:w-64 md:h-64"
+                />
+              </div>
+              <h4 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+                {searchTerm || filterStatus !== 'all'
+                  ? 'هیچ پروژه‌ای مطابق با فیلترهای شما یافت نشد'
+                  : 'هنوز پروژه‌ای در این فضای کاری ایجاد نشده است'}
+              </h4>
+              <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto text-sm md:text-base">
+                {searchTerm || filterStatus !== 'all'
+                  ? 'سعی کنید فیلترهای جستجو را تغییر دهید یا عبارت دیگری را جستجو کنید.'
+                  : 'اولین پروژه خود را ایجاد کنید و کار تیمی را در این فضای کاری شروع کنید.'}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                {(searchTerm || filterStatus !== 'all') && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="px-5 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    پاک کردن فیلترها
+                  </button>
+                )}
+                <Link
+                  to={`/projects/create`}
+                  className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors flex items-center gap-2 justify-center"
                 >
-                  پاک کردن فیلترها
-                </button>
-              )}
-              <Link
-                to={`/projects/create`}
-                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors flex items-center gap-2 justify-center"
-              >
-                <FaPlus />
-                ایجاد پروژه جدید
-              </Link>
+                  <FaPlus />
+                  ایجاد پروژه جدید
+                </Link>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Pagination */}
       {filteredFlows.length > 0 && (
-        <div className="mt-8 md:mt-12">
+        <div className="pb-6 md:pb-8 mt-6 md:mt-8">
           <Pagination
             page={page}
             perpage={perpage}
@@ -807,4 +823,4 @@ const FlowPage = () => {
   );
 };
 
-export default FlowPage;
+export default ProjectIndexPage;

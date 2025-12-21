@@ -596,66 +596,80 @@ const WorkspaceIndexPage = () => {
         </span>
       </div>
 
-      {/* Workspace cards list - Mobile optimized */}
-      <div className="flex flex-col p-0 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-        {paginatedWorkspaces.map((workspace) => (
-          <WorkspaceCard
-            key={workspace.id}
-            workspace={workspace}
-            handleDelete={handleDeleteWorkspace}
-            onWorkspaceSelect={handleWorkspaceSelect}
-            isCurrent={currentWorkspace?.id === workspace.id}
-          />
-        ))}
-      </div>
-
-      {/* Empty workspaces message */}
-      {filteredWorkspaces.length < 1 && (
-        <div className="text-center mx-auto my-8 md:my-12 px-4">
-          <div className="flex justify-center mb-6">
-            <img
-              src={workspaceEmptyState}
-              alt="هیچ فضای کاری یافت نشد"
-              className="w-48 h-48 md:w-64 md:h-64"
-            />
-          </div>
-          <h4 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3">
-            هیچ فضای کاری یافت نشد
-          </h4>
-          <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm md:text-base max-w-md mx-auto">
-            {searchTerm || filterPlan !== 'all' || filterRole !== 'all'
-              ? 'فضای کاری مطابق با فیلترهای شما وجود ندارد. سعی کنید فیلترها را تغییر دهید.'
-              : 'شما هنوز فضای کاری ایجاد نکرده‌اید. اولین فضای کاری خود را ایجاد کنید.'}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            {(searchTerm || filterPlan !== 'all' || filterRole !== 'all') && (
-              <button
-                onClick={handleClearFilters}
-                className="px-5 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              >
-                پاک کردن فیلترها
-              </button>
-            )}
-            <Link
-              to={'/workspace/create'}
-              className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
+      {/* Workspace cards list - Responsive auto-fit with minimum 400px */}
+      <div className="flex flex-col p-0">
+        <div
+          className="grid gap-4 md:gap-6"
+          style={{
+            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+          }}
+        >
+          {paginatedWorkspaces.length > 0 ? (
+            paginatedWorkspaces.map((workspace) => (
+              <WorkspaceCard
+                key={workspace.id}
+                workspace={workspace}
+                handleDelete={handleDeleteWorkspace}
+                onWorkspaceSelect={handleWorkspaceSelect}
+                isCurrent={currentWorkspace?.id === workspace.id}
+              />
+            ))
+          ) : (
+            /* Empty workspaces message */
+            <div
+              className="col-span-full text-center mx-auto my-8 md:my-12 px-4"
+              style={{ gridColumn: '1 / -1' }}
             >
-              ایجاد فضای کاری جدید
-            </Link>
-          </div>
+              <div className="flex justify-center mb-6">
+                <img
+                  src={workspaceEmptyState}
+                  alt="هیچ فضای کاری یافت نشد"
+                  className="w-48 h-48 md:w-64 md:h-64"
+                />
+              </div>
+              <h4 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                هیچ فضای کاری یافت نشد
+              </h4>
+              <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm md:text-base max-w-md mx-auto">
+                {searchTerm || filterPlan !== 'all' || filterRole !== 'all'
+                  ? 'فضای کاری مطابق با فیلترهای شما وجود ندارد. سعی کنید فیلترها را تغییر دهید.'
+                  : 'شما هنوز فضای کاری ایجاد نکرده‌اید. اولین فضای کاری خود را ایجاد کنید.'}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                {(searchTerm ||
+                  filterPlan !== 'all' ||
+                  filterRole !== 'all') && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="px-5 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    پاک کردن فیلترها
+                  </button>
+                )}
+                <Link
+                  to={'/workspace/create'}
+                  className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
+                >
+                  ایجاد فضای کاری جدید
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Pagination */}
-      <div className="pb-6 md:pb-8 mt-6 md:mt-8">
-        <Pagination
-          page={page}
-          perpage={perpage}
-          totalPages={totalPages}
-          totalItems={filteredWorkspaces.length}
-          handlePageChange={setPage}
-        />
-      </div>
+      {filteredWorkspaces.length > 0 && (
+        <div className="pb-6 md:pb-8 mt-6 md:mt-8">
+          <Pagination
+            page={page}
+            perpage={perpage}
+            totalPages={totalPages}
+            totalItems={filteredWorkspaces.length}
+            handlePageChange={setPage}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -1,11 +1,11 @@
 import React from 'react';
 
 /**
- * FlowWorkspaceLoading Component - Loading skeleton for FlowWorkspacePage
+ * ProjectIndexLoading Component - Loading skeleton for ProjectIndexPage
  * @component
  * @returns {JSX.Element} Rendered loading skeleton
  */
-const FlowLoading = () => {
+const ProjectIndexLoading = () => {
   return (
     <div className="h-full flex flex-col justify-start px-3 md:px-0 pt-4 md:pt-6">
       {/* Page header skeleton */}
@@ -39,9 +39,14 @@ const FlowLoading = () => {
         <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
       </div>
 
-      {/* Flows grid skeleton */}
-      <div className="flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      {/* Projects grid skeleton - Responsive auto-fit with minimum 340px */}
+      <div className="flex flex-col p-0">
+        <div
+          className="grid gap-4 md:gap-6"
+          style={{
+            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          }}
+        >
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
@@ -101,4 +106,4 @@ const FlowLoading = () => {
   );
 };
 
-export default FlowLoading;
+export default ProjectIndexLoading;

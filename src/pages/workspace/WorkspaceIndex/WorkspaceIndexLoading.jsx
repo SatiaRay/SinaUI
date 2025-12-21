@@ -103,103 +103,110 @@ const WorkspaceIndexLoading = () => {
         />
       </div>
 
-      {/* Workspace cards skeleton grid - Mobile optimized */}
-      <div className="flex flex-col p-0 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-        {Array.from({ length: totalCards }).map((_, index) => (
-          <div
-            key={index}
-            className="bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl border border-gray-200 dark:border-gray-700 p-4 md:p-5 shadow-sm"
-          >
-            {/* Card header skeleton */}
-            <div className="flex items-start justify-between mb-3 md:mb-4">
-              <div className="flex items-center gap-3 md:gap-4 flex-1">
-                {/* Workspace icon skeleton */}
+      {/* Workspace cards skeleton grid - Responsive auto-fit with minimum 400px */}
+      <div className="flex flex-col p-0">
+        <div
+          className="grid gap-4 md:gap-6"
+          style={{
+            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+          }}
+        >
+          {Array.from({ length: totalCards }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-white dark:bg-gray-800 rounded-xl md:rounded-2xl border border-gray-200 dark:border-gray-700 p-4 md:p-5 shadow-sm"
+            >
+              {/* Card header skeleton */}
+              <div className="flex items-start justify-between mb-3 md:mb-4">
+                <div className="flex items-center gap-3 md:gap-4 flex-1">
+                  {/* Workspace icon skeleton */}
+                  <SkeletonLoading
+                    height={isMobile ? 48 : 56}
+                    width={isMobile ? 48 : 56}
+                    className="rounded-lg md:rounded-xl"
+                  />
+
+                  {/* Workspace info skeleton */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 md:gap-2 mb-1">
+                      <SkeletonLoading
+                        height={isMobile ? 20 : 24}
+                        width={isMobile ? '60%' : '70%'}
+                      />
+                      <SkeletonLoading
+                        height={isMobile ? 14 : 16}
+                        width={isMobile ? 14 : 16}
+                      />
+                    </div>
+                    <SkeletonLoading
+                      height={isMobile ? 14 : 16}
+                      width={isMobile ? '80%' : '90%'}
+                    />
+                  </div>
+                </div>
+
+                {/* Current workspace indicator skeleton */}
                 <SkeletonLoading
-                  height={isMobile ? 48 : 56}
-                  width={isMobile ? 48 : 56}
-                  className="rounded-lg md:rounded-xl"
+                  height={isMobile ? 24 : 28}
+                  width={isMobile ? 50 : 60}
+                  className="rounded-full"
                 />
-
-                {/* Workspace info skeleton */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 md:gap-2 mb-1">
-                    <SkeletonLoading
-                      height={isMobile ? 20 : 24}
-                      width={isMobile ? '60%' : '70%'}
-                    />
-                    <SkeletonLoading
-                      height={isMobile ? 14 : 16}
-                      width={isMobile ? 14 : 16}
-                    />
-                  </div>
-                  <SkeletonLoading
-                    height={isMobile ? 14 : 16}
-                    width={isMobile ? '80%' : '90%'}
-                  />
-                </div>
               </div>
 
-              {/* Current workspace indicator skeleton */}
-              <SkeletonLoading
-                height={isMobile ? 24 : 28}
-                width={isMobile ? 50 : 60}
-                className="rounded-full"
-              />
-            </div>
-
-            {/* Workspace metadata and actions skeleton */}
-            <div className="mt-auto pt-3 md:pt-4 border-t border-gray-100 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 md:gap-4 flex-wrap">
-                  {/* Plan badge skeleton */}
-                  <SkeletonLoading
-                    height={isMobile ? 24 : 28}
-                    width={isMobile ? 70 : 80}
-                    className="rounded-full"
-                  />
-
-                  {/* Role badge skeleton */}
-                  <div className="flex items-center gap-1 md:gap-1.5">
+              {/* Workspace metadata and actions skeleton */}
+              <div className="mt-auto pt-3 md:pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+                    {/* Plan badge skeleton */}
                     <SkeletonLoading
-                      height={isMobile ? 14 : 16}
-                      width={isMobile ? 14 : 16}
+                      height={isMobile ? 24 : 28}
+                      width={isMobile ? 70 : 80}
+                      className="rounded-full"
                     />
-                    <SkeletonLoading
-                      height={isMobile ? 16 : 20}
-                      width={isMobile ? 35 : 40}
-                    />
+
+                    {/* Role badge skeleton */}
+                    <div className="flex items-center gap-1 md:gap-1.5">
+                      <SkeletonLoading
+                        height={isMobile ? 14 : 16}
+                        width={isMobile ? 14 : 16}
+                      />
+                      <SkeletonLoading
+                        height={isMobile ? 16 : 20}
+                        width={isMobile ? 35 : 40}
+                      />
+                    </div>
+
+                    {/* Members count skeleton */}
+                    <div className="flex items-center gap-1 md:gap-1.5">
+                      <SkeletonLoading
+                        height={isMobile ? 14 : 16}
+                        width={isMobile ? 14 : 16}
+                      />
+                      <SkeletonLoading
+                        height={isMobile ? 16 : 20}
+                        width={isMobile ? 50 : 60}
+                      />
+                    </div>
                   </div>
 
-                  {/* Members count skeleton */}
-                  <div className="flex items-center gap-1 md:gap-1.5">
+                  {/* Action buttons skeleton */}
+                  <div className="flex items-center gap-1.5 md:gap-2">
                     <SkeletonLoading
-                      height={isMobile ? 14 : 16}
-                      width={isMobile ? 14 : 16}
+                      height={isMobile ? 32 : 36}
+                      width={isMobile ? 32 : 36}
+                      className="rounded-lg"
                     />
                     <SkeletonLoading
-                      height={isMobile ? 16 : 20}
-                      width={isMobile ? 50 : 60}
+                      height={isMobile ? 32 : 36}
+                      width={isMobile ? 32 : 36}
+                      className="rounded-lg"
                     />
                   </div>
-                </div>
-
-                {/* Action buttons skeleton */}
-                <div className="flex items-center gap-1.5 md:gap-2">
-                  <SkeletonLoading
-                    height={isMobile ? 32 : 36}
-                    width={isMobile ? 32 : 36}
-                    className="rounded-lg"
-                  />
-                  <SkeletonLoading
-                    height={isMobile ? 32 : 36}
-                    width={isMobile ? 32 : 36}
-                    className="rounded-lg"
-                  />
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Pagination skeleton - Mobile optimized */}
