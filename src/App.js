@@ -34,12 +34,6 @@ import { WorkflowEditor } from './pages/workflow';
 import { AuthProvider } from './contexts/AuthContext';
 import { getVersion } from './utils/apis';
 import Register from './components/register';
-} from '@pages/instruction';
-import Login from '@components/Login';
-import Navbar from '@components/Navbar';
-import PrivateRoute from '@components/PrivateRoute';
-import { AuthProvider } from '@contexts/AuthContext';
-import Register from '@components/register';
 import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
 import { ChatProvider } from '@contexts/ChatContext';
 
