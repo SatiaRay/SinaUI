@@ -134,7 +134,9 @@ const ChatIntegrationsPage = () => {
 
     setSelected((prev) => ({ ...prev, isPublic: newPublic }));
     setIntegrations((prev) =>
-      prev.map((i) => (i.id === selected.id ? { ...i, isPublic: newPublic } : i))
+      prev.map((i) =>
+        i.id === selected.id ? { ...i, isPublic: newPublic } : i
+      )
     );
 
     try {
@@ -170,7 +172,10 @@ const ChatIntegrationsPage = () => {
     setLoading(true);
     setFieldErrors({});
     try {
-      const updated = await updateIntegration(editTarget.id, { domain, agentId });
+      const updated = await updateIntegration(editTarget.id, {
+        domain,
+        agentId,
+      });
       await refresh();
       setSelected(updated);
       closeEdit();
@@ -233,7 +238,8 @@ const ChatIntegrationsPage = () => {
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
-                  دامنه باید تأیید و در لیست مجاز باشد؛ در غیر اینصورت ممکن است ویجت درست بارگذاری نشود.
+                  دامنه باید تأیید و در لیست مجاز باشد؛ در غیر اینصورت ممکن است
+                  ویجت درست بارگذاری نشود.
                 </p>
               </div>
             </div>

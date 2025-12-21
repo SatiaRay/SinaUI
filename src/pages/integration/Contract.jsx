@@ -2,9 +2,9 @@
  * Chat Integration Contract (Frontend-only)
  */
 
-/** 
- * Widget Script URL 
- */ 
+/**
+ * Widget Script URL
+ */
 const API_ORIGIN =
   process.env.REACT_APP_API_URL ||
   process.env.REACT_APP_CHAT_API_URL ||
@@ -17,7 +17,7 @@ export const WIDGET_SCRIPT_BASE_URL =
     : 'https://our-app.com/widget.js');
 
 /**
- * Storage keys 
+ * Storage keys
  */
 export const STORAGE_KEYS = {
   INTEGRATIONS: 'chat_integrations_v1',
@@ -33,7 +33,7 @@ export const STORAGE_KEYS = {
  */
 
 /**
- *  Demo agents 
+ *  Demo agents
  */
 export const DEFAULT_AGENTS = [
   { id: 'agent_sales', name: 'Sales Bot' },
@@ -63,7 +63,7 @@ export const normalizeDomain = (raw) => {
   let d = String(raw).trim().toLowerCase();
 
   d = d.replace(/^https?:\/\//, '');
-  d = d.replace(/\/+$/, ''); 
+  d = d.replace(/\/+$/, '');
   return d;
 };
 
@@ -98,9 +98,9 @@ export const validateDomain = (domain) => {
   return { ok: true, normalized: d };
 };
 
-/** 
- * ID helpers 
- */ 
+/**
+ * ID helpers
+ */
 const safeUUID = () => {
   try {
     if (typeof window !== 'undefined' && window.crypto?.randomUUID) {
@@ -110,8 +110,7 @@ const safeUUID = () => {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
 };
 
-export const makeIntegrationId = () =>
-  `int_${safeUUID().replace(/-/g, '')}`;
+export const makeIntegrationId = () => `int_${safeUUID().replace(/-/g, '')}`;
 
 export const makeEmbedId = () => `emb_${safeUUID().replace(/-/g, '')}`;
 

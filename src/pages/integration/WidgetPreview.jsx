@@ -17,7 +17,10 @@ const WidgetPreviewPage = () => {
    * @return {string} Full script URL with encoded embedId
    */
   const scriptSrc = useMemo(
-    () => embedId ? `${WIDGET_SCRIPT_BASE_URL}?id=${encodeURIComponent(embedId)}` : '',
+    () =>
+      embedId
+        ? `${WIDGET_SCRIPT_BASE_URL}?id=${encodeURIComponent(embedId)}`
+        : '',
     [embedId]
   );
 
@@ -54,7 +57,9 @@ const WidgetPreviewPage = () => {
           <div className="text-neutral-500">
             embedId مشخص نشده است. آدرس را به شکل زیر باز کنید:
             <br />
-            <code className="text-xs">/integration/preview?embedId=emb_xxx</code>
+            <code className="text-xs">
+              /integration/preview?embedId=emb_xxx
+            </code>
           </div>
         ) : (
           <div className="text-neutral-500 text-sm">

@@ -18,7 +18,11 @@ export const ChatIntegrationsLoading = () => {
             </div>
             <h3 className="text-xl font-bold">یکپارچه‌سازی‌های چت</h3>
           </div>
-          <SkeletonLoading height={22} width={100} containerClassName="inline rounded-full" />
+          <SkeletonLoading
+            height={22}
+            width={100}
+            containerClassName="inline rounded-full"
+          />
         </div>
       </div>
 
@@ -83,7 +87,10 @@ export const ChatIntegrationsLoading = () => {
               {!isLargeDisplay ? (
                 <div className="grid grid-cols-1 gap-3 md:hidden">
                   {Array.from({ length: Math.min(6, listRows) }, (_, i) => (
-                    <div key={i} className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+                    <div
+                      key={i}
+                      className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <SkeletonLoading height={10} width={60} />
@@ -116,7 +123,10 @@ export const ChatIntegrationsLoading = () => {
                   </div>
                   <div className="bg-white dark:bg-gray-900">
                     {Array.from({ length: 3 }, (_, i) => (
-                      <div key={i} className="px-3 py-1.5 border-b border-gray-200 dark:border-gray-800">
+                      <div
+                        key={i}
+                        className="px-3 py-1.5 border-b border-gray-200 dark:border-gray-800"
+                      >
                         <div className="grid grid-cols-4 gap-2 items-center">
                           <SkeletonLoading height={10} width={95} />
                           <SkeletonLoading height={10} width={95} />

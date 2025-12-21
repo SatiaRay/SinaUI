@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
 
+/**
+ * Embed Snippet Component
+ * @param {string} snippet - The embed script code to display
+ */
 export default function EmbedSnippet({ snippet }) {
+  /**
+   * Copy State
+   */
   const [copied, setCopied] = useState(false);
 
+  /**
+   * Copy Handler
+   * Copies snippet to clipboard and shows temporary feedback
+   */
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(snippet);
@@ -13,15 +24,17 @@ export default function EmbedSnippet({ snippet }) {
     }
   };
 
+  /**
+   * Main Render
+   */
   return (
     <div className="relative rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
       <div className="absolute top-3 left-3 flex items-center gap-2">
-        {copied ? (
+        {copied && (
           <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
             کپی شد ✅
           </span>
-        ) : null}
-
+        )}
         <button
           onClick={copy}
           className="

@@ -59,7 +59,9 @@ export const listAgents = async () => {
 export const listIntegrations = async () => {
   seedIfEmpty();
   const items = readJSON(STORAGE_KEYS.INTEGRATIONS, []);
-  return [...items].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  return [...items].sort((a, b) =>
+    (b.createdAt || '').localeCompare(a.createdAt || '')
+  );
 };
 
 /**
@@ -69,7 +71,7 @@ export const listIntegrations = async () => {
  */
 export const getIntegrationById = async (id) => {
   const items = await listIntegrations();
-  return items.find(x => x.id === id) || null;
+  return items.find((x) => x.id === id) || null;
 };
 
 /**
@@ -77,7 +79,7 @@ export const getIntegrationById = async (id) => {
  * @param {object} param
  * @param {string} param.domain - Target domain
  * @param {string} param.agentId - Agent ID
- * @return {Promise<object>} 
+ * @return {Promise<object>}
  */
 export const createIntegration = async ({ domain, agentId }) => {
   seedIfEmpty();
@@ -91,7 +93,7 @@ export const createIntegration = async ({ domain, agentId }) => {
   }
 
   const agents = await listAgents();
-  const agent = agents.find(a => a.id === agentId);
+  const agent = agents.find((a) => a.id === agentId);
   if (!agent) {
     const err = new Error('Valid agent not selected.');
     err.code = 'VALIDATION_ERROR';
@@ -102,8 +104,12 @@ export const createIntegration = async ({ domain, agentId }) => {
   const integrations = readJSON(STORAGE_KEYS.INTEGRATIONS, []);
   const normalized = domainCheck.normalized;
 
-  if (integrations.some(x => x.domain === normalized && x.agentId === agentId)) {
-    const err = new Error('An integration already exists for this domain and agent.');
+  if (
+    integrations.some((x) => x.domain === normalized && x.agentId === agentId)
+  ) {
+    const err = new Error(
+      'An integration already exists for this domain and agent.'
+    );
     err.code = 'DUPLICATE';
     err.fieldErrors = { domain: ['Duplicate integration'] };
     throw err;
@@ -118,12 +124,12 @@ export const createIntegration = async ({ domain, agentId }) => {
  * Update Existing Integration
  * @param {string} id - Integration ID
  * @param {object} patch - Partial update fields
- * @return {Promise<object>} 
+ * @return {Promise<object>}
  */
 export const updateIntegration = async (id, patch) => {
   seedIfEmpty();
   const integrations = readJSON(STORAGE_KEYS.INTEGRATIONS, []);
-  const idx = integrations.findIndex(x => x.id === id);
+  const idx = integrations.findIndex((x) => x.id === id);
 
   if (idx === -1) {
     const err = new Error('Integration not found.');
@@ -146,7 +152,7 @@ export const updateIntegration = async (id, patch) => {
 
   if (patch.agentId != null) {
     const agents = await listAgents();
-    const agent = agents.find(a => a.id === patch.agentId);
+    const agent = agents.find((a) => a.id === patch.agentId);
     if (!agent) {
       const err = new Error('Valid agent not selected.');
       err.code = 'VALIDATION_ERROR';
@@ -171,12 +177,15 @@ export const updateIntegration = async (id, patch) => {
 /**
  * Delete Integration
  * @param {string} id - Integration ID
- * @return {Promise<object>} 
+ * @return {Promise<object>}
  */
 export const deleteIntegration = async (id) => {
   seedIfEmpty();
   const integrations = readJSON(STORAGE_KEYS.INTEGRATIONS, []);
-  writeJSON(STORAGE_KEYS.INTEGRATIONS, integrations.filter(x => x.id !== id));
+  writeJSON(
+    STORAGE_KEYS.INTEGRATIONS,
+    integrations.filter((x) => x.id !== id)
+  );
   return { success: true };
 };
 
