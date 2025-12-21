@@ -18,7 +18,6 @@ import {
   FaUser,
 } from 'react-icons/fa';
 import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
-import { MdDashboardCustomize } from 'react-icons/md';
 import { WorkspaceDropdown } from './navbar/workspace-dropdown';
 
 /**
