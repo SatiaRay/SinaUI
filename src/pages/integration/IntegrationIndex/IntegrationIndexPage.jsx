@@ -30,10 +30,8 @@ const ChatIntegrationsPage = () => {
   const [agents, setAgents] = useState([]);
   const [integrations, setIntegrations] = useState([]);
   const [selected, setSelected] = useState(null);
-
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-
   const [fieldErrors, setFieldErrors] = useState({});
   const [editOpen, setEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
@@ -70,7 +68,6 @@ const ChatIntegrationsPage = () => {
 
   useEffect(() => {
     refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -196,26 +193,24 @@ const ChatIntegrationsPage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-screen-2xl mx-auto px-2 md:px-3 py-2 flex flex-col min-h-screen">
         {/* Header */}
-        <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 px-4 py-3 mt-2 text-white rounded-2xl shadow-md">
+        <div className="bg-gray-100 dark:bg-gray-800 px-4 py-3 mt-2 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700">
                 <span className="text-xl">🧩</span>
               </div>
-              <h3 className="text-xl font-bold">یکپارچه‌سازی‌های چت</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                یکپارچه‌سازی‌های چت
+              </h3>
             </div>
 
             <div className="flex items-center gap-2">
-              {loading && <Sppiner size={14} className="text-white" />}
-              <span className="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur text-sm font-medium">
+              {loading && <Sppiner size={14} />}
+              <span className="px-3 py-1.5 rounded-full bg-gray-200 dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
                 {integrations.length} یکپارچه‌سازی‌
               </span>
               {selected && (
-                <span
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${
-                    selected.isPublic ? 'bg-green-500/30' : 'bg-gray-500/30'
-                  }`}
-                >
+                <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${selected.isPublic ? 'bg-gray-300 dark:bg-gray-600' : 'bg-gray-200 dark:bg-gray-700'}`}>
                   {selected.isPublic ? 'Public' : 'Private'}
                 </span>
               )}
@@ -232,16 +227,15 @@ const ChatIntegrationsPage = () => {
                 <div className="mt-0.5 text-lg">⚠️</div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <h4 className="text-lg font-bold text-amber-900 dark:text-amber-200">
+                    <h4 className="text-base font-bold text-amber-900 dark:text-amber-200">
                       نکته امنیتی
                     </h4>
-                    <span className="inline-flex items-center rounded-full border border-amber-300/60 dark:border-amber-700 px-2.5 py-0.5 text-sm font-semibold text-amber-900 dark:text-amber-200 bg-white/40 dark:bg-black/10">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-800/50 border border-amber-300 dark:border-amber-700">
                       Domain / CORS
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
-                    دامنه باید تأیید و در لیست مجاز باشد؛ در غیر اینصورت ممکن است
-                    ویجت درست بارگذاری نشود.
+                  <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
+                    دامنه باید تأیید و در لیست مجاز باشد؛ در غیر اینصورت ممکن است ویجت درست بارگذاری نشود.
                   </p>
                 </div>
               </div>
@@ -251,11 +245,12 @@ const ChatIntegrationsPage = () => {
           {/* Main Grid */}
           <div className="grid lg:grid-cols-2 gap-3">
             {/* Create Panel */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-indigo-200 dark:border-indigo-900">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-3 py-2 text-white">
-                <h4 className="text-lg font-bold">یکپارچه‌سازی‌ جدید</h4>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div className="bg-gray-100 dark:bg-gray-700 px-3 py-2">
+                <h4 className="text-base font-bold text-gray-900 dark:text-gray-100">
+                  یکپارچه‌سازی‌ جدید
+                </h4>
               </div>
-
               <div className="p-3">
                 <IntegrationForm
                   agents={agents}
@@ -263,13 +258,12 @@ const ChatIntegrationsPage = () => {
                   fieldErrors={fieldErrors}
                   onSubmit={handleCreate}
                 />
-
                 {selectedSnippet && (
                   <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <h5 className="text-sm font-semibold mb-2 text-indigo-700 dark:text-indigo-300">
+                    <h5 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                       Embed Snippet
                     </h5>
-                    <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-2 border border-indigo-200 dark:border-indigo-800 text-xs">
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 border border-gray-200 dark:border-gray-700 text-xs">
                       <EmbedSnippet snippet={selectedSnippet} />
                     </div>
                   </div>
@@ -278,32 +272,32 @@ const ChatIntegrationsPage = () => {
             </div>
 
             {/* Preview Panel */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-teal-200 dark:border-teal-900">
-              <div className="bg-gradient-to-r from-teal-600 to-cyan-600 px-3 py-2 text-white flex justify-between items-center">
-                <h4 className="text-lg font-bold">پیش‌نمایش ویجت</h4>
-
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div className="bg-gray-100 dark:bg-gray-700 px-3 py-2 flex justify-between items-center">
+                <h4 className="text-base font-bold text-gray-900 dark:text-gray-100">
+                  پیش‌نمایش ویجت
+                </h4>
                 {selected && (
-                  <div className="flex gap-1.5 whitespace-nowrap">
+                  <div className="flex gap-1.5">
                     <button
                       onClick={handleTogglePublic}
                       disabled={loading}
-                      className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 disabled:opacity-60 text-xs font-medium transition"
+                      className="px-2.5 py-1 rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-60 text-xs"
                     >
                       {selected.isPublic ? 'خصوصی' : 'عمومی'}
                     </button>
                     <button
                       onClick={() => openEdit(selected)}
-                      className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-medium transition"
+                      className="px-2.5 py-1 rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-xs"
                     >
                       ویرایش
                     </button>
                   </div>
                 )}
               </div>
-
               <div className="p-3">
                 {selected ? (
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg border border-teal-300/70 dark:border-teal-700 overflow-hidden shadow-inner">
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-700 overflow-hidden">
                     <div className="p-2 bg-white dark:bg-gray-950">
                       <WidgetPreview embedId={selected.embedId} />
                     </div>
@@ -324,11 +318,12 @@ const ChatIntegrationsPage = () => {
 
           {/* List */}
           <div className="mt-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-orange-200 dark:border-orange-900">
-              <div className="bg-gradient-to-r from-orange-600 to-pink-600 px-3 py-2 text-white">
-                <h4 className="text-lg font-bold">لیست یکپارچه‌سازی‌ها</h4>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div className="bg-gray-100 dark:bg-gray-700 px-3 py-2">
+                <h4 className="text-base font-bold text-gray-900 dark:text-gray-100">
+                  لیست یکپارچه‌سازی‌ها
+                </h4>
               </div>
-
               <div className="p-3">
                 {integrations.length === 0 ? (
                   <div className="text-center py-8">
@@ -352,7 +347,6 @@ const ChatIntegrationsPage = () => {
           </div>
         </div>
 
-        {/* Modal */}
         <EditIntegrationModal
           open={editOpen}
           onClose={closeEdit}

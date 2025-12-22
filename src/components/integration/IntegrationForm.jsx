@@ -42,7 +42,7 @@ export default function IntegrationForm({
     text-gray-900 dark:text-gray-100
     placeholder:text-gray-400 dark:placeholder:text-gray-500
     border border-gray-300 dark:border-gray-700
-    focus:outline-none focus:ring-2 focus:ring-indigo-500/50 dark:focus:ring-indigo-400/40
+    focus:outline-none focus:ring-2 focus:ring-gray-500/50 dark:focus:ring-gray-400/40
     disabled:opacity-60
   `;
 
@@ -98,14 +98,14 @@ export default function IntegrationForm({
         disabled={loading}
         className="
           w-full rounded-xl px-4 py-3 font-semibold
-          bg-gradient-to-r from-indigo-600 to-purple-600
-          text-white shadow-md
-          hover:opacity-95 active:opacity-90
+          bg-blue-600 text-white
+          hover:bg-blue-700
+          dark:bg-blue-500 dark:hover:bg-blue-400
           disabled:opacity-60 disabled:cursor-not-allowed
-          transition
+          transition shadow-sm
         "
       >
-        {loading ? 'Generating…' : 'Generate Embed Link'}
+        {loading ? 'در حال تولید…' : 'generate Emded link'}
       </button>
     </form>
   );
