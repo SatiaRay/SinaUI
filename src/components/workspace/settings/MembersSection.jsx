@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { UserPlus } from 'lucide-react';
-import { GoPlusCircle } from 'react-icons/go';
+import { PlusCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { notify } from '../../ui/toast/index';
 
@@ -135,7 +135,7 @@ const MembersSection = ({ members: init = [], workspace }) => {
             onClick={invite}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white bg-gradient-to-l from-indigo-600 via-sky-600 to-cyan-600 hover:from-indigo-500 hover:via-sky-500 hover:to-cyan-500 shadow-md hover:shadow-xl transition"
           >
-            دعوت عضو جدید <GoPlusCircle size={22} />
+            دعوت عضو جدید <PlusCircle size={22} />
           </button>
         )}
       </div>
