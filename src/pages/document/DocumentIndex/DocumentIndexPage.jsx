@@ -133,7 +133,7 @@ const DocumentIndexPage = () => {
             className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
             <span>جستجوری برداری</span>
-            <TbVectorBezier2 size={22} className="pr-2 box-content" />
+            <Icon name="BezierCurve" className="w-[22px] h-[22px] pr-2 box-content" />
           </Link>
           <Link
             to={'/document/create'}
@@ -141,7 +141,7 @@ const DocumentIndexPage = () => {
           >
             <span className="ml-2 hidden md:block">سند جدید</span>
             <span className="ml-2 md:hidden">جدید</span>
-            <GoPlusCircle size={20} />
+            <Icon name="PlusCircle" className="w-5 h-5" />
           </Link>
         </div>
       </div>

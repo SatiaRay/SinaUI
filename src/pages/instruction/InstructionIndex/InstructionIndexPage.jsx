@@ -91,7 +91,7 @@ const InstructionIndexPage = () => {
           >
             <span className="ml-2 hidden md:block">دستورالعمل جدید</span>
             <span className="ml-2 md:hidden">جدید</span>
-            <GoPlusCircle size={20} />
+            <Icon name="PlusCircle" className="w-5 h-5" />
           </Link>
         </div>
       </div>
