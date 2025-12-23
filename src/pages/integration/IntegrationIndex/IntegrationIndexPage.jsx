@@ -193,28 +193,28 @@ const ChatIntegrationsPage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-screen-2xl mx-auto px-2 md:px-3 py-2 flex flex-col min-h-screen">
         {/* Header */}
-        <div className="bg-gray-100 dark:bg-gray-800 px-4 py-3 mt-2 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700">
-                <span className="text-xl">🧩</span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                یکپارچه‌سازی‌های چت
-              </h3>
-            </div>
+        <div className="mx-3 md:mx-0 md:mb-3 pb-3 pt-3 md:pt-0 border-b border-gray-600 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <h3 className="text-3xl">یکپارچه‌سازی‌ها</h3>
+            {loading && <Sppiner size={14} />}
+          </div>
 
-            <div className="flex items-center gap-2">
-              {loading && <Sppiner size={14} />}
-              <span className="px-3 py-1.5 rounded-full bg-gray-200 dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
-                {integrations.length} یکپارچه‌سازی‌
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1.5 rounded-full bg-gray-200 dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
+              {integrations.length} یکپارچه‌سازی‌
+            </span>
+
+            {selected && (
+              <span
+                className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+                  selected.isPublic
+                    ? 'bg-gray-300 dark:bg-gray-600'
+                    : 'bg-gray-200 dark:bg-gray-700'
+                }`}
+              >
+                {selected.isPublic ? 'Public' : 'Private'}
               </span>
-              {selected && (
-                <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${selected.isPublic ? 'bg-gray-300 dark:bg-gray-600' : 'bg-gray-200 dark:bg-gray-700'}`}>
-                  {selected.isPublic ? 'Public' : 'Private'}
-                </span>
-              )}
-            </div>
+            )}
           </div>
         </div>
 
