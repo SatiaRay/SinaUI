@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TagifyInput } from '../../../components/ui/tagifyInput';
+import { TagifyInput } from '@components/ui/tagifyInput';
 import 'react-quill/dist/quill.snow.css';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { notify } from '../../../components/ui/toast';
+import { notify } from '@components/ui/toast';
 import {
   useGetDocumentQuery,
   useUpdateDocumentMutation,
 } from '../../../store/api/knowledgeApi';
 import { ckEditorConfig } from '../../../configs';
 import { EditDocumentLoading } from './EditDocumentLoading';
-import { Sppiner } from '../../../components/ui/sppiner';
+import { Sppiner } from '@components/ui/sppiner';
 
 const EditDocumentPage = () => {
   /**

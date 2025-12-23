@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { chatEndpoints, wizardEndpoints } from '../../utils/apis';
-import { WizardButton, WizardButtons } from '../wizard';
-import ReactQuill from 'react-quill';
+import { chatEndpoints, wizardEndpoints } from '@utils/apis';
 import 'react-quill/dist/quill.snow.css';
-import { v4 as uuidv4 } from 'uuid';
-import { getWebSocketUrl } from '../../utils/websocket';
-import { formatTimestamp } from '../../utils/helpers';
+import { getWebSocketUrl } from '@utils/websocket';
+import { formatTimestamp } from '@utils/helpers';
 
 // استایل‌های سراسری برای پیام‌های چت
 const globalStyles = `
@@ -240,7 +237,7 @@ const Chat = () => {
 
   const fetchRootWizards = async () => {
     try {
-      const data = await wizardEndpoints.getRootWizards()
+      const data = await wizardEndpoints.getRootWizards();
       setRootWizards(data); // Store root wizards
       setCurrentWizards(data); // Set initial current wizards
     } catch (err) {
@@ -253,7 +250,11 @@ const Chat = () => {
 
     setHistoryLoading(true);
     try {
-      const messages = await chatEndpoints.getChatHistory(sessionId, offset, limit)
+      const messages = await chatEndpoints.getChatHistory(
+        sessionId,
+        offset,
+        limit
+      );
 
       if (Array.isArray(messages)) {
         const transformedMessages = messages.map((msg) => ({

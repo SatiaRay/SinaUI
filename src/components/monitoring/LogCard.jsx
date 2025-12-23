@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import {
-  FileText,
-  User,
-  Clock,
-  AlertCircle,
-  CheckCircle,
-  Hash,
-  Copy,
-  ExternalLink,
-} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Icon from '../ui/Icon';
 
 /**
  * LogCard Component
@@ -68,7 +59,10 @@ const LogCard = ({ log }) => {
       <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3 mb-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex-shrink-0">
-            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+            <Icon
+              name="FileText"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400"
+            />
           </div>
           <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate">
             {tool}
@@ -79,12 +73,18 @@ const LogCard = ({ log }) => {
         <div className="flex-shrink-0">
           {error ? (
             <span className="flex items-center gap-2 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-xs font-medium w-fit">
-              <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <Icon
+                name="AlertCircle"
+                className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
+              />
               <span className="whitespace-nowrap">خطا</span>
             </span>
           ) : (
             <span className="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-medium w-fit">
-              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <Icon
+                name="CheckCircle"
+                className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
+              />
               <span className="whitespace-nowrap">موفق</span>
             </span>
           )}
@@ -95,7 +95,10 @@ const LogCard = ({ log }) => {
       <div className="flex flex-col gap-3 text-sm text-gray-700 dark:text-gray-300 mb-4">
         {/* User info */}
         <div className="flex items-center gap-3 flex-wrap">
-          <User className="w-4 h-4 text-purple-500 dark:text-purple-400 flex-shrink-0" />
+          <Icon
+            name="User"
+            className="w-4 h-4 text-purple-500 dark:text-purple-400 flex-shrink-0"
+          />
           <span className="font-medium text-xs sm:text-sm whitespace-nowrap">
             کاربر:
           </span>
@@ -106,7 +109,10 @@ const LogCard = ({ log }) => {
 
         {/* Duration info */}
         <div className="flex items-center gap-3 flex-wrap">
-          <Clock className="w-4 h-4 text-green-500 dark:text-green-400 flex-shrink-0" />
+          <Icon
+            name="Clock"
+            className="w-4 h-4 text-green-500 dark:text-green-400 flex-shrink-0"
+          />
           <span className="font-medium text-xs sm:text-sm whitespace-nowrap">
             مدت اجرا:
           </span>
@@ -118,7 +124,10 @@ const LogCard = ({ log }) => {
         {/* ID info - Improved responsive behavior */}
         <div className="flex flex-col xs:flex-row xs:items-center gap-3">
           <div className="flex items-center gap-3 flex-shrink-0">
-            <Hash className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+            <Icon
+              name="Hash"
+              className="w-4 h-4 text-blue-500 dark:text-blue-400"
+            />
             <span className="font-medium text-xs sm:text-sm whitespace-nowrap">
               شناسه:
             </span>
@@ -134,7 +143,10 @@ const LogCard = ({ log }) => {
                 className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200 flex-shrink-0"
                 title="کپی شناسه"
               >
-                <Copy className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                <Icon
+                  name="Copy"
+                  className="w-3 h-3 text-gray-500 dark:text-gray-400"
+                />
               </button>
             </div>
             {copied && (
@@ -153,7 +165,7 @@ const LogCard = ({ log }) => {
             onClick={() => setShowModal(true)}
             className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200 text-xs sm:text-sm font-medium min-h-[44px]"
           >
-            <FileText className="w-4 h-4 flex-shrink-0" />
+            <Icon name="FileText" className="w-4 h-4 flex-shrink-0" />
             <span className="whitespace-nowrap">مشاهده پارامترها</span>
           </button>
         )}
@@ -161,7 +173,7 @@ const LogCard = ({ log }) => {
           onClick={handleViewDetails}
           className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 text-xs sm:text-sm font-medium min-h-[44px]"
         >
-          <ExternalLink className="w-4 h-4 flex-shrink-0" />
+          <Icon name="ExternalLink" className="w-4 h-4 flex-shrink-0" />
           <span className="whitespace-nowrap">جزئیات کامل</span>
         </button>
       </div>

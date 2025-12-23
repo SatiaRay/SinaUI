@@ -2,8 +2,7 @@ import styled from 'styled-components';
 import Chat from '@components/chat/Chat';
 import { ChatProvider } from '@contexts/ChatContext';
 import { AuthProvider } from '@contexts/AuthContext';
-import { SiChatbot } from 'react-icons/si';
-import { IoClose } from 'react-icons/io5';
+import Icon from '@components/ui/Icon';
 import { useState, useEffect, useRef } from 'react';
 import ChatSkeletonLoader from './chatSkeletonLoader';
 
@@ -158,7 +157,6 @@ const ChatBox = (props) => {
         }
 
         skeletonTimerRef.current = setTimeout(() => {
-
           setTimeout(() => {
             setIsSkeletonActive(false);
             skeletonTimerRef.current = null;
@@ -209,14 +207,14 @@ const ChatBox = (props) => {
                   setFullscreen(false);
                 }}
               >
-                <IoClose size={20} />
+                <Icon name="X" size={20} />
               </Close>
             )}
             <Title>چت‌بات سینا 🤖</Title>
           </Header>
         )}
         <MessagesWrapper>
-        <Messages
+          <Messages
             className={
               isSkeletonActive
                 ? 'overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
@@ -244,7 +242,7 @@ const ChatBox = (props) => {
             if (window.innerWidth <= 768) setFullscreen(true);
           }}
         >
-          <SiChatbot size={28} />
+          <Icon name="messageCircle" size={28} />
         </ChatBoxTrigger>
       )}
     </div>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
-import { FaCrown, FaUser } from 'react-icons/fa';
+import Icon from '../ui/Icon';
 
 /**
  * Workspace Dropdown Component
@@ -132,11 +131,11 @@ export const WorkspaceDropdown = ({
   const getRoleIcon = (role) => {
     switch (role) {
       case 'admin':
-        return <FaCrown className="w-3 h-3 text-yellow-500" />;
+        return <Icon name="Crown" className="w-3 h-3 text-yellow-500" />;
       case 'member':
-        return <FaUser className="w-3 h-3 text-gray-400" />;
+        return <Icon name="User" className="w-3 h-3 text-gray-400" />;
       default:
-        return <FaUser className="w-3 h-3 text-gray-400" />;
+        return <Icon name="User" className="w-3 h-3 text-gray-400" />;
     }
   };
 
@@ -235,7 +234,7 @@ export const WorkspaceDropdown = ({
           افزودن فضای کاری جدید
         </span>
         <div className="w-8 h-8 border border-dashed border-gray-500 rounded-md flex items-center justify-center flex-shrink-0">
-          <PlusIcon className="w-4 h-4" />
+          <Icon name="Plus" className="w-4 h-4" />
         </div>
       </button>
     </div>

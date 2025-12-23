@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { notify } from '../../../components/ui/toast';
+import { notify } from '@components/ui/toast';
 import { Export } from '@components/setting/Export';
 import SettingsForm from '@components/setting/Form';
 import { Import } from '@components/setting/Import';

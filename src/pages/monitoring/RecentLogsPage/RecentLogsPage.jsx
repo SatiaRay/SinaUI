@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Search, Filter, X } from 'lucide-react';
+import Icon from '@components/ui/Icon';
 import { useGetRecentLogsQuery } from '../../../store/api/ai-features/monitoringLogsApi';
-import LogCard from '../../../components/monitoring/LogCard';
-import { LogsSkeleton, FiltersSkeleton } from './LogsSkeletons';
-import Error from '../../../components/Error';
+import LogCard from '@components/monitoring/LogCard';
+import { LogsSkeleton } from './LogsSkeletons';
+import Error from '@components/Error';
 import { useDisplay } from 'hooks/display';
 
 /**
@@ -201,7 +201,10 @@ const RecentLogsPage = () => {
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
             {/* Search Input */}
             <div className="flex-1 relative min-w-0">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Icon
+                name="Search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+              />
               <input
                 type="text"
                 placeholder="جستجو بر اساس نام ابزار..."
@@ -224,7 +227,7 @@ const RecentLogsPage = () => {
                     : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
                 }`}
             >
-              <Filter className="w-4 h-4" />
+              <Icon name="Filter" className="w-4 h-4" />
               <span>فیلترها</span>
               {activeFilters > 0 && (
                 <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -241,7 +244,7 @@ const RecentLogsPage = () => {
                          bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-400
                          hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200"
               >
-                <X className="w-4 h-4" />
+                <Icon name="X" className="w-4 h-4" />
                 <span>پاک کردن</span>
               </button>
             )}
@@ -373,7 +376,7 @@ const RecentLogsPage = () => {
         {!isLoading && logs.length === 0 && (
           <div className="text-center py-12">
             <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-              <Search className="h-12 w-12 text-gray-400" />
+              <Icon name="Search" className="h-12 w-12 text-gray-400" />
             </div>
             <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
               هیچ لاگی یافت نشد

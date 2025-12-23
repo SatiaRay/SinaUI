@@ -5,12 +5,11 @@ import knowledgeApi, {
   useDeleteDocumentMutation,
 } from '../../../store/api/knowledgeApi';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Pagination } from '../../../components/ui/pagination';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { Pagination } from '@components/ui/pagination';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
 import { Link, useSearchParams } from 'react-router-dom';
-import { GoPlusCircle } from 'react-icons/go';
-import { TbVectorBezier2 } from 'react-icons/tb';
+import Icon from '@components/ui/Icon';
 import { DocumentIndexLoading } from './DocumentIndexLoading';
 import { useDisplay } from 'hooks/display';
 
@@ -133,8 +132,8 @@ const DocumentIndexPage = () => {
             to={'/document/vector-search'}
             className="pr-4 pl-3 py-3 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
-            <span>جستجوی برداری</span>
-            <TbVectorBezier2 size={22} className="pr-2 box-content" />
+            <span>جستجوری برداری</span>
+            <Icon name="BezierCurve" className="w-[22px] h-[22px] pr-2 box-content" />
           </Link>
           <Link
             to={'/document/create'}
@@ -142,7 +141,7 @@ const DocumentIndexPage = () => {
           >
             <span className="ml-2 hidden md:block">سند جدید</span>
             <span className="ml-2 md:hidden">جدید</span>
-            <GoPlusCircle size={20} />
+            <Icon name="PlusCircle" className="w-5 h-5" />
           </Link>
         </div>
       </div>

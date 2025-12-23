@@ -1,7 +1,4 @@
-import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { authEndpoints, formatAxiosError } from '../utils/apis';
-import useSwr from 'swr';
 
 /**
  * Instantiate theme context
@@ -11,7 +8,7 @@ export const ThemeContext = createContext(null);
 /**
  * Theme provider
  * @param {jsx} children
- * @returns 
+ * @returns
  */
 export const ThemeProvider = ({ children }) => {
   /**

@@ -8,10 +8,9 @@ import {
 } from 'store/api/ai-features/wizardApi';
 import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
-import { GoPlusCircle } from 'react-icons/go';
+import { PlusCircle } from 'lucide-react';
 import { ShowWizardLoading } from './ShowWizardLoading';
 import WizardCard from '../../../components/wizard/WizardCard';
-import { TbVectorBezier2 } from 'react-icons/tb'; // Import WizardCard
 
 const ShowWizardPage = () => {
   const { wizard_id } = useParams();
@@ -124,9 +123,9 @@ const ShowWizardPage = () => {
             to={'/document/create'}
             className="px-4 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md"
           >
-            <span className="ml-2 hidden md:block">ویزارد فرزند جدید</span>
-            <span className="ml-2 md:hidden">جدید</span>
-            <GoPlusCircle size={20} />
+            <span className="hidden sm:inline">ویزارد فرزند جدید</span>
+            <span className="sm:hidden">جدید</span>
+            <PlusCircle size={22} className="pr-2 box-content" />
           </Link>
           <Link
             to={wizard.parent_id ? `/wizard/${wizard.parent_id}` : '/wizard'}

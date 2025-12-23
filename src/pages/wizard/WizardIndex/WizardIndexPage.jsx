@@ -1,16 +1,14 @@
 // WizardIndexPage.js
 import React, { useState, useEffect } from 'react';
-import WizardCard from '../../../components/wizard/WizardCard';
+import WizardCard from '@components/wizard/WizardCard';
 import {
   useGetWizardsQuery,
   useDeleteWizardMutation,
 } from 'store/api/ai-features/wizardApi';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Pagination } from '../../../components/ui/pagination';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { notify } from '@components/ui/toast';
 import { Link } from 'react-router-dom';
-import { GoPlusCircle } from 'react-icons/go';
+import Icon from '@components/ui/Icon';
 import { WizardIndexLoading } from './WizardIndexLoading';
 
 const WizardIndexPage = () => {
@@ -94,7 +92,7 @@ const WizardIndexPage = () => {
           >
             <span className="ml-2 hidden md:block">ویزارد جدید</span>
             <span className="ml-2 md:hidden">جدید</span>
-            <GoPlusCircle size={20} />
+            <Icon name="PlusCircle" className="w-5 h-5" />
           </Link>
         </div>
       </div>
