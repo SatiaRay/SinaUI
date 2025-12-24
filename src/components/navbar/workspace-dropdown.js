@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Icon from '../ui/Icon';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Workspace Dropdown Component
@@ -250,7 +251,7 @@ export const WorkspaceDropdown = ({
             افزودن فضای کاری جدید
           </span>
           <div className="w-8 h-8 border border-dashed border-gray-500 rounded-md flex items-center justify-center flex-shrink-0">
-            <PlusIcon className="w-4 h-4" />
+            <Icon name="Plus" className="w-4 h-4" />
           </div>
         </button>
 
@@ -263,7 +264,7 @@ export const WorkspaceDropdown = ({
             مدیریت فضاهای کاری
           </span>
           <div className="w-8 h-8 border border-dashed border-gray-500 rounded-md flex items-center justify-center flex-shrink-0">
-            <Cog6ToothIcon className="w-4 h-4" />
+            <Icon name="Settings" className="w-4 h-4" />
           </div>
         </button>
       </div>

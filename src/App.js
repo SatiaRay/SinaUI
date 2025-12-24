@@ -43,7 +43,6 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
-import { AuditLogIndex, AuditLogDetails } from '@pages/workspace';
 import { ThemeProvider } from '@contexts/ThemeContext';
 import {
   WorkspaceIndexPage,
@@ -360,14 +359,6 @@ function privateRoutes() {
       <Route path="/projects">
         <Route
           index
-      <Route 
-        path="/w/:workspaceId/settings" 
-        element={
-          <WorkspaceSettingsPage />
-        } 
-      />
-      <Route
-          path="/w/:workspaceId/audit-logs"
           element={
             <PrivateRoute>
               <FlowPage />
