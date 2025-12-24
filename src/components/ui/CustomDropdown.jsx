@@ -1,7 +1,7 @@
 // CustomDropdown.js
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
-import { IoIosArrowDown } from 'react-icons/io';
+import Icon from '../ui/Icon';
 
 const CustomDropdown = ({
   options,
@@ -44,7 +44,7 @@ const CustomDropdown = ({
             isOpen ? 'rotate-180' : ''
           }`}
         >
-          <IoIosArrowDown />
+          <Icon name="ChevronDown" />
         </span>
       </button>
 

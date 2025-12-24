@@ -1,8 +1,6 @@
 import { BrushCleaning, LucideAudioLines } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
-import { FaRobot } from 'react-icons/fa';
 import { BeatLoader } from 'react-spinners';
-import { notify } from '../ui/toast';
 import VoiceBtn from './VoiceBtn';
 import { WizardButtons } from '../wizard';
 import TextInputWithBreaks from '../ui/textArea';
@@ -39,6 +37,7 @@ import {
   ErrorMessage,
   H4,
 } from '../ui/common';
+import Icon from '../ui/Icon';
 
 /**
  * Optimized table parser with DOM stability
@@ -888,7 +887,7 @@ const Chat = ({ services = null }) => {
                     style={{ marginLeft: '0.25rem' }}
                   />
                   <BotIconContainer>
-                    <FaRobot />
+                    <Icon name="Bot" />
                   </BotIconContainer>
                 </LoadingBotContainer>
               </LoadingBotResponse>

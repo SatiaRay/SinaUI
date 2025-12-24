@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { PlusIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { FaCrown, FaUser } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import Icon from '../ui/Icon';
 
 /**
  * Workspace Dropdown Component
@@ -134,11 +132,11 @@ export const WorkspaceDropdown = ({
   const getRoleIcon = (role) => {
     switch (role) {
       case 'admin':
-        return <FaCrown className="w-3 h-3 text-yellow-500" />;
+        return <Icon name="Crown" className="w-3 h-3 text-yellow-500" />;
       case 'member':
-        return <FaUser className="w-3 h-3 text-gray-400" />;
+        return <Icon name="User" className="w-3 h-3 text-gray-400" />;
       default:
-        return <FaUser className="w-3 h-3 text-gray-400" />;
+        return <Icon name="User" className="w-3 h-3 text-gray-400" />;
     }
   };
 

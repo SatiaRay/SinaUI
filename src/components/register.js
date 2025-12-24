@@ -1,4 +1,4 @@
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import Icon from './ui/Icon';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
@@ -248,9 +248,9 @@ const Register = () => {
                 onClick={togglePasswordVisibility}
               >
                 {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                  <Icon name="EyeOff" className="h-5 w-5 text-gray-400" />
                 ) : (
-                  <EyeIcon className="h-5 w-5 text-gray-400" />
+                  <Icon name="Eye" className="h-5 w-5 text-gray-400" />
                 )}
               </button>
               {errors.password && (
@@ -275,9 +275,9 @@ const Register = () => {
                 onClick={toggleRepeatPasswordVisibility}
               >
                 {showRepeatPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                  <Icon name="EyeOff" className="h-5 w-5 text-gray-400" />
                 ) : (
-                  <EyeIcon className="h-5 w-5 text-gray-400" />
+                  <Icon name="Eye" className="h-5 w-5 text-gray-400" />
                 )}
               </button>
               {errors.repeat_password && (

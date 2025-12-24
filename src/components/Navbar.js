@@ -2,23 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 
-import {
-  ArrowLeftEndOnRectangleIcon,
-  PlusIcon,
-  MoonIcon,
-  SunIcon,
-} from '@heroicons/react/24/outline';
-import {
-  FaMagic,
-  FaProjectDiagram,
-  FaBook,
-  FaCog,
-  FaChartLine,
-  FaCrown,
-  FaUser,
-} from 'react-icons/fa';
-import { LuBrainCircuit, LuBotMessageSquare } from 'react-icons/lu';
-import { MdDashboardCustomize } from 'react-icons/md';
+import Icon from './ui/Icon';
 import { WorkspaceDropdown } from './navbar/workspace-dropdown';
 
 /**
@@ -58,12 +42,12 @@ const ThemeToggleButton = ({ onThemeChange, showText = true }) => {
     >
       {isDark ? (
         <>
-          <SunIcon className="h-4 w-4" />
+          <Icon name="Sun" className="h-4 w-4" />
           {showText && <span>روز</span>}
         </>
       ) : (
         <>
-          <MoonIcon className="h-4 w-4" />
+          <Icon name="Moon" className="h-4 w-4" />
           {showText && <span>شب</span>}
         </>
       )}
@@ -90,7 +74,7 @@ const NavList = ({
   isMobile = false,
 }) => (
   <ul className="flex flex-col gap-2">
-    {items.map(({ path, label, icon: Icon }) => {
+    {items.map(({ path, label, icon: IconBtn }) => {
       const isActive = activePath === path;
       return (
         <li key={path} className="text-right">
@@ -108,15 +92,14 @@ const NavList = ({
                 : 'text-gray-300 hover:bg-gray-700 hover:text-white'
             }`}
           >
-            {Icon && (
-              <Icon
-                className={`w-4 h-4 ${
-                  isActive
-                    ? 'text-white'
-                    : 'text-gray-300 group-hover:text-white'
-                }`}
-              />
-            )}
+            <Icon
+              name={IconBtn}
+              className={`w-4 h-4 ${
+                isActive
+                  ? 'text-white'
+                  : 'text-gray-300 group-hover:text-white'
+              }`}
+            />
             <span
               className={`transition-all duration-500 ease-in-out ${
                 showContent
@@ -342,13 +325,6 @@ const ExpandableSidebar = ({
   };
 
   /**
-   * Toggle workspace dropdown with proper state management
-   */
-  const toggleWorkspaceDropdown = () => {
-    setWorkspaceDropdownOpen((prev) => !prev);
-  };
-
-  /**
    * Close workspace dropdown
    */
   const closeWorkspaceDropdown = () => {
@@ -461,7 +437,10 @@ const ExpandableSidebar = ({
                                 {currentWorkspace.plan}
                               </span>
                               {currentWorkspace.role === 'admin' && (
-                                <FaCrown className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                                <Icon
+                                  name="Crown"
+                                  className="w-3 h-3 text-yellow-500 flex-shrink-0"
+                                />
                               )}
                             </div>
                           </div>
@@ -575,7 +554,8 @@ const ExpandableSidebar = ({
                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                     }`}
                   >
-                    <FaCog
+                    <Icon
+                      name="Settings"
                       className={`w-4 h-4 ${
                         activePath === '/setting'
                           ? 'text-white'
@@ -596,7 +576,7 @@ const ExpandableSidebar = ({
               ) : (
                 // Mini icons view - same icons, no re-render
                 <div className="flex flex-col items-center gap-3 py-3">
-                  {items.map(({ path, label, icon: Icon }) => {
+                  {items.map(({ path, label, icon: iconName }) => {
                     const isActive = activePath === path;
                     return (
                       <button
@@ -609,7 +589,7 @@ const ExpandableSidebar = ({
                         }`}
                         aria-label={label}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon name={iconName} className="h-4 w-4" />
                       </button>
                     );
                   })}
@@ -624,7 +604,7 @@ const ExpandableSidebar = ({
                     }`}
                     aria-label="تنظیمات"
                   >
-                    <FaCog className="h-4 w-4" />
+                    <Icon name="Settings" className="h-4 w-4" />
                   </button>
                 </div>
               )}
@@ -662,7 +642,7 @@ const ExpandableSidebar = ({
                   </div>
                 )}
 
-                {/* Theme Toggle Button - Simplified: Icon only, aligned to left */}
+                {/* Theme Toggle Button - same logic, only icon system changed */}
                 <div className={`mb-3 ${!isExpanded ? 'px-1' : ''}`}>
                   {isExpanded ? (
                     <div
@@ -688,9 +668,9 @@ const ExpandableSidebar = ({
                         aria-label="تغییر تم"
                       >
                         {theme === 'dark' ? (
-                          <SunIcon className="h-4 w-4" />
+                          <Icon name="Sun" className="h-4 w-4" />
                         ) : (
-                          <MoonIcon className="h-4 w-4" />
+                          <Icon name="Moon" className="h-4 w-4" />
                         )}
                       </button>
                     </div>
@@ -714,9 +694,9 @@ const ExpandableSidebar = ({
                         aria-label="تغییر تم"
                       >
                         {theme === 'dark' ? (
-                          <SunIcon className="h-4 w-4" />
+                          <Icon name="Sun" className="h-4 w-4" />
                         ) : (
-                          <MoonIcon className="h-4 w-4" />
+                          <Icon name="Moon" className="h-4 w-4" />
                         )}
                       </button>
                     </div>
@@ -732,7 +712,6 @@ const ExpandableSidebar = ({
                   }`}
                 >
                   {isExpanded ? (
-                    // Expanded user section with animations
                     <>
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <div className="w-8 h-8 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full transition-all duration-500 flex-shrink-0">
@@ -759,6 +738,7 @@ const ExpandableSidebar = ({
                           </p>
                         </div>
                       </div>
+
                       <button
                         onClick={onLogout}
                         className={`flex items-center gap-2 text-gray-300 hover:text-white hover:bg-gray-700 p-2 rounded-md transition-all duration-500 ease-in-out flex-shrink-0 ${
@@ -768,11 +748,10 @@ const ExpandableSidebar = ({
                         }`}
                         aria-label="خروج"
                       >
-                        <ArrowLeftEndOnRectangleIcon className="h-4 w-4" />
+                        <Icon name="LogOut" className="h-4 w-4" />
                       </button>
                     </>
                   ) : (
-                    // Mini user section
                     <>
                       <div className="flex flex-col items-center gap-2">
                         <div className="w-7 h-7 flex items-center justify-center bg-blue-500 text-white text-xs font-bold rounded-full cursor-default">
@@ -783,7 +762,7 @@ const ExpandableSidebar = ({
                           className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors duration-500"
                           aria-label="خروج"
                         >
-                          <ArrowLeftEndOnRectangleIcon className="h-4 w-4" />
+                          <Icon name="LogOut" className="h-4 w-4" />
                         </button>
                       </div>
                     </>
@@ -834,15 +813,15 @@ const Navbar = ({ onSidebarCollapse }) => {
 
   /**
    * Navigation items configuration
+   * ✅ icon names moved to master-style Icon usage
    */
   const navItems = [
-    { path: '/chat', label: 'چت', icon: LuBotMessageSquare },
-    { path: '/document', label: 'پایگاه دانش', icon: LuBrainCircuit },
-    { path: '/wizard', label: 'ویزاردها', icon: FaMagic },
-    { path: '/workflow', label: 'گردش کار', icon: FaProjectDiagram },
-    { path: '/instruction', label: 'دستورالعمل‌ها', icon: FaBook },
-    { path: '/projects', label: 'پروژه ها', icon: MdDashboardCustomize },
-    { path: '/monitoring', label: 'مانیتورینگ', icon: FaChartLine },
+    { path: '/chat', label: 'چت', icon: 'MessageSquareText' },
+    { path: '/document', label: 'پایگاه دانش', icon: 'BrainCircuit' },
+    { path: '/wizard', label: 'ویزاردها', icon: 'Sparkles' },
+    { path: '/workflow', label: 'گردش کار', icon: 'Workflow' },
+    { path: '/instruction', label: 'دستورالعمل‌ها', icon: 'BookOpen' },
+    { path: '/monitoring', label: 'مانیتورینگ', icon: 'Activity' },
   ];
 
   /**

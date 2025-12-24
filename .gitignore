@@ -5,4 +5,4 @@ node_modules/
 .env.development
 .env.production
 /public/bundle
-/public/satia-chat.html
+/public/satia-chat.html.DS_Store
