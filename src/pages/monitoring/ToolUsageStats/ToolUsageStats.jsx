@@ -1,19 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ResponsiveBar } from '@nivo/bar';
 import { useGetToolStatsQuery } from '../../../store/api/ai-features/monitoringLogsApi';
-import {
-  Loader2,
-  Calendar,
-  BarChart3,
-  Filter,
-  ChevronDown,
-} from 'lucide-react';
+import Icon from '@components/ui/Icon';
 import {
   HeaderSkeleton,
   CardsGridSkeleton,
   ChartSkeleton,
 } from './ToolUsageSkeletons';
-import Error from '../../../components/Error';
+import Error from '@components/Error';
 
 /**
  * Color palette for chart and cards
@@ -87,7 +81,10 @@ const StatCard = ({ tool, loading }) => (
 
     {loading ? (
       <div className="flex justify-center items-center py-4">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <Icon
+          name="LoaderCircle"
+          className="h-6 w-6 animate-spin text-gray-400"
+        />
       </div>
     ) : (
       <div className="text-center w-full">
@@ -148,7 +145,10 @@ const CustomSelect = ({ value, onChange, options }) => (
         </option>
       ))}
     </select>
-    <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 pointer-events-none" />
+    <Icon
+      name="ChevronDown"
+      className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 pointer-events-none"
+    />
   </div>
 );
 
@@ -402,7 +402,10 @@ export default function ToolUsageStats() {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
-              <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <Icon
+                name="chartColumn"
+                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+              />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -417,7 +420,10 @@ export default function ToolUsageStats() {
           <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
             {/* Sort Filter */}
             <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 min-w-[200px]">
-              <Filter className="h-4 w-4 text-gray-500 dark:text-gray-300 flex-shrink-0" />
+              <Icon
+                name="Filter"
+                className="h-4 w-4 text-gray-500 dark:text-gray-300 flex-shrink-0"
+              />
               <CustomSelect
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -427,7 +433,10 @@ export default function ToolUsageStats() {
 
             {/* Days Filter */}
             <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700">
-              <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-300 flex-shrink-0" />
+              <Icon
+                name="Calendar"
+                className="h-4 w-4 text-gray-500 dark:text-gray-300 flex-shrink-0"
+              />
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                 بازه زمانی:
               </label>
@@ -503,7 +512,7 @@ export default function ToolUsageStats() {
             <div className="flex items-center justify-center h-[400px]">
               <div className="text-center">
                 <div className="mx-auto w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                  <BarChart3 className="h-10 w-10 text-gray-400" />
+                  <Icon name="Calendar" className="h-10 w-10 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">
                   هیچ داده‌ای برای نمایش وجود ندارد
