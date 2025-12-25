@@ -43,12 +43,22 @@ import {
   ShowWizardPage,
   WizardIndexPage,
 } from '@pages/wizard';
+import { ThemeProvider } from '@contexts/ThemeContext';
 import {
+  WorkspaceIndexPage,
+  CreateWorkspacePage,
+  EditWorkspacePage,
+  ShowWorkspacePage,
   WorkspaceSettingsPage,
   AuditLogIndex,
   AuditLogDetails,
 } from '@pages/workspace';
-import { ThemeProvider } from '@contexts/ThemeContext';
+import {
+  FlowPage,
+  CreateFlow,
+  EditFlowPage,
+  ShowFlowPage,
+} from '@pages/project';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -310,28 +320,92 @@ function privateRoutes() {
           }
         />
       </Route>
-      <Route 
-        path="/w/:workspaceId/settings" 
-        element={
-          <WorkspaceSettingsPage />
-        } 
-      />
-      <Route
-          path="/w/:workspaceId/audit-logs"
+      {/* Workspace Routes */}
+      <Route path="/workspace">
+        <Route
+          index
           element={
             <PrivateRoute>
-              <AuditLogIndex />
+              <WorkspaceIndexPage />
             </PrivateRoute>
           }
         />
-      <Route 
-          path="/w/:workspaceId/audit-logs/:logId" 
+        <Route
+          path={'/workspace/create'}
           element={
             <PrivateRoute>
-              <AuditLogDetails />
+              <CreateWorkspacePage />
             </PrivateRoute>
-          }  
-        />  
+          }
+        />
+        <Route
+          path={'/workspace/edit/:id'}
+          element={
+            <PrivateRoute>
+              <EditWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/workspace/:workspaceId'}
+          element={
+            <PrivateRoute>
+              <ShowWorkspacePage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      {/* Project Routes */}
+      <Route path="/projects">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <FlowPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/projects/create'}
+          element={
+            <PrivateRoute>
+              <CreateFlow />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/projects/edit/:projectId'}
+          element={
+            <PrivateRoute>
+              <EditFlowPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={'/projects/:projectId'}
+          element={
+            <PrivateRoute>
+              <ShowFlowPage />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      <Route
+        path="/w/:workspaceId/audit-logs"
+        element={
+          <PrivateRoute>
+            <AuditLogIndex />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/w/:workspaceId/audit-logs/:logId"
+        element={
+          <PrivateRoute>
+            <AuditLogDetails />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }
