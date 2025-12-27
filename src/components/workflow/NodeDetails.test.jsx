@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -113,7 +112,6 @@ describe('NodeDetails', () => {
 
   /**
    * Test: Decision node can add/remove/update conditions
-   * - Initial empty conditions are filtered (component does filter on init)
    */
   test('decision node: can add/remove/update conditions', async () => {
     renderModal({
