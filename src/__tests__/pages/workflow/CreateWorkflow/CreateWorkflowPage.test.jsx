@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import CreateWorkflowPage from './CreateWorkflowPage';
+import CreateWorkflowPage from '../../../../pages/workflow/CreateWorkflow/CreateWorkflowPage';
 
 /**
  * Mock: router navigate
@@ -18,7 +18,7 @@ jest.mock('react-router-dom', () => ({
  */
 const mockNotifySuccess = jest.fn();
 
-jest.mock('../../../components/ui/toast', () => ({
+jest.mock('../../../../components/ui/toast', () => ({
   notify: {
     success: (...args) => mockNotifySuccess(...args),
     error: jest.fn(),
@@ -28,14 +28,14 @@ jest.mock('../../../components/ui/toast', () => ({
 /**
  * Mock: spinner component
  */
-jest.mock('../../../components/ui/sppiner', () => ({
+jest.mock('../../../../components/ui/sppiner', () => ({
   Sppiner: ({ size }) => <div data-testid="spinner">{size}</div>,
 }));
 
 /**
  * Mock: dropdown component
  */
-jest.mock('../../../components/ui/CustomDropdown', () => (props) => (
+jest.mock('../../../../components/ui/CustomDropdown', () => (props) => (
   <select
     data-testid="status-dropdown"
     value={props.value}
