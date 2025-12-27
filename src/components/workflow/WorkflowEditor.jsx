@@ -29,8 +29,8 @@ import {
   extractEdges,
   extractNodes,
   formatNodes,
-} from '@utils/workflowUtility';
-import { useTheme } from '@contexts/ThemeContext';
+} from '../../utils/workflowUtility';
+import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Node type definitions for ReactFlow
