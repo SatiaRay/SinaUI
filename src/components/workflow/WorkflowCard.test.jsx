@@ -10,7 +10,10 @@ import WorkflowCard from './WorkflowCard';
  */
 jest.mock('../ui/Icon', () => () => <span data-testid="icon" />);
 const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({ ...jest.requireActual('react-router-dom'), useNavigate: () => mockNavigate }));
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
 /**
  * @function setup
@@ -19,7 +22,12 @@ jest.mock('react-router-dom', () => ({ ...jest.requireActual('react-router-dom')
  */
 const setup = (overrides = {}) => {
   const props = {
-    workflow: { id: '1', name: 'WF 1', status: true, ...(overrides.workflow || {}) },
+    workflow: {
+      id: '1',
+      name: 'WF 1',
+      status: true,
+      ...(overrides.workflow || {}),
+    },
     handleDelete: jest.fn(),
     handleDownload: jest.fn(),
     ...overrides,
@@ -90,6 +98,8 @@ describe('WorkflowCard', () => {
    */
   test('mobile icon buttons exist (by title)', () => {
     setup();
-    ['دریافت خروجی', 'ویرایش', 'حذف'].forEach((t) => expect(screen.getByTitle(t)).toBeInTheDocument());
+    ['دریافت خروجی', 'ویرایش', 'حذف'].forEach((t) =>
+      expect(screen.getByTitle(t)).toBeInTheDocument()
+    );
   });
 });

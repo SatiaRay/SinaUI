@@ -27,8 +27,14 @@ jest.mock('store/api/ai-features/workflowApi', () => ({
 /**
  * Mocks: Swal + toast
  */
-jest.mock('sweetalert2', () => ({ fire: jest.fn(), showLoading: jest.fn(), close: jest.fn() }));
-jest.mock('../../../components/ui/toast', () => ({ notify: { success: jest.fn(), error: jest.fn() } }));
+jest.mock('sweetalert2', () => ({
+  fire: jest.fn(),
+  showLoading: jest.fn(),
+  close: jest.fn(),
+}));
+jest.mock('../../../components/ui/toast', () => ({
+  notify: { success: jest.fn(), error: jest.fn() },
+}));
 
 /**
  * UI Mocks: Keep DOM small and stable for assertions
@@ -41,14 +47,20 @@ jest.mock('../../../components/Error', () => (p) => (
     error <button onClick={p.onRetry}>retry</button>
   </div>
 ));
-jest.mock('../../../components/ui/Icon', () => () => <span data-testid="icon" />);
-jest.mock('../../../components/workflow/WorkflowCard', () => ({ workflow, handleDelete, handleDownload }) => (
-  <div data-testid="workflow-card">
-    <div>{workflow.name}</div>
-    <button onClick={() => handleDownload(workflow.id)}>download</button>
-    <button onClick={() => handleDelete(workflow.id)}>delete</button>
-  </div>
+jest.mock('../../../components/ui/Icon', () => () => (
+  <span data-testid="icon" />
 ));
+jest.mock(
+  '../../../components/workflow/WorkflowCard',
+  () =>
+    ({ workflow, handleDelete, handleDownload }) => (
+      <div data-testid="workflow-card">
+        <div>{workflow.name}</div>
+        <button onClick={() => handleDownload(workflow.id)}>download</button>
+        <button onClick={() => handleDelete(workflow.id)}>delete</button>
+      </div>
+    )
+);
 
 /**
  * @function renderPage
@@ -74,7 +86,9 @@ const getFileInput = () => document.querySelector('input[type="file"]');
  */
 const withUnwrap = (mutate, { resolve, reject } = {}) =>
   mutate.mockReturnValue({
-    unwrap: reject ? jest.fn().mockRejectedValue(reject) : jest.fn().mockResolvedValue(resolve),
+    unwrap: reject
+      ? jest.fn().mockRejectedValue(reject)
+      : jest.fn().mockResolvedValue(resolve),
   });
 
 /**
@@ -113,7 +127,10 @@ const setup = ({ workflows = [], query = {}, refetch = jest.fn() } = {}) => {
  * @param {any} obj
  */
 const uploadJson = (obj = { a: 1 }) =>
-  userEvent.upload(getFileInput(), new File([JSON.stringify(obj)], 'wf.json', { type: 'application/json' }));
+  userEvent.upload(
+    getFileInput(),
+    new File([JSON.stringify(obj)], 'wf.json', { type: 'application/json' })
+  );
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -140,7 +157,10 @@ describe('WorkflowIndexPage', () => {
    */
   test('error state + retry', async () => {
     const refetch = jest.fn();
-    setup({ query: { isError: true, isSuccess: false, error: { status: 500 } }, refetch });
+    setup({
+      query: { isError: true, isSuccess: false, error: { status: 500 } },
+      refetch,
+    });
 
     expect(screen.getByTestId('error')).toBeInTheDocument();
     await userEvent.click(screen.getByText('retry'));
@@ -152,15 +172,25 @@ describe('WorkflowIndexPage', () => {
    */
   test('empty state', async () => {
     setup({ workflows: [] });
-    expect(await screen.findByText('هیچ گردش کار ثبت شده‌ای یافت نشد.')).toBeInTheDocument();
-    expect(screen.getByText('گردش کار جدید').closest('a')).toHaveAttribute('href', '/workflow/create');
+    expect(
+      await screen.findByText('هیچ گردش کار ثبت شده‌ای یافت نشد.')
+    ).toBeInTheDocument();
+    expect(screen.getByText('گردش کار جدید').closest('a')).toHaveAttribute(
+      'href',
+      '/workflow/create'
+    );
   });
 
   /**
    * List: renders cards from data
    */
   test('renders workflow cards', async () => {
-    setup({ workflows: [{ id: '1', name: 'WF 1' }, { id: '2', name: 'WF 2' }] });
+    setup({
+      workflows: [
+        { id: '1', name: 'WF 1' },
+        { id: '2', name: 'WF 2' },
+      ],
+    });
     expect(await screen.findAllByTestId('workflow-card')).toHaveLength(2);
     expect(screen.getByText('WF 1')).toBeInTheDocument();
     expect(screen.getByText('WF 2')).toBeInTheDocument();
@@ -183,10 +213,17 @@ describe('WorkflowIndexPage', () => {
    */
   test('import rejects non-json', async () => {
     const { importFn } = setup();
-    await userEvent.upload(getFileInput(), new File(['x'], 'bad.txt', { type: 'text/plain' }));
+    await userEvent.upload(
+      getFileInput(),
+      new File(['x'], 'bad.txt', { type: 'text/plain' })
+    );
 
     expect(Swal.fire).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'خطا!', text: 'لطفاً فقط فایل‌های JSON انتخاب کنید.', icon: 'error' })
+      expect.objectContaining({
+        title: 'خطا!',
+        text: 'لطفاً فقط فایل‌های JSON انتخاب کنید.',
+        icon: 'error',
+      })
     );
     expect(importFn).not.toHaveBeenCalled();
   });
@@ -201,9 +238,13 @@ describe('WorkflowIndexPage', () => {
 
     await uploadJson();
 
-    expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ title: 'در حال بارگذاری...' }));
+    expect(Swal.fire).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'در حال بارگذاری...' })
+    );
     await waitFor(() => expect(importFn).toHaveBeenCalled());
-    expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ title: 'موفق!', icon: 'success' }));
+    expect(Swal.fire).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'موفق!', icon: 'success' })
+    );
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 
@@ -217,7 +258,9 @@ describe('WorkflowIndexPage', () => {
     await screen.findByText('WF X');
     await userEvent.click(screen.getByText('download'));
 
-    expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ title: 'در حال آماده‌سازی فایل...' }));
+    expect(Swal.fire).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'در حال آماده‌سازی فایل...' })
+    );
     await waitFor(() => {
       expect(exportFn).toHaveBeenCalledWith({ id: '10' });
       expect(global.URL.createObjectURL).toHaveBeenCalled();
@@ -247,14 +290,21 @@ describe('WorkflowIndexPage', () => {
    * Delete: confirm => optimistic remove + mutation + toast success
    */
   test('delete confirm', async () => {
-    const { deleteFn } = setup({ workflows: [{ id: '1', name: 'WF 1' }, { id: '2', name: 'WF 2' }] });
+    const { deleteFn } = setup({
+      workflows: [
+        { id: '1', name: 'WF 1' },
+        { id: '2', name: 'WF 2' },
+      ],
+    });
     Swal.fire.mockResolvedValue({ isConfirmed: true });
     withUnwrap(deleteFn, { resolve: { ok: true } });
 
     await screen.findByText('WF 1');
     await userEvent.click(screen.getAllByText('delete')[0]);
 
-    await waitFor(() => expect(screen.queryByText('WF 1')).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByText('WF 1')).not.toBeInTheDocument()
+    );
     expect(deleteFn).toHaveBeenCalledWith({ id: '1' });
     expect(notify.success).toHaveBeenCalledWith('گردش کاری حذف شد');
   });
@@ -277,7 +327,12 @@ describe('WorkflowIndexPage', () => {
    * Delete: error => toast error + rollback keeps item
    */
   test('delete error rollback', async () => {
-    const { deleteFn } = setup({ workflows: [{ id: '1', name: 'WF 1' }, { id: '2', name: 'WF 2' }] });
+    const { deleteFn } = setup({
+      workflows: [
+        { id: '1', name: 'WF 1' },
+        { id: '2', name: 'WF 2' },
+      ],
+    });
     Swal.fire.mockResolvedValue({ isConfirmed: true });
     withUnwrap(deleteFn, { reject: new Error('delete failed') });
 
@@ -285,7 +340,9 @@ describe('WorkflowIndexPage', () => {
     await userEvent.click(screen.getAllByText('delete')[0]);
 
     await waitFor(() => expect(deleteFn).toHaveBeenCalledWith({ id: '1' }));
-    expect(notify.error).toHaveBeenCalledWith('خطا در حذف گردش کار! لطفاً دوباره تلاش کنید');
+    expect(notify.error).toHaveBeenCalledWith(
+      'خطا در حذف گردش کار! لطفاً دوباره تلاش کنید'
+    );
     expect(screen.getByText('WF 1')).toBeInTheDocument();
   });
 });
