@@ -9,9 +9,9 @@ import {
 } from 'store/api/ai-features/workflowApi';
 import { notify } from '../../../components/ui/toast';
 import { WorkflowIndexLoading } from './WorkflowIndexLoading';
-import Error from '@components/Error';
-import Icon from '@components/ui/Icon';
-import WorkflowCard from '@components/workflow/WorkflowCard';
+import Error from '../../../components/Error';
+import Icon from '../../../components/ui/Icon';
+import WorkflowCard from '../../../components/workflow/WorkflowCard';
 
 /**
  * WorkflowIndexPage Component - Main page for displaying and managing workflows
