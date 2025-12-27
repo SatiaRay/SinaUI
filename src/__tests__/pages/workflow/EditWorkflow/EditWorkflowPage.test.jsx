@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Mock: toast notifications
  */
-jest.mock('../../../components/ui/toast', () => ({
+jest.mock('../../../../components/ui/toast', () => ({
   notify: { success: jest.fn(), error: jest.fn() },
 }));
 
@@ -27,14 +27,14 @@ jest.mock('react-router-dom', () => ({
 /**
  * Mock: Spinner component
  */
-jest.mock('../../../components/ui/sppiner', () => ({
+jest.mock('../../../../components/ui/sppiner', () => ({
   Sppiner: ({ size }) => <div data-testid="spinner">spinner-{size}</div>,
 }));
 
 /**
  * Mock: Dropdown
  */
-jest.mock('../../../components/ui/CustomDropdown', () => (props) => (
+jest.mock('../../../../components/ui/CustomDropdown', () => (props) => (
   <div data-testid="dropdown">
     <button onClick={() => props.onChange('1')}>set-active</button>
     <div>value:{props.value}</div>
@@ -44,14 +44,14 @@ jest.mock('../../../components/ui/CustomDropdown', () => (props) => (
 /**
  * Mock: Loading placeholder
  */
-jest.mock('./EditWorkflowLoading', () => ({
+jest.mock('../../../../pages/workflow/EditWorkflow/EditWorkflowLoading', () => ({
   EditWorkflowLoading: () => <div data-testid="loading">loading</div>,
 }));
 
 /**
  * Mock: WorkflowEditor
  */
-jest.mock('../../../components/workflow/WorkflowEditor', () => (props) => (
+jest.mock('../../../../components/workflow/WorkflowEditor', () => (props) => (
   <div data-testid="workflow-editor">
     <div>initFlow:{props.initFlow ? 'yes' : 'no'}</div>
     <button
@@ -94,7 +94,7 @@ jest.mock('store/api/ai-features/workflowApi', () => ({
 /**
  * Import after mocks
  */
-const EditWorkflowPage = require('./EditWorkflowPage').default;
+const EditWorkflowPage = require('../../../../pages/workflow/EditWorkflow/EditWorkflowPage').default;
 
 describe('EditWorkflowPage', () => {
   beforeEach(() => {
@@ -226,7 +226,7 @@ describe('EditWorkflowPage', () => {
    * Test: update failure shows toast error
    */
   test('update failure shows error toast', async () => {
-    const { notify } = require('../../../components/ui/toast');
+    const { notify } = require('../../../../components/ui/toast');
 
     mockGetState = {
       data: { id: 'wf-123', name: 'WF Name', status: '1', flow: { a: 1 } },

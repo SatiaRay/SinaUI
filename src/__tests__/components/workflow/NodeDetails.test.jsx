@@ -2,13 +2,13 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import NodeDetails from './NodeDetails';
-import { notify } from '../ui/toast';
+import NodeDetails from '../../../components/workflow/NodeDetails';
+import { notify } from '../../../components/ui/toast';
 
 /**
  * Mock: Toast notifications
  */
-jest.mock('../ui/toast', () => ({
+jest.mock('../../../components/ui/toast', () => ({
   notify: { success: jest.fn(), error: jest.fn() },
 }));
 

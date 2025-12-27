@@ -2,12 +2,12 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import WorkflowCard from './WorkflowCard';
+import WorkflowCard from '../../../components/workflow/WorkflowCard';
 
 /**
  * Mock: Icon + Router navigation
  */
-jest.mock('../ui/Icon', () => () => <span data-testid="icon" />);
+jest.mock('../../../components/ui/Icon', () => () => <span data-testid="icon" />);
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

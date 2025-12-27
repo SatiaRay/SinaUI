@@ -2,13 +2,13 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import WorkflowEditorSidebar from './WorkflowEditorSidebar';
+import WorkflowEditorSidebar from '../../../components/workflow/WorkflowEditorSidebar';
 
 /**
  * Mock: Icon component
  * Render predictable test ids for icons.
  */
-jest.mock('../ui/Icon', () => (props) => (
+jest.mock('../../../components/ui/Icon', () => (props) => (
   <span data-testid={`icon-${props.name || 'Icon'}`} />
 ));
 

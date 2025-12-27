@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { EditWorkflowLoading } from './EditWorkflowLoading';
+import { EditWorkflowLoading } from '../../../../pages/workflow/EditWorkflow/EditWorkflowLoading';
 
 /**
  * Mock: Skeleton

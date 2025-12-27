@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Mock: toast notifications
  */
-jest.mock('../ui/toast', () => ({
+jest.mock('../../../components/ui/toast', () => ({
   notify: { success: jest.fn(), error: jest.fn() },
 }));
 
@@ -21,7 +21,7 @@ jest.mock(
 );
 
 jest.mock(
-  '../../contexts/ThemeContext',
+  '../../../contexts/ThemeContext',
   () => ({
     useTheme: () => ({ theme: 'light' }),
   }),
@@ -56,7 +56,7 @@ jest.mock('uuid', () => ({
 /**
  * Mock: workflow utility helpers
  */
-jest.mock('../../utils/workflowUtility', () => ({
+jest.mock('../../../utils/workflowUtility', () => ({
   extractNodes: (workflowData) =>
     workflowData?.nodes ?? [
       {
@@ -79,7 +79,7 @@ jest.mock('../../utils/workflowUtility', () => ({
  * Mock: API endpoints
  */
 const mockGetFunctionsMap = jest.fn();
-jest.mock('../../utils/apis', () => ({
+jest.mock('../../../utils/apis', () => ({
   aiFunctionsEndpoints: {
     getFunctionsMap: (...args) => mockGetFunctionsMap(...args),
   },
@@ -88,7 +88,7 @@ jest.mock('../../utils/apis', () => ({
 /**
  * Mock: child components
  */
-jest.mock('./NodeDetails', () => (props) => (
+jest.mock('../../../components/workflow/NodeDetails', () => (props) => (
   <div data-testid="node-details">
     <div>NodeDetails for: {props.node?.id}</div>
     <button onClick={props.onClose}>close-node-details</button>
@@ -96,7 +96,7 @@ jest.mock('./NodeDetails', () => (props) => (
 ));
 
 jest.mock(
-  './PageViewer',
+  '../../../components/workflow/PageViewer',
   () => (props) =>
     props.pageConfig?.showPage ? (
       <div data-testid="page-viewer">
@@ -109,7 +109,7 @@ jest.mock(
 /**
  * Mock: Sidebar
  */
-jest.mock('./WorkflowEditorSidebar', () => (props) => (
+jest.mock('../../../components/workflow/WorkflowEditorSidebar', () => (props) => (
   <div data-testid="sidebar">
     <button onClick={() => props.addNode('process')}>add-process</button>
     <button onClick={() => props.addNode('function')}>add-function</button>
@@ -161,7 +161,7 @@ jest.mock('reactflow', () => {
 /**
  * Lazy import after mocks (important for Jest)
  */
-const WorkflowEditor = require('./WorkflowEditor').default;
+const WorkflowEditor = require('../../../components/workflow/WorkflowEditor').default;
 
 describe('WorkflowEditor', () => {
   beforeEach(() => {

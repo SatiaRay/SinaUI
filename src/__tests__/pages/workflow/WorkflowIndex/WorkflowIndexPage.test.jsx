@@ -1,10 +1,9 @@
-import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
-import WorkflowIndexPage from './WorkflowIndexPage';
+import WorkflowIndexPage from '../../../../pages/workflow/WorkflowIndex/WorkflowIndexPage';
 import {
   useGetAllWorkflowsQuery,
   useExportWorkflowMutation,
@@ -12,7 +11,8 @@ import {
   useDeleteWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
 import Swal from 'sweetalert2';
-import { notify } from '../../../components/ui/toast';
+import { notify } from '../../../../components/ui/toast';
+
 
 /**
  * Mocks: RTK Query hooks
@@ -32,26 +32,26 @@ jest.mock('sweetalert2', () => ({
   showLoading: jest.fn(),
   close: jest.fn(),
 }));
-jest.mock('../../../components/ui/toast', () => ({
+jest.mock('../../../../components/ui/toast', () => ({
   notify: { success: jest.fn(), error: jest.fn() },
 }));
 
 /**
  * UI Mocks: Keep DOM small and stable for assertions
  */
-jest.mock('./WorkflowIndexLoading', () => ({
+jest.mock('../../../../pages/workflow/WorkflowIndex/WorkflowIndexLoading', () => ({
   WorkflowIndexLoading: () => <div data-testid="index-loading">loading...</div>,
 }));
-jest.mock('../../../components/Error', () => (p) => (
+jest.mock('../../../../components/Error', () => (p) => (
   <div data-testid="error">
     error <button onClick={p.onRetry}>retry</button>
   </div>
 ));
-jest.mock('../../../components/ui/Icon', () => () => (
+jest.mock('../../../../components/ui/Icon', () => () => (
   <span data-testid="icon" />
 ));
 jest.mock(
-  '../../../components/workflow/WorkflowCard',
+  '../../../../components/workflow/WorkflowCard',
   () =>
     ({ workflow, handleDelete, handleDownload }) => (
       <div data-testid="workflow-card">
