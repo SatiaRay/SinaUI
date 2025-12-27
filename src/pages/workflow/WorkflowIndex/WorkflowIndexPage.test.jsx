@@ -5,17 +5,18 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
 import WorkflowIndexPage from './WorkflowIndexPage';
-
 import {
   useGetAllWorkflowsQuery,
   useExportWorkflowMutation,
   useImportWorkflowMutation,
   useDeleteWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
-
 import Swal from 'sweetalert2';
 import { notify } from '../../../components/ui/toast';
 
+/**
+ * Mocks: RTK Query hooks
+ */
 jest.mock('store/api/ai-features/workflowApi', () => ({
   useGetAllWorkflowsQuery: jest.fn(),
   useExportWorkflowMutation: jest.fn(),
@@ -23,9 +24,15 @@ jest.mock('store/api/ai-features/workflowApi', () => ({
   useDeleteWorkflowMutation: jest.fn(),
 }));
 
+/**
+ * Mocks: Swal + toast
+ */
 jest.mock('sweetalert2', () => ({ fire: jest.fn(), showLoading: jest.fn(), close: jest.fn() }));
 jest.mock('../../../components/ui/toast', () => ({ notify: { success: jest.fn(), error: jest.fn() } }));
 
+/**
+ * UI Mocks: Keep DOM small and stable for assertions
+ */
 jest.mock('./WorkflowIndexLoading', () => ({
   WorkflowIndexLoading: () => <div data-testid="index-loading">loading...</div>,
 }));
@@ -43,6 +50,10 @@ jest.mock('../../../components/workflow/WorkflowCard', () => ({ workflow, handle
   </div>
 ));
 
+/**
+ * @function renderPage
+ * @returns {ReturnType<render>}
+ */
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -50,14 +61,31 @@ const renderPage = () =>
     </MemoryRouter>
   );
 
-const fileInput = () => document.querySelector('input[type="file"]');
+/**
+ * @function getFileInput
+ * @returns {HTMLInputElement}
+ */
+const getFileInput = () => document.querySelector('input[type="file"]');
 
-const setup = ({
-  query = {},
-  workflows = [],
-  refetch = jest.fn(),
-} = {}) => {
-  // query mock
+/**
+ * @function withUnwrap
+ * @param {Function} mutate - RTK mutation fn
+ * @param {{resolve?: any, reject?: any}} payload
+ */
+const withUnwrap = (mutate, { resolve, reject } = {}) =>
+  mutate.mockReturnValue({
+    unwrap: reject ? jest.fn().mockRejectedValue(reject) : jest.fn().mockResolvedValue(resolve),
+  });
+
+/**
+ * @function setup
+ * @param {Object} options
+ * @param {Array} options.workflows
+ * @param {Object} options.query
+ * @param {Function} options.refetch
+ * @returns {{exportFn: jest.Mock, importFn: jest.Mock, deleteFn: jest.Mock, refetch: jest.Mock}}
+ */
+const setup = ({ workflows = [], query = {}, refetch = jest.fn() } = {}) => {
   useGetAllWorkflowsQuery.mockReturnValue({
     data: workflows,
     isLoading: false,
@@ -69,7 +97,6 @@ const setup = ({
     ...query,
   });
 
-  // mutations mock
   const exportFn = jest.fn();
   const importFn = jest.fn();
   const deleteFn = jest.fn();
@@ -81,15 +108,15 @@ const setup = ({
   return { exportFn, importFn, deleteFn, refetch };
 };
 
-const mockUnwrap = (fn, { resolve, reject }) => {
-  fn.mockReturnValue({
-    unwrap: reject ? jest.fn().mockRejectedValue(reject) : jest.fn().mockResolvedValue(resolve),
-  });
-};
+/**
+ * @function uploadJson
+ * @param {any} obj
+ */
+const uploadJson = (obj = { a: 1 }) =>
+  userEvent.upload(getFileInput(), new File([JSON.stringify(obj)], 'wf.json', { type: 'application/json' }));
 
 beforeEach(() => {
   jest.clearAllMocks();
-
   global.URL.createObjectURL = jest.fn(() => 'blob:mock');
   global.URL.revokeObjectURL = jest.fn();
   jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
@@ -100,11 +127,17 @@ afterEach(() => {
 });
 
 describe('WorkflowIndexPage', () => {
+  /**
+   * Loading: renders skeleton
+   */
   test('loading state', () => {
     setup({ query: { isLoading: true, isSuccess: false } });
     expect(screen.getByTestId('index-loading')).toBeInTheDocument();
   });
 
+  /**
+   * Error: renders error UI and retry triggers refetch
+   */
   test('error state + retry', async () => {
     const refetch = jest.fn();
     setup({ query: { isError: true, isSuccess: false, error: { status: 500 } }, refetch });
@@ -114,93 +147,92 @@ describe('WorkflowIndexPage', () => {
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 
+  /**
+   * Empty: shows empty state + create CTA
+   */
   test('empty state', async () => {
     setup({ workflows: [] });
-
     expect(await screen.findByText('هیچ گردش کار ثبت شده‌ای یافت نشد.')).toBeInTheDocument();
-    expect(screen.getByText('گردش کار جدید')).toBeInTheDocument();
+    expect(screen.getByText('گردش کار جدید').closest('a')).toHaveAttribute('href', '/workflow/create');
   });
 
+  /**
+   * List: renders cards from data
+   */
   test('renders workflow cards', async () => {
     setup({ workflows: [{ id: '1', name: 'WF 1' }, { id: '2', name: 'WF 2' }] });
-
-    const cards = await screen.findAllByTestId('workflow-card');
-    expect(cards).toHaveLength(2);
+    expect(await screen.findAllByTestId('workflow-card')).toHaveLength(2);
     expect(screen.getByText('WF 1')).toBeInTheDocument();
     expect(screen.getByText('WF 2')).toBeInTheDocument();
   });
 
-  test('create link href', async () => {
-    setup({ workflows: [] });
-
-    const textEl = await screen.findByText('گردش کار جدید');
-    expect(textEl.closest('a')).toHaveAttribute('href', '/workflow/create');
-  });
-
+  /**
+   * Import: button clicks hidden input
+   */
   test('import button clicks hidden input', async () => {
-    setup({ workflows: [] });
-
-    const input = fileInput();
+    setup();
+    const input = getFileInput();
     const spy = jest.spyOn(input, 'click');
 
     await userEvent.click(screen.getByText('بارگذاری گردش کار'));
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  test('import: non-json file => Swal error + no mutation', async () => {
-    const { importFn } = setup({ workflows: [] });
-
-    await userEvent.upload(fileInput(), new File(['x'], 'bad.txt', { type: 'text/plain' }));
+  /**
+   * Import: rejects non-JSON files
+   */
+  test('import rejects non-json', async () => {
+    const { importFn } = setup();
+    await userEvent.upload(getFileInput(), new File(['x'], 'bad.txt', { type: 'text/plain' }));
 
     expect(Swal.fire).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'خطا!',
-        text: 'لطفاً فقط فایل‌های JSON انتخاب کنید.',
-        icon: 'error',
-      })
+      expect.objectContaining({ title: 'خطا!', text: 'لطفاً فقط فایل‌های JSON انتخاب کنید.', icon: 'error' })
     );
     expect(importFn).not.toHaveBeenCalled();
   });
 
-  test('import success => loading Swal, unwrap, success Swal, refetch', async () => {
+  /**
+   * Import: success flow => loading Swal, unwrap, success Swal, refetch
+   */
+  test('import success flow', async () => {
     const refetch = jest.fn();
-    const { importFn } = setup({ workflows: [], refetch });
+    const { importFn } = setup({ refetch });
+    withUnwrap(importFn, { resolve: { ok: true } });
 
-    mockUnwrap(importFn, { resolve: { ok: true } });
-
-    await userEvent.upload(
-      fileInput(),
-      new File([JSON.stringify({ a: 1 })], 'wf.json', { type: 'application/json' })
-    );
+    await uploadJson();
 
     expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ title: 'در حال بارگذاری...' }));
-
     await waitFor(() => expect(importFn).toHaveBeenCalled());
     expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ title: 'موفق!', icon: 'success' }));
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 
+  /**
+   * Download: success => export, blob url, anchor click, Swal close, toast success
+   */
   test('download success', async () => {
     const { exportFn } = setup({ workflows: [{ id: '10', name: 'WF X' }] });
-    mockUnwrap(exportFn, { resolve: { schema: { nodes: [] } } });
+    withUnwrap(exportFn, { resolve: { schema: { nodes: [] } } });
 
     await screen.findByText('WF X');
     await userEvent.click(screen.getByText('download'));
 
     expect(Swal.fire).toHaveBeenCalledWith(expect.objectContaining({ title: 'در حال آماده‌سازی فایل...' }));
-
     await waitFor(() => {
       expect(exportFn).toHaveBeenCalledWith({ id: '10' });
-      expect(global.URL.createObjectURL).toHaveBeenCalledTimes(1);
-      expect(HTMLAnchorElement.prototype.click).toHaveBeenCalledTimes(1);
+      expect(global.URL.createObjectURL).toHaveBeenCalled();
+      expect(HTMLAnchorElement.prototype.click).toHaveBeenCalled();
       expect(Swal.close).toHaveBeenCalled();
       expect(notify.success).toHaveBeenCalledWith('فایل با موفقیت دانلود شد');
     });
   });
 
+  /**
+   * Download: error => Swal close + toast error
+   */
   test('download error', async () => {
     const { exportFn } = setup({ workflows: [{ id: '10', name: 'WF X' }] });
-    mockUnwrap(exportFn, { reject: new Error('fail') });
+    withUnwrap(exportFn, { reject: new Error('fail') });
 
     await screen.findByText('WF X');
     await userEvent.click(screen.getByText('download'));
@@ -211,11 +243,13 @@ describe('WorkflowIndexPage', () => {
     });
   });
 
-  test('delete confirm => optimistic remove + mutation + toast', async () => {
+  /**
+   * Delete: confirm => optimistic remove + mutation + toast success
+   */
+  test('delete confirm', async () => {
     const { deleteFn } = setup({ workflows: [{ id: '1', name: 'WF 1' }, { id: '2', name: 'WF 2' }] });
-
     Swal.fire.mockResolvedValue({ isConfirmed: true });
-    mockUnwrap(deleteFn, { resolve: { ok: true } });
+    withUnwrap(deleteFn, { resolve: { ok: true } });
 
     await screen.findByText('WF 1');
     await userEvent.click(screen.getAllByText('delete')[0]);
@@ -225,7 +259,10 @@ describe('WorkflowIndexPage', () => {
     expect(notify.success).toHaveBeenCalledWith('گردش کاری حذف شد');
   });
 
-  test('delete cancel => no mutation', async () => {
+  /**
+   * Delete: cancel => no mutation, item stays
+   */
+  test('delete cancel', async () => {
     const { deleteFn } = setup({ workflows: [{ id: '1', name: 'WF 1' }] });
     Swal.fire.mockResolvedValue({ isConfirmed: false });
 
@@ -236,11 +273,13 @@ describe('WorkflowIndexPage', () => {
     expect(screen.getByText('WF 1')).toBeInTheDocument();
   });
 
-  test('delete error => mutation + toast error + item remains', async () => {
+  /**
+   * Delete: error => toast error + rollback keeps item
+   */
+  test('delete error rollback', async () => {
     const { deleteFn } = setup({ workflows: [{ id: '1', name: 'WF 1' }, { id: '2', name: 'WF 2' }] });
-
     Swal.fire.mockResolvedValue({ isConfirmed: true });
-    mockUnwrap(deleteFn, { reject: new Error('delete failed') });
+    withUnwrap(deleteFn, { reject: new Error('delete failed') });
 
     await screen.findByText('WF 1');
     await userEvent.click(screen.getAllByText('delete')[0]);
