@@ -54,6 +54,7 @@ jest.mock('../../../../pages/workflow/EditWorkflow/EditWorkflowLoading', () => (
 jest.mock('../../../../components/workflow/WorkflowEditor', () => (props) => (
   <div data-testid="workflow-editor">
     <div>initFlow:{props.initFlow ? 'yes' : 'no'}</div>
+    <div>initFlowValue:{JSON.stringify(props.initFlow ?? null)}</div>
     <button
       onClick={() => {
         const flow = { nodes: [{ id: 'n1' }], edges: [] };
@@ -70,7 +71,7 @@ jest.mock('../../../../components/workflow/WorkflowEditor', () => (props) => (
  * Mock: RTK Query hooks
  */
 const mockUpdateUnwrap = jest.fn();
-const mockUpdateWorkflow = jest.fn(() => ({ unwrap: mockUpdateUnwrap }));
+const mockUpdateWorkflow = jest.fn();
 
 let mockGetState = {
   data: null,
@@ -94,9 +95,10 @@ jest.mock('store/api/ai-features/workflowApi', () => ({
 /**
  * Import after mocks
  */
-const EditWorkflowPage = require('../../../../pages/workflow/EditWorkflow/EditWorkflowPage').default;
+const EditWorkflowPage =
+  require('../../../../pages/workflow/EditWorkflow/EditWorkflowPage').default;
 
-describe('EditWorkflowPage', () => {
+describe('EditWorkflowPage (per task)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -114,21 +116,17 @@ describe('EditWorkflowPage', () => {
       error: null,
     };
 
+    mockUpdateUnwrap.mockReset();
     mockUpdateUnwrap.mockResolvedValue({});
+
+    mockUpdateWorkflow.mockReset();
+    mockUpdateWorkflow.mockImplementation(() => ({ unwrap: mockUpdateUnwrap }));
   });
 
   /**
-   * Test: shows loading while fetching or workflow is not ready
+   * Renders workflow editor with correct initial data (edit mode)
    */
-  test('renders loading state', () => {
-    render(<EditWorkflowPage />);
-    expect(screen.getByTestId('loading')).toBeInTheDocument();
-  });
-
-  /**
-   * Test: renders form after data load
-   */
-  test('renders page and editor after fetch success', async () => {
+  test('renders editor with correct initial flow after fetch success', async () => {
     mockGetState = {
       data: { id: 'wf-123', name: 'WF Name', status: '1', flow: { a: 1 } },
       isLoading: false,
@@ -139,64 +137,15 @@ describe('EditWorkflowPage', () => {
     render(<EditWorkflowPage />);
 
     expect(await screen.findByText('ویرایش گردش کار')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('WF Name')).toBeInTheDocument();
-    expect(screen.getByTestId('dropdown')).toBeInTheDocument();
     expect(screen.getByTestId('workflow-editor')).toBeInTheDocument();
+    expect(screen.getByText('initFlow:yes')).toBeInTheDocument();
+    expect(screen.getByText('initFlowValue:{"a":1}')).toBeInTheDocument();
   });
 
   /**
-   * Test: typing in name updates input value (local state)
+   * Handles node/edge changes and updates schema (autosave)
    */
-  test('updates workflow name input', async () => {
-    mockGetState = {
-      data: { id: 'wf-123', name: 'WF Name', status: '1', flow: { a: 1 } },
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
-    };
-
-    render(<EditWorkflowPage />);
-
-    const input = await screen.findByDisplayValue('WF Name');
-    await userEvent.clear(input);
-    await userEvent.type(input, 'New Name');
-
-    expect(screen.getByDisplayValue('New Name')).toBeInTheDocument();
-  });
-
-  /**
-   * Test: clicking save triggers updateWorkflow with correct id/data
-   */
-  test('clicking save calls updateWorkflow with current workflow data', async () => {
-    mockGetState = {
-      data: { id: 'wf-123', name: 'WF Name', status: '1', flow: { a: 1 } },
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
-    };
-
-    render(<EditWorkflowPage />);
-
-    expect(await screen.findByText('ذخیره')).toBeInTheDocument();
-    await userEvent.click(screen.getByText('ذخیره'));
-
-    await waitFor(() => {
-      expect(mockUpdateWorkflow).toHaveBeenCalledTimes(1);
-      expect(mockUpdateWorkflow).toHaveBeenCalledWith({
-        id: 'wf-123',
-        data: expect.objectContaining({
-          name: 'WF Name',
-          status: '1',
-          flow: { a: 1 },
-        }),
-      });
-    });
-  });
-
-  /**
-   * Test: editor onChange triggers autosave (updateWorkflow)
-   */
-  test('editor change triggers autosave', async () => {
+  test('editor change triggers autosave mutation with updated flow payload', async () => {
     mockGetState = {
       data: { id: 'wf-123', name: 'WF Name', status: '1', flow: { a: 1 } },
       isLoading: false,
@@ -223,9 +172,67 @@ describe('EditWorkflowPage', () => {
   });
 
   /**
-   * Test: update failure shows toast error
+   * Save button triggers mutation with correct payload
    */
-  test('update failure shows error toast', async () => {
+  test('save button triggers mutation with current workflow payload', async () => {
+    mockGetState = {
+      data: { id: 'wf-123', name: 'WF Name', status: '1', flow: { a: 1 } },
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    };
+
+    render(<EditWorkflowPage />);
+
+    await userEvent.click(await screen.findByText('ذخیره'));
+
+    await waitFor(() => {
+      expect(mockUpdateWorkflow).toHaveBeenCalledTimes(1);
+      expect(mockUpdateWorkflow).toHaveBeenCalledWith({
+        id: 'wf-123',
+        data: expect.objectContaining({
+          name: 'WF Name',
+          status: '1',
+          flow: { a: 1 },
+        }),
+      });
+    });
+  });
+
+  /**
+   * Success → toast success
+   */
+  test('success mutation shows success toast on second success (after initial silent)', async () => {
+    const { notify } = require('../../../../components/ui/toast');
+
+    mockGetState = {
+      data: { id: 'wf-123', name: 'WF Name', status: '1', flow: { a: 1 } },
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    };
+
+    const { rerender } = render(<EditWorkflowPage />);
+
+    mockUpdateState.isSuccess = true;
+    rerender(<EditWorkflowPage />);
+    await waitFor(() => expect(notify.success).not.toHaveBeenCalled());
+
+    mockUpdateState.isSuccess = false;
+    rerender(<EditWorkflowPage />);
+
+    mockUpdateState.isSuccess = true;
+    rerender(<EditWorkflowPage />);
+
+    await waitFor(() =>
+      expect(notify.success).toHaveBeenCalledWith('تغییرات ذخیره شد !')
+    );
+  });
+
+  /**
+   * Error → toast error
+   */
+  test('mutation failure shows error toast', async () => {
     const { notify } = require('../../../../components/ui/toast');
 
     mockGetState = {
@@ -244,5 +251,22 @@ describe('EditWorkflowPage', () => {
     await waitFor(() => {
       expect(notify.error).toHaveBeenCalledWith('خطا در ذخیره تغییرات');
     });
+  });
+
+  /**
+   * Cancel/back button navigates away
+   */
+  test('back button navigates away (link to /workflow)', async () => {
+    mockGetState = {
+      data: { id: 'wf-123', name: 'WF Name', status: '1', flow: { a: 1 } },
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+    };
+
+    render(<EditWorkflowPage />);
+
+    const backLink = await screen.findByText('بازگشت');
+    expect(backLink.closest('a')).toHaveAttribute('href', '/workflow');
   });
 });

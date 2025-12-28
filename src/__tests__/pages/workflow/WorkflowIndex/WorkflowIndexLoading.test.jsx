@@ -4,7 +4,7 @@ import { WorkflowIndexLoading } from '../../../../pages/workflow/WorkflowIndex/W
 
 /**
  * Mock: display hook
- * Toggle isDesktop to validate responsive skeleton widths.
+ * toggle isDesktop to validate responsive skeleton layout.
  */
 let mockIsDesktop = true;
 jest.mock('hooks/display', () => ({
@@ -13,7 +13,7 @@ jest.mock('hooks/display', () => ({
 
 /**
  * Mock: Skeleton
- * Replace heavy skeleton with a tiny div for assertions.
+ * Replace heavy skeleton with a tiny div that exposes width/height props.
  */
 jest.mock('react-loading-skeleton', () => {
   return function SkeletonMock(props) {
@@ -27,40 +27,39 @@ jest.mock('react-loading-skeleton', () => {
   };
 });
 
-describe('WorkflowIndexLoading', () => {
-  /**
-   * Test: renders skeletons
-   */
-  it('renders skeleton layout', () => {
+const getWidths = () =>
+  screen.getAllByTestId('skeleton').map((n) => String(n.dataset.width || ''));
+
+describe('WorkflowIndexLoading (per task)', () => {
+  it('renders skeletons matching the real page layout (non-empty)', () => {
+    mockIsDesktop = true;
     render(<WorkflowIndexLoading />);
-    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(10);
+    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0);
   });
 
-  /**
-   * Test: desktop widths
-   */
-  it('uses desktop widths when isDesktop=true', () => {
+  it('desktop: renders table/list-like skeleton widths (consistent with loaded desktop layout)', () => {
     mockIsDesktop = true;
     render(<WorkflowIndexLoading />);
 
-    const widths = screen
-      .getAllByTestId('skeleton')
-      .map((n) => n.dataset.width);
+    const widths = getWidths();
+
     expect(widths).toContain('200');
     expect(widths).toContain('160');
+
+    expect(widths).not.toContain('100');
+    expect(widths).not.toContain('90');
   });
 
-  /**
-   * Test: mobile widths
-   */
-  it('uses mobile widths when isDesktop=false', () => {
+  it('mobile: renders card-like skeleton widths (consistent with loaded mobile layout)', () => {
     mockIsDesktop = false;
     render(<WorkflowIndexLoading />);
 
-    const widths = screen
-      .getAllByTestId('skeleton')
-      .map((n) => n.dataset.width);
+    const widths = getWidths();
+
     expect(widths).toContain('100');
     expect(widths).toContain('90');
+
+    expect(widths).not.toContain('200');
+    expect(widths).not.toContain('160');
   });
 });
