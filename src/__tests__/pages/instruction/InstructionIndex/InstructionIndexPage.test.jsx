@@ -1,5 +1,5 @@
 /**
- * InstructionIndexPage unit tests (Jest + React Testing Library)
+ * InstructionIndexPage unit tests
  * Covers loading, error, empty, list rendering, link navigation, and delete flow with RTK Query mocking.
  */
 import React from 'react';
@@ -31,7 +31,7 @@ jest.mock('../../../../components/ui/Icon', () => () => null);
 
 let paginationProps;
 /**
- * Pagination mock to capture props (JSON.stringify drops functions)
+ * Pagination mock to capture props 
  */
 jest.mock('../../../../components/ui/pagination', () => ({
   Pagination: (props) => ((paginationProps = props), <div data-testid="pagination" />),
@@ -111,7 +111,7 @@ describe('InstructionIndexPage', () => {
     mockDelete();
 
     /**
-     * Console trap helper (throws on unexpected warnings/errors)
+     * Console trap helper 
      */
     const trap = (type) =>
       jest.spyOn(console, type).mockImplementation((...a) => {
