@@ -20,7 +20,7 @@ jest.mock('../../../../components/ui/loading/skeletonLoading', () => ({
 }));
 
 /**
- * Silence known noisy warnings (React 18 act warning in RTL)
+ * Silence known noisy warnings
  */
 const isNoisy = (msg) => String(msg).includes('ReactDOMTestUtils.act');
 
