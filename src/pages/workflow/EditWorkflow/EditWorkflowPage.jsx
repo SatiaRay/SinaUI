@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { notify } from '@components/ui/toast';
-import { Sppiner } from '@components/ui/sppiner';
+import { notify } from '../../../components/ui/toast';
+import { Sppiner } from '../../../components/ui/sppiner';
 import {
   useGetWorkflowQuery,
   useUpdateWorkflowMutation,
 } from 'store/api/ai-features/workflowApi';
-import CustomDropdown from '@components/ui/CustomDropdown';
+import CustomDropdown from '../../../components/ui/CustomDropdown';
 import { EditWorkflowLoading } from './EditWorkflowLoading';
-import WorkflowEditor from '@components/workflow/WorkflowEditor';
+import WorkflowEditor from '../../../components/workflow/WorkflowEditor';
 
 const EditWorkflowPage = () => {
   /**
