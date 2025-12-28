@@ -3,7 +3,7 @@ import {
   DEFAULT_AGENTS,
   validateDomain,
   makeNewIntegration,
-} from './Contract';
+} from '../../pages/integration/Contract';
 
 /**
  * LocalStorage Helpers

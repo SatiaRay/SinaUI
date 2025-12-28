@@ -6,7 +6,7 @@ import {
   createIntegration,
   deleteIntegration,
   updateIntegration,
-} from '../IntegrationsStore';
+} from '../../../components/integration/IntegrationsStore';
 
 import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
@@ -15,7 +15,7 @@ import { Sppiner } from '../../../components/ui/sppiner';
 import IntegrationForm from '../../../components/integration/IntegrationForm';
 import EmbedSnippet from '../../../components/integration/EmbedSnippet';
 import IntegrationsList from '../../../components/integration/IntegrationsList';
-import WidgetPreview from '../../../components/integration/WidgetPreview';
+import WidgetPreview from '../../../components/integration/PreviewCard';
 import EditIntegrationModal from '../../../components/integration/EditIntegrationModal';
 
 import { ChatIntegrationsLoading } from './IntegrationIndexLoading';
