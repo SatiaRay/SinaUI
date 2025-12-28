@@ -50,7 +50,7 @@ describe('WorkflowEditorSidebar', () => {
   });
 
   /**
-   * Test: On mount, it posts SHOW_NAVBAR when fullscreen=false.
+   * On mount, it posts SHOW_NAVBAR when fullscreen=false.
    */
   test('posts SHOW_NAVBAR on mount when fullscreen=false', () => {
     renderSidebar({ fullscreen: false });
@@ -61,7 +61,7 @@ describe('WorkflowEditorSidebar', () => {
   });
 
   /**
-   * Test: On mount, it posts HIDE_NAVBAR when fullscreen=true.
+   * On mount, it posts HIDE_NAVBAR when fullscreen=true.
    */
   test('posts HIDE_NAVBAR on mount when fullscreen=true', () => {
     renderSidebar({ fullscreen: true });
@@ -72,7 +72,7 @@ describe('WorkflowEditorSidebar', () => {
   });
 
   /**
-   * Test: Node buttons call addNode with correct type.
+   * Node buttons call addNode with correct type.
    */
   test('clicking node buttons calls addNode with correct type', async () => {
     const { addNode } = renderSidebar();
@@ -111,7 +111,7 @@ describe('WorkflowEditorSidebar', () => {
   });
 
   /**
-   * Test: Fullscreen toggle calls setFullscreen with inverted value.
+   * Fullscreen toggle calls setFullscreen with inverted value.
    */
   test('fullscreen toggle calls setFullscreen with inverted value', async () => {
     const setFullscreen = jest.fn();
@@ -126,7 +126,7 @@ describe('WorkflowEditorSidebar', () => {
   });
 
   /**
-   * Test: When fullscreen=true, shows Minimize icon and toggles back to false.
+   * When fullscreen=true, shows Minimize icon and toggles back to false.
    */
   test('when fullscreen=true, shows Minimize icon and toggles to false', async () => {
     const setFullscreen = jest.fn();
@@ -139,7 +139,7 @@ describe('WorkflowEditorSidebar', () => {
   });
 
   /**
-   * Test: Mobile overlay is visible only when extended && !isDesktop.
+   * Mobile overlay is visible only when extended && !isDesktop.
    */
   test('mobile overlay is visible only on mobile when extended=true', async () => {
     mockUseDisplay.mockReturnValue({ isDesktop: false });

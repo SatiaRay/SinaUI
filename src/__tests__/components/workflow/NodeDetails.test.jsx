@@ -93,7 +93,7 @@ describe('NodeDetails', () => {
   });
 
   /**
-   * Test: Renders correct title based on node type
+   * Renders correct title based on node type
    */
   test('renders title "ویرایش <type>"', () => {
     renderModal({ node: { type: 'function' } });
@@ -103,7 +103,7 @@ describe('NodeDetails', () => {
   });
 
   /**
-   * Test: Non-decision nodes do not show conditions section
+   * Non-decision nodes do not show conditions section
    */
   test('does not show conditions section for non-decision nodes', () => {
     renderModal({ node: { type: 'process' } });
@@ -111,7 +111,7 @@ describe('NodeDetails', () => {
   });
 
   /**
-   * Test: Decision node can add/remove/update conditions
+   * Decision node can add/remove/update conditions
    */
   test('decision node: can add/remove/update conditions', async () => {
     renderModal({
@@ -136,7 +136,7 @@ describe('NodeDetails', () => {
   });
 
   /**
-   * Test: Save calls onUpdate with filtered conditions, shows success toast, and closes modal
+   * save calls onUpdate with filtered conditions, shows success toast, and closes modal
    */
   test('save: calls onUpdate, shows success toast, and calls onClose', async () => {
     const onUpdate = jest.fn();
@@ -163,7 +163,7 @@ describe('NodeDetails', () => {
   });
 
   /**
-   * Test: Cancel button closes the modal
+   * Cancel button closes the modal
    */
   test('cancel: calls onClose', async () => {
     const onClose = jest.fn();
@@ -180,7 +180,7 @@ describe('NodeDetails', () => {
   });
 
   /**
-   * Test: Delete confirmation flow
+   * Delete confirmation flow
    */
   test('delete: opens confirm modal and confirms delete', async () => {
     const onDelete = jest.fn();
@@ -198,7 +198,7 @@ describe('NodeDetails', () => {
   });
 
   /**
-   * Test: Delete confirm modal can be dismissed (confirm-layer only)
+   * Delete confirm modal can be dismissed (confirm-layer only)
    */
   test('delete: confirm modal cancel closes only confirm modal', async () => {
     renderModal({ node: { type: 'process' } });
@@ -212,10 +212,28 @@ describe('NodeDetails', () => {
   });
 
   /**
-   * Test: Save disabled state (pragmatic)
+   * Save disabled state (pragmatic)
    */
   test('save button exists', () => {
     renderModal();
     expect(screen.getByRole('button', { name: 'ذخیره' })).toBeInTheDocument();
   });
+
+  /**
+   * No console errors/warnings
+   */
+  test('save: onUpdate throws -> shows error toast and does not close', async () => {
+    const onUpdate = jest.fn(() => { throw new Error('boom') });
+    const onClose = jest.fn();
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  
+    renderModal({ onUpdate, onClose });
+  
+    await userEvent.click(screen.getByRole('button', { name: 'ذخیره' }));
+  
+    expect(notify.error).toHaveBeenCalledWith('خطا در ذخیره تغییرات');
+    expect(onClose).not.toHaveBeenCalled();
+  
+    consoleSpy.mockRestore();
+  });  
 });

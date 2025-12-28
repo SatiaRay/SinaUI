@@ -5,9 +5,13 @@ import userEvent from '@testing-library/user-event';
 import WorkflowCard from '../../../components/workflow/WorkflowCard';
 
 /**
- * Mock: Icon + Router navigation
+ * Mock: Icon (avoid svg/heavy DOM)
  */
 jest.mock('../../../components/ui/Icon', () => () => <span data-testid="icon" />);
+
+/**
+ * Mock: router navigation
+ */
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -15,9 +19,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 /**
- * @function setup
- * @param {Object} overrides
- * @returns {{workflow: any, handleDelete: jest.Mock, handleDownload: jest.Mock}}
+ * Helper: render card with defaults
  */
 const setup = (overrides = {}) => {
   const props = {
@@ -31,21 +33,25 @@ const setup = (overrides = {}) => {
     handleDownload: jest.fn(),
     ...overrides,
   };
-  render(<WorkflowCard {...props} />);
-  return props;
+
+  const utils = render(<WorkflowCard {...props} />);
+  return { ...utils, ...props };
 };
 
 beforeEach(() => jest.clearAllMocks());
 
-describe('WorkflowCard', () => {
+describe('WorkflowCard (per task)', () => {
   /**
-   * Rendering: name fallback + status badge
+   * Displays workflow name (fallback if empty)
    */
-  test('renders fallback name when empty', () => {
+  test('renders workflow name, fallback when empty', () => {
     setup({ workflow: { name: '' } });
     expect(screen.getByText('بدون نام')).toBeInTheDocument();
   });
 
+  /**
+   * Displays correct status badge text based on workflow.status
+   */
   test.each([
     ['active', true, 'فعال', 'غیرفعال'],
     ['inactive', false, 'غیرفعال', 'فعال'],
@@ -56,16 +62,22 @@ describe('WorkflowCard', () => {
   });
 
   /**
-   * Navigation: card click and edit click
+   * Card click navigates to edit page route 
    */
   test('card click navigates to /workflow/:id', async () => {
     setup({ workflow: { id: '10', name: 'WF X' } });
+
     await userEvent.click(screen.getByText('WF X'));
+
     expect(mockNavigate).toHaveBeenCalledWith('/workflow/10');
   });
 
-  test('"ویرایش" navigates and does not call handlers', async () => {
+  /**
+   * Edit action navigates to edit page and should NOT trigger delete/download handlers
+   */
+  test('edit button navigates to /workflow/:id only', async () => {
     const { handleDelete, handleDownload } = setup({ workflow: { id: '5' } });
+
     await userEvent.click(screen.getByText('ویرایش'));
 
     expect(mockNavigate).toHaveBeenCalledWith('/workflow/5');
@@ -74,18 +86,11 @@ describe('WorkflowCard', () => {
   });
 
   /**
-   * Actions: delete / download call handlers and do not navigate
+   * Download action triggers handler and must NOT navigate (stopPropagation)
    */
-  test('"حذف" calls handleDelete(id) only', async () => {
-    const { handleDelete } = setup({ workflow: { id: '7' } });
-    await userEvent.click(screen.getByText('حذف'));
-
-    expect(handleDelete).toHaveBeenCalledWith('7');
-    expect(mockNavigate).not.toHaveBeenCalled();
-  });
-
-  test('"دریافت خروجی" calls handleDownload(id) only', async () => {
+  test('download button triggers handleDownload(id) and does not navigate', async () => {
     const { handleDownload } = setup({ workflow: { id: '9' } });
+
     await userEvent.click(screen.getByText('دریافت خروجی'));
 
     expect(handleDownload).toHaveBeenCalledWith('9');
@@ -93,12 +98,44 @@ describe('WorkflowCard', () => {
   });
 
   /**
-   * Mobile: icon buttons exist (title attributes)
+   * Delete action triggers handler and must NOT navigate (stopPropagation)
    */
-  test('mobile icon buttons exist (by title)', () => {
-    setup();
+  test('delete button triggers handleDelete(id) and does not navigate', async () => {
+    const { handleDelete } = setup({ workflow: { id: '7' } });
+
+    await userEvent.click(screen.getByText('حذف'));
+
+    expect(handleDelete).toHaveBeenCalledWith('7');
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Responsive layout
+   */
+  test('has responsive action sections (desktop + mobile)', () => {
+    const { container } = setup();
+
+    const desktopActions = container.querySelector('.hidden.sm\\:flex');
+    expect(desktopActions).toBeTruthy();
+
+    const mobileActions = container.querySelector('.sm\\:hidden');
+    
+    expect(mobileActions).toBeTruthy();
     ['دریافت خروجی', 'ویرایش', 'حذف'].forEach((t) =>
       expect(screen.getByTitle(t)).toBeInTheDocument()
     );
+  });
+
+  /**
+   * Hover state
+   */
+  test('defines hover/overlay classes', () => {
+    const { container } = setup();
+
+    const root = container.querySelector('.group');
+    expect(root).toBeTruthy();
+
+    const overlay = container.querySelector('.group-hover\\:opacity-100');
+    expect(overlay).toBeTruthy();
   });
 });
