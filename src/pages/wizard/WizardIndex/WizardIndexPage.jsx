@@ -1,14 +1,14 @@
 // WizardIndexPage.js
 import React, { useState, useEffect } from 'react';
-import WizardCard from '@components/wizard/WizardCard';
+import WizardCard from '../../../components/wizard/WizardCard';
 import {
   useGetWizardsQuery,
   useDeleteWizardMutation,
 } from 'store/api/ai-features/wizardApi';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { notify } from '@components/ui/toast';
+import { notify } from '../../../components/ui/toast';
 import { Link } from 'react-router-dom';
-import Icon from '@components/ui/Icon';
+import Icon from '../../../components/ui/Icon';
 import { WizardIndexLoading } from './WizardIndexLoading';
 
 const WizardIndexPage = () => {
