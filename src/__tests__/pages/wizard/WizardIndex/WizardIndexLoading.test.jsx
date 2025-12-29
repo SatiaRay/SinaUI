@@ -44,7 +44,7 @@ describe('WizardIndexLoading', () => {
     expect(SkeletonLoading).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        rows: Math.floor(600 / 150), 
+        rows: Math.floor(600 / 150),
         cols: 3,
         height: 110,
         containerClassName: 'flex flex-row my-3',
@@ -65,7 +65,7 @@ describe('WizardIndexLoading', () => {
       2,
       expect.objectContaining({
         cols: 1,
-        rows: Math.floor(450 / 150), 
+        rows: Math.floor(450 / 150),
       }),
       {}
     );

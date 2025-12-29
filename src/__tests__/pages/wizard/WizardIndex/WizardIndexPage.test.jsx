@@ -46,18 +46,21 @@ const renderPage = () =>
   );
 
 describe('WizardIndexPage', () => {
-  const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+  const consoleError = jest
+    .spyOn(console, 'error')
+    .mockImplementation(() => {});
   const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
   const mockDeleteHook = (impl) => {
-    const trigger = impl ?? jest.fn(() => ({ unwrap: () => Promise.resolve() }));
+    const trigger =
+      impl ?? jest.fn(() => ({ unwrap: () => Promise.resolve() }));
     useDeleteWizardMutation.mockReturnValue([trigger]);
     return trigger;
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockDeleteHook(); 
+    mockDeleteHook();
   });
 
   afterAll(() => {
@@ -110,7 +113,9 @@ describe('WizardIndexPage', () => {
     });
 
     renderPage();
-    expect(await screen.findByText('هیچ ویزاردی یافت نشد.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('هیچ ویزاردی یافت نشد.')
+    ).toBeInTheDocument();
   });
 
   /**
@@ -147,10 +152,9 @@ describe('WizardIndexPage', () => {
     });
 
     renderPage();
-    expect(await screen.findByRole('link', { name: /ویزارد جدید/i })).toHaveAttribute(
-      'href',
-      '/wizard/create'
-    );
+    expect(
+      await screen.findByRole('link', { name: /ویزارد جدید/i })
+    ).toHaveAttribute('href', '/wizard/create');
   });
 
   /**

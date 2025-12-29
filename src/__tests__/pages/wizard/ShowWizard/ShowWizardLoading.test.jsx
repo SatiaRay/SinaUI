@@ -47,7 +47,7 @@ describe('ShowWizardLoading', () => {
       {}
     );
 
-    const rowCalls = SkeletonLoading.mock.calls.slice(4); 
+    const rowCalls = SkeletonLoading.mock.calls.slice(4);
     expect(rowCalls).toHaveLength(8);
     rowCalls.forEach(([props]) => {
       expect(props).toEqual(expect.objectContaining({ height: 70 }));

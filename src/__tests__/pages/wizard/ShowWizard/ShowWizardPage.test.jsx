@@ -19,44 +19,34 @@ jest.mock('store/api/ai-features/wizardApi', () => ({
   useDeleteWizardMutation: jest.fn(),
   useUpdateWizardMutation: jest.fn(),
 }));
-
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom');
-  return {
-    ...actual,
-    useParams: jest.fn(),
-    useNavigate: jest.fn(),
-  };
-});
-
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+  useNavigate: jest.fn(),
+}));
 jest.mock('../../../../components/ui/toast', () => ({
   notify: { success: jest.fn(), error: jest.fn() },
 }));
-
 jest.mock('../../../../components/ui/alert/confirmation', () => ({
   confirm: jest.fn(),
 }));
-
 jest.mock('../../../../components/ui/Icon', () => () => null);
-
 jest.mock('../../../../pages/wizard/ShowWizard/ShowWizardLoading', () => ({
   ShowWizardLoading: () => <div data-testid="show-wizard-loading" />,
 }));
-
-jest.mock('../../../../components/wizard/WizardCard', () => {
-  return function WizardCardMock({ wizard, handleDelete, onToggle }) {
-    return (
+jest.mock(
+  '../../../../components/wizard/WizardCard',
+  () =>
+    ({ wizard, handleDelete, onToggle }) => (
       <div data-testid="wizard-card">
         <span>{wizard.title}</span>
         <button onClick={() => handleDelete?.(wizard.id)}>delete</button>
         <button onClick={() => onToggle?.()}>toggle</button>
       </div>
-    );
-  };
-});
+    )
+);
 
 const rrd = require('react-router-dom');
-
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -65,44 +55,49 @@ const renderPage = () =>
   );
 
 describe('ShowWizardPage', () => {
-  const mockGet = (overrides = {}) => {
+  const get = (o = {}) =>
     useGetWizardQuery.mockReturnValue({
       data: null,
       isLoading: false,
       isSuccess: false,
       isError: false,
       error: null,
-      ...overrides,
+      ...o,
     });
-  };
+  const del = (fn = jest.fn(() => ({ unwrap: () => Promise.resolve() }))) => (
+    useDeleteWizardMutation.mockReturnValue([fn]),
+    fn
+  );
+  const upd = (fn = jest.fn(() => ({ unwrap: () => Promise.resolve() }))) => (
+    useUpdateWizardMutation.mockReturnValue([fn]),
+    fn
+  );
 
-  const mockDeleteHook = (impl) => {
-    const trigger = impl ?? jest.fn(() => ({ unwrap: () => Promise.resolve() }));
-    useDeleteWizardMutation.mockReturnValue([trigger]);
-    return trigger;
-  };
-
-  const mockUpdateHook = (impl) => {
-    const trigger = impl ?? jest.fn(() => ({ unwrap: () => Promise.resolve() }));
-    useUpdateWizardMutation.mockReturnValue([trigger]);
-    return trigger;
-  };
+  const parent = (x = {}) => ({
+    id: 10,
+    parent_id: null,
+    title: 'Parent Wizard',
+    wizard_type: 'question',
+    enabled: true,
+    context: '<p>CTX</p>',
+    children: [],
+    ...x,
+  });
+  const child = (x = {}) => ({ id: 1, title: 'Child 1', enabled: true, ...x });
 
   beforeEach(() => {
     jest.clearAllMocks();
     rrd.useParams.mockReturnValue({ wizard_id: '10' });
     rrd.useNavigate.mockReturnValue(jest.fn());
-
-    mockDeleteHook();
-    mockUpdateHook();
+    del();
+    upd();
   });
 
   /**
    * Renders loading skeleton when isLoading
    */
   it('renders loading state', () => {
-    mockGet({ isLoading: true });
-
+    get({ isLoading: true });
     renderPage();
     expect(screen.getByTestId('show-wizard-loading')).toBeInTheDocument();
   });
@@ -111,11 +106,7 @@ describe('ShowWizardPage', () => {
    * Error state shows error message
    */
   it('renders error message (api message fallback)', () => {
-    mockGet({
-      isError: true,
-      error: { data: { message: 'ERR' } },
-    });
-
+    get({ isError: true, error: { data: { message: 'ERR' } } });
     renderPage();
     expect(screen.getByText('ERR')).toBeInTheDocument();
   });
@@ -124,21 +115,12 @@ describe('ShowWizardPage', () => {
    * Renders wizard details and children list
    */
   it('renders details and children cards', async () => {
-    const data = {
-      id: 10,
-      parent_id: null,
-      title: 'Parent Wizard',
-      wizard_type: 'question',
-      enabled: true,
-      context: '<p>CTX</p>',
-      children: [
-        { id: 1, title: 'Child 1', enabled: true },
-        { id: 2, title: 'Child 2', enabled: false },
-      ],
-    };
-
-    mockGet({ data, isSuccess: true });
-
+    get({
+      isSuccess: true,
+      data: parent({
+        children: [child(), child({ id: 2, title: 'Child 2', enabled: false })],
+      }),
+    });
     renderPage();
 
     expect(await screen.findByText('جزئیات ویزارد')).toBeInTheDocument();
@@ -147,12 +129,10 @@ describe('ShowWizardPage', () => {
     expect(screen.getByText(/نوع:\s*سوال/)).toBeInTheDocument();
     expect(screen.getByText(/وضعیت:\s*فعال/)).toBeInTheDocument();
 
-    const cards = await screen.findAllByTestId('wizard-card');
-    expect(cards).toHaveLength(2);
+    expect(await screen.findAllByTestId('wizard-card')).toHaveLength(2);
     expect(screen.getByText('Child 1')).toBeInTheDocument();
     expect(screen.getByText('Child 2')).toBeInTheDocument();
 
-    // links
     expect(
       screen.getByRole('link', { name: /ویزارد فرزند جدید|جدید/i })
     ).toHaveAttribute('href', '/wizard/create?parent_id=10');
@@ -166,44 +146,27 @@ describe('ShowWizardPage', () => {
    * Renders empty children state
    */
   it('renders empty children state when no children', async () => {
-    const data = {
-      id: 10,
-      parent_id: null,
-      title: 'Parent Wizard',
-      wizard_type: 'answer',
-      enabled: false,
-      context: '<p>CTX</p>',
-      children: [],
-    };
-    mockGet({ data, isSuccess: true });
-
+    get({
+      isSuccess: true,
+      data: parent({ wizard_type: 'answer', enabled: false, children: [] }),
+    });
     renderPage();
-    expect(await screen.findByText('هیچ ویزارد فرزند یافت نشد.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('هیچ ویزارد فرزند یافت نشد.')
+    ).toBeInTheDocument();
   });
 
   /**
    * Delete triggers confirmation and mutation (optimistic)
    */
   it('delete flow: confirm → delete mutation → success toast', async () => {
-    const data = {
-      id: 10,
-      parent_id: null,
-      title: 'Parent Wizard',
-      wizard_type: 'question',
-      enabled: true,
-      context: '<p>CTX</p>',
-      children: [{ id: 1, title: 'Child 1', enabled: true }],
-    };
-    mockGet({ data, isSuccess: true });
-
-    const deleteWizard = mockDeleteHook(
+    get({ isSuccess: true, data: parent({ children: [child()] }) });
+    const deleteWizard = del(
       jest.fn(() => ({ unwrap: () => Promise.resolve() }))
     );
-
     confirm.mockImplementation(({ onConfirm }) => onConfirm());
 
     renderPage();
-
     userEvent.click(await screen.findByRole('button', { name: 'delete' }));
 
     await waitFor(() => expect(confirm).toHaveBeenCalled());
@@ -217,31 +180,16 @@ describe('ShowWizardPage', () => {
    * Delete error → error toast + revert to data
    */
   it('delete flow: confirm → delete fails → error toast', async () => {
-    const data = {
-      id: 10,
-      parent_id: null,
-      title: 'Parent Wizard',
-      wizard_type: 'question',
-      enabled: true,
-      context: '<p>CTX</p>',
-      children: [{ id: 1, title: 'Child 1', enabled: true }],
-    };
-    mockGet({ data, isSuccess: true });
-
-    mockDeleteHook(
-      jest.fn(() => ({ unwrap: () => Promise.reject(new Error('fail')) }))
-    );
-
+    get({ isSuccess: true, data: parent({ children: [child()] }) });
+    del(jest.fn(() => ({ unwrap: () => Promise.reject(new Error('fail')) })));
     confirm.mockImplementation(({ onConfirm }) => onConfirm());
 
     renderPage();
-
     userEvent.click(await screen.findByRole('button', { name: 'delete' }));
 
     await waitFor(() =>
       expect(notify.error).toHaveBeenCalledWith('خطا در حذف ویزارد')
     );
-
     expect(await screen.findByText('Child 1')).toBeInTheDocument();
   });
 
@@ -249,33 +197,21 @@ describe('ShowWizardPage', () => {
    * Toggle triggers update mutation with FULL payload + optimistic UI
    */
   it('toggle flow: update mutation payload + success toast', async () => {
-    const child = { id: 1, title: 'Child 1', enabled: true, foo: 'bar' };
-    const data = {
-      id: 10,
-      parent_id: null,
-      title: 'Parent Wizard',
-      wizard_type: 'question',
-      enabled: true,
-      context: '<p>CTX</p>',
-      children: [child],
-    };
-    mockGet({ data, isSuccess: true });
-
-    const updateWizard = mockUpdateHook(
+    const c = child({ foo: 'bar' });
+    get({ isSuccess: true, data: parent({ children: [c] }) });
+    const updateWizard = upd(
       jest.fn(() => ({ unwrap: () => Promise.resolve() }))
     );
 
     renderPage();
-
     userEvent.click(await screen.findByRole('button', { name: 'toggle' }));
 
     await waitFor(() =>
       expect(updateWizard).toHaveBeenCalledWith({
         id: 1,
-        data: { ...child, enabled: false },
+        data: { ...c, enabled: false },
       })
     );
-
     await waitFor(() =>
       expect(notify.success).toHaveBeenCalledWith(
         'وضعیت ویزارد با موفقیت تغییر کرد'
@@ -287,27 +223,17 @@ describe('ShowWizardPage', () => {
    * Toggle error → error toast (detail msg fallback)
    */
   it('toggle flow: update fails → toast error msg', async () => {
-    const child = { id: 1, title: 'Child 1', enabled: false };
-    const data = {
-      id: 10,
-      parent_id: null,
-      title: 'Parent Wizard',
-      wizard_type: 'question',
-      enabled: true,
-      context: '<p>CTX</p>',
-      children: [child],
-    };
-    mockGet({ data, isSuccess: true });
-
-    mockUpdateHook(
+    get({
+      isSuccess: true,
+      data: parent({ children: [child({ enabled: false })] }),
+    });
+    upd(
       jest.fn(() => ({
-        unwrap: () =>
-          Promise.reject({ data: { detail: [{ msg: 'BAD' }] } }),
+        unwrap: () => Promise.reject({ data: { detail: [{ msg: 'BAD' }] } }),
       }))
     );
 
     renderPage();
-
     userEvent.click(await screen.findByRole('button', { name: 'toggle' }));
 
     await waitFor(() => expect(notify.error).toHaveBeenCalledWith('BAD'));

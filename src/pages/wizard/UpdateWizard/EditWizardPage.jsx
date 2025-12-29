@@ -2,16 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import CustomDropdown from '@components/ui/CustomDropdown';
+import CustomDropdown from '../../../components/ui/CustomDropdown';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { notify } from '@components/ui/toast';
+import { notify } from '../../../components/ui/toast';
 import {
   useGetWizardQuery,
   useUpdateWizardMutation,
 } from 'store/api/ai-features/wizardApi';
 import { ckEditorConfig } from '../../../configs';
 import { EditWizardLoading } from './EditWizardLoading';
-import { Sppiner } from '@components/ui/sppiner';
+import { Sppiner } from '../../../components/ui/sppiner';
 
 const EditWizardPage = () => {
   /**
