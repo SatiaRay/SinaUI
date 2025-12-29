@@ -6,9 +6,9 @@ import {
   useDeleteWizardMutation,
   useUpdateWizardMutation,
 } from 'store/api/ai-features/wizardApi';
-import { notify } from '@components/ui/toast';
-import { confirm } from '@components/ui/alert/confirmation';
-import Icon from '@components/ui/Icon';
+import { notify } from '../../../components/ui/toast';
+import { confirm } from '../../../components/ui/alert/confirmation';
+import Icon from '../../../components/ui/Icon';
 import { ShowWizardLoading } from './ShowWizardLoading';
 import WizardCard from '../../../components/wizard/WizardCard'; // Import WizardCard
 
