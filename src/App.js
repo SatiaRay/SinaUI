@@ -52,6 +52,7 @@ import {
   WorkspaceSettingsPage,
   AuditLogIndex,
   AuditLogDetails,
+  WorkspaceSelectionPage,
 } from '@pages/workspace';
 import {
   FlowPage,
@@ -80,8 +81,25 @@ function App() {
 function AppContent() {
   const location = useLocation();
   const [containerOverflowHidden, setContainerOverflowHidden] = useState(false);
+
+  /**
+   * Check if current route is workspace selection page
+   * This page needs full-screen layout without navbar
+   */
+  const isWorkspaceSelectPage = location.pathname === '/workspace/select';
+
+  /**
+   * Determine if current route is private (requires authentication)
+   */
   const isPrivateRoute =
     location.pathname !== '/login' && location.pathname !== '/register';
+
+  /**
+   * Determine if we should show the full layout with navbar
+   * Full layout is shown for private routes except workspace selection page
+   */
+  const showFullLayout = isPrivateRoute && !isWorkspaceSelectPage;
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const savedState = localStorage.getItem('khan-sidebar-expanded');
     if (savedState === null || savedState === undefined) {
@@ -99,26 +117,75 @@ function AppContent() {
         setContainerOverflowHidden(true);
       } else if (event.data.type === 'CONTAINER_OVERFLOW_AUTO') {
         setContainerOverflowHidden(false);
+      } else if (event.data.type === 'HIDE_NAVBAR') {
+      /**
+       * Handle navbar visibility messages from child components
+       * WorkspaceSelectionPage uses these to hide/show navbar
+       */
+        document.body.style.overflow = 'hidden';
+      } else if (event.data.type === 'SHOW_NAVBAR') {
+        document.body.style.overflow = 'auto';
       }
     };
+
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
+
+  /**
+   * Handle body overflow for workspace selection page
+   * This prevents scrolling when the page is in full-screen mode
+   */
+  useEffect(() => {
+    if (isWorkspaceSelectPage) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    };
+  }, [isWorkspaceSelectPage]);
+
+  /**
+   * Special handling for workspace selection page
+   * This page needs to take full screen without any layout wrappers
+   */
+  if (isWorkspaceSelectPage) {
+    return (
+      <div className="h-screen w-screen overflow-hidden">
+        <Routes>
+          <Route
+            path="/workspace/select"
+            element={
+              <PrivateRoute>
+                <WorkspaceSelectionPage />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </div>
+    );
+  }
 
   return (
     <div
       id="khan"
       className={`min-h-screen main-content bg-neutral-50 dark:bg-gray-900 flex transition-all duration-300 h-screen ${
-        isPrivateRoute
+        showFullLayout
           ? sidebarCollapsed
             ? 'mr-10'
             : 'mr-10 md:mr-64'
           : 'flex items-center justify-center'
       }`}
     >
-      {isPrivateRoute && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
+      {showFullLayout && <Navbar onSidebarCollapse={setSidebarCollapsed} />}
 
-      {isPrivateRoute && (
+      {showFullLayout && (
         <div
           className={`md:container mx-auto md:px-10 py-0 md:py-2 lg:px-0 w-[100%] lg:w-[90%] xl:w-[85%] xxl:w-[1400px] ${containerOverflowHidden ? 'overflow-hidden' : ''}`}
         >
@@ -126,7 +193,7 @@ function AppContent() {
         </div>
       )}
 
-      {!isPrivateRoute && publicRoutes()}
+      {!showFullLayout && publicRoutes()}
     </div>
   );
 }
