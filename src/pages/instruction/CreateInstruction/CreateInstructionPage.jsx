@@ -1,8 +1,8 @@
 // CreateInstructionPage.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { notify } from '@components/ui/toast';
-import { Sppiner } from '@components/ui/sppiner';
+import { notify } from '../../../components/ui/toast';
+import { Sppiner } from '../../../components/ui/sppiner';
 import { useCreateInstructionMutation } from 'store/api/ai-features/instructionApi';
 
 const CreateInstructionPage = () => {

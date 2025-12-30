@@ -1,16 +1,16 @@
 // InstructionIndexPage.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Icon from '@components/ui/Icon';
-import { Pagination } from '@components/ui/pagination';
-import { confirm } from '@components/ui/alert/confirmation';
-import { notify } from '@components/ui/toast';
+import Icon from '../../../components/ui/Icon';
+import { Pagination } from '../../../components/ui/pagination';
+import { confirm } from '../../../components/ui/alert/confirmation';
+import { notify } from '../../../components/ui/toast';
 import { InstructionIndexLoading } from './InstructionIndexLoading';
 import {
   useDeleteInstructionMutation,
   useGetInstructionsQuery,
 } from 'store/api/ai-features/instructionApi';
-import InstructionCard from '@components/instruction/InstructionCard';
+import InstructionCard from '../../../components/instruction/InstructionCard';
 
 const InstructionIndexPage = () => {
   /**

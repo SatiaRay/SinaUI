@@ -1,13 +1,13 @@
 // EditInstructionPage.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { notify } from '@components/ui/toast';
+import { notify } from '../../../components/ui/toast';
 import {
   useGetInstructionQuery,
   useUpdateInstructionMutation,
 } from 'store/api/ai-features/instructionApi';
 import { EditInstructionLoading } from './EditInstructionLoading';
-import { Sppiner } from '@components/ui/sppiner';
+import { Sppiner } from '../../../components/ui/sppiner';
 
 const EditInstructionPage = () => {
   /**
