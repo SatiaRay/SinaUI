@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { WizardButtonsContainer } from '../ui/common';
 import WizardButton from './WizardButton';
-import { useChat } from '@contexts/ChatContext';
+import { useChat } from '../../contexts/ChatContext';
 
 const WizardButtons = ({ wizards, onWizardSelect }) => {
   const { wizardPath, handleWizardBack } = useChat();

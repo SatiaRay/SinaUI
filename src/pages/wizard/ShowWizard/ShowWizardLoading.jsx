@@ -1,4 +1,4 @@
-import { SkeletonLoading } from '@components/ui/loading/skeletonLoading';
+import { SkeletonLoading } from '../../../components/ui/loading/skeletonLoading';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 export const ShowWizardLoading = () => {
