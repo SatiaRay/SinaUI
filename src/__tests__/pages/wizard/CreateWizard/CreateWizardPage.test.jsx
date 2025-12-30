@@ -103,8 +103,8 @@ describe('CreateWizardPage', () => {
    */
   it('updates type + context via mocks', () => {
     renderPage();
-    userEvent.click(screen.getByTestId('wizard-type')); // answer -> question
-    userEvent.click(screen.getByRole('button', { name: 'ck-change' })); // context -> CTX
+    userEvent.click(screen.getByTestId('wizard-type'));
+    userEvent.click(screen.getByRole('button', { name: 'ck-change' }));
     expect(screen.getByTestId('wizard-type')).toHaveTextContent('question');
     expect(screen.getByTestId('ckeditor-data')).toHaveTextContent('<p>CTX</p>');
   });
@@ -117,8 +117,8 @@ describe('CreateWizardPage', () => {
     renderPage();
 
     userEvent.type(screen.getByPlaceholderText('عنوان ویزارد'), 'T');
-    userEvent.click(screen.getByRole('button', { name: 'ck-change' })); // context
-    userEvent.click(screen.getByTestId('wizard-type')); // -> question
+    userEvent.click(screen.getByRole('button', { name: 'ck-change' }));
+    userEvent.click(screen.getByTestId('wizard-type'));
     userEvent.click(screen.getByRole('button', { name: 'ذخیره' }));
 
     expect(createWizard).toHaveBeenCalledWith({
