@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+
 import WizardIndexPage from '../../../../pages/wizard/WizardIndex/WizardIndexPage';
 import {
   useGetWizardsQuery,
@@ -27,16 +28,14 @@ jest.mock('../../../../components/ui/toast', () => ({
   notify: { success: jest.fn(), error: jest.fn() },
 }));
 
-jest.mock('../../../../components/wizard/WizardCard', () => {
-  return function WizardCardMock({ wizard, handleDelete }) {
-    return (
-      <div data-testid="wizard-card">
-        <span>{wizard.name}</span>
-        <button onClick={() => handleDelete(wizard.id)}>delete</button>
-      </div>
-    );
-  };
-});
+jest.mock('../../../../components/wizard/WizardCard', () => (p) => (
+  <div data-testid="wizard-card">
+    <span>{p.wizard.name}</span>
+    <button type="button" onClick={() => p.handleDelete(p.wizard.id)}>
+      delete
+    </button>
+  </div>
+));
 
 const renderPage = () =>
   render(
@@ -46,40 +45,34 @@ const renderPage = () =>
   );
 
 describe('WizardIndexPage', () => {
-  const consoleError = jest
-    .spyOn(console, 'error')
-    .mockImplementation(() => {});
-  const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  const q = (o) =>
+    useGetWizardsQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isSuccess: false,
+      isError: false,
+      error: undefined,
+      ...o,
+    });
 
-  const mockDeleteHook = (impl) => {
-    const trigger =
-      impl ?? jest.fn(() => ({ unwrap: () => Promise.resolve() }));
-    useDeleteWizardMutation.mockReturnValue([trigger]);
-    return trigger;
+  const del = (unwrapImpl) => {
+    const unwrap = jest.fn();
+    unwrapImpl?.(unwrap);
+    const mutate = jest.fn(() => ({ unwrap }));
+    useDeleteWizardMutation.mockReturnValue([mutate]);
+    return { mutate, unwrap };
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockDeleteHook();
-  });
-
-  afterAll(() => {
-    consoleError.mockRestore();
-    consoleWarn.mockRestore();
+    del();
   });
 
   /**
    * Renders loading skeleton when isLoading/isFetching
    */
-  it('renders loading skeleton when loading', () => {
-    useGetWizardsQuery.mockReturnValue({
-      data: null,
-      isLoading: true,
-      isSuccess: false,
-      isError: false,
-      error: null,
-    });
-
+  it('renders loading skeleton when isLoading', () => {
+    q({ isLoading: true });
     renderPage();
     expect(screen.getByTestId('wizard-index-loading')).toBeInTheDocument();
   });
@@ -88,14 +81,7 @@ describe('WizardIndexPage', () => {
    * Error state shows error component
    */
   it('renders error state when isError', () => {
-    useGetWizardsQuery.mockReturnValue({
-      data: null,
-      isLoading: false,
-      isSuccess: false,
-      isError: true,
-      error: { status: 500 },
-    });
-
+    q({ isError: true, error: { status: 500 } });
     renderPage();
     expect(screen.getByText('مشکلی پیش آمده است')).toBeInTheDocument();
   });
@@ -104,14 +90,7 @@ describe('WizardIndexPage', () => {
    * Renders empty state when no wizards
    */
   it('renders empty state when list is empty', async () => {
-    useGetWizardsQuery.mockReturnValue({
-      data: [],
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
-      error: null,
-    });
-
+    q({ isSuccess: true, data: [] });
     renderPage();
     expect(
       await screen.findByText('هیچ ویزاردی یافت نشد.')
@@ -122,18 +101,16 @@ describe('WizardIndexPage', () => {
    * Renders list of wizard cards when data present
    */
   it('renders wizard cards when data exists', async () => {
-    useGetWizardsQuery.mockReturnValue({
+    q({
+      isSuccess: true,
       data: [
         { id: 1, name: 'Wizard A' },
         { id: 2, name: 'Wizard B' },
       ],
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
-      error: null,
     });
 
     renderPage();
+
     expect(await screen.findAllByTestId('wizard-card')).toHaveLength(2);
     expect(screen.getByText('Wizard A')).toBeInTheDocument();
     expect(screen.getByText('Wizard B')).toBeInTheDocument();
@@ -143,15 +120,9 @@ describe('WizardIndexPage', () => {
    * "ویزارد جدید" button navigates to create page
    */
   it('has create link to /wizard/create', async () => {
-    useGetWizardsQuery.mockReturnValue({
-      data: [],
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
-      error: null,
-    });
-
+    q({ isSuccess: true, data: [] });
     renderPage();
+
     expect(
       await screen.findByRole('link', { name: /ویزارد جدید/i })
     ).toHaveAttribute('href', '/wizard/create');
@@ -160,53 +131,60 @@ describe('WizardIndexPage', () => {
   /**
    * Delete triggers confirmation and mutation
    */
-  it('calls delete mutation and shows success toast', async () => {
-    const deleteWizard = mockDeleteHook(
-      jest.fn(() => ({ unwrap: () => Promise.resolve() }))
-    );
-
-    useGetWizardsQuery.mockReturnValue({
-      data: [{ id: 1, name: 'Wizard A' }],
-      isLoading: false,
+  it('delete success: optimistic remove + mutation + success toast', async () => {
+    q({
       isSuccess: true,
-      isError: false,
-      error: null,
+      data: [
+        { id: 1, name: 'Wizard A' },
+        { id: 2, name: 'Wizard B' },
+      ],
     });
 
+    const { mutate } = del((u) => u.mockResolvedValue({}));
+
     renderPage();
+    expect(await screen.findAllByTestId('wizard-card')).toHaveLength(2);
 
-    userEvent.click(await screen.findByRole('button', { name: 'delete' }));
+    userEvent.click(screen.getAllByRole('button', { name: 'delete' })[0]);
 
-    await waitFor(() => expect(deleteWizard).toHaveBeenCalledWith(1));
+    await waitFor(() => expect(mutate).toHaveBeenCalledWith(1));
     await waitFor(() =>
       expect(notify.success).toHaveBeenCalledWith('ویزارد با موفقیت حذف شد')
     );
+
+    await waitFor(() =>
+      expect(screen.getAllByTestId('wizard-card')).toHaveLength(1)
+    );
+    expect(screen.queryByText('Wizard A')).not.toBeInTheDocument();
+    expect(screen.getByText('Wizard B')).toBeInTheDocument();
   });
 
   /**
-   * Delete error → toast error
+   * Delete error → toast error + revert list from data.wizards)
    */
-  it('shows error toast when delete fails', async () => {
-    mockDeleteHook(
-      jest.fn(() => ({ unwrap: () => Promise.reject(new Error('fail')) }))
-    );
+  it('delete error: shows error toast and restores list', async () => {
+    const list = [
+      { id: 1, name: 'Wizard A' },
+      { id: 2, name: 'Wizard B' },
+    ];
 
-    useGetWizardsQuery.mockReturnValue({
-      data: Object.assign([{ id: 1, name: 'Wizard A' }], {
-        wizards: [{ id: 1, name: 'Wizard A' }],
-      }),
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
-      error: null,
-    });
+    q({ isSuccess: true, data: Object.assign([...list], { wizards: list }) });
+
+    del((u) => u.mockRejectedValue(new Error('fail')));
 
     renderPage();
+    expect(await screen.findAllByTestId('wizard-card')).toHaveLength(2);
 
-    userEvent.click(await screen.findByRole('button', { name: 'delete' }));
+    userEvent.click(screen.getAllByRole('button', { name: 'delete' })[0]);
 
     await waitFor(() =>
       expect(notify.error).toHaveBeenCalledWith('خطا در حذف ویزارد!')
     );
+
+    await waitFor(() =>
+      expect(screen.getAllByTestId('wizard-card')).toHaveLength(2)
+    );
+    expect(screen.getByText('Wizard A')).toBeInTheDocument();
+    expect(screen.getByText('Wizard B')).toBeInTheDocument();
   });
 });
