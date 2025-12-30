@@ -37,7 +37,7 @@ jest.mock('../../../../components/ui/sppiner', () => ({
 }));
 
 /**
- * Silence known noisy warnings (React 18 act warning in RTL)
+ * Silence known noisy warnings
  */
 const isNoisy = (msg) => String(msg).includes('ReactDOMTestUtils.act');
 
@@ -57,7 +57,11 @@ const renderPage = () =>
 /**
  * RTK create mutation helper
  */
-const mockCreateMutation = ({ isLoading = false, isSuccess = false, isError = false } = {}) => {
+const mockCreateMutation = ({
+  isLoading = false,
+  isSuccess = false,
+  isError = false,
+} = {}) => {
   const mutate = jest.fn();
   useCreateInstructionMutation.mockReturnValue([
     mutate,
@@ -72,7 +76,6 @@ describe('CreateInstructionPage', () => {
 
     jest.spyOn(console, 'error').mockImplementation((...args) => {
       if (isNoisy(args[0])) return;
-      // eslint-disable-next-line no-console
       console.error(...args);
     });
   });
@@ -102,7 +105,10 @@ describe('CreateInstructionPage', () => {
     mockCreateMutation();
     renderPage();
 
-    expect(screen.getByRole('link', { name: 'بازگشت' })).toHaveAttribute('href', '/instruction');
+    expect(screen.getByRole('link', { name: 'بازگشت' })).toHaveAttribute(
+      'href',
+      '/instruction'
+    );
   });
 
   /**
@@ -158,20 +164,21 @@ describe('CreateInstructionPage', () => {
    * Success → toast + navigate back
    */
   it('shows success toast and navigates back on success', async () => {
-    // first render: not successful yet
     mockCreateMutation({ isSuccess: false });
 
     const { rerender } = render(
       <MemoryRouter initialEntries={['/instruction/create']}>
         <Routes>
-          <Route path="/instruction/create" element={<CreateInstructionPage />} />
+          <Route
+            path="/instruction/create"
+            element={<CreateInstructionPage />}
+          />
         </Routes>
       </MemoryRouter>
     );
 
     expect(screen.getByText('افزودن دستورالعمل جدید')).toBeInTheDocument();
 
-    // rerender with success state
     useCreateInstructionMutation.mockReturnValue([
       jest.fn(),
       { isLoading: false, isSuccess: true, isError: false, error: undefined },
@@ -180,25 +187,29 @@ describe('CreateInstructionPage', () => {
     rerender(
       <MemoryRouter initialEntries={['/instruction/create']}>
         <Routes>
-          <Route path="/instruction/create" element={<CreateInstructionPage />} />
+          <Route
+            path="/instruction/create"
+            element={<CreateInstructionPage />}
+          />
         </Routes>
       </MemoryRouter>
     );
 
     await waitFor(() =>
-      expect(notify.success).toHaveBeenCalledWith('دستورالعمل با موفقیت اضافه شد !')
+      expect(notify.success).toHaveBeenCalledWith(
+        'دستورالعمل با موفقیت اضافه شد !'
+      )
     );
     expect(mockNavigate).toHaveBeenCalledWith('/instruction');
   });
 
   /**
-   * Error → toast error (NOTE: component currently does not notify on isError)
+   * Error → toast error
    */
   it('does not show error toast (no error handler implemented)', async () => {
     mockCreateMutation({ isError: true });
     renderPage();
 
-    // current component doesn't call notify.error anywhere
     await waitFor(() => expect(notify.error).not.toHaveBeenCalled());
   });
 });

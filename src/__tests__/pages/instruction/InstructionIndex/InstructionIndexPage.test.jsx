@@ -20,21 +20,29 @@ jest.mock('store/api/ai-features/instructionApi', () => ({
   useDeleteInstructionMutation: jest.fn(),
 }));
 
-jest.mock('../../../../components/ui/alert/confirmation', () => ({ confirm: jest.fn() }));
+jest.mock('../../../../components/ui/alert/confirmation', () => ({
+  confirm: jest.fn(),
+}));
 jest.mock('../../../../components/ui/toast', () => ({
   notify: { error: jest.fn(), success: jest.fn(), info: jest.fn() },
 }));
-jest.mock('../../../../pages/instruction/InstructionIndex/InstructionIndexLoading', () => ({
-  InstructionIndexLoading: () => <div data-testid="index-loading" />,
-}));
+jest.mock(
+  '../../../../pages/instruction/InstructionIndex/InstructionIndexLoading',
+  () => ({
+    InstructionIndexLoading: () => <div data-testid="index-loading" />,
+  })
+);
 jest.mock('../../../../components/ui/Icon', () => () => null);
 
 let paginationProps;
 /**
- * Pagination mock to capture props 
+ * Pagination mock to capture props
  */
 jest.mock('../../../../components/ui/pagination', () => ({
-  Pagination: (props) => ((paginationProps = props), <div data-testid="pagination" />),
+  Pagination: (p) => (
+    (paginationProps = p),
+    (<div data-testid="pagination" />)
+  ),
 }));
 
 /**
@@ -78,14 +86,14 @@ const renderPage = () =>
 /**
  * RTK Query list hook mock helper
  */
-const q = (v) => useGetInstructionsQuery.mockReturnValue(v);
+const q = (o) => useGetInstructionsQuery.mockReturnValue(o);
 
 /**
  * RTK mutation hook helper (component destructures always)
  */
-const mockDelete = (unwrapImpl) => {
+const del = (unwrapImpl) => {
   const unwrap = jest.fn();
-  if (unwrapImpl) unwrapImpl(unwrap);
+  unwrapImpl?.(unwrap);
   const mutate = jest.fn(() => ({ unwrap }));
   useDeleteInstructionMutation.mockReturnValue([mutate]);
   return { mutate, unwrap };
@@ -104,21 +112,20 @@ const noisy = (s) =>
   ].some((k) => s.includes(k));
 
 describe('InstructionIndexPage', () => {
+  /**
+   * Console trap helper
+   */
+  const trap = (type) =>
+    jest.spyOn(console, type).mockImplementation((...a) => {
+      const msg = a.map(String).join(' ');
+      if (noisy(msg)) return;
+      throw new Error(`Unexpected console.${type}: ${msg}`);
+    });
+
   beforeEach(() => {
     jest.clearAllMocks();
     paginationProps = undefined;
-
-    mockDelete();
-
-    /**
-     * Console trap helper 
-     */
-    const trap = (type) =>
-      jest.spyOn(console, type).mockImplementation((...a) => {
-        const msg = a.map(String).join(' ');
-        if (noisy(msg)) return;
-        throw new Error(`Unexpected console.${type}: ${msg}`);
-      });
+    del();
 
     trap('warn');
     trap('error');
@@ -133,7 +140,13 @@ describe('InstructionIndexPage', () => {
    * Renders loading skeleton when isLoading
    */
   it('renders loading skeleton when isLoading', () => {
-    q({ isLoading: true, isSuccess: false, isError: false, data: undefined, error: undefined });
+    q({
+      isLoading: true,
+      isSuccess: false,
+      isError: false,
+      data: undefined,
+      error: undefined,
+    });
     renderPage();
     expect(screen.getByTestId('index-loading')).toBeInTheDocument();
   });
@@ -142,7 +155,13 @@ describe('InstructionIndexPage', () => {
    * Renders error state when isError
    */
   it('renders error state when isError', () => {
-    q({ isLoading: false, isSuccess: false, isError: true, data: undefined, error: { status: 500 } });
+    q({
+      isLoading: false,
+      isSuccess: false,
+      isError: true,
+      data: undefined,
+      error: { status: 500 },
+    });
     renderPage();
     expect(screen.getByText('مشکلی پیش آمده است 🛑')).toBeInTheDocument();
   });
@@ -161,18 +180,25 @@ describe('InstructionIndexPage', () => {
 
     renderPage();
 
-    expect(await screen.findByText('هیچ دستورالعملی ثبت شده ای یافت نشد.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'ثبت دستور جدید' })).toHaveAttribute(
-      'href',
-      '/instruction/create'
-    );
+    expect(
+      await screen.findByText('هیچ دستورالعملی ثبت شده ای یافت نشد.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'ثبت دستور جدید' })
+    ).toHaveAttribute('href', '/instruction/create');
   });
 
   /**
    * Renders list of cards and passes pagination props
    */
   it('renders list of InstructionCards when data present and passes pagination props', async () => {
-    q({ isLoading: false, isSuccess: true, isError: false, error: undefined, data: baseData });
+    q({
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+      error: undefined,
+      data: baseData,
+    });
 
     renderPage();
 
@@ -183,7 +209,12 @@ describe('InstructionIndexPage', () => {
 
     expect(screen.getByTestId('pagination')).toBeInTheDocument();
     expect(paginationProps).toEqual(
-      expect.objectContaining({ page: 1, perpage: 20, totalPages: 3, totalItems: 40 })
+      expect.objectContaining({
+        page: 1,
+        perpage: 20,
+        totalPages: 3,
+        totalItems: 40,
+      })
     );
     expect(typeof paginationProps.handlePageChange).toBe('function');
   });
@@ -192,14 +223,18 @@ describe('InstructionIndexPage', () => {
    * Create button links to /instruction/create
    */
   it('create button links to /instruction/create', async () => {
-    q({ isLoading: false, isSuccess: true, isError: false, error: undefined, data: baseData });
-
+    q({
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+      error: undefined,
+      data: baseData,
+    });
     renderPage();
 
     const createLink = (await screen.findAllByRole('link')).find(
       (a) => a.getAttribute('href') === '/instruction/create'
     );
-
     expect(createLink).toBeTruthy();
     expect(createLink).toHaveAttribute('href', '/instruction/create');
   });
@@ -208,16 +243,24 @@ describe('InstructionIndexPage', () => {
    * Delete triggers confirmation and mutation, removes card optimistically
    */
   it('delete triggers confirmation and mutation, removes card optimistically', async () => {
-    q({ isLoading: false, isSuccess: true, isError: false, error: undefined, data: baseData });
+    q({
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+      error: undefined,
+      data: baseData,
+    });
 
-    const { mutate, unwrap } = mockDelete((u) => u.mockResolvedValue({}));
+    const { mutate, unwrap } = del((u) => u.mockResolvedValue({}));
     confirm.mockImplementation(({ onConfirm }) => onConfirm());
 
     renderPage();
     expect(await screen.findAllByTestId('instruction-card')).toHaveLength(2);
 
     userEvent.click(
-      within(screen.getAllByTestId('instruction-card')[0]).getByRole('button', { name: 'delete' })
+      within(screen.getAllByTestId('instruction-card')[0]).getByRole('button', {
+        name: 'delete',
+      })
     );
 
     expect(confirm).toHaveBeenCalledWith(
@@ -231,7 +274,9 @@ describe('InstructionIndexPage', () => {
     await waitFor(() => expect(mutate).toHaveBeenCalledWith(1));
     expect(unwrap).toHaveBeenCalled();
 
-    await waitFor(() => expect(screen.getAllByTestId('instruction-card')).toHaveLength(1));
+    await waitFor(() =>
+      expect(screen.getAllByTestId('instruction-card')).toHaveLength(1)
+    );
     expect(screen.queryByText('INS-1')).not.toBeInTheDocument();
     expect(screen.getByText('INS-2')).toBeInTheDocument();
   });
@@ -240,19 +285,31 @@ describe('InstructionIndexPage', () => {
    * Delete mutation error shows toast and restores list
    */
   it('delete mutation error shows toast and restores list', async () => {
-    q({ isLoading: false, isSuccess: true, isError: false, error: undefined, data: baseData });
+    q({
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+      error: undefined,
+      data: baseData,
+    });
 
-    mockDelete((u) => u.mockRejectedValue(new Error('fail')));
+    del((u) => u.mockRejectedValue(new Error('fail')));
     confirm.mockImplementation(({ onConfirm }) => onConfirm());
 
     renderPage();
     expect(await screen.findAllByTestId('instruction-card')).toHaveLength(2);
 
     userEvent.click(
-      within(screen.getAllByTestId('instruction-card')[0]).getByRole('button', { name: 'delete' })
+      within(screen.getAllByTestId('instruction-card')[0]).getByRole('button', {
+        name: 'delete',
+      })
     );
 
-    await waitFor(() => expect(notify.error).toHaveBeenCalledWith('خطا در حذف دستورالعمل!'));
-    await waitFor(() => expect(screen.getAllByTestId('instruction-card')).toHaveLength(2));
+    await waitFor(() =>
+      expect(notify.error).toHaveBeenCalledWith('خطا در حذف دستورالعمل!')
+    );
+    await waitFor(() =>
+      expect(screen.getAllByTestId('instruction-card')).toHaveLength(2)
+    );
   });
 });

@@ -63,8 +63,12 @@ describe('EditInstructionLoading', () => {
       'w-full'
     );
 
-    expect(container.querySelector('.grid.grid-cols-1.md\\:grid-cols-2')).toBeTruthy();
+    expect(
+      container.querySelector('.grid.grid-cols-1.md\\:grid-cols-2')
+    ).toBeTruthy();
 
-    expect(container.querySelector('.grid.grid-cols-1.lg\\:grid-cols-2')).toBeTruthy();
+    expect(
+      container.querySelector('.grid.grid-cols-1.lg\\:grid-cols-2')
+    ).toBeTruthy();
   });
 });

@@ -28,7 +28,7 @@ jest.mock('../../../components/ui/toast', () => ({
 }));
 
 /**
- * Icon mock 
+ * Icon mock
  */
 jest.mock('../../../components/ui/Icon', () => () => null);
 
@@ -50,7 +50,10 @@ const setup = (instruction = makeIns(), { loading = false } = {}) => {
   const unwrap = jest.fn();
   const mutate = jest.fn(() => ({ unwrap }));
 
-  useUpdateInstructionMutation.mockReturnValue([mutate, { isLoading: loading }]);
+  useUpdateInstructionMutation.mockReturnValue([
+    mutate,
+    { isLoading: loading },
+  ]);
 
   const utils = render(
     <InstructionCard instruction={instruction} handleDelete={handleDelete} />
@@ -60,7 +63,7 @@ const setup = (instruction = makeIns(), { loading = false } = {}) => {
 };
 
 /**
- * Silences act deprecation warning 
+ * Silences act deprecation warning
  */
 const isNoisy = (msg) => String(msg).includes('ReactDOMTestUtils.act');
 
@@ -146,7 +149,9 @@ describe('InstructionCard', () => {
     userEvent.click(screen.getByRole('button', { name: 'فعال' }));
 
     await waitFor(() =>
-      expect(notify.error).toHaveBeenCalledWith('خطا در تغییر وضعیت دستورالعمل!')
+      expect(notify.error).toHaveBeenCalledWith(
+        'خطا در تغییر وضعیت دستورالعمل!'
+      )
     );
 
     expect(screen.getByRole('button', { name: 'فعال' })).toBeInTheDocument();
@@ -166,12 +171,10 @@ describe('InstructionCard', () => {
   });
 
   /**
-   * Hover overlay layer exists in DOM 
+   * Hover overlay layer exists in DOM
    */
   it('renders hover overlay layer', () => {
     const { container } = setup(makeIns());
-    expect(
-      container.querySelector('.group-hover\\:opacity-100')
-    ).toBeTruthy();
+    expect(container.querySelector('.group-hover\\:opacity-100')).toBeTruthy();
   });
 });
