@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import {
-  FaArrowLeft,
-  FaSave,
-  FaTrash,
-  FaTag,
-  FaCalendar,
-} from 'react-icons/fa';
+import Icon from './Icon'; // Import the Icon component
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
 import { useDisplay } from '../../../hooks/display';
@@ -583,7 +577,7 @@ const EditProjectPage = () => {
               to={`/projects`}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
             >
-              <FaArrowLeft className="text-lg" />
+              <Icon name="ArrowLeft" size={18} />
             </Link>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
@@ -613,7 +607,7 @@ const EditProjectPage = () => {
               </>
             ) : (
               <>
-                <FaTrash />
+                <Icon name="Trash2" size={18} />
                 حذف پروژه
               </>
             )}
@@ -746,7 +740,7 @@ const EditProjectPage = () => {
               <div className="mb-3">
                 <div className="relative">
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <FaTag />
+                    <Icon name="Tag" size={20} />
                   </div>
                   <input
                     type="text"
@@ -800,7 +794,7 @@ const EditProjectPage = () => {
                   </label>
                   <div className="relative">
                     <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                      <FaCalendar />
+                      <Icon name="Calendar" size={20} />
                     </div>
                     <div className="w-full px-10 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white">
                       {formData.startDate
@@ -817,7 +811,7 @@ const EditProjectPage = () => {
                   </label>
                   <div className="relative">
                     <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                      <FaCalendar />
+                      <Icon name="Calendar" size={20} />
                     </div>
                     <div className="w-full px-10 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white">
                       {formData.endDate
@@ -868,20 +862,7 @@ const EditProjectPage = () => {
                       ))}
                     </select>
                     <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <Icon name="ChevronDown" size={20} />
                     </div>
                   </div>
                 </div>
@@ -945,7 +926,7 @@ const EditProjectPage = () => {
                   </>
                 ) : (
                   <>
-                    <FaSave />
+                    <Icon name="Save" size={18} />
                     ذخیره تغییرات
                   </>
                 )}

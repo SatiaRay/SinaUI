@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import {
-  FaArrowLeft,
-  FaUsers,
-  FaProjectDiagram,
-  FaCalendar,
-  FaCrown,
-  FaUser,
-  FaEdit,
-  FaTasks,
-} from 'react-icons/fa';
 import { notify } from '../../../components/ui/toast';
 import ShowWorkspaceLoading from './ShowWorkspaceLoading';
 import { useDisplay } from '../../../hooks/display';
+import Icon from '../../../components/ui/Icon'; // Import the Icon component
 
 /**
  * ShowWorkspacePage Component - Displays workspace details
@@ -261,7 +252,7 @@ const ShowWorkspacePage = () => {
               to="/workspace"
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
             >
-              <FaArrowLeft className="text-lg" />
+              <Icon name="ArrowLeft" className="text-lg" />
             </Link>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
@@ -277,14 +268,14 @@ const ShowWorkspacePage = () => {
               to={`/workspace/edit/${workspace.id}`}
               className="px-4 py-2.5 flex items-center justify-center gap-2 rounded-lg font-medium transition-all bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm"
             >
-              <FaEdit />
+              <Icon name="Edit" size={16} />
               ویرایش فضای کاری
             </Link>
             <button
               onClick={handleManageProjects}
               className="px-4 py-2.5 flex items-center justify-center gap-2 rounded-lg font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-md hover:shadow-lg"
             >
-              <FaTasks />
+              <Icon name="ClipboardList" size={16} />
               مدیریت پروژه‌ها
             </button>
           </div>
@@ -323,9 +314,9 @@ const ShowWorkspacePage = () => {
                     <span className="px-3 py-1.5 text-sm font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
                       {workspace.role === 'admin' ||
                       workspace.role === 'owner' ? (
-                        <FaCrown className="text-xs" />
+                        <Icon name="Crown" size={12} />
                       ) : (
-                        <FaUser className="text-xs" />
+                        <Icon name="User" size={12} />
                       )}
                       {getRoleText(workspace.role)}
                     </span>
@@ -337,7 +328,11 @@ const ShowWorkspacePage = () => {
                   <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <FaUsers className="text-blue-600 dark:text-blue-400" />
+                        <Icon
+                          name="Users"
+                          className="text-blue-600 dark:text-blue-400"
+                          size={20}
+                        />
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -353,7 +348,11 @@ const ShowWorkspacePage = () => {
                   <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                        <FaProjectDiagram className="text-green-600 dark:text-green-400" />
+                        <Icon
+                          name="Projector"
+                          className="text-green-600 dark:text-green-400"
+                          size={20}
+                        />
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -369,7 +368,11 @@ const ShowWorkspacePage = () => {
                   <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                        <FaCalendar className="text-purple-600 dark:text-purple-400" />
+                        <Icon
+                          name="Calendar"
+                          className="text-purple-600 dark:text-purple-400"
+                          size={20}
+                        />
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -454,11 +457,19 @@ const ShowWorkspacePage = () => {
                           <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                             <div className="flex items-center gap-4 text-sm">
                               <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                                <FaUsers className="text-gray-400" />
+                                <Icon
+                                  name="Users"
+                                  className="text-gray-400"
+                                  size={14}
+                                />
                                 <span>{project.memberCount}</span>
                               </div>
                               <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                                <FaTasks className="text-gray-400" />
+                                <Icon
+                                  name="ClipboardList"
+                                  className="text-gray-400"
+                                  size={14}
+                                />
                                 <span>{project.taskCount} کار</span>
                               </div>
                             </div>
@@ -482,7 +493,7 @@ const ShowWorkspacePage = () => {
                         className="w-full py-3 bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                       >
                         <span>مشاهده همه {projects.length} پروژه</span>
-                        <FaTasks />
+                        <Icon name="ClipboardList" size={16} />
                       </button>
                     </div>
                   )}
@@ -491,7 +502,11 @@ const ShowWorkspacePage = () => {
                 /* Empty projects state */
                 <div className="text-center py-12 md:py-16">
                   <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-100 dark:bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <FaProjectDiagram className="text-gray-400 text-4xl" />
+                    <Icon
+                      name="Projector"
+                      className="text-gray-400"
+                      size={48}
+                    />
                   </div>
                   <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
                     هنوز پروژه‌ای ایجاد نشده است
@@ -504,7 +519,7 @@ const ShowWorkspacePage = () => {
                     onClick={handleManageProjects}
                     className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
                   >
-                    <FaTasks />
+                    <Icon name="ClipboardList" size={16} />
                     مدیریت پروژه‌ها
                   </button>
                 </div>

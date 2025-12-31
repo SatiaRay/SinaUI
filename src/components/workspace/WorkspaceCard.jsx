@@ -1,12 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import {
-  FaTrash,
-  FaEdit,
-  FaCrown,
-  FaUser,
-  FaUsers,
-  FaEye,
-} from 'react-icons/fa';
+import Icon from './Icon'; // Import the Icon component
 import { useNavigate } from 'react-router-dom';
 import { notify } from '../ui/toast';
 
@@ -121,19 +114,27 @@ const WorkspaceCard = ({
     switch (role) {
       case 'admin':
         return (
-          <FaCrown className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500 flex-shrink-0" />
+          <Icon
+            name="Crown"
+            size={14}
+            className="text-yellow-500 flex-shrink-0"
+          />
         );
       case 'member':
         return (
-          <FaUser className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
+          <Icon name="User" size={14} className="text-gray-400 flex-shrink-0" />
         );
       case 'owner':
         return (
-          <FaCrown className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-500 flex-shrink-0" />
+          <Icon
+            name="Crown"
+            size={14}
+            className="text-purple-500 flex-shrink-0"
+          />
         );
       default:
         return (
-          <FaUser className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
+          <Icon name="User" size={14} className="text-gray-400 flex-shrink-0" />
         );
     }
   };
@@ -324,7 +325,11 @@ const WorkspaceCard = ({
                               text-gray-600 dark:text-gray-400 whitespace-nowrap
                               flex-shrink-0"
               >
-                <FaUsers className="text-gray-400 text-xs md:text-sm flex-shrink-0" />
+                <Icon
+                  name="Users"
+                  size={14}
+                  className="text-gray-400 flex-shrink-0"
+                />
                 <span className="truncate overflow-hidden text-ellipsis whitespace-nowrap">
                   {workspace.memberCount || 0} عضو
                 </span>
@@ -342,10 +347,10 @@ const WorkspaceCard = ({
                 title="نمایش فضای کاری"
                 aria-label={`نمایش فضای کاری ${workspace.name}`}
               >
-                <FaEye
-                  className="text-blue-500 text-sm md:text-base
-                                 group-hover/edit:scale-110 transition-transform
-                                 duration-200"
+                <Icon
+                  name="Eye"
+                  size={16}
+                  className="text-blue-500 group-hover/edit:scale-110 transition-transform duration-200"
                 />
               </button>
 
@@ -358,10 +363,10 @@ const WorkspaceCard = ({
                 title="ویرایش فضای کاری"
                 aria-label={`ویرایش فضای کاری ${workspace.name}`}
               >
-                <FaEdit
-                  className="text-blue-500 text-sm md:text-base
-                                  group-hover/edit:scale-110 transition-transform
-                                  duration-200"
+                <Icon
+                  name="Edit"
+                  size={16}
+                  className="text-blue-500 group-hover/edit:scale-110 transition-transform duration-200"
                 />
               </button>
 
@@ -374,10 +379,10 @@ const WorkspaceCard = ({
                 title="حذف فضای کاری"
                 aria-label={`حذف فضای کاری ${workspace.name}`}
               >
-                <FaTrash
-                  className="text-red-500 text-sm md:text-base
-                                   group-hover/delete:scale-110 transition-transform
-                                   duration-200"
+                <Icon
+                  name="Trash2"
+                  size={16}
+                  className="text-red-500 group-hover/delete:scale-110 transition-transform duration-200"
                 />
               </button>
             </div>

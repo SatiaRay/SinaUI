@@ -8,18 +8,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { notify } from '../../../components/ui/toast';
 import { confirm } from '../../../components/ui/alert/confirmation';
 import { EditWorkspaceLoading } from './EditWorkspaceLoading';
-import {
-  FaArrowLeft,
-  FaSave,
-  FaTrash,
-  FaUsers,
-  FaProjectDiagram,
-  FaCalendar,
-  FaCrown,
-  FaUser,
-  FaLock,
-  FaGlobe,
-} from 'react-icons/fa';
+import Icon from './Icon'; // Import the Icon component
 import { useDisplay } from '../../../hooks/display';
 
 /**
@@ -481,7 +470,7 @@ const EditWorkspacePage = () => {
             to="/workspace"
             className="px-4 py-2.5 flex items-center justify-center rounded-lg font-medium transition-all bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm"
           >
-            <FaArrowLeft className="ml-2" />
+            <Icon name="ArrowLeft" size={18} className="ml-2" />
             بازگشت به فهرست
           </Link>
         </div>
@@ -629,54 +618,53 @@ const EditWorkspacePage = () => {
                       </select>
 
                       <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                        <svg
-                          className="w-5 h-5 text-gray-500 dark:text-gray-400 transform transition-transform duration-200"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
+                        <Icon
+                          name="ChevronDown"
+                          size={20}
+                          className="text-gray-500 dark:text-gray-400 transform transition-transform duration-200"
+                        />
                       </div>
 
                       <div className="absolute inset-y-0 right-3 flex items-center">
                         <div className="w-6 h-6 rounded-md flex items-center justify-center bg-gray-100 dark:bg-gray-700">
                           {selectedPlan.id === 'free' && (
-                            <FaUser className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                            <Icon
+                              name="User"
+                              size={14}
+                              className="text-gray-600 dark:text-gray-400"
+                            />
                           )}
                           {selectedPlan.id === 'standard' && (
-                            <FaProjectDiagram className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                            <Icon
+                              name="Briefcase"
+                              size={14}
+                              className="text-green-600 dark:text-green-400"
+                            />
                           )}
                           {selectedPlan.id === 'pro' && (
-                            <FaCrown className="w-3.5 h-3.5 text-yellow-600 dark:text-yellow-400" />
+                            <Icon
+                              name="Crown"
+                              size={14}
+                              className="text-yellow-600 dark:text-yellow-400"
+                            />
                           )}
                           {selectedPlan.id === 'enterprise' && (
-                            <FaUsers className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                            <Icon
+                              name="Users"
+                              size={14}
+                              className="text-purple-600 dark:text-purple-400"
+                            />
                           )}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1.5 mt-2">
-                      <svg
-                        className="w-4 h-4 text-gray-400 dark:text-gray-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
+                      <Icon
+                        name="Info"
+                        size={16}
+                        className="text-gray-400 dark:text-gray-500"
+                      />
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         می‌توانید پلن فضای کاری را ارتقا دهید
                       </p>
@@ -710,7 +698,9 @@ const EditWorkspacePage = () => {
                                 : 'bg-gray-100 dark:bg-gray-700'
                             }`}
                           >
-                            <FaLock
+                            <Icon
+                              name="Lock"
+                              size={20}
                               className={`${
                                 formData.visibility === 'private'
                                   ? 'text-blue-600 dark:text-blue-400'
@@ -755,7 +745,9 @@ const EditWorkspacePage = () => {
                                 : 'bg-gray-100 dark:bg-gray-700'
                             }`}
                           >
-                            <FaGlobe
+                            <Icon
+                              name="Globe"
+                              size={20}
                               className={`${
                                 formData.visibility === 'public'
                                   ? 'text-blue-600 dark:text-blue-400'
@@ -837,7 +829,7 @@ const EditWorkspacePage = () => {
                             onClick={handleDeleteWorkspace}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
                           >
-                            <FaTrash />
+                            <Icon name="Trash2" size={18} />
                             حذف فضای کاری
                           </button>
                         </div>
@@ -897,12 +889,12 @@ const EditWorkspacePage = () => {
                       {workspace.role === 'admin' ||
                       workspace.role === 'owner' ? (
                         <span className="px-3 py-1.5 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 flex items-center gap-1">
-                          <FaCrown className="text-xs" />
+                          <Icon name="Crown" size={16} />
                           {workspace.role === 'admin' ? 'مدیر' : 'مالک'}
                         </span>
                       ) : (
                         <span className="px-3 py-1.5 text-sm font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                          <FaUser className="text-xs" />
+                          <Icon name="User" size={16} />
                           عضو
                         </span>
                       )}
@@ -920,7 +912,11 @@ const EditWorkspacePage = () => {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                          <FaUsers className="text-blue-600 dark:text-blue-400" />
+                          <Icon
+                            name="Users"
+                            size={20}
+                            className="text-blue-600 dark:text-blue-400"
+                          />
                         </div>
                         <div>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -936,7 +932,11 @@ const EditWorkspacePage = () => {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                          <FaProjectDiagram className="text-green-600 dark:text-green-400" />
+                          <Icon
+                            name="Briefcase"
+                            size={20}
+                            className="text-green-600 dark:text-green-400"
+                          />
                         </div>
                         <div>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -952,7 +952,11 @@ const EditWorkspacePage = () => {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                          <FaCalendar className="text-purple-600 dark:text-purple-400" />
+                          <Icon
+                            name="Calendar"
+                            size={20}
+                            className="text-purple-600 dark:text-purple-400"
+                          />
                         </div>
                         <div>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -1006,7 +1010,7 @@ const EditWorkspacePage = () => {
                       </>
                     ) : (
                       <>
-                        <FaSave />
+                        <Icon name="Save" size={18} />
                         ذخیره تغییرات
                       </>
                     )}

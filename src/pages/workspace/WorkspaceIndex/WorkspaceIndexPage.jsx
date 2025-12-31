@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import WorkspaceCard from '../../../components/workspace/WorkspaceCard';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Pagination } from '../../../components/ui/pagination';
-import { notify } from '../../../components/ui/toast';
-import { confirm } from '../../../components/ui/alert/confirmation';
+import { Pagination } from '@components/ui/pagination';
+import { notify } from '@components/ui/toast';
+import { confirm } from '@components/ui/alert/confirmation';
 import { Link, useSearchParams } from 'react-router-dom';
-import { GoPlusCircle } from 'react-icons/go';
-import { FaFilter, FaSearch } from 'react-icons/fa';
 import { WorkspaceIndexLoading } from './WorkspaceIndexLoading';
 import { useDisplay } from '../../../hooks/display';
+import Icon from '../../../components/ui/Icon'; // Import the Icon component
 
 /**
  * Import empty state SVG
@@ -350,7 +349,11 @@ const WorkspaceIndexPage = () => {
             className="px-4 md:px-5 py-2.5 md:py-3 flex items-center justify-center rounded-lg md:rounded-xl font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-md md:shadow-lg hover:shadow-xl text-sm md:text-base flex-1 md:flex-none"
           >
             <span>فضای کاری جدید</span>
-            <GoPlusCircle size={18} className="pr-1.5 md:pr-2 box-content" />
+            <Icon
+              name="CirclePlus"
+              size={18}
+              className="pr-1.5 md:pr-2 box-content"
+            />
           </Link>
           {isDesktop && (
             <Link
@@ -376,7 +379,7 @@ const WorkspaceIndexPage = () => {
               className="w-full pr-10 md:pr-12 pl-3 md:pl-4 py-2.5 md:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg md:rounded-xl text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
             <div className="absolute right-3 md:right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <FaSearch className="text-sm md:text-base" />
+              <Icon name="Search" className="text-sm md:text-base" size={16} />
             </div>
           </div>
 
@@ -384,7 +387,7 @@ const WorkspaceIndexPage = () => {
           {isDesktop ? (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
-                <FaFilter />
+                <Icon name="Filter" size={14} />
                 <span>فیلتر:</span>
               </div>
 
@@ -475,7 +478,7 @@ const WorkspaceIndexPage = () => {
                 onClick={() => setShowMobileFilters(true)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-gray-700 dark:text-gray-300 transition-colors flex-1 justify-center"
               >
-                <FaFilter className="text-sm" />
+                <Icon name="Filter" className="text-sm" size={14} />
                 <span className="text-sm">فیلترها</span>
                 {(filterPlan !== 'all' || filterRole !== 'all') && (
                   <span className="w-2 h-2 bg-red-500 rounded-full"></span>

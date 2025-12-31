@@ -1,20 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import {
-  FaArrowLeft,
-  FaEdit,
-  FaArchive,
-  FaTrash,
-  FaUsers,
-  FaTasks,
-  FaCalendar,
-  FaUser,
-  FaChartBar,
-  FaCog,
-  FaFolder,
-  FaBell,
-  FaShareAlt,
-} from 'react-icons/fa';
+import Icon from './Icon'; // Import the Icon component
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
 import ShowFlowLoading from './ShowFlowLoading';
@@ -61,12 +47,20 @@ const ShowFlowPage = () => {
    * @type {Array<Object>}
    */
   const sidebarSections = [
-    { id: 'overview', name: 'مرور کلی', icon: <FaChartBar /> },
-    { id: 'tasks', name: 'وظایف', icon: <FaTasks /> },
-    { id: 'members', name: 'اعضا', icon: <FaUsers /> },
-    { id: 'files', name: 'فایل‌ها', icon: <FaFolder /> },
-    { id: 'activity', name: 'فعالیت‌ها', icon: <FaBell /> },
-    { id: 'settings', name: 'تنظیمات', icon: <FaCog /> },
+    {
+      id: 'overview',
+      name: 'مرور کلی',
+      icon: <Icon name="BarChart3" size={20} />,
+    },
+    { id: 'tasks', name: 'وظایف', icon: <Icon name="CheckSquare" size={20} /> },
+    { id: 'members', name: 'اعضا', icon: <Icon name="Users" size={20} /> },
+    { id: 'files', name: 'فایل‌ها', icon: <Icon name="Folder" size={20} /> },
+    { id: 'activity', name: 'فعالیت‌ها', icon: <Icon name="Bell" size={20} /> },
+    {
+      id: 'settings',
+      name: 'تنظیمات',
+      icon: <Icon name="Settings" size={20} />,
+    },
   ];
 
   /**
@@ -581,7 +575,11 @@ const ShowFlowPage = () => {
                   <span className="text-2xl font-bold text-gray-900 dark:text-white">
                     {calculateDaysRemaining(project.endDate)}
                   </span>
-                  <FaCalendar className="text-gray-400 text-lg" />
+                  <Icon
+                    name="Calendar"
+                    className="text-gray-400 text-lg"
+                    size={20}
+                  />
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {project.endDate
@@ -725,7 +723,11 @@ const ShowFlowPage = () => {
               مدیریت و مشاهده تمام وظایف این پروژه
             </p>
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              <FaTasks className="text-4xl mx-auto mb-3 opacity-50" />
+              <Icon
+                name="CheckSquare"
+                size={48}
+                className="mx-auto mb-3 opacity-50"
+              />
               <p>این بخش در حال توسعه است</p>
               <p className="text-sm mt-1">
                 به زودی امکان مدیریت وظایف اضافه خواهد شد
@@ -742,7 +744,7 @@ const ShowFlowPage = () => {
                 اعضای تیم ({project.memberCount})
               </h3>
               <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center gap-2">
-                <FaUser />
+                <Icon name="User" size={18} />
                 دعوت عضو جدید
               </button>
             </div>
@@ -769,10 +771,10 @@ const ShowFlowPage = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <button className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
-                        <FaShareAlt />
+                        <Icon name="Share2" size={18} />
                       </button>
                       <button className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                        <FaTrash className="text-sm" />
+                        <Icon name="Trash2" size={18} />
                       </button>
                     </div>
                   </div>
@@ -785,7 +787,11 @@ const ShowFlowPage = () => {
         return (
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              <FaCog className="text-4xl mx-auto mb-3 opacity-50" />
+              <Icon
+                name="Settings"
+                size={48}
+                className="mx-auto mb-3 opacity-50"
+              />
               <p>این بخش در حال توسعه است</p>
               <p className="text-sm mt-1">به زودی این ویژگی اضافه خواهد شد</p>
             </div>
@@ -863,7 +869,7 @@ const ShowFlowPage = () => {
                   onClick={handleEditProject}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center gap-2"
                 >
-                  <FaEdit />
+                  <Icon name="Edit" size={18} />
                   ویرایش
                 </button>
                 <button
@@ -874,14 +880,14 @@ const ShowFlowPage = () => {
                       : 'bg-yellow-600 hover:bg-yellow-700 text-white'
                   }`}
                 >
-                  <FaArchive />
+                  <Icon name="Archive" size={18} />
                   {project.status === 'archived' ? 'بازگردانی' : 'آرشیو'}
                 </button>
                 <button
                   onClick={handleDeleteProject}
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center gap-2"
                 >
-                  <FaTrash />
+                  <Icon name="Trash2" size={18} />
                   حذف
                 </button>
               </div>

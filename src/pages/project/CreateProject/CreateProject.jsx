@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  FaArrowLeft,
-  FaSave,
-  FaTasks,
-  FaTag,
-  FaCalendar,
-  FaChevronDown,
-} from 'react-icons/fa';
+import Icon from './Icon'; // Import the Icon component
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
 import { useDisplay } from '../../../hooks/display';
@@ -502,7 +495,7 @@ const CreateProject = () => {
               to={`/projects`}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
             >
-              <FaArrowLeft className="text-lg" />
+              <Icon name="ArrowLeft" size={18} />
             </Link>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
@@ -650,7 +643,7 @@ const CreateProject = () => {
                     maxLength={20}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <FaTag />
+                    <Icon name="Tag" size={20} />
                   </div>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -702,7 +695,7 @@ const CreateProject = () => {
                       className="w-full px-4 py-3 pr-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                      <FaCalendar />
+                      <Icon name="Calendar" size={20} />
                     </div>
                   </div>
                 </div>
@@ -722,7 +715,7 @@ const CreateProject = () => {
                       className="w-full px-4 py-3 pr-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                      <FaCalendar />
+                      <Icon name="Calendar" size={20} />
                     </div>
                   </div>
                 </div>
@@ -837,7 +830,7 @@ const CreateProject = () => {
                   </>
                 ) : (
                   <>
-                    <FaSave />
+                    <Icon name="Save" size={18} />
                     ایجاد پروژه
                   </>
                 )}

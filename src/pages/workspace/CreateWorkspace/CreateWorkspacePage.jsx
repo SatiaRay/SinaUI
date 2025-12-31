@@ -3,15 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
 import { Link } from 'react-router-dom';
-import {
-  FaArrowRight,
-  FaUsers,
-  FaCrown,
-  FaCheck,
-  FaLightbulb,
-  FaLock,
-  FaGlobe,
-} from 'react-icons/fa';
+import Icon from './Icon'; // Import the Icon component
 import { useDisplay } from '../../../hooks/display';
 
 /**
@@ -80,7 +72,7 @@ const CreateWorkspacePage = () => {
         '۱ گیگابایت فضای ذخیره‌سازی',
         'پشتیبانی پایه',
       ],
-      icon: FaLightbulb,
+      iconName: 'Lightbulb',
       color: 'from-gray-400 to-gray-600',
       badge: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
       popular: false,
@@ -97,7 +89,7 @@ const CreateWorkspacePage = () => {
         'پشتیبانی اولویت‌دار',
         'گزارش‌های پیشرفته',
       ],
-      icon: FaUsers,
+      iconName: 'Users',
       color: 'from-green-500 to-emerald-600',
       badge:
         'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
@@ -116,7 +108,7 @@ const CreateWorkspacePage = () => {
         'گزارش‌های کامل',
         'API دسترسی',
       ],
-      icon: FaCrown,
+      iconName: 'Crown',
       color: 'from-blue-500 to-purple-600',
       badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
       popular: false,
@@ -430,7 +422,11 @@ const CreateWorkspacePage = () => {
                             <div className="absolute inset-0 border-2 border-white rounded-lg"></div>
                           )}
                           {formData.color === color.id && (
-                            <FaCheck className="text-white text-sm absolute" />
+                            <Icon
+                              name="Check"
+                              size={16}
+                              className="text-white absolute"
+                            />
                           )}
                         </div>
                         <span className="text-xs text-gray-700 dark:text-gray-300 mt-1">
@@ -448,90 +444,95 @@ const CreateWorkspacePage = () => {
                   </h3>
 
                   <div className="space-y-4">
-                    {planOptions.map((plan) => {
-                      const Icon = plan.icon;
-                      return (
-                        <div
-                          key={plan.id}
-                          className={`relative border rounded-xl p-4 md:p-5 cursor-pointer transition-all duration-200 ${
-                            formData.plan === plan.id
-                              ? 'border-blue-500 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500/20'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                          }`}
-                          onClick={() =>
-                            setFormData((prev) => ({ ...prev, plan: plan.id }))
-                          }
-                        >
-                          {/* Popular badge */}
-                          {plan.popular && (
-                            <div className="absolute -top-2 right-4">
-                              <span className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
-                                پرفروش
-                              </span>
-                            </div>
-                          )}
+                    {planOptions.map((plan) => (
+                      <div
+                        key={plan.id}
+                        className={`relative border rounded-xl p-4 md:p-5 cursor-pointer transition-all duration-200 ${
+                          formData.plan === plan.id
+                            ? 'border-blue-500 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500/20'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                        }`}
+                        onClick={() =>
+                          setFormData((prev) => ({ ...prev, plan: plan.id }))
+                        }
+                      >
+                        {/* Popular badge */}
+                        {plan.popular && (
+                          <div className="absolute -top-2 right-4">
+                            <span className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
+                              پرفروش
+                            </span>
+                          </div>
+                        )}
 
-                          <div className="flex items-start gap-4">
-                            {/* Plan icon */}
-                            <div
-                              className={`${plan.color} w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0`}
-                            >
-                              <Icon className="text-white text-xl" />
-                            </div>
+                        <div className="flex items-start gap-4">
+                          {/* Plan icon */}
+                          <div
+                            className={`${plan.color} w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0`}
+                          >
+                            <Icon
+                              name={plan.iconName}
+                              size={20}
+                              className="text-white"
+                            />
+                          </div>
 
-                            {/* Plan details */}
-                            <div className="flex-1">
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <h4 className="font-bold text-gray-900 dark:text-white text-lg">
-                                    {plan.name}
-                                  </h4>
-                                  <div className="flex items-baseline gap-1 mt-1">
-                                    <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                                      {plan.price}
-                                    </span>
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                                      تومان
-                                    </span>
-                                    <span className="text-xs text-gray-500 dark:text-gray-500">
-                                      /{plan.period}
-                                    </span>
-                                  </div>
+                          {/* Plan details */}
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h4 className="font-bold text-gray-900 dark:text-white text-lg">
+                                  {plan.name}
+                                </h4>
+                                <div className="flex items-baseline gap-1 mt-1">
+                                  <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {plan.price}
+                                  </span>
+                                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                                    تومان
+                                  </span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-500">
+                                    /{plan.period}
+                                  </span>
                                 </div>
+                              </div>
 
-                                {/* Radio button */}
+                              {/* Radio button */}
+                              <div
+                                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                                  formData.plan === plan.id
+                                    ? 'border-blue-500 bg-blue-500'
+                                    : 'border-gray-300 dark:border-gray-600'
+                                }`}
+                              >
+                                {formData.plan === plan.id && (
+                                  <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Plan features */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+                              {plan.features.map((feature, index) => (
                                 <div
-                                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                                    formData.plan === plan.id
-                                      ? 'border-blue-500 bg-blue-500'
-                                      : 'border-gray-300 dark:border-gray-600'
-                                  }`}
+                                  key={index}
+                                  className="flex items-center gap-2"
                                 >
-                                  {formData.plan === plan.id && (
-                                    <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
-                                  )}
+                                  <Icon
+                                    name="Check"
+                                    size={16}
+                                    className="text-green-500 flex-shrink-0"
+                                  />
+                                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                                    {feature}
+                                  </span>
                                 </div>
-                              </div>
-
-                              {/* Plan features */}
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
-                                {plan.features.map((feature, index) => (
-                                  <div
-                                    key={index}
-                                    className="flex items-center gap-2"
-                                  >
-                                    <FaCheck className="text-green-500 text-sm flex-shrink-0" />
-                                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                                      {feature}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
+                              ))}
                             </div>
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -609,8 +610,10 @@ const CreateWorkspacePage = () => {
                               : 'bg-gray-100 dark:bg-gray-700'
                           }`}
                         >
-                          <FaLock
-                            className={`text-lg ${
+                          <Icon
+                            name="Lock"
+                            size={20}
+                            className={`${
                               formData.visibility === 'private'
                                 ? 'text-blue-600 dark:text-blue-400'
                                 : 'text-gray-500 dark:text-gray-400'
@@ -663,8 +666,10 @@ const CreateWorkspacePage = () => {
                               : 'bg-gray-100 dark:bg-gray-700'
                           }`}
                         >
-                          <FaGlobe
-                            className={`text-lg ${
+                          <Icon
+                            name="Globe"
+                            size={20}
+                            className={`${
                               formData.visibility === 'public'
                                 ? 'text-blue-600 dark:text-blue-400'
                                 : 'text-gray-500 dark:text-gray-400'
@@ -734,7 +739,7 @@ const CreateWorkspacePage = () => {
                     }`}
                   >
                     <span className="font-bold">ایجاد فضای کاری</span>
-                    <FaArrowRight />
+                    <Icon name="ArrowRight" size={18} />
                   </button>
                 </div>
               </div>
