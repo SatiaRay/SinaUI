@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  TbTestPipe,
-  TbSend,
-  TbCopy,
-  TbRefresh,
-  TbAlertCircle,
-} from 'react-icons/tb';
+import Icon from '@components/ui/Icon';
 
 /**
  * Quick Test Panel Component
@@ -112,7 +106,7 @@ const QuickTestPanel = ({
     <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-4 sm:p-5">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <TbTestPipe />
+          <Icon name="TestTube" size={20} />
           تست سریع API
         </h3>
         <button
@@ -212,12 +206,12 @@ const QuickTestPanel = ({
           >
             {isTesting ? (
               <>
-                <TbRefresh className="animate-spin" />
+                <Icon name="RefreshCw" className="animate-spin" />
                 <span>در حال تست...</span>
               </>
             ) : (
               <>
-                <TbSend />
+                <Icon name="Send" />
                 <span>ارسال تست</span>
               </>
             )}
@@ -235,7 +229,7 @@ const QuickTestPanel = ({
                 onClick={copyTestResponse}
                 className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
               >
-                <TbCopy size={14} />
+                <Icon name="Copy" size={14} />
                 کپی پاسخ
               </button>
             </div>
@@ -257,7 +251,11 @@ const QuickTestPanel = ({
               {testResult.status === 0 && (
                 <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                   <div className="flex items-start gap-2">
-                    <TbAlertCircle className="text-red-500 mt-0.5" />
+                    <Icon
+                      name="AlertCircle"
+                      size={18}
+                      className="text-red-500 mt-0.5"
+                    />
                     <div>
                       <p className="text-sm font-medium text-red-800 dark:text-red-300">
                         خطای اتصال

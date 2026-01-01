@@ -5,11 +5,9 @@ import { Pagination } from '@components/ui/pagination';
 import { notify } from '@components/ui/toast';
 import { confirm } from '@components/ui/alert/confirmation';
 import { Link, useSearchParams } from 'react-router-dom';
-import { GoPlusCircle } from 'react-icons/go';
-import { TbApi } from 'react-icons/tb';
-import { FaRegClone, FaChartLine } from 'react-icons/fa';
 import { ApiIntegrationLoading } from './ApiIntegationLoading';
 import { useDisplay } from 'hooks/display';
+import Icon from '@components/ui/Icon'; // Import the Icon component
 
 /**
  * Mock data for API integrations
@@ -52,7 +50,7 @@ const MOCK_INTEGRATIONS = [
     description: 'API داخلی برای پردازش داده‌های خاص',
     is_active: false,
     created_at: '2024-01-25T16:45:00Z',
-    updated_at: '2024-03-10T08:30:00Z',
+    updatedAt: '2024-03-10T08:30:00Z',
     usage_count: 156,
     rate_limit: 100,
   },
@@ -231,7 +229,7 @@ const ApiIntegrationIndexPage = () => {
       <div className="mx-3 md:mx-0 md:mb-6 pb-4 pt-3 md:pt-0 border-b border-gray-600 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl">
-            <TbApi className="text-white text-2xl" />
+            <Icon name="Api" className="text-white text-2xl" size={24} />
           </div>
           <div>
             <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -249,14 +247,14 @@ const ApiIntegrationIndexPage = () => {
             className="px-4 sm:px-6 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 shadow-lg hover:shadow-xl whitespace-nowrap min-w-[140px]"
           >
             <span>API جدید</span>
-            <GoPlusCircle size={20} className="mr-2" />
+            <Icon name="CirclePlus" size={20} className="mr-2" />
           </Link>
           <button
             onClick={() => notify.info('این بخش در نسخه نمایشی فعال نیست')}
             className="px-4 sm:px-6 py-3 flex items-center justify-center rounded-xl font-medium transition-all bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 whitespace-nowrap min-w-[140px]"
           >
             <span>گزارش استفاده</span>
-            <FaChartLine size={18} className="mr-2" />
+            <Icon name="ChartLine" size={18} className="mr-2" />
           </button>
         </div>
       </div>
@@ -277,7 +275,7 @@ const ApiIntegrationIndexPage = () => {
               </p>
             </div>
             <div className="p-3 bg-blue-500/10 rounded-lg">
-              <TbApi className="text-blue-500 text-xl" />
+              <Icon name="Api" className="text-blue-500 text-xl" size={20} />
             </div>
           </div>
         </div>
@@ -324,7 +322,11 @@ const ApiIntegrationIndexPage = () => {
       <div className="mx-3 md:mx-0 mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
         <div className="flex items-start gap-3">
           <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg">
-            <TbApi className="text-amber-600 dark:text-amber-300" />
+            <Icon
+              name="Api"
+              className="text-amber-600 dark:text-amber-300"
+              size={18}
+            />
           </div>
           <div>
             <h4 className="font-medium text-amber-800 dark:text-amber-300">
@@ -364,7 +366,7 @@ const ApiIntegrationIndexPage = () => {
       {integrations.length === 0 && !isLoading && (
         <div className="text-center py-12">
           <div className="inline-block p-6 bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-gray-800 dark:to-gray-900 rounded-full mb-4">
-            <TbApi className="text-4xl text-indigo-500" />
+            <Icon name="Api" className="text-4xl text-indigo-500" size={40} />
           </div>
           <h4 className="text-xl font-semibold mb-2">هیچ API‌ای یافت نشد</h4>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -374,7 +376,7 @@ const ApiIntegrationIndexPage = () => {
             to={'/api-integrations/create'}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all"
           >
-            <GoPlusCircle />
+            <Icon name="CirclePlus" size={18} />
             افزودن اولین API
           </Link>
         </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TbSettings } from 'react-icons/tb';
+import Icon from '@components/ui/Icon'; // Import the Icon component
 
 /**
  * Basic Information Tab Component
@@ -15,7 +15,7 @@ const ApiBasicInfo = ({ formData, handleInputChange, isMobile }) => {
     <div className="space-y-4 sm:space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-4 sm:p-5">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
-          <TbSettings />
+          <Icon name="Settings" size={20} />
           اطلاعات پایه API
         </h3>
         <div className="space-y-3 sm:space-y-4">

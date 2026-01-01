@@ -1,5 +1,5 @@
 import React from 'react';
-import { TbApi } from 'react-icons/tb';
+import Icon from '@components/ui/Icon'; // Import the Icon component
 
 /**
  * Information Card Component
@@ -11,7 +11,11 @@ const InfoCard = () => {
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-100 dark:border-blue-800 p-4 sm:p-5">
       <div className="flex items-start gap-2 sm:gap-3">
         <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-800 rounded-lg flex-shrink-0">
-          <TbApi className="text-blue-600 dark:text-blue-300 text-sm sm:text-base" />
+          <Icon
+            name="Api"
+            className="text-blue-600 dark:text-blue-300 text-sm sm:text-base"
+            size={16}
+          />
         </div>
         <div>
           <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-1 sm:mb-2 text-sm sm:text-base">

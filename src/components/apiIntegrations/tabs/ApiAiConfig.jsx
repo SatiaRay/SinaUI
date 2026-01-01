@@ -1,6 +1,5 @@
 import React from 'react';
-import { TbApi } from 'react-icons/tb';
-import { FaQuestionCircle } from 'react-icons/fa';
+import Icon from '@components/ui/Icon'; // Import the Icon component
 
 /**
  * AI Configuration Tab Component
@@ -15,7 +14,7 @@ const ApiAiConfig = ({ formData, handleInputChange }) => {
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <TbApi />
+          <Icon name="Api" size={20} />
           تنظیمات یکپارچه‌سازی با AI
         </h3>
         <div className="space-y-4">
@@ -90,7 +89,11 @@ const ApiAiConfig = ({ formData, handleInputChange }) => {
 
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
                 <div className="flex items-start gap-3">
-                  <FaQuestionCircle className="text-blue-500 mt-1 flex-shrink-0" />
+                  <Icon
+                    name="CircleHelp"
+                    className="text-blue-500 mt-1 flex-shrink-0"
+                    size={18}
+                  />
                   <div>
                     <h4 className="font-medium text-blue-800 dark:text-blue-300">
                       نکته مهم برای AI Agent

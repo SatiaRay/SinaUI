@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaTrash, FaEdit, FaSync, FaKey, FaLink, FaCopy } from 'react-icons/fa';
+import Icon from '@components/ui/Icon';
 import { useNavigate } from 'react-router-dom';
 import { notify } from '../../ui/toast';
 
@@ -99,13 +99,13 @@ const ApiIntegrationCard = ({
   const getIntegrationIcon = () => {
     switch (integration.integration_type) {
       case 'openai':
-        return <FaKey className="text-purple-500" />;
+        return <Icon name="Key" className="text-purple-500" />;
       case 'anthropic':
-        return <FaKey className="text-blue-500" />;
+        return <Icon name="Key" className="text-blue-500" />;
       case 'custom':
-        return <FaLink className="text-green-500" />;
+        return <Icon name="Link" className="text-green-500" />;
       default:
-        return <FaKey className="text-gray-500" />;
+        return <Icon name="Key" className="text-gray-500" />;
     }
   };
 
@@ -135,7 +135,7 @@ const ApiIntegrationCard = ({
       {/* Loading overlay */}
       {isLoading && (
         <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center z-10">
-          <FaSync className="animate-spin text-white text-xl" />
+          <Icon name="RefreshCw" className="animate-spin text-white text-xl" />
         </div>
       )}
 
@@ -186,7 +186,7 @@ const ApiIntegrationCard = ({
           <div className="flex items-center justify-between text-sm">
             <div className="flex flex-col gap-1 text-gray-600 dark:text-gray-400">
               <div className="flex items-center gap-2">
-                <FaKey className="text-xs text-indigo-500" />
+                <Icon name="Key" className="text-xs text-indigo-500" />
                 <span className="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                   {formatApiKey()}
                 </span>
@@ -195,7 +195,7 @@ const ApiIntegrationCard = ({
                   className="p-1 text-gray-400 hover:text-indigo-500 transition-colors"
                   title="کپی کلید API"
                 >
-                  <FaCopy className="text-xs" />
+                  <Icon name="Copy" className="text-xs" />
                 </button>
               </div>
               <div className="flex items-center gap-2">
@@ -213,7 +213,10 @@ const ApiIntegrationCard = ({
                 className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 group/delete"
                 title="حذف API"
               >
-                <FaTrash className="text-red-500 group-hover/delete:scale-110 transition-transform duration-200" />
+                <Icon
+                  name="Trash2"
+                  className="text-red-500 group-hover/delete:scale-110 transition-transform duration-200"
+                />
               </button>
               <button
                 onClick={(e) => {
@@ -223,7 +226,10 @@ const ApiIntegrationCard = ({
                 className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200 group/edit"
                 title="ویرایش API"
               >
-                <FaEdit className="text-blue-500 group-hover/edit:scale-110 transition-transform duration-200" />
+                <Icon
+                  name="Edit"
+                  className="text-blue-500 group-hover/edit:scale-110 transition-transform duration-200"
+                />
               </button>
             </div>
           </div>

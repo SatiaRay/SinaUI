@@ -1,19 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  FaArrowLeft,
-  FaSave,
-  FaExclamationTriangle,
-  FaCheckCircle,
-} from 'react-icons/fa';
-import {
-  TbApi,
-  TbTestPipe,
-  TbRefresh,
-  TbChevronDown,
-  TbEdit,
-  TbEye,
-} from 'react-icons/tb';
-
+import Icon from '@components/ui/Icon';
 import Swal from 'sweetalert2';
 
 /**
@@ -162,12 +148,14 @@ const Header = ({
    */
   const getSaveButtonIcon = () => {
     if (isSubmitting) {
-      return <TbRefresh className="animate-spin text-xs sm:text-sm" />;
+      return (
+        <Icon name="RefreshCw" className="animate-spin text-xs sm:text-sm" />
+      );
     }
     if (isEditMode && !hasChanges) {
-      return <FaCheckCircle className="text-xs sm:text-sm" />;
+      return <Icon name="CheckCircle" className="text-xs sm:text-sm" />;
     }
-    return <FaSave className="text-xs sm:text-sm" />;
+    return <Icon name="Save" className="text-xs sm:text-sm" />;
   };
 
   /**
@@ -259,16 +247,25 @@ const Header = ({
               className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
               aria-label="بازگشت"
             >
-              <FaArrowLeft className="text-gray-600 dark:text-gray-400 text-base" />
+              <Icon
+                name="ArrowLeft"
+                className="text-gray-600 dark:text-gray-400 text-base"
+              />
             </button>
             <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
               <div
                 className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${isEditMode ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-gradient-to-r from-indigo-500 to-purple-500'}`}
               >
                 {isEditMode ? (
-                  <TbEdit className="text-white text-base sm:text-lg" />
+                  <Icon
+                    name="Edit"
+                    className="text-white text-base sm:text-lg"
+                  />
                 ) : (
-                  <TbApi className="text-white text-base sm:text-lg" />
+                  <Icon
+                    name="Api"
+                    className="text-white text-base sm:text-lg"
+                  />
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -286,7 +283,7 @@ const Header = ({
                       </span>
                       {hasChanges && (
                         <div className="flex items-center gap-0.5 text-xs text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                          <FaExclamationTriangle className="text-xs" />
+                          <Icon name="AlertTriangle" className="text-xs" />
                           <span className="hidden xs:inline">
                             تغییرات ذخیره نشده
                           </span>
@@ -323,7 +320,8 @@ const Header = ({
                   <span className="truncate max-w-[70px] sm:max-w-none">
                     {getActiveTabLabel()}
                   </span>
-                  <TbChevronDown
+                  <Icon
+                    name="ChevronDown"
                     className={`transition-transform text-sm ${mobileMenuOpen ? 'rotate-180' : ''}`}
                   />
                 </button>
@@ -355,7 +353,7 @@ const Header = ({
                 className="px-2.5 sm:px-3 py-1.5 flex items-center gap-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all text-sm whitespace-nowrap"
                 aria-label="پیش‌نمایش"
               >
-                <TbEye className="text-sm" />
+                <Icon name="Eye" className="text-sm" />
                 <span className="hidden xs:inline">پیش‌نمایش</span>
               </button>
             )}
@@ -366,7 +364,7 @@ const Header = ({
               className="px-2.5 sm:px-3 py-1.5 flex items-center gap-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-lg hover:from-emerald-600 hover:to-green-600 transition-all text-sm whitespace-nowrap"
               aria-label="تست کامل"
             >
-              <TbTestPipe className="text-sm" />
+              <Icon name="TestTube" className="text-sm" />
               <span className="hidden sm:inline">تست کامل</span>
             </button>
 

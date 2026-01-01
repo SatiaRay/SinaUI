@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  TbChevronRight,
-  TbSettings,
-  TbCode,
-  TbLock,
-  TbApi,
-  TbTestPipe,
-} from 'react-icons/tb';
+import Icon from '@components/ui/Icon';
 
 /**
  * Icon mapping for tabs
@@ -14,11 +7,12 @@ import {
  * @type {Object}
  */
 const iconMap = {
-  TbSettings: TbSettings,
-  TbCode: TbCode,
-  TbLock: TbLock,
-  TbApi: TbApi,
-  TbTestPipe: TbTestPipe,
+  TbSettings: 'Settings',
+  TbCode: 'Code',
+  TbLock: 'Lock',
+  TbApi: 'Api',
+  TbTestPipe: 'TestTube',
+  TbChevronRight: 'ChevronRight',
 };
 
 /**
@@ -67,17 +61,6 @@ const NavigationTabs = ({ activeTab, setActiveTab, tabs, isMobile }) => {
   }, []);
 
   /**
-   * Renders icon component based on icon name
-   * @function renderIcon
-   * @param {string} iconName - Name of the icon
-   * @returns {JSX.Element} Icon component
-   */
-  const renderIcon = (iconName) => {
-    const IconComponent = iconMap[iconName] || TbSettings;
-    return <IconComponent />;
-  };
-
-  /**
    * Handle tab click with responsive considerations
    * @function handleTabClick
    * @param {string} tabId - ID of the tab to activate
@@ -107,7 +90,11 @@ const NavigationTabs = ({ activeTab, setActiveTab, tabs, isMobile }) => {
         >
           {isCollapsed ? (
             <div className="flex flex-col items-center">
-              <TbSettings className="text-gray-900 dark:text-white" size={24} />
+              <Icon
+                name="Settings"
+                className="text-gray-900 dark:text-white"
+                size={24}
+              />
               <div className="mt-2 w-8 h-1 bg-indigo-500 rounded-full"></div>
             </div>
           ) : (
@@ -132,7 +119,8 @@ const NavigationTabs = ({ activeTab, setActiveTab, tabs, isMobile }) => {
               : 'Collapse settings sidebar'
           }
         >
-          <TbChevronRight
+          <Icon
+            name="ChevronRight"
             className={`transform transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
           />
         </button>
@@ -140,7 +128,7 @@ const NavigationTabs = ({ activeTab, setActiveTab, tabs, isMobile }) => {
         {/* Tabs list */}
         <div className="flex-1 overflow-y-auto">
           {tabs.map((tab) => {
-            const IconComponent = iconMap[tab.icon] || TbSettings;
+            const iconName = iconMap[tab.icon] || 'Settings';
             return (
               <button
                 key={tab.id}
@@ -159,7 +147,7 @@ const NavigationTabs = ({ activeTab, setActiveTab, tabs, isMobile }) => {
                       : 'bg-gray-100 dark:bg-gray-800'
                   } ${isCollapsed ? 'p-2' : 'p-2'}`}
                 >
-                  <IconComponent />
+                  <Icon name={iconName} />
                 </div>
 
                 {!isCollapsed && (
@@ -172,7 +160,10 @@ const NavigationTabs = ({ activeTab, setActiveTab, tabs, isMobile }) => {
                 )}
 
                 {!isCollapsed && activeTab === tab.id && (
-                  <TbChevronRight className="text-indigo-500 flex-shrink-0" />
+                  <Icon
+                    name="ChevronRight"
+                    className="text-indigo-500 flex-shrink-0"
+                  />
                 )}
 
                 {/* Tooltip for collapsed state */}

@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  FaSave,
-  FaTimes,
-  FaExclamationTriangle,
-  FaHistory,
-} from 'react-icons/fa';
-import { TbRefresh, TbRotateClockwise, TbCheck } from 'react-icons/tb';
+import Icon from '@components/ui/Icon';
 import Swal from 'sweetalert2';
 
 /**
@@ -44,7 +38,7 @@ const Footer = ({
       if (hasChanges) {
         return (
           <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-            <FaExclamationTriangle className="text-sm" />
+            <Icon name="AlertTriangle" size={14} />
             <span className="font-medium">هشدار:</span> تغییرات ذخیره نشده‌ای
             دارید
           </div>
@@ -52,7 +46,7 @@ const Footer = ({
       } else {
         return (
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-            <TbCheck className="text-sm" />
+            <Icon name="Check" size={14} />
             <span className="font-medium">آماده:</span> همه تغییرات ذخیره
             شده‌اند
           </div>
@@ -63,7 +57,7 @@ const Footer = ({
     if (isDraft) {
       return (
         <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-          <FaHistory className="text-sm" />
+          <Icon name="History" size={14} />
           <span className="font-medium">پیش‌نویس:</span> می‌توانید بعداً ادامه
           دهید
         </div>
@@ -114,12 +108,12 @@ const Footer = ({
    */
   const getSubmitButtonIcon = () => {
     if (isSubmitting) {
-      return <TbRefresh className="animate-spin" />;
+      return <Icon name="RefreshCw" className="animate-spin" />;
     }
     if (isEditMode && !hasChanges) {
-      return <TbCheck />;
+      return <Icon name="Check" />;
     }
-    return <FaSave />;
+    return <Icon name="Save" />;
   };
 
   /**
@@ -200,7 +194,7 @@ const Footer = ({
                 onClick={handleResetAction}
                 className="px-3 sm:px-4 py-2 sm:py-2.5 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors text-xs sm:text-sm flex items-center gap-1 sm:gap-2 justify-center flex-1 md:flex-none"
               >
-                <TbRotateClockwise />
+                <Icon name="RotateCw" />
                 <span className="hidden xs:inline">بازنشانی</span>
               </button>
             )}
@@ -212,7 +206,7 @@ const Footer = ({
                 disabled={isSubmitting}
                 className="px-3 sm:px-4 py-2 sm:py-2.5 border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 disabled:opacity-50 transition-colors text-xs sm:text-sm flex items-center gap-1 sm:gap-2 justify-center flex-1 md:flex-none"
               >
-                <FaSave />
+                <Icon name="Save" />
                 <span className="hidden xs:inline">ذخیره پیش‌نویس</span>
                 <span className="xs:hidden">پیش‌نویس</span>
               </button>
@@ -223,7 +217,7 @@ const Footer = ({
               onClick={handleCancelAction}
               className="px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-xs sm:text-sm flex items-center gap-1 sm:gap-2 justify-center flex-1 md:flex-none"
             >
-              <FaTimes />
+              <Icon name="X" />
               <span className="hidden xs:inline">{getCancelButtonText()}</span>
               <span className="xs:hidden">انصراف</span>
             </button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TbLock } from 'react-icons/tb';
+import Icon from '@components/ui/Icon'; // Import the Icon component
 
 /**
  * Authentication Configuration Tab Component
@@ -30,7 +30,7 @@ const ApiAuthConfig = ({ formData, handleInputChange }) => {
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <TbLock />
+          <Icon name="Lock" size={20} />
           تنظیمات احراز هویت
         </h3>
         <div className="space-y-6">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TbCode, TbJson, TbPlus, TbTrash } from 'react-icons/tb';
+import Icon from '@components/ui/Icon';
 
 /**
  * Parameter Item Component
@@ -97,7 +97,7 @@ const ParameterItem = ({
             }
             className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
           >
-            <TbTrash size={16} />
+            <Icon name="Trash2" size={16} />
           </button>
         )}
       </div>
@@ -208,7 +208,7 @@ const HeaderItem = ({
             }
             className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
           >
-            <TbTrash size={16} />
+            <Icon name="Trash2" size={16} />
           </button>
         )}
       </div>
@@ -262,7 +262,7 @@ const ApiRequestConfig = ({
       {/* HTTP Method & Timeout */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <TbCode />
+          <Icon name="Code" />
           تنظیمات درخواست
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -309,14 +309,14 @@ const ApiRequestConfig = ({
       <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <TbJson />
+            <Icon name="Braces" />
             پارامترها
           </h3>
           <button
             onClick={addParameter}
             className="flex items-center gap-2 px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
           >
-            <TbPlus size={16} />
+            <Icon name="Plus" size={16} />
             افزودن پارامتر
           </button>
         </div>
@@ -339,14 +339,14 @@ const ApiRequestConfig = ({
       <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <TbCode />
+            <Icon name="Code" />
             هدرها
           </h3>
           <button
             onClick={addHeader}
             className="flex items-center gap-2 px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
           >
-            <TbPlus size={16} />
+            <Icon name="Plus" size={16} />
             افزودن هدر
           </button>
         </div>

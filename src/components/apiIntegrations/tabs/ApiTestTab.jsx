@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  TbTestPipe,
-  TbSend,
-  TbCopy,
-  TbRefresh,
-  TbChevronLeft,
-  TbAlertCircle,
-  TbClock,
-  TbDatabase,
-  TbExternalLink,
-  TbLink,
-} from 'react-icons/tb';
-import { notify } from '@components/ui/toast'; // فرض می‌کنیم توست از این مسیر import می‌شود
+import Icon from '@components/ui/Icon';
+import { notify } from '@components/ui/toast';
 
 /**
  * Test Tab Component
@@ -263,10 +252,13 @@ const ApiTestTab = ({
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               title="بازگشت به تنظیمات"
             >
-              <TbChevronLeft className="text-gray-600 dark:text-gray-400" />
+              <Icon
+                name="ChevronLeft"
+                className="text-gray-600 dark:text-gray-400"
+              />
             </button>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <TbTestPipe />
+              <Icon name="TestTube" />
               تست کامل API
             </h3>
           </div>
@@ -357,7 +349,8 @@ const ApiTestTab = ({
                       className="px-3 py-2 sm:py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
                       title="کپی URL"
                     >
-                      <TbCopy
+                      <Icon
+                        name="Copy"
                         size={18}
                         className="text-gray-600 dark:text-gray-400"
                       />
@@ -368,7 +361,8 @@ const ApiTestTab = ({
                       className="px-3 py-2 sm:py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center border-t sm:border-t-0 sm:border-l dark:border-gray-700"
                       title="باز کردن در تب جدید"
                     >
-                      <TbExternalLink
+                      <Icon
+                        name="ExternalLink"
                         size={18}
                         className="text-gray-600 dark:text-gray-400"
                       />
@@ -380,7 +374,7 @@ const ApiTestTab = ({
                 {showFullUrl && (
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-lg border dark:border-gray-700 p-4">
                     <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                      <TbLink size={16} />
+                      <Icon name="Link" size={16} />
                       تجزیه URL
                     </h5>
                     <div className="space-y-3">
@@ -653,12 +647,12 @@ const ApiTestTab = ({
             >
               {isTesting ? (
                 <>
-                  <TbRefresh className="animate-spin" />
+                  <Icon name="RefreshCw" className="animate-spin" />
                   در حال ارسال درخواست...
                 </>
               ) : (
                 <>
-                  <TbSend />
+                  <Icon name="Send" />
                   ارسال درخواست تست
                 </>
               )}
@@ -681,7 +675,7 @@ const ApiTestTab = ({
                     onClick={copyTestResponse}
                     className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
                   >
-                    <TbCopy size={16} />
+                    <Icon name="Copy" size={16} />
                     کپی پاسخ
                   </button>
                   <button
@@ -723,13 +717,13 @@ const ApiTestTab = ({
                     </div>
                     {testResult.status !== 0 && testResult.duration && (
                       <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                        <TbClock size={14} />
+                        <Icon name="Clock" size={14} />
                         زمان: {testResult.duration}ms
                       </div>
                     )}
                     {testResult.status !== 0 && testResult.size && (
                       <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                        <TbDatabase size={14} />
+                        <Icon name="Database" size={14} />
                         حجم: {testResult.size}
                       </div>
                     )}
@@ -739,9 +733,10 @@ const ApiTestTab = ({
                 {testResult.status === 0 && (
                   <div className="p-4 border-b dark:border-gray-700 bg-red-50 dark:bg-red-900/20">
                     <div className="flex items-start gap-3">
-                      <TbAlertCircle
-                        className="text-red-500 mt-0.5"
+                      <Icon
+                        name="AlertCircle"
                         size={20}
+                        className="text-red-500 mt-0.5"
                       />
                       <div>
                         <h5 className="font-medium text-red-800 dark:text-red-300">
@@ -786,7 +781,7 @@ const ApiTestTab = ({
                           onClick={copyResponseHeaders}
                           className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
                         >
-                          <TbCopy size={12} />
+                          <Icon name="Copy" size={12} />
                           کپی هدرها
                         </button>
                       </div>
