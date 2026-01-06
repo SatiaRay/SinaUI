@@ -44,6 +44,7 @@ import {
   WizardIndexPage,
 } from '@pages/wizard';
 import { ThemeProvider } from '@contexts/ThemeContext';
+import IntegrationPage from '@pages/integration/IntegrationPage';
 // import { VoiceAgentProvider } from './contexts/VoiceAgentContext';
 
 function App() {
@@ -305,6 +306,14 @@ function privateRoutes() {
           }
         />
       </Route>
+      <Route
+          path="chat-module"
+          element={
+            <PrivateRoute>
+              <IntegrationPage />
+            </PrivateRoute>
+          }
+        />
     </Routes>
   );
 }
