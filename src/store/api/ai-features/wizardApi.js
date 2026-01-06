@@ -4,7 +4,7 @@ const wizardApi = aiApi.injectEndpoints({
   endpoints: (builder) => ({
     getWizards: builder.query({
       query: ({ perpage = 10, page = 1 }) =>
-        `/wizards?perpage=${perpage}&page=${page}`,
+        `/wizards/?perpage=${perpage}&page=${page}`,
       providesTags: (result, error, arg) => {
         const items = Array.isArray(result?.wizards)
           ? result.wizards
