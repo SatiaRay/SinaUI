@@ -73,6 +73,8 @@ export const AuthProvider = ({ children }) => {
         setUser(completeUser);
         if (receivedToken) setToken(receivedToken);
 
+        localStorage.removeItem('chat_session_id');
+
         return { success: true };
       }
 
