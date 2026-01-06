@@ -84,7 +84,7 @@ const Register = () => {
 
       if (res?.status === 200 || res?.success) {
         notify.success('ثبت نام انجام شد');
-        navigate('/login');
+        window.location.replace('/login');
         return;
       }
 

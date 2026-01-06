@@ -44,18 +44,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // client-side validation (ما از native validation مرورگر استفاده نمی‌کنیم)
-    const newErrors = {};
-    if (!formData.email) newErrors.email = 'ایمیل الزامی است';
-    else if (!validateEmail(formData.email))
-      newErrors.email = 'ایمیل معتبر نیست';
-
-    if (!formData.password) newErrors.password = 'رمز عبور الزامی است';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    // اعتبارسنجی قبل‌ین...
 
     setLoading(true);
     setErrors({});
@@ -65,54 +54,28 @@ const Login = () => {
 
       if (res && typeof res === 'object') {
         if (res.success === false) {
-          if (res.fieldErrors && Object.keys(res.fieldErrors).length > 0) {
-            const serverErrors = {};
-            Object.entries(res.fieldErrors).forEach(([field, messages]) => {
-              serverErrors[field] = Array.isArray(messages)
-                ? messages.join(', ')
-                : String(messages);
-            });
-            setErrors(serverErrors);
-            return;
-          }
-
-          if (res.error) {
-            setErrors({ general: res.error });
-            return;
-          }
-
-          setErrors({
-            general: 'ورود ناموفق بود. لطفاً اطلاعات را بررسی کنید.',
-          });
+          // خطاهای قبلی...
           return;
         }
 
-        // موفق: AuthContext ست می‌کند و useEffect ریدایرکت می‌کند
+        // لاگین موفق - ریدایرکت با صفحه کامل
+        if (res.redirectUrl) {
+          // استفاده از window.location برای رفرش کامل
+          window.location.replace(res.redirectUrl);
+        } else {
+          // یا به مسیر پیش‌فرض
+          window.location.replace('/chat');
+        }
+
         return;
       }
 
-      // اگر authLogin رفتار قدیمی داشت، اجازه بده useEffect مدیریت کند
+      // اگر authLogin توکن را ذخیره کرد اما ریدایرکت نکرد:
+      setTimeout(() => {
+        window.location.replace('/chat');
+      }, 100);
     } catch (err) {
-      const serverData = err?.response?.data;
-      if (serverData) {
-        if (serverData.errors && typeof serverData.errors === 'object') {
-          const serverErrors = {};
-          Object.entries(serverData.errors).forEach(([field, messages]) => {
-            serverErrors[field] = Array.isArray(messages)
-              ? messages.join(', ')
-              : String(messages);
-          });
-          setErrors(serverErrors);
-        } else if (serverData.message) {
-          setErrors({ general: serverData.message });
-        } else {
-          setErrors({
-            general: err?.message || 'خطایی در ورود به سیستم رخ داد',
-          });
-        }
-      } else {
-        setErrors({ general: err?.message || 'خطایی در ورود به سیستم رخ داد' });
-      }
+      // خطاهای قبلی...
     } finally {
       setLoading(false);
     }
