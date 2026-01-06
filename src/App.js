@@ -22,12 +22,18 @@ import {
   CreateInstruction,
   InstructionIndex,
   EditInstruction,
-} from '@pages/instruction';
-import Login from '@components/Login';
-import Navbar from '@components/Navbar';
-import PrivateRoute from '@components/PrivateRoute';
-import { AuthProvider } from '@contexts/AuthContext';
-import Register from '@components/register';
+} from './pages/instruction';
+import { 
+  Integrations,
+  WidgetPreview,
+} from './pages/integration';
+import Login from './components/Login';
+import Navbar from './components/Navbar';
+import PrivateRoute from './components/PrivateRoute';
+import { WorkflowEditor } from './pages/workflow';
+import { AuthProvider } from './contexts/AuthContext';
+import { getVersion } from './utils/apis';
+import Register from './components/register';
 import Setting from '@pages/setting/SettingIndex/SettingIndexPage';
 import { ChatProvider } from '@contexts/ChatContext';
 
@@ -301,6 +307,24 @@ function privateRoutes() {
           element={
             <PrivateRoute>
               <EditInstruction />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+      <Route path="/integration">
+        <Route
+          index
+          element={
+            <PrivateRoute>
+              <Integrations />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="preview"
+          element={
+            <PrivateRoute>
+              <WidgetPreview />
             </PrivateRoute>
           }
         />
