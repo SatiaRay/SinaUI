@@ -145,7 +145,6 @@ export const AuthProvider = ({ children }) => {
       const res = await authEndpoints.register(payload);
 
       if (res && res.success) {
-        const receivedToken = res.data?.access_token ?? res.data?.token ?? null;
         const serverUser = res.data?.user ?? res.data?.data ?? null;
 
         let first_name = '';
@@ -155,16 +154,6 @@ export const AuthProvider = ({ children }) => {
         const parts = serverName.trim().split(/\s+/);
         first_name = parts.shift() || '';
         last_name = parts.join(' ') || '';
-
-        const completeUser = {
-          ...(serverUser || {}),
-          first_name,
-          last_name,
-          phone: serverUser?.phone ?? payload.phone,
-        };
-
-        setUser(completeUser);
-        if (receivedToken) setToken(receivedToken);
 
         return { success: true };
       }
