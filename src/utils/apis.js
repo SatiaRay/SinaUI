@@ -486,7 +486,7 @@ export const monitoringEndpoints = {
 export const wizardEndpoints = {
   getRootWizards: async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/wizards/hierarchy/roots`);
+      const response = await axios.get(`${BASE_URL}/wizards/`);
       return response.data;
     } catch (error) {
       console.error('Error listing root wizards:', error);

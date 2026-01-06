@@ -32,12 +32,12 @@ const wizardApi = aiApi.injectEndpoints({
       providesTags: (result, error, arg) => [{ type: 'Wizard', id: arg.id }],
     }),
     getRootWizards: builder.query({
-      query: () => '/wizards/hierarchy/roots',
+      query: () => '/wizards/',
       providesTags: ['Wizard'],
     }),
     createWizard: builder.mutation({
       query: (data) => ({
-        url: '/wizards',
+        url: '/wizards/',
         method: 'POST',
         body: data,
       }),
