@@ -60,6 +60,7 @@
     "react-typed": "^2.0.12",
     "reactflow": "^11.11.4",
     "recharts": "^3.2.0",
+    "rollup": "^4.55.1",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dotenv": "^0.5.1",
     "styled-components": "^6.1.19",

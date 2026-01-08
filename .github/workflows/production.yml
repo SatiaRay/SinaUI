@@ -41,3 +41,35 @@ jobs:
           echo "Deployed successfully to production"
           echo "Deployed at: $(date)"
 
+  build-widgets:
+    runs-on: production-server
+    environment: production
+    needs: deploy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: install PNPM
+        run: npm i -g pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build static files
+        run: npm run build:widget
+        env:
+          CI: false
+          REACT_APP_NAME: ${{ vars.REACT_APP_NAME }}
+          REACT_APP_IDP_SERVICE: ${{ secrets.REACT_APP_IDP_SERVICE }}
+          REACT_APP_AI_SERVICE: ${{ secrets.REACT_APP_AI_SERVICE }}
+          REACT_APP_KNOWLEDGE_SERVICE: ${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}
+          REACT_APP_FORCE_WEBSOCKET_PROTOCOL: ${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL || 'wss' }}
+      - name: Deploy build to web directory
+        run: |
+          cp -r build/bundle ${{ vars.ROOT_PATH }}
+      - name: Echo the result
+        run: |
+          echo "Deployed successfully to production"
+          echo "Deployed at: $(date)"
+
