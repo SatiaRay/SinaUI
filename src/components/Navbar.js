@@ -451,6 +451,7 @@ const Navbar = ({ onSidebarCollapse }) => {
    */
   const navItems = [
     { path: '/chat', label: 'چت', icon: 'MessageSquareText' },
+    { path: '/chat-module', label: 'ماژول', icon: 'Cable' },
     { path: '/document', label: 'پایگاه دانش', icon: 'BrainCircuit' },
     { path: '/wizard', label: 'ویزاردها', icon: 'Sparkles' },
     { path: '/workflow', label: 'گردش کار', icon: 'Workflow' },

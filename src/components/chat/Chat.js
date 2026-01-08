@@ -1,4 +1,4 @@
-import { BrushCleaning, LucideAudioLines } from 'lucide-react';
+import { BrushCleaning } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { BeatLoader } from 'react-spinners';
 import VoiceBtn from './VoiceBtn';
@@ -37,7 +37,7 @@ import {
   ErrorMessage,
   H4,
 } from '../ui/common';
-import Icon from '../ui/Icon';
+import { BotMessageSquare } from 'lucide-react';
 
 /**
  * Optimized table parser with DOM stability
@@ -829,7 +829,8 @@ const Chat = ({ services = null }) => {
               disabled={chatLoading || !question.trim()}
             >
               <svg fill="#2663eb" viewBox="0 0 24 24">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15
+                 2z" />
               </svg>
             </SendButton>
             <TextInputWithBreaks
@@ -887,7 +888,7 @@ const Chat = ({ services = null }) => {
                     style={{ marginLeft: '0.25rem' }}
                   />
                   <BotIconContainer>
-                    <Icon name="Bot" />
+                    <BotMessageSquare/>
                   </BotIconContainer>
                 </LoadingBotContainer>
               </LoadingBotResponse>
