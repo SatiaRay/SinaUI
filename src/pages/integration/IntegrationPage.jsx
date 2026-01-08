@@ -1,18 +1,28 @@
 // EmbeddedScriptPage.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import Icon from '@components/ui/Icon';
 import { notify } from '@components/ui/toast';
-import { confirm } from '@components/ui/alert/confirmation';
-import AlertBox from '@components/integration/AlertBox';
 
 const EmbeddedScriptPage = () => {
+  const scriptValue = () => {
+    // Get the current host (window location)
+    const host = window.location.origin || 'https://test.com';
+
+    // Get access token from localStorage
+    const khanAccessToken = localStorage.getItem('khan-access-token');
+
+    // Build the script tag
+    const scriptTag = `<script src="${host}/bundle/chat-bundle.min.js" data-widget="chat" data-access-token="${khanAccessToken || ''}"></script>`;
+
+    return scriptTag;
+  };
+
   /**
    * Handle copy embed code
    */
   const handleCopyEmbedCode = () => {
-    const embedCode = `<script src="https://test.com" data-token="klajsdfl;kjsadf"></script>`;
-
+    const embedCode = scriptValue(); // Use the dynamic script value
+    
     navigator.clipboard
       .writeText(embedCode)
       .then(() => notify.success('کود تعبیه در کلیپ‌بورد کپی شد'))
@@ -61,10 +71,10 @@ const EmbeddedScriptPage = () => {
             <div className="mb-4 p-3 dark:bg-gray-900 bg-gray-200 rounded-md">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium dark:text-gray-300">
-                  توکن شما
+                  اسکریپت شما
                 </span>
               </div>
-              <code className="text-sm text-gray-400 break-all">code here</code>
+              <code className="text-sm text-gray-400 break-all">{scriptValue()}</code>
               <p className="text-xs text-gray-500 mt-2">
                 این توکن به صورت خودکار تولید شده و فقط برای شما قابل مشاهده است
               </p>
