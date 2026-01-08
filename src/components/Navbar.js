@@ -218,39 +218,6 @@ const ExpandableSidebar = ({
                     activePath={activePath}
                     isMobile={isMobile}
                   />
-                  {/* Settings button */}
-                  <button
-                    onClick={() => {
-                      onNavigate('/setting');
-                      // Only close sidebar on mobile when navigating to settings
-                      if (isMobile) {
-                        onToggle(false);
-                      }
-                    }}
-                    className={`flex mt-1 items-center gap-2 w-full text-right px-4 py-2 rounded-md text-sm font-medium transition-colors duration-500 whitespace-nowrap ${
-                      activePath === '/setting'
-                        ? 'bg-blue-600 text-white dark:bg-blue-700 dark:text-gray-100'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <Icon
-                      name="Settings"
-                      className={`w-4 h-4 ${
-                        activePath === '/setting'
-                          ? 'text-white dark:text-gray-100'
-                          : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white'
-                      }`}
-                    />
-                    <span
-                      className={`transition-all duration-500 ease-in-out ${
-                        showContent
-                          ? 'opacity-100 translate-x-0'
-                          : 'opacity-0 translate-x-4'
-                      }`}
-                    >
-                      تنظیمات
-                    </span>
-                  </button>
                 </div>
               ) : (
                 // Mini icons view - same icons, no re-render
@@ -275,21 +242,6 @@ const ExpandableSidebar = ({
                       </button>
                     );
                   })}
-                  {/* Settings icon in mini mode */}
-                  <button
-                    onClick={() => onNavigate('/setting')}
-                    className={`p-2 rounded-md transition-colors duration-500 ${
-                      activePath === '/setting'
-                        ? 'bg-blue-600 text-white dark:bg-blue-700 dark:text-gray-100'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
-                    }`}
-                    aria-label="تنظیمات"
-                    data-tooltip-id={`${sidebarId}-tooltip`}
-                    data-tooltip-content="تنظیمات"
-                    data-tooltip-place="left"
-                  >
-                    <Icon name="Settings" className="h-4 w-4" />
-                  </button>
                 </div>
               )}
             </nav>
@@ -456,7 +408,6 @@ const Navbar = ({ onSidebarCollapse }) => {
     { path: '/wizard', label: 'ویزاردها', icon: 'Sparkles' },
     { path: '/workflow', label: 'گردش کار', icon: 'Workflow' },
     { path: '/instruction', label: 'دستورالعمل‌ها', icon: 'BookOpen' },
-    { path: '/monitoring', label: 'مانیتورینگ', icon: 'Activity' },
   ];
 
   /**
