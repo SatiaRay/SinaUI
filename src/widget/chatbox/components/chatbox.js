@@ -2,9 +2,10 @@ import styled from 'styled-components';
 import Chat from '@components/chat/Chat';
 import { ChatProvider } from '@contexts/ChatContext';
 import { AuthProvider } from '@contexts/AuthContext';
-import Icon from '@components/ui/Icon';
 import { useState, useEffect, useRef } from 'react';
 import ChatSkeletonLoader from './chatSkeletonLoader';
+import { BotMessageSquare } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const Box = styled.div`
   position: fixed;
@@ -207,7 +208,7 @@ const ChatBox = (props) => {
                   setFullscreen(false);
                 }}
               >
-                <Icon name="X" size={20} />
+                <X size={20}/>
               </Close>
             )}
             <Title>چت‌بات سینا 🤖</Title>
@@ -242,7 +243,7 @@ const ChatBox = (props) => {
             if (window.innerWidth <= 768) setFullscreen(true);
           }}
         >
-          <Icon name="messageCircle" size={28} />
+          <BotMessageSquare size={28}/>
         </ChatBoxTrigger>
       )}
     </div>
