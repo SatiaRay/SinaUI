@@ -36,7 +36,6 @@ jobs:
         run: |
           echo "Staging deployed successfully!"
           echo "Deployed at: $(date)"
-
   build-widgets:
     runs-on: staging-server
     environment: staging
@@ -44,30 +43,81 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      
       - name: install PNPM
         run: npm i -g pnpm
+      
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Build static files
-        run: npm run build:widget
-        env:
-          CI: false
-          REACT_APP_NAME: ${{ vars.REACT_APP_NAME }}
-          REACT_APP_IDP_SERVICE: ${{ secrets.REACT_APP_IDP_SERVICE }}
-          REACT_APP_AI_SERVICE: ${{ secrets.REACT_APP_AI_SERVICE }}
-          REACT_APP_KNOWLEDGE_SERVICE: ${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}
-          REACT_APP_FORCE_WEBSOCKET_PROTOCOL: ${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL || 'wss' }}
+      
+      - name: Create .env.production file
+        run: |
+          echo "Creating .env.production file from GitHub Secrets/Vars..."
+          
+          # Write each variable separately
+          echo "REACT_APP_NAME=${{ vars.REACT_APP_NAME }}" > .env.production
+          echo "REACT_APP_IDP_SERVICE=${{ secrets.REACT_APP_IDP_SERVICE }}" >> .env.production
+          echo "REACT_APP_AI_SERVICE=${{ secrets.REACT_APP_AI_SERVICE }}" >> .env.production
+          echo "REACT_APP_KNOWLEDGE_SERVICE=${{ secrets.REACT_APP_KNOWLEDGE_SERVICE }}" >> .env.production
+          echo "REACT_APP_FORCE_WEBSOCKET_PROTOCOL=${{ secrets.REACT_APP_FORCE_WEBSOCKET_PROTOCOL || 'wss' }}" >> .env.production
+          echo "NODE_ENV=production" >> .env.production
+          
+          # Verify file creation (mask secrets in log)
+          echo ".env.production created with masked values:"
+          sed 's/=.*/=***/g' .env.production
+          
+      - name: Build widget files
+        run: |
+          echo "Building widget with rollup..."
+          npm run build:widget
+          
+          # Debug: show what was built
+          echo "Build output:"
+          ls -la build/ || echo "No build directory"
+          find . -name "*.min.js" -o -name "bundle" -type d 2>/dev/null | xargs ls -la || echo "No bundle files found"
+      
+      - name: Clean up .env.production file
+        run: |
+          echo "Cleaning up .env.production file..."
+          rm -f .env.production
+          echo "Verifying .env.production is removed:"
+          ls -la .env.production 2>/dev/null || echo ".env.production successfully removed"
+      
       - name: Deploy build to web directory
         run: |
-          cp -r build/bundle ${{ vars.ROOT_PATH }}
+          echo "Deploying widget bundle..."
+          
+          # Create target directory if it doesn't exist
+          mkdir -p ${{ vars.ROOT_PATH }}/bundle
+          
+          # Check what's in build/bundle and copy it
+          if [ -d "build/bundle" ]; then
+            echo "Copying from build/bundle..."
+            cp -r build/bundle/* ${{ vars.ROOT_PATH }}/bundle/
+            echo "Contents copied:"
+            ls -la ${{ vars.ROOT_PATH }}/bundle/
+          elif [ -d "public/bundle" ]; then
+            echo "Copying from public/bundle..."
+            cp -r public/bundle/* ${{ vars.ROOT_PATH }}/bundle/
+            echo "Contents copied:"
+            ls -la ${{ vars.ROOT_PATH }}/bundle/
+          else
+            echo "ERROR: No bundle directory found in build/ or public/"
+            echo "Available files:"
+            find . -name "*.js" -path "*/build/*" -o -path "*/public/*" 2>/dev/null | head -10
+            exit 1
+          fi
+      
       - name: Echo the result
         run: |
-          echo "Deployed successfully to staging"
-          echo "Deployed at: $(date)"
+          echo "Widget deployed successfully to staging!"
+          echo "Deployment timestamp: $(date)"
+          echo "Target directory: ${{ vars.ROOT_PATH }}/bundle/"
 
   release:
     name: Create GitHub Release
